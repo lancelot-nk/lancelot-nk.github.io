@@ -4121,26 +4121,7 @@ body {
     }
 }
 
-/* Preserve certification date indentation and styling */
-h2 + i {
-  display: block;
-  padding-left: 2rem; /* Indent more than h2's 1rem padding */
-  margin: 0.25rem 0 1rem 0; /* Reduced margins for tighter spacing */
-  color: #909498; /* Gray for metadata look */
-  font-size: clamp(0.6rem, 1.8vw, 0.8rem); /* Slightly smaller than h2 */
-  line-height: 1.4; /* Match mobile typography */
-}
-
-/* Mobile adjustments for certifications */
-@media screen and (max-width: 736px) {
-  h2 + i {
-    padding-left: 1.5rem; /* Slightly less indent on mobile */
-    font-size: clamp(0.4rem, 1.5vw, 0.65rem); /* Align closer to h2's 0.7rem */
-    margin: 0.2rem 0 0.8rem 0; /* Tighter spacing on mobile */
-  }
-}
-
-/* Footer styles - Apply side-by-side layout to all sections with vertical text alignment */
+/* Footer styles */
 #footer > section.split.contact {
   display: flex;
   flex-wrap: wrap;
@@ -4150,44 +4131,45 @@ h2 + i {
 }
 
 #footer > section.split.contact > section {
-  display: flex;
-  flex-direction: row; /* Place h3 and p/ul side by side */
-  align-items: flex-start; /* Vertically align text start points at the top */
-  justify-content: flex-start; /* Left-align content within section */
-  text-align: left; /* Left-align text */
-  width: auto; /* Allow natural width for side-by-side layout */
+  width: auto; /* Allow natural width */
   max-width: 25rem; /* Cap width for consistency */
   padding: 0 2rem;
   box-sizing: border-box;
 }
 
-#footer > section.split.contact > section > h3 {
-  margin-right: 1rem; /* Gap to prevent overlap with p/ul */
-  flex-shrink: 0; /* Prevent h3 from shrinking */
-  line-height: 1.5; /* Match typography for consistent vertical alignment */
-  margin-top: 0; /* Ensure no top margin disrupts alignment */
-  padding-top: 0; /* Ensure no padding disrupts alignment */
-}
-
-#footer > section.split.contact > section > p,
-#footer > section.split.contact > section > ul {
-  flex-grow: 1; /* Allow p or ul to take remaining space */
-  margin: 0; /* Remove default margins for clean alignment */
-  padding-top: 0; /* Ensure no padding disrupts alignment */
-  line-height: 1.5; /* Match h3 for consistent vertical alignment */
-}
-
-#footer > section.split.contact > section > ul.icons {
+#footer > section.split.contact > section .footer-item {
   display: flex;
-  align-items: flex-start; /* Align icons with text start point */
-  list-style: none; /* Remove bullets if present */
-  padding: 0;
-  margin: 0;
+  flex-direction: row;
+  align-items: flex-start; /* Align top of text boxes */
+  justify-content: flex-start; /* Left-align content */
+  text-align: left; /* Left-align text */
 }
 
-/* Limit Address content to 2 lines (only for .alt section) */
-#footer > section.split.contact > section.alt > p {
-  max-height: 3rem; /* Approximately 2 lines at line-height 1.5 */
+#footer > section.split.contact > section .footer-item > h3 {
+  margin-right: 1rem; /* Gap to prevent overlap */
+  flex-shrink: 0; /* Prevent h3 from shrinking */
+  line-height: 1.5; /* Consistent typography */
+  margin: 0; /* Remove default margins */
+  padding: 0; /* Remove default padding */
+}
+
+#footer > section.split.contact > section .footer-item > p,
+#footer > section.split.contact > section .footer-item > ul {
+  margin: 0; /* Remove default margins */
+  padding: 0; /* Remove default padding */
+  line-height: 1.5; /* Match h3 for vertical alignment */
+  vertical-align: top; /* Ensure text starts at the same point */
+}
+
+#footer > section.split.contact > section .footer-item > ul.icons {
+  display: flex;
+  align-items: flex-start; /* Align icons with text start */
+  list-style: none; /* Remove bullets */
+}
+
+/* Limit Address content to 2 lines */
+#footer > section.split.contact > section:nth-child(1) .footer-item > p {
+  max-height: 3rem; /* 2 lines at line-height 1.5 */
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
@@ -4202,35 +4184,55 @@ h2 + i {
   }
 
   #footer > section.split.contact > section {
-    flex-direction: row; /* Keep side by side */
-    justify-content: flex-start; /* Left-align content */
-    align-items: flex-start; /* Vertically align text start points */
-    text-align: left; /* Left-align text */
     width: 100%; /* Full width on mobile */
-    max-width: 20rem; /* Slightly smaller for mobile */
+    max-width: 20rem; /* Slightly smaller */
     padding: 0 1rem;
   }
 
-  #footer > section.split.contact > section > h3 {
-    margin-right: 0.5rem; /* Smaller gap on mobile */
+  #footer > section.split.contact > section .footer-item {
+    align-items: flex-start; /* Maintain vertical alignment */
+    justify-content: flex-start;
+    text-align: left;
+  }
+
+  #footer > section.split.contact > section .footer-item > h3 {
+    margin-right: 0.5rem; /* Smaller gap */
     line-height: 1.4; /* Match mobile typography */
   }
 
-  #footer > section.split.contact > section > p,
-  #footer > section.split.contact > section > ul {
-    text-align: left; /* Left-align p and ul content */
+  #footer > section.split.contact > section .footer-item > p,
+  #footer > section.split.contact > section .footer-item > ul {
     line-height: 1.4; /* Match mobile typography */
+    vertical-align: top;
   }
 
-  #footer > section.split.contact > section.alt > p {
+  #footer > section.split.contact > section .footer-item > ul.icons {
+    align-items: flex-start;
+  }
+
+  #footer > section.split.contact > section:nth-child(1) .footer-item > p {
     max-height: 2.8rem; /* Adjust for mobile line-height 1.4 */
     -webkit-line-clamp: 2;
   }
+}
 
-  #footer > section.split.contact > section > ul.icons {
-    display: flex;
-    align-items: flex-start; /* Align icons with text */
+/* Preserve certification date fix */
+h2 + i {
+  display: block;
+  padding-left: 2rem;
+  margin: 0.25rem 0 1rem 0;
+  color: #909498;
+  font-size: clamp(0.6rem, 1.8vw, 0.8rem);
+  line-height: 1.4;
+}
+
+@media screen and (max-width: 736px) {
+  h2 + i {
+    padding-left: 1.5rem;
+    font-size: clamp(0.4rem, 1.5vw, 0.65rem);
+    margin: 0.2rem 0 0.8rem 0;
   }
 }
+
 
 
