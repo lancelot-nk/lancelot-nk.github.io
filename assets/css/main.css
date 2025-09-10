@@ -4025,9 +4025,9 @@ body {
 }
 
 #main > .posts > article header.major > h2 {
-    font-size: clamp(0.65rem, 2.2vw, 0.95rem); /* Scaled for 2-line fit */
-    line-height: 1.3;
-    max-height: 2.47rem; /* 2 lines at line-height 1.3 * 0.95rem */
+    font-size: clamp(0.5rem, 1.8vw, 0.85rem); /* Reduced max to force 2 lines */
+    line-height: 1.2; /* Tighter for two-line fit */
+    max-height: 2.04rem; /* 2 lines at line-height 1.2 * 0.85rem */
     overflow: hidden;
     text-overflow: ellipsis;
     display: -webkit-box;
@@ -4039,6 +4039,7 @@ body {
     padding: 0.5rem; /* Padding for title box */
     box-sizing: border-box;
     flex-shrink: 0; /* Prevent title from shrinking */
+    word-break: break-word; /* Ensure wrapping for long words */
 }
 
 #main > .posts > article p {
@@ -4046,7 +4047,7 @@ body {
     line-height: 1.6;
     margin: 0 0 0.5rem 0;
     width: 100%;
-    text-align: left; /* Left-align description */
+    text-align: center; /* Center-align text within box */
     padding: 0 1rem; /* Padding for centered box */
     box-sizing: border-box;
     flex-grow: 1; /* Allow body to expand */
@@ -4070,8 +4071,8 @@ body {
     }
 
     #main > .posts > article header.major > h2 {
-        font-size: clamp(0.6rem, 2vw, 0.85rem);
-        max-height: 2.21rem;
+        font-size: clamp(0.45rem, 1.6vw, 0.75rem);
+        max-height: 1.8rem; /* Adjust for smaller font */
         padding: 0.4rem;
     }
 
@@ -4108,8 +4109,8 @@ body {
     }
 
     #main > .posts > article header.major > h2 {
-        font-size: clamp(0.55rem, 1.8vw, 0.8rem);
-        max-height: 2.08rem;
+        font-size: clamp(0.4rem, 1.5vw, 0.7rem);
+        max-height: 1.68rem; /* Adjust for smaller font */
         padding: 0.3rem;
     }
 
@@ -4119,6 +4120,7 @@ body {
         padding: 0 0.5rem;
     }
 }
+
 
 
 
