@@ -3969,7 +3969,7 @@ body {
     background-attachment: fixed; /* Keep background fixed for scrolling */
 }
 
-/* Standardize images, post sizes, and center text in main posts section */
+/* Standardize images, date, and text in main posts section */
 #main > .posts {
     display: flex;
     flex-wrap: wrap;
@@ -3981,7 +3981,7 @@ body {
 #main > .posts > article {
     width: 100%;
     max-width: 30rem; /* Fixed width for uniformity */
-    min-height: 30rem; /* Ensure enough space for vertical centering */
+    min-height: 32rem; /* Ensure space for vertical centering */
     padding: 2rem;
     box-sizing: border-box;
     border: solid 2px #eeeeee;
@@ -3990,20 +3990,37 @@ body {
     justify-content: center; /* Center content vertically */
     align-items: center; /* Center content horizontally */
     text-align: center; /* Center text horizontally */
+    position: relative; /* For absolute positioning of date */
 }
 
 #main > .posts > article .image {
-    width: 100%;
-    max-width: 30rem; /* Fixed width for images */
-    height: calc(30rem * 9 / 16); /* Fixed height for 16:9 aspect ratio (30rem * 9/16 ≈ 16.875rem) */
-    object-fit: cover; /* Zoom/crop images to fill the space while maintaining aspect ratio */
-    object-position: center; /* Center the image content */
+    width: 30rem; /* Fixed width for all images */
+    height: calc(30rem * 9 / 16); /* Fixed height for 16:9 (≈16.875rem) */
+    object-fit: cover; /* Zoom/crop to fill space, maintaining aspect ratio */
+    object-position: center; /* Center image content */
     display: block;
-    margin: 0 auto 1rem auto; /* Center and space below image */
+    margin: 0 auto 1rem auto; /* Center and space below */
 }
 
-#main > .posts > article h2 {
-    font-size: clamp(0.9rem, 3vw, 1.2rem); /* Responsive font size */
+#main > .posts > article header.major {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center header content */
+}
+
+#main > .posts > article header.major > .date {
+    font-size: clamp(0.6rem, 1.5vw, 0.8rem); /* Smaller date */
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem; /* Top-left with small padding */
+    margin: 0;
+    text-align: left;
+    color: #909498; /* Match footer text color for consistency */
+}
+
+#main > .posts > article header.major > h2 {
+    font-size: clamp(0.9rem, 3vw, 1.2rem);
     line-height: 1.4;
     max-height: 3.36rem; /* 2 lines at line-height 1.4 * 1.2rem */
     overflow: hidden;
@@ -4011,28 +4028,36 @@ body {
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
-    margin: 0 0 1rem 0;
-    width: 100%; /* Ensure consistent width for centering */
+    margin: 0.5rem 0 1rem 0;
+    width: 100%;
+    display: flex;
+    justify-content: center; /* Center title text */
+    align-items: center; /* Center title vertically */
+    padding: 0.5rem; /* Padding for title box */
+    box-sizing: border-box;
 }
 
 #main > .posts > article p {
     font-size: clamp(0.7rem, 2vw, 0.9rem);
     line-height: 1.5;
     margin: 0 0 1rem 0;
-    width: 100%; /* Ensure consistent width for centering */
+    width: 100%;
+    text-align: left; /* Left-align description */
+    padding: 0 1rem; /* Padding for centered box */
+    box-sizing: border-box;
 }
 
 /* Responsive adjustments */
 @media screen and (max-width: 980px) {
     #main > .posts > article {
         max-width: 25rem;
-        min-height: 25rem;
+        min-height: 28rem;
         padding: 1.5rem;
     }
 
     #main > .posts > article .image {
-        max-width: 25rem;
-        height: calc(25rem * 9 / 16); /* Maintain 16:9 aspect ratio */
+        width: 25rem;
+        height: calc(25rem * 9 / 16); /* Maintain 16:9 */
     }
 }
 
@@ -4044,22 +4069,30 @@ body {
 
     #main > .posts > article {
         max-width: 100%;
-        min-height: 20rem;
+        min-height: 24rem;
         padding: 1rem;
     }
 
     #main > .posts > article .image {
-        max-width: 100%;
-        height: calc(100% * 9 / 16); /* Maintain 16:9 aspect ratio */
+        width: 100%;
+        height: calc(100% * 9 / 16); /* Maintain 16:9 */
     }
 
-    #main > .posts > article h2 {
+    #main > .posts > article header.major > .date {
+        font-size: clamp(0.5rem, 1.2vw, 0.7rem);
+        top: 0.25rem;
+        left: 0.25rem;
+    }
+
+    #main > .posts > article header.major > h2 {
         font-size: clamp(0.8rem, 2.5vw, 1rem);
-        max-height: 2.8rem; /* Adjust for smaller font size */
+        max-height: 2.8rem; /* Adjust for smaller font */
+        padding: 0.25rem;
     }
 
     #main > .posts > article p {
         font-size: clamp(0.6rem, 1.8vw, 0.8rem);
+        padding: 0 0.5rem;
     }
 }
 
