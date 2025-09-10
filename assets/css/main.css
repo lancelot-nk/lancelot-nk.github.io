@@ -4140,72 +4140,96 @@ h2 + i {
   }
 }
 
-/* Footer styles for desktop */
-#footer {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 2rem 0;
-}
-
+/* Footer styles */
 #footer > section.split.contact {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center; /* Center textboxes */
-  gap: 1rem; /* Space between textboxes */
-  width: 100%;
-  max-width: 64rem; /* Constrain width to prevent stretching */
+  justify-content: center; /* Center all sections on the page */
+  align-items: stretch;
+  gap: 2rem; /* Spacing between sections */
 }
 
-#footer > section.split.contact > section,
-#footer > section.split.contact > section.alt {
-  flex: 0 0 auto;
-  width: 20rem; /* Fixed width for consistent textbox size */
-  max-width: calc(25% - 1rem); /* Desktop: four columns with gap */
-  padding: 1rem;
+#footer > section.split.contact > section {
+  display: flex;
+  flex-direction: row; /* Place h3 and p/ul side by side */
+  align-items: flex-start; /* Vertically align text start points at the top */
+  justify-content: flex-start; /* Left-align content within section */
+  text-align: left; /* Left-align text */
+  width: auto; /* Allow natural width for side-by-side layout */
+  max-width: 25rem; /* Cap width for consistency */
+  padding: 0 2rem;
   box-sizing: border-box;
-  text-align: left; /* Left-align text content */
+}
+
+#footer > section.split.contact > section > h3 {
+  margin-right: 1rem; /* Gap to prevent overlap with p/ul */
+  flex-shrink: 0; /* Prevent h3 from shrinking */
+  line-height: 1.5; /* Match typography for consistent vertical alignment */
+}
+
+#footer > section.split.contact > section > p,
+#footer > section.split.contact > section > ul {
+  flex-grow: 1; /* Allow p or ul to take remaining space */
+  margin: 0; /* Remove default margins */
+  line-height: 1.5; /* Match h3 for consistent vertical alignment */
+}
+
+#footer > section.split.contact > section > ul.icons {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start; /* Left-align content within textbox */
+  align-items: flex-start; /* Align icons with text start point */
 }
 
-#footer > section.split.contact > section > *,
-#footer > section.split.contact > section.alt > * {
-  text-align: left; /* Ensure h3, p, a are left-aligned */
-  width: 100%; /* Ensure text doesn’t overflow */
-  word-break: break-word; /* Prevent long URLs from overflowing */
-}
-
-#footer > section.split.contact > section ul.icons {
-  display: flex;
-  justify-content: flex-start; /* Left-align GitHub icon */
-  width: 100%;
-}
-
-/* Mobile adjustments for footer */
+/* Mobile adjustments */
 @media screen and (max-width: 980px) {
-  #footer > section.split.contact > section,
-  #footer > section.split.contact > section.alt {
-    width: 100%; /* Full-width for stacking */
-    max-width: 20rem; /* Constrain textbox width for centering */
-    margin: 0 auto; /* Center textboxes */
-    padding: 0.5rem 1rem; /* Vertical spacing, horizontal padding */
-    text-align: left;
-    align-items: flex-start;
+  #footer > section.split.contact {
+    gap: 1rem; /* Reduce gap between sections */
   }
 
-  #footer > section.split.contact > section > *,
-  #footer > section.split.contact > section.alt > * {
-    text-align: left;
-    width: 100%;
-    word-break: break-word;
+  #footer > section.split.contact > section {
+    flex-direction: row; /* Keep h3 and p/ul side by side */
+    justify-content: flex-start; /* Left-align content */
+    align-items: flex-start; /* Vertically align text start points */
+    text-align: left; /* Left-align text */
+    width: 100%; /* Full width on mobile */
+    max-width: 20rem; /* Slightly smaller for mobile */
+    padding: 0 1rem;
   }
 
-  #footer > section.split.contact > section ul.icons {
-    justify-content: flex-start; /* Left-align GitHub icon on mobile */
+  #footer > section.split.contact > section > h3 {
+    margin-right: 0.5rem; /* Smaller gap on mobile */
+    line-height: 1.4; /* Match mobile typography */
+  }
+
+  #footer > section.split.contact > section > p,
+  #footer > section.split.contact > section > ul {
+    text-align: left; /* Left-align p and ul content */
+    line-height: 1.4; /* Match mobile typography */
+  }
+
+  #footer > section.split.contact > section > ul.icons {
+    display: flex;
+    align-items: flex-start; /* Align icons with text */
   }
 }
+
+/* Preserve certification date indentation and styling */
+h2 + i {
+  display: block;
+  padding-left: 2rem; /* Indent more than h2's 1rem padding */
+  margin: 0.25rem 0 1rem 0; /* Reduced margins for tighter spacing */
+  color: #909498; /* Gray for metadata look */
+  font-size: clamp(0.6rem, 1.8vw, 0.8rem); /* Slightly smaller than h2 */
+  line-height: 1.4; /* Match mobile typography */
+}
+
+/* Mobile adjustments for certifications */
+@media screen and (max-width: 736px) {
+  h2 + i {
+    padding-left: 1.5rem; /* Slightly less indent on mobile */
+    font-size: clamp(0.4rem, 1.5vw, 0.65rem); /* Align closer to h2's 0.7rem */
+    margin: 0.2rem 0 0.8rem 0; /* Tighter spacing on mobile */
+  }
+}
+
 
 
