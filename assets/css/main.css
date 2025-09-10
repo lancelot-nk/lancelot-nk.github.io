@@ -4134,7 +4134,7 @@ body {
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	padding: 2rem;
+	padding: 2rem 2.5rem; /* Increased padding for web version */
 	box-sizing: border-box;
 }
 
@@ -4147,7 +4147,7 @@ body {
 .contact-table td {
 	text-align: left;
 	vertical-align: top;
-	padding: 0.75rem 1.5rem 0.75rem 0;
+	padding: 0.75rem 1.5rem 0.75rem 0.5rem; /* Added left padding to first column */
 	border-top: solid 1px #e2e2e2;
 }
 
@@ -4183,21 +4183,21 @@ body {
 @media screen and (max-width: 980px) {
 	#footer {
 		width: calc(100% - 2rem);
-		padding: 1.5rem;
+		padding: 1.5rem 2rem; /* Adjusted padding for medium screens */
 	}
 
 	.contact-table td {
-		padding: 0.6rem 1rem 0.6rem 0;
+		padding: 0.6rem 1rem 0.6rem 0.4rem; /* Adjusted left padding */
 	}
 }
 
 @media screen and (max-width: 736px) {
 	#footer {
-		padding: 1rem 1.5rem; /* Increased padding for mobile */
+		padding: 1rem 1.5rem; /* Consistent padding for mobile */
 	}
 
 	.contact-table td {
-		padding: 0.5rem 0.75rem 0.5rem 0;
+		padding: 0.5rem 0.75rem 0.5rem 0.3rem; /* Adjusted left padding */
 		font-size: 0.85rem; /* Slightly scaled down font size */
 	}
 }
@@ -4205,7 +4205,7 @@ body {
 @media screen and (max-width: 480px) {
 	#footer {
 		width: 100%;
-		padding: 1rem 1.25rem; /* Further increased padding for smaller screens */
+		padding: 1rem 1.25rem; /* Consistent padding for smaller screens */
 	}
 
 	.contact-table {
@@ -4213,7 +4213,7 @@ body {
 	}
 
 	.contact-table td {
-		padding: 0.4rem 0.75rem 0.4rem 0;
+		padding: 0.4rem 0.75rem 0.4rem 0.3rem; /* Adjusted left padding */
 		font-size: 0.75rem; /* Further scaled down font size */
 		word-break: break-word; /* Prevent text bleed */
 	}
@@ -4240,6 +4240,7 @@ h2 + i {
     margin: 0.2rem 0 0.8rem 0;
   }
 }
+
 
 
 
