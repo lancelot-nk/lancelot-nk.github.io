@@ -3969,7 +3969,7 @@ body {
     background-attachment: fixed; /* Keep background fixed for scrolling */
 }
 
-/* Standardize images, date, and text in main posts section */
+/* Standardize article boxes, images, date, and text in main posts section */
 #main > .posts {
     display: flex;
     flex-wrap: wrap;
@@ -3981,7 +3981,7 @@ body {
 #main > .posts > article {
     width: 100%;
     max-width: 30rem; /* Fixed width for uniformity */
-    min-height: 32rem; /* Ensure space for content */
+    height: 32rem; /* Fixed height for uniformity */
     padding: 2rem; /* Override default 4rem padding */
     box-sizing: border-box;
     border: solid 2px #eeeeee;
@@ -3991,14 +3991,15 @@ body {
     align-items: center; /* Center content horizontally */
     text-align: center; /* Center text horizontally */
     position: relative; /* For absolute positioning of date */
+    overflow: hidden; /* Prevent content overflow */
 }
 
 #main > .posts > article .image {
     width: calc(100% - 4rem); /* Fit within article padding */
-    height: calc((100% - 4rem) * 9 / 16); /* Maintain 16:9 ≈ 14.625rem at 26rem */
-    max-width: 24rem; /* Ensure fit within article (30rem - 4rem - borders) */
+    height: calc((100% - 4rem) * 9 / 16); /* Maintain 16:9 ≈ 13.5rem at 24rem */
+    max-width: 24rem; /* Ensure fit within article */
     max-height: calc(24rem * 9 / 16); /* ≈ 13.5rem */
-    object-fit: cover; /* Crop/zoom to fill space, maintaining aspect ratio */
+    object-fit: cover; /* Crop/zoom to fill space */
     object-position: center; /* Center image content */
     display: block;
     margin: 0 auto 1rem auto; /* Center and space below */
@@ -4022,9 +4023,9 @@ body {
 }
 
 #main > .posts > article header.major > h2 {
-    font-size: clamp(0.9rem, 3vw, 1.2rem);
+    font-size: clamp(0.7rem, 2.5vw, 1rem); /* Smaller range to ensure 2-line fit */
     line-height: 1.4;
-    max-height: 3.36rem; /* 2 lines at line-height 1.4 * 1.2rem */
+    max-height: 2.8rem; /* 2 lines at line-height 1.4 * 1rem */
     overflow: hidden;
     text-overflow: ellipsis;
     display: -webkit-box;
@@ -4040,20 +4041,21 @@ body {
 }
 
 #main > .posts > article p {
-    font-size: clamp(0.7rem, 2vw, 0.9rem);
+    font-size: clamp(0.6rem, 2vw, 0.8rem);
     line-height: 1.5;
     margin: 0 0 1rem 0;
     width: 100%;
     text-align: left; /* Left-align description */
     padding: 0 1rem; /* Padding for centered box */
     box-sizing: border-box;
+    overflow: hidden; /* Prevent description overflow */
 }
 
 /* Responsive adjustments */
 @media screen and (max-width: 980px) {
     #main > .posts > article {
         max-width: 25rem;
-        min-height: 28rem;
+        height: 28rem;
         padding: 1.5rem;
     }
 
@@ -4073,16 +4075,34 @@ body {
 
     #main > .posts > article {
         max-width: 100%;
-        min-height: 24rem;
+        height: 24rem;
         padding: 1rem;
     }
 
     #main > .posts > article .image {
         width: calc(100% - 2rem); /* Adjust for 1rem + 1rem padding */
         height: calc((100% - 2rem) * 9 / 16); /* Maintain 16:9 */
-        max-width: 18rem; /* Cap for smaller screens */
+        max-width: 18rem;
         max-height: calc(18rem * 9 / 16); /* ≈ 10.125rem */
     }
+
+    #main > .posts > article header.major > .date {
+        font-size: clamp(0.5rem, 1.2vw, 0.7rem);
+        top: 0.25rem;
+        left: 0.25rem;
+    }
+
+    #main > .posts > article header.major > h2 {
+        font-size: clamp(0.6rem, 2vw, 0.9rem);
+        max-height: 2.52rem; /* Adjust for smaller font */
+        padding: 0.25rem;
+    }
+
+    #main > .posts > article p {
+        font-size: clamp(0.5rem, 1.8vw, 0.7rem);
+        padding: 0 0.5rem;
+    }
+}
 
     #main > .posts > article header.major > .date {
         font-size: clamp(0.5rem, 1.2vw, 0.7rem);
@@ -4101,3 +4121,4 @@ body {
         padding: 0 0.5rem;
     }
 }
+
