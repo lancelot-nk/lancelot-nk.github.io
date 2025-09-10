@@ -3982,7 +3982,7 @@ body {
     width: 100%;
     max-width: 30rem; /* Fixed width for uniformity */
     min-height: 32rem; /* Ensure space for content */
-    padding: 2rem;
+    padding: 2rem; /* Override default 4rem padding */
     box-sizing: border-box;
     border: solid 2px #eeeeee;
     display: flex;
@@ -3994,8 +3994,10 @@ body {
 }
 
 #main > .posts > article .image {
-    width: 26rem; /* Fixed width to fit within article (30rem - 4rem padding) */
-    height: calc(26rem * 9 / 16); /* Fixed 16:9 height ≈ 14.625rem */
+    width: calc(100% - 4rem); /* Fit within article padding */
+    height: calc((100% - 4rem) * 9 / 16); /* Maintain 16:9 ≈ 14.625rem at 26rem */
+    max-width: 24rem; /* Ensure fit within article (30rem - 4rem - borders) */
+    max-height: calc(24rem * 9 / 16); /* ≈ 13.5rem */
     object-fit: cover; /* Crop/zoom to fill space, maintaining aspect ratio */
     object-position: center; /* Center image content */
     display: block;
@@ -4014,7 +4016,7 @@ body {
     position: absolute;
     top: 0.5rem;
     left: 0.5rem; /* Top-left with small padding */
-    margin: 0;
+    margin: 0; /* Override default margin-top: -2rem */
     text-align: left;
     color: #909498; /* Match footer text color */
 }
@@ -4056,8 +4058,10 @@ body {
     }
 
     #main > .posts > article .image {
-        width: 22rem; /* Adjust for 25rem - 3rem padding */
-        height: calc(22rem * 9 / 16); /* Maintain 16:9 ≈ 12.375rem */
+        width: calc(100% - 3rem); /* Adjust for 1.5rem + 1.5rem padding */
+        height: calc((100% - 3rem) * 9 / 16); /* Maintain 16:9 */
+        max-width: 22rem;
+        max-height: calc(22rem * 9 / 16); /* ≈ 12.375rem */
     }
 }
 
@@ -4074,8 +4078,10 @@ body {
     }
 
     #main > .posts > article .image {
-        width: 20rem; /* Fixed size for smaller screens */
-        height: calc(20rem * 9 / 16); /* Maintain 16:9 ≈ 11.25rem */
+        width: calc(100% - 2rem); /* Adjust for 1rem + 1rem padding */
+        height: calc((100% - 2rem) * 9 / 16); /* Maintain 16:9 */
+        max-width: 18rem; /* Cap for smaller screens */
+        max-height: calc(18rem * 9 / 16); /* ≈ 10.125rem */
     }
 
     #main > .posts > article header.major > .date {
