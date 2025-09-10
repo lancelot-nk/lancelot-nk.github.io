@@ -4121,74 +4121,99 @@ body {
     }
 }
 
-/* Footer styles */
+/* Footer */
 #footer {
-  background-color: #f5f5f5;
-  color: #909498;
-  cursor: default;
-  margin: 0 auto;
-  width: calc(100% - 4rem);
-  max-width: 72rem;
-  z-index: 2;
-  padding: 2rem;
-  box-sizing: border-box;
-  display: flex;
-  justify-content: center;
-  align-items: stretch;
+	background-color: #f5f5f5;
+	color: #909498;
+	cursor: default;
+	position: relative;
+	margin: 0 auto;
+	width: calc(100% - 4rem);
+	max-width: 72rem;
+	z-index: 2;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	padding: 2rem;
+	box-sizing: border-box;
 }
 
-#footer > section {
-  flex: 1 1 50%;
-  max-width: 50%;
-  padding: 1rem 2rem;
-  border-left: solid 2px #e2e2e2;
-  text-align: left;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
+.contact-table {
+	width: auto;
+	border-collapse: collapse;
+	max-width: 100%;
 }
 
-#footer > section:first-child {
-  border-left: none;
-  padding-left: 0;
+.contact-table td {
+	text-align: left;
+	vertical-align: top;
+	padding: 0.75rem 1.5rem 0.75rem 0;
+	border-top: solid 1px #e2e2e2;
 }
 
-#footer > section:nth-child(1) p {
-  max-height: 3rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  line-height: 1.5;
-  margin: 0;
+.contact-table tr:first-child td {
+	border-top: none;
 }
 
-#footer > section > * {
-  margin: 0.5rem 0;
+.contact-table td:first-child {
+	font-weight: bold;
+	white-space: nowrap;
+	min-width: 8rem;
 }
 
+.contact-table td:last-child {
+	width: 100%;
+}
+
+.contact-table ul {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.contact-table ul li {
+	display: inline-block;
+}
+
+/* Responsive adjustments */
 @media screen and (max-width: 980px) {
-  #footer {
-    width: calc(100% - 2rem);
-    padding: 1rem;
-    flex-direction: column;
-  }
-  #footer > section {
-    flex: 1 1 100%;
-    max-width: 100%;
-    padding: 1rem 0;
-    border-left: none;
-    border-top: solid 2px #e2e2e2;
-  }
-  #footer > section:first-child {
-    border-top: none;
-    padding-top: 0;
-  }
-  #footer > section:nth-child(1) p {
-    max-height: 2.8rem;
-  }
+	#footer {
+		width: calc(100% - 2rem);
+		padding: 1.5rem;
+	}
+
+	.contact-table td {
+		padding: 0.6rem 1rem 0.6rem 0;
+	}
+}
+
+@media screen and (max-width: 736px) {
+	#footer {
+		padding: 1rem;
+	}
+
+	.contact-table td {
+		padding: 0.5rem 0.75rem 0.5rem 0;
+	}
+}
+
+@media screen and (max-width: 480px) {
+	#footer {
+		width: 100%;
+		padding: 1rem 0.5rem;
+	}
+
+	.contact-table {
+		width: 100%;
+	}
+
+	.contact-table td {
+		padding: 0.4rem 0.5rem 0.4rem 0;
+	}
+
+	.contact-table td:first-child {
+		min-width: 6rem;
+	}
 }
 
 /* Preserve certification date fix */
