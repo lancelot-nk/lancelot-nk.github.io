@@ -3969,7 +3969,7 @@ body {
     background-attachment: fixed; /* Keep background fixed for scrolling */
 }
 
-/* Standardize images, post sizes, and title text in main posts section */
+/* Standardize images, post sizes, and center text in main posts section */
 #main > .posts {
     display: flex;
     flex-wrap: wrap;
@@ -3981,23 +3981,29 @@ body {
 #main > .posts > article {
     width: 100%;
     max-width: 30rem; /* Fixed width for uniformity */
+    min-height: 30rem; /* Ensure enough space for vertical centering */
     padding: 2rem;
     box-sizing: border-box;
     border: solid 2px #eeeeee;
-    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Center content vertically */
+    align-items: center; /* Center content horizontally */
+    text-align: center; /* Center text horizontally */
 }
 
 #main > .posts > article .image {
     width: 100%;
-    max-width: 30rem; /* Match article width */
-    aspect-ratio: 16 / 9; /* Enforce 1920x1080 (16:9) aspect ratio */
-    object-fit: cover; /* Scale image to cover while maintaining aspect ratio */
+    max-width: 30rem; /* Fixed width for images */
+    height: calc(30rem * 9 / 16); /* Fixed height for 16:9 aspect ratio (30rem * 9/16 ≈ 16.875rem) */
+    object-fit: cover; /* Zoom/crop images to fill the space while maintaining aspect ratio */
+    object-position: center; /* Center the image content */
     display: block;
     margin: 0 auto 1rem auto; /* Center and space below image */
 }
 
 #main > .posts > article h2 {
-    font-size: clamp(0.9rem, 3vw, 1.2rem); /* Smaller font for responsiveness */
+    font-size: clamp(0.9rem, 3vw, 1.2rem); /* Responsive font size */
     line-height: 1.4;
     max-height: 3.36rem; /* 2 lines at line-height 1.4 * 1.2rem */
     overflow: hidden;
@@ -4006,17 +4012,27 @@ body {
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     margin: 0 0 1rem 0;
+    width: 100%; /* Ensure consistent width for centering */
+}
+
+#main > .posts > article p {
+    font-size: clamp(0.7rem, 2vw, 0.9rem);
+    line-height: 1.5;
+    margin: 0 0 1rem 0;
+    width: 100%; /* Ensure consistent width for centering */
 }
 
 /* Responsive adjustments */
 @media screen and (max-width: 980px) {
     #main > .posts > article {
         max-width: 25rem;
+        min-height: 25rem;
         padding: 1.5rem;
     }
 
     #main > .posts > article .image {
         max-width: 25rem;
+        height: calc(25rem * 9 / 16); /* Maintain 16:9 aspect ratio */
     }
 }
 
@@ -4028,15 +4044,22 @@ body {
 
     #main > .posts > article {
         max-width: 100%;
+        min-height: 20rem;
         padding: 1rem;
     }
 
     #main > .posts > article .image {
         max-width: 100%;
+        height: calc(100% * 9 / 16); /* Maintain 16:9 aspect ratio */
     }
 
     #main > .posts > article h2 {
         font-size: clamp(0.8rem, 2.5vw, 1rem);
         max-height: 2.8rem; /* Adjust for smaller font size */
     }
+
+    #main > .posts > article p {
+        font-size: clamp(0.6rem, 1.8vw, 0.8rem);
+    }
 }
+
