@@ -4245,7 +4245,7 @@ h2 + i {
 #main .posts article h2 {
 	font-size: 1.25rem; /* Base font size */
 	line-height: 1.4; /* Line height for two lines */
-	max-height: 3.2rem; /* Increased to prevent truncation */
+	max-height: 3.4rem; /* Increased to ensure full text visibility */
 	overflow: hidden; /* Prevent overflow */
 	text-overflow: ellipsis; /* Add ellipsis for overflow text */
 	display: -webkit-box; /* For multi-line truncation */
@@ -4253,27 +4253,26 @@ h2 + i {
 	-webkit-box-orient: vertical; /* Vertical box orientation for truncation */
 	box-sizing: border-box; /* Ensure padding/margins don't affect height */
 	white-space: normal; /* Allow text to wrap naturally within two lines */
-	margin: 0.5rem 0 2.5rem 0; /* Maintain increased bottom margin */
-	padding: 0.5rem 0; /* Add padding to expand text box */
+	margin: 0.5rem 0 1rem 0; /* Reduced bottom margin to avoid overlap */
 	text-align: center; /* Center-align the text */
 }
 
-/* Article Header Container */
-#main .posts article header {
-	padding: 1rem 0; /* Add padding to ensure space for h2 */
+/* Article Image Section */
+#main .posts article .image.fit {
+	margin-top: 1.5rem; /* Add margin to create space above image */
 }
 
 /* Article Container */
 #main .posts article {
-	padding: 2rem 1.5rem 1.5rem 1.5rem; /* Increased top padding */
-	min-height: 28rem; /* Maintain increased height */
+	padding: 1rem; /* Moderate padding */
+	min-height: 22rem; /* Moderate height to fit content */
 	box-sizing: border-box;
 }
 
 /* Fallback for older browsers without -webkit-line-clamp */
 #main .posts article h2:not(:-webkit-any()) {
 	display: block;
-	max-height: 3.2rem; /* Match increased max-height */
+	max-height: 3.4rem; /* Match increased max-height */
 	overflow: hidden;
 	text-align: center; /* Center-align fallback */
 }
@@ -4282,18 +4281,38 @@ h2 + i {
 @media screen and (max-width: 980px) {
 	#main .posts article h2 {
 		font-size: 1.1rem; /* Scale down font size */
-		max-height: 2.8rem; /* Adjust max height */
-		margin: 0.5rem 0 2rem 0; /* Maintain margin */
-		padding: 0.4rem 0; /* Adjusted padding */
+		max-height: 3rem; /* Adjust max height */
+		margin: 0.5rem 0 0.8rem 0; /* Adjusted margin */
 	}
 
-	#main .posts article header {
-		padding: 0.8rem 0; /* Adjusted padding */
+	#main .posts article .image.fit {
+		margin-top: 1.2rem; /* Adjusted margin */
 	}
 
 	#main .posts article {
-		padding: 1.5rem 1.2rem 1.2rem 1.2rem; /* Adjusted padding */
-		min-height: 26rem; /* Adjusted height */
+		padding: 0.8rem; /* Adjusted padding */
+		min-height: 20rem; /* Adjusted height */
+	}
+
+	#main .posts article h2:not(:-webkit-any()) {
+		max-height: 3rem;
+	}
+}
+
+@media screen and (max-width: 736px) {
+	#main .posts article h2 {
+		font-size: 0.95rem; /* Further scale down */
+		max-height: 2.8rem; /* Adjust max height */
+		margin: 0.5rem 0 0.6rem 0; /* Adjusted margin */
+	}
+
+	#main .posts article .image.fit {
+		margin-top: 1rem; /* Adjusted margin */
+	}
+
+	#main .posts article {
+		padding: 0.7rem; /* Adjusted padding */
+		min-height: 18rem; /* Adjusted height */
 	}
 
 	#main .posts article h2:not(:-webkit-any()) {
@@ -4301,47 +4320,24 @@ h2 + i {
 	}
 }
 
-@media screen and (max-width: 736px) {
+@media screen and (max-width: 480px) {
 	#main .posts article h2 {
-		font-size: 0.95rem; /* Further scale down */
+		font-size: 0.85rem; /* Smallest font size */
 		max-height: 2.6rem; /* Adjust max height */
-		margin: 0.5rem 0 1.5rem 0; /* Adjusted margin */
-		padding: 0.3rem 0; /* Adjusted padding */
+		margin: 0.5rem 0 0.5rem 0; /* Minimal margin */
 	}
 
-	#main .posts article header {
-		padding: 0.6rem 0; /* Adjusted padding */
+	#main .posts article .image.fit {
+		margin-top: 0.8rem; /* Minimal margin */
 	}
 
 	#main .posts article {
-		padding: 1.2rem 1rem 1rem 1rem; /* Adjusted padding */
-		min-height: 24rem; /* Adjusted height */
+		padding: 0.6rem; /* Minimal padding */
+		min-height: 16rem; /* Minimal height */
 	}
 
 	#main .posts article h2:not(:-webkit-any()) {
 		max-height: 2.6rem;
-	}
-}
-
-@media screen and (max-width: 480px) {
-	#main .posts article h2 {
-		font-size: 0.85rem; /* Smallest font size */
-		max-height: 2.4rem; /* Adjust max height */
-		margin: 0.5rem 0 1.2rem 0; /* Adjusted margin */
-		padding: 0.2rem 0; /* Minimal padding */
-	}
-
-	#main .posts article header {
-		padding: 0.5rem 0; /* Minimal padding */
-	}
-
-	#main .posts article {
-		padding: 1rem 0.8rem 0.8rem 0.8rem; /* Minimal padding */
-		min-height: 22rem; /* Minimal height */
-	}
-
-	#main .posts article h2:not(:-webkit-any()) {
-		max-height: 2.4rem;
 	}
 }
 
