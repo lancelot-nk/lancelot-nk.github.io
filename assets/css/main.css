@@ -4121,19 +4121,31 @@ body {
     }
 }
 
-/* Footer styles */
-#footer > section.split.contact {
+/* Footer */
+#footer {
+  color: rgba(255, 255, 255, 0.5);
+  position: relative;
+  margin: 0;
+  padding: 3rem 2rem 2rem 2rem;
+}
+
+#footer > section {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+}
+
+#footer > section.split {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center; /* Center all sections on the page */
+  justify-content: center;
   align-items: stretch;
-  gap: 2rem; /* Spacing between sections */
 }
 
 #footer > section.split.contact > section {
-  width: auto; /* Allow natural width */
-  max-width: 25rem; /* Cap width for consistency */
   padding: 0 2rem;
+  width: auto;
+  max-width: 25rem;
   box-sizing: border-box;
 }
 
@@ -4149,14 +4161,14 @@ body {
   margin-right: 1rem; /* Gap to prevent overlap */
   flex-shrink: 0; /* Prevent h3 from shrinking */
   line-height: 1.5; /* Consistent typography */
-  margin: 0; /* Remove default margins */
-  padding: 0; /* Remove default padding */
+  margin: 0;
+  padding: 0;
 }
 
 #footer > section.split.contact > section .footer-item > p,
 #footer > section.split.contact > section .footer-item > ul {
-  margin: 0; /* Remove default margins */
-  padding: 0; /* Remove default padding */
+  margin: 0;
+  padding: 0;
   line-height: 1.5; /* Match h3 for vertical alignment */
   vertical-align: top; /* Ensure text starts at the same point */
 }
@@ -4164,7 +4176,9 @@ body {
 #footer > section.split.contact > section .footer-item > ul.icons {
   display: flex;
   align-items: flex-start; /* Align icons with text start */
-  list-style: none; /* Remove bullets */
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
 /* Limit Address content to 2 lines */
@@ -4179,14 +4193,10 @@ body {
 
 /* Mobile adjustments */
 @media screen and (max-width: 980px) {
-  #footer > section.split.contact {
-    gap: 1rem; /* Reduce gap between sections */
-  }
-
   #footer > section.split.contact > section {
-    width: 100%; /* Full width on mobile */
-    max-width: 20rem; /* Slightly smaller */
     padding: 0 1rem;
+    width: 100%;
+    max-width: 20rem;
   }
 
   #footer > section.split.contact > section .footer-item {
@@ -4233,6 +4243,7 @@ h2 + i {
     margin: 0.2rem 0 0.8rem 0;
   }
 }
+
 
 
 
