@@ -3418,12 +3418,8 @@ table {
 
   }
 
-/* Footer */
-
+/* Footer (lower contact section - centered alignment) */
 #footer {
-  display: -moz-flex;
-  display: -webkit-flex;
-  display: -ms-flex;
   display: flex;
   background-color: #f5f5f5;
   color: #909498;
@@ -3433,192 +3429,166 @@ table {
   width: calc(100% - 4rem);
   max-width: 72rem;
   z-index: 2;
+  justify-content: center; /* Center the entire footer */
+  align-items: center;
+  flex-direction: column; /* Stack sections vertically for better mobile alignment */
+  padding: 2rem;
+  box-sizing: border-box;
 }
 
+#footer > section {
+  flex-basis: auto; /* Allow natural sizing instead of fixed 50% */
+  flex-grow: 1;
+  flex-shrink: 1;
+  width: 100%;
+  max-width: 40rem; /* Constrain width for centering */
+  margin: 0 auto 2rem auto; /* Center each section */
+  padding: 2rem;
+  border-left: none; /* Remove left border for vertical stack */
+  border-top: solid 2px #e2e2e2; /* Add top border for separation */
+  text-align: center; /* Center text and icons */
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+#footer > section:first-child {
+  border-top: 0;
+  margin-top: 0;
+}
+
+#footer > section.split {
+  display: flex;
+  flex-direction: column; /* Stack contact items vertically */
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  width: 100%;
+  max-width: 40rem;
+  margin: 0 auto;
+}
+
+#footer > section.split > section {
+  display: flex;
+  flex-direction: row; /* Horizontal for icon + text */
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 2rem;
+  border-top: solid 2px #e2e2e2;
+  width: 100%;
+  text-align: left; /* Left-align text within row for readability */
+  gap: 1rem;
+}
+
+#footer > section.split > section:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+#footer > section.split > section:last-child {
+  padding-bottom: 0;
+}
+
+#footer > section.split.contact > section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 2rem;
+  gap: 1rem;
+}
+
+#footer > section.split.contact > section > * {
+  margin: 0;
+  text-align: center;
+}
+
+#footer > section.split.contact > section > :first-child {
+  flex-shrink: 0;
+  flex-grow: 0;
+  width: auto;
+  font-size: 1.5rem; /* Icon size */
+  color: #18bfef;
+}
+
+#footer > section.split.contact > section > :last-child {
+  flex-shrink: 1;
+  flex-grow: 1;
+  text-align: center;
+}
+
+#footer > section.split.contact > section.alt {
+  align-items: flex-start;
+  justify-content: center;
+}
+
+#footer > section.split.contact > section.alt > :last-child {
+  margin-top: 0;
+}
+
+/* Responsive adjustments for footer */
+@media screen and (max-width: 980px) {
+  #footer {
+    display: flex;
+    flex-direction: column;
+    width: calc(100% - 2rem);
+    padding: 1rem;
+  }
+
   #footer > section {
-    -moz-flex-basis: 50%;
-    -webkit-flex-basis: 50%;
-    -ms-flex-basis: 50%;
-    flex-basis: 50%;
-    -moz-flex-grow: 1;
-    -webkit-flex-grow: 1;
-    -ms-flex-grow: 1;
-    flex-grow: 1;
-    -moz-flex-shrink: 1;
-    -webkit-flex-shrink: 1;
-    -ms-flex-shrink: 1;
-    flex-shrink: 1;
-    padding: 4rem 4rem 2rem 4rem ;
-    border-left: solid 2px #e2e2e2;
+    border-top: solid 2px #e2e2e2;
+    margin: 0 auto 1rem auto;
+    padding: 1.5rem;
+    max-width: 100%;
   }
 
-    #footer > section:first-child {
-      border-left: 0;
-    }
-
-    #footer > section.split {
-      display: -moz-flex;
-      display: -webkit-flex;
-      display: -ms-flex;
-      display: flex;
-      -moz-flex-direction: column;
-      -webkit-flex-direction: column;
-      -ms-flex-direction: column;
-      flex-direction: column;
-      padding: 0;
-    }
-
-      #footer > section.split > section {
-        padding: 3rem 4rem 1rem 4rem ;
-        border-top: solid 2px #e2e2e2;
-      }
-
-        #footer > section.split > section:first-child {
-          padding: 5rem 4rem 1rem 4rem ;
-          border-top: 0;
-        }
-
-        #footer > section.split > section:last-child {
-          padding: 3rem 4rem 3rem 4rem ;
-        }
-
-      #footer > section.split.contact > section {
-        display: -moz-flex;
-        display: -webkit-flex;
-        display: -ms-flex;
-        display: flex;
-        -moz-align-items: center;
-        -webkit-align-items: center;
-        -ms-align-items: center;
-        align-items: center;
-        padding: 3.15rem 4rem;
-      }
-
-        #footer > section.split.contact > section > * {
-          margin-bottom: 0;
-        }
-
-        #footer > section.split.contact > section > :first-child {
-          -moz-flex-shrink: 0;
-          -webkit-flex-shrink: 0;
-          -ms-flex-shrink: 0;
-          flex-shrink: 0;
-          -moz-flex-grow: 0;
-          -webkit-flex-grow: 0;
-          -ms-flex-grow: 0;
-          flex-grow: 0;
-          width: 6rem;
-        }
-
-        #footer > section.split.contact > section > :last-child {
-          -moz-flex-shrink: 1;
-          -webkit-flex-shrink: 1;
-          -ms-flex-shrink: 1;
-          flex-shrink: 1;
-          -moz-flex-grow: 1;
-          -webkit-flex-grow: 1;
-          -ms-flex-grow: 1;
-          flex-grow: 1;
-        }
-
-        #footer > section.split.contact > section:first-child {
-          padding: 4rem 4rem 3rem 4rem;
-        }
-
-        #footer > section.split.contact > section:last-child {
-          padding: 3rem 4rem 4rem 4rem;
-        }
-
-        #footer > section.split.contact > section.alt {
-          -moz-align-items: -moz-flex-start;
-          -webkit-align-items: -webkit-flex-start;
-          -ms-align-items: -ms-flex-start;
-          align-items: flex-start;
-        }
-
-          #footer > section.split.contact > section.alt > :last-child {
-            margin-top: -0.325rem;
-          }
-
-  @media screen and (max-width: 980px) {
-
-    #footer {
-      display: block;
-    }
-
-      #footer > section {
-        border-top: solid 2px #e2e2e2;
-      }
-
-        #footer > section:first-child {
-          border-top: 0;
-        }
-
-        #footer > section.split > section {
-          padding: 4rem 4rem 2rem 4rem ;
-        }
-
-          #footer > section.split > section:first-child {
-            padding: 4rem 4rem 2rem 4rem ;
-          }
-
-          #footer > section.split > section:last-child {
-            padding: 4rem 4rem 2rem 4rem ;
-          }
-
-        #footer > section.split.contact > section {
-          padding: 4rem;
-        }
-
-          #footer > section.split.contact > section:first-child {
-            padding: 4rem;
-          }
-
-          #footer > section.split.contact > section:last-child {
-            padding: 4rem;
-          }
-
+  #footer > section:first-child {
+    border-top: 0;
   }
 
-  @media screen and (max-width: 736px) {
+  #footer > section.split.contact > section {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 1rem;
+  }
+}
 
-    #footer > section {
-      padding: 2rem 2rem 0.1rem 2rem ;
-    }
-
-      #footer > section.split > section {
-        padding: 2rem 2rem 0.1rem 2rem ;
-      }
-
-        #footer > section.split > section:first-child {
-          padding: 2rem 2rem 0.1rem 2rem ;
-        }
-
-        #footer > section.split > section:last-child {
-          padding: 2rem 2rem 0.1rem 2rem ;
-        }
-
-      #footer > section.split.contact > section {
-        padding: 2rem;
-      }
-
-        #footer > section.split.contact > section:first-child {
-          padding: 2rem;
-        }
-
-        #footer > section.split.contact > section:last-child {
-          padding: 2rem;
-        }
-
+@media screen and (max-width: 736px) {
+  #footer {
+    width: 100%;
+    padding: 1rem;
   }
 
-  @media screen and (max-width: 480px) {
-
-    #footer {
-      width: 100%;
-    }
-
+  #footer > section {
+    padding: 1rem;
+    margin: 0 0 1rem 0;
   }
+
+  #footer > section.split.contact > section {
+    padding: 0.75rem;
+    gap: 0.5rem;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  #footer {
+    width: 100%;
+  }
+
+  ul.actions {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  ul.actions li a {
+    width: 100%;
+    max-width: 200px;
+    text-align: center;
+  }
+}
 
 #copyright {
   color: #ffffff;
@@ -3924,4 +3894,5 @@ table {
   }
 
 }
+
 
