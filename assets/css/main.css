@@ -4165,6 +4165,10 @@ body {
 	width: 100%;
 }
 
+.contact-table td:last-child a {
+	color: #1e90ff; /* Lighter hyperlink blue */
+}
+
 .contact-table ul {
 	margin: 0;
 	padding: 0;
@@ -4194,6 +4198,7 @@ body {
 
 	.contact-table td {
 		padding: 0.5rem 0.75rem 0.5rem 0;
+		font-size: 0.9rem; /* Scale down font size */
 	}
 }
 
@@ -4209,6 +4214,8 @@ body {
 
 	.contact-table td {
 		padding: 0.4rem 0.5rem 0.4rem 0;
+		font-size: 0.8rem; /* Further scale down font size */
+		word-break: break-word; /* Prevent text bleed */
 	}
 
 	.contact-table td:first-child {
@@ -4233,6 +4240,7 @@ h2 + i {
     margin: 0.2rem 0 0.8rem 0;
   }
 }
+
 
 
 
