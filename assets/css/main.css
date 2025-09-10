@@ -4241,6 +4241,41 @@ h2 + i {
   }
 }
 
+/* Article Headers in Main Section */
+#main .posts article h2 {
+	font-size: 1.25rem; /* Base font size */
+	line-height: 1.4; /* Line height for two lines */
+	max-height: 2.8rem; /* Max height for two lines (2 * line-height) */
+	overflow: hidden; /* Prevent overflow */
+	text-overflow: ellipsis; /* Add ellipsis for overflow text */
+	display: -webkit-box; /* For multi-line truncation */
+	-webkit-line-clamp: 2; /* Limit to two lines */
+	-webkit-box-orient: vertical; /* Vertical box orientation for truncation */
+	margin: 0.5rem 0; /* Consistent spacing */
+}
+
+/* Responsive adjustments for article titles */
+@media screen and (max-width: 980px) {
+	#main .posts article h2 {
+		font-size: 1.1rem; /* Scale down font size */
+		max-height: 2.6rem; /* Adjust max height for two lines */
+	}
+}
+
+@media screen and (max-width: 736px) {
+	#main .posts article h2 {
+		font-size: 1rem; /* Further scale down font size */
+		max-height: 2.4rem; /* Adjust max height for two lines */
+	}
+}
+
+@media screen and (max-width: 480px) {
+	#main .posts article h2 {
+		font-size: 0.9rem; /* Smallest font size for mobile */
+		max-height: 2.2rem; /* Adjust max height for two lines */
+	}
+}
+
 
 
 
