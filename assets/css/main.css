@@ -3987,18 +3987,16 @@ body {
     border: solid 2px #eeeeee;
     display: flex;
     flex-direction: column;
-    justify-content: center; /* Center content vertically */
+    justify-content: flex-start; /* Align content from top */
     align-items: center; /* Center content horizontally */
     text-align: center; /* Center text horizontally */
     position: relative; /* For absolute positioning of date */
 }
 
 #main > .posts > article .image {
-    width: calc(100% - 4rem); /* Fit within article, accounting for 2rem + 2rem padding */
-    height: calc((100% - 4rem) * 9 / 16); /* Maintain 16:9 aspect ratio */
-    max-width: 26rem; /* Ensure image fits within article (30rem - 4rem padding) */
-    max-height: calc(26rem * 9 / 16); /* 16:9 height ≈ 14.625rem */
-    object-fit: cover; /* Zoom/crop to fill space, maintaining aspect ratio */
+    width: 26rem; /* Fixed width to fit within article (30rem - 4rem padding) */
+    height: calc(26rem * 9 / 16); /* Fixed 16:9 height ≈ 14.625rem */
+    object-fit: cover; /* Crop/zoom to fill space, maintaining aspect ratio */
     object-position: center; /* Center image content */
     display: block;
     margin: 0 auto 1rem auto; /* Center and space below */
@@ -4058,8 +4056,8 @@ body {
     }
 
     #main > .posts > article .image {
-        max-width: calc(25rem - 3rem); /* Adjust for 1.5rem + 1.5rem padding */
-        max-height: calc((25rem - 3rem) * 9 / 16);
+        width: 22rem; /* Adjust for 25rem - 3rem padding */
+        height: calc(22rem * 9 / 16); /* Maintain 16:9 ≈ 12.375rem */
     }
 }
 
@@ -4077,9 +4075,9 @@ body {
 
     #main > .posts > article .image {
         width: calc(100% - 2rem); /* Adjust for 1rem + 1rem padding */
-        height: calc((100% - 2rem) * 9 / 16);
-        max-width: calc(100% - 2rem);
-        max-height: calc((100% - 2rem) * 9 / 16);
+        height: calc((100% - 2rem) * 9 / 16); /* Maintain 16:9 */
+        max-width: 20rem; /* Cap for smaller screens */
+        max-height: calc(20rem * 9 / 16); /* ≈ 11.25rem */
     }
 
     #main > .posts > article header.major > .date {
@@ -4099,5 +4097,3 @@ body {
         padding: 0 0.5rem;
     }
 }
-
-
