@@ -3908,7 +3908,7 @@ table {
     margin: 0;
 }
 
-/* Style Full Project and View All buttons in posts section */
+/* Style Full Project and View All buttons in posts section with centered text */
 #main > .posts ul.actions {
     list-style: none;
     padding: 0;
@@ -3925,8 +3925,11 @@ table {
 }
 
 #main > .posts ul.actions li a {
-    display: inline-block;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     padding: 0.5rem 1rem;
+    min-height: 2.5rem; /* Ensure consistent button height */
     background-color: #18bfef;
     color: #ffffff;
     border: solid 2px #18bfef;
@@ -3944,3 +3947,4 @@ table {
     color: #18bfef;
     border-color: #18bfef;
 }
+
