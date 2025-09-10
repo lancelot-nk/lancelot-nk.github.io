@@ -3908,3 +3908,39 @@ table {
     margin: 0;
 }
 
+/* Style Full Project and View All buttons in posts section */
+#main > .posts ul.actions {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+#main > .posts ul.actions li {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#main > .posts ul.actions li a {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background-color: #18bfef;
+    color: #ffffff;
+    border: solid 2px #18bfef;
+    border-radius: 4px;
+    text-decoration: none;
+    font-family: "Source Sans Pro", Helvetica, sans-serif;
+    font-weight: 900;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+}
+
+#main > .posts ul.actions li a:hover {
+    background-color: #ffffff;
+    color: #18bfef;
+    border-color: #18bfef;
+}
