@@ -3948,3 +3948,95 @@ table {
     border-color: #18bfef;
 }
 
+/* Ensure background image covers entire viewport on all pages without side white bars */
+body {
+    padding: 0; /* Remove padding to eliminate side white bars */
+    margin: 0; /* Ensure no margins cause gaps */
+    width: 100vw; /* Full viewport width */
+    min-height: 100vh; /* Full viewport height */
+    background-size: cover; /* Ensure background image covers entire area */
+    background-position: center; /* Center the image */
+    background-repeat: no-repeat; /* Prevent tiling */
+    background-attachment: fixed; /* Keep background fixed for scrolling */
+}
+
+#wrapper {
+    width: 100vw; /* Full viewport width */
+    min-height: 100vh; /* Full viewport height */
+    background-size: cover; /* Ensure background image covers entire area */
+    background-position: center; /* Center the image */
+    background-repeat: no-repeat; /* Prevent tiling */
+    background-attachment: fixed; /* Keep background fixed for scrolling */
+}
+
+/* Standardize images, post sizes, and title text in main posts section */
+#main > .posts {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2rem; /* Uniform spacing between posts */
+    padding: 2rem; /* Consistent padding around posts section */
+}
+
+#main > .posts > article {
+    width: 100%;
+    max-width: 30rem; /* Fixed width for uniformity */
+    padding: 2rem;
+    box-sizing: border-box;
+    border: solid 2px #eeeeee;
+    text-align: center;
+}
+
+#main > .posts > article .image {
+    width: 100%;
+    max-width: 30rem; /* Match article width */
+    aspect-ratio: 16 / 9; /* Enforce 1920x1080 (16:9) aspect ratio */
+    object-fit: cover; /* Scale image to cover while maintaining aspect ratio */
+    display: block;
+    margin: 0 auto 1rem auto; /* Center and space below image */
+}
+
+#main > .posts > article h2 {
+    font-size: clamp(0.9rem, 3vw, 1.2rem); /* Smaller font for responsiveness */
+    line-height: 1.4;
+    max-height: 3.36rem; /* 2 lines at line-height 1.4 * 1.2rem */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    margin: 0 0 1rem 0;
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 980px) {
+    #main > .posts > article {
+        max-width: 25rem;
+        padding: 1.5rem;
+    }
+
+    #main > .posts > article .image {
+        max-width: 25rem;
+    }
+}
+
+@media screen and (max-width: 736px) {
+    #main > .posts {
+        padding: 1rem;
+        gap: 1rem;
+    }
+
+    #main > .posts > article {
+        max-width: 100%;
+        padding: 1rem;
+    }
+
+    #main > .posts > article .image {
+        max-width: 100%;
+    }
+
+    #main > .posts > article h2 {
+        font-size: clamp(0.8rem, 2.5vw, 1rem);
+        max-height: 2.8rem; /* Adjust for smaller font size */
+    }
+}
