@@ -4121,13 +4121,39 @@ body {
     }
 }
 
-h2 + i {
-  display: block; /* Ensures it's treated as a full line, like a paragraph */
-  padding-left: 2rem; /* Indents more than the h2's 1rem padding; adjust as needed (e.g., 3rem for more indent) */
-  margin: 0.5rem 0 2rem 0; /* Reduced top margin for tighter spacing, bottom margin to match p elements */
-  color: #909498; /* Optional: Gray color to make it look like subdued metadata, matching your footer text */
-  font-size: 0.9rem; /* Optional: Slightly smaller for subtitle-like appearance */
+/* Footer centering fix for mobile */
+@media screen and (max-width: 980px) {
+  #footer > section.split.contact > section,
+  #footer > section.split.contact > section.alt {
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+  }
+
+  #footer > section.split.contact > section > *,
+  #footer > section.split.contact > section.alt > * {
+    text-align: center;
+  }
+
+  #footer > section.split.contact > section.alt ul.icons {
+    display: flex;
+    justify-content: center;
+  }
 }
 
+/* Certification date indentation */
+h2 + i {
+  display: block;
+  padding-left: 2rem;
+  margin: 0.5rem 0 2rem 0;
+  color: #909498;
+  font-size: 0.9rem;
+}
 
+@media screen and (max-width: 736px) {
+  h2 + i {
+    padding-left: 1.5rem;
+    font-size: clamp(0.5rem, 1.2vw, 0.7rem);
+  }
+}
 
