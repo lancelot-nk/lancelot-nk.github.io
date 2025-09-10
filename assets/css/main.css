@@ -157,7 +157,6 @@ h1, h2, h3, h4, h5, h6 {
   color: #212931;
   margin: 0 0 1rem 0;
   max-width: 100%;
-  white-space: nowrap;
   padding: 0 1rem;
   box-sizing: border-box;
   text-align: left;
@@ -171,35 +170,34 @@ h1 a, h2 a, h3 a, h4 a, h5 a, h6 a {
 
 /* Font size hierarchy */
 h1 {
-  font-size: clamp(1.5rem, 8vw, 2.5rem); /* Base for h1 */
+  font-size: clamp(1.75rem, 9vw, 2.75rem); /* Slightly larger */
 }
 
 h2 {
-  font-size: clamp(1.125rem, 6vw, 1.875rem); /* ~75% of h1 */
+  font-size: clamp(1rem, 5.5vw, 1.75rem); /* Slightly smaller */
 }
 
 h3 {
-  font-size: clamp(0.9375rem, 5vw, 1.5625rem); /* ~62.5% of h1 */
+  font-size: clamp(0.9375rem, 5vw, 1.5625rem);
 }
 
 h4 {
-  font-size: clamp(0.75rem, 4vw, 1.25rem); /* ~50% of h1 */
+  font-size: clamp(0.75rem, 4vw, 1.25rem);
 }
 
 h5 {
-  font-size: clamp(0.675rem, 3.6vw, 1.125rem); /* ~45% of h1 */
+  font-size: clamp(0.675rem, 3.6vw, 1.125rem);
 }
 
 h6 {
-  font-size: clamp(0.6rem, 3.2vw, 1rem); /* ~40% of h1 */
+  font-size: clamp(0.6rem, 3.2vw, 1rem);
 }
 
 p {
-  font-size: clamp(0.5rem, 2.5vw, 0.875rem); /* ~35% of h1 */
+  font-size: clamp(0.5rem, 2.5vw, 0.875rem);
   text-align: left;
   margin: 0 0 2rem 0;
   max-width: 100%;
-  white-space: nowrap;
   padding: 0 2rem;
   box-sizing: border-box;
 }
@@ -207,6 +205,38 @@ p {
 /* Intro piece (center-aligned) */
 #intro h1, #intro p {
   text-align: center;
+}
+
+/* Mobile-specific adjustments */
+@media screen and (max-width: 768px) {
+  h1 {
+    font-size: clamp(1.4rem, 7vw, 2.25rem);
+    line-height: 1.2;
+  }
+  h2 {
+    font-size: clamp(0.85rem, 4.25vw, 1.4rem);
+    line-height: 1.2;
+  }
+  h3 {
+    font-size: clamp(0.75rem, 3.75vw, 1.25rem);
+    line-height: 1.3;
+  }
+  h4 {
+    font-size: clamp(0.6rem, 3vw, 1rem);
+    line-height: 1.3;
+  }
+  h5 {
+    font-size: clamp(0.54rem, 2.7vw, 0.9rem);
+    line-height: 1.4;
+  }
+  h6 {
+    font-size: clamp(0.48rem, 2.4vw, 0.8rem);
+    line-height: 1.4;
+  }
+  p {
+    font-size: clamp(0.42rem, 2.1vw, 0.7rem);
+    line-height: 1.4;
+  }
 }
 
 /* Mobile-specific adjustments */
@@ -3894,3 +3924,4 @@ table {
   }
 
 }
+
