@@ -3895,4 +3895,16 @@ table {
 
 }
 
+/* Fix bullet point next to arrow in landing section */
+#intro ul.actions {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#intro ul.actions li {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
 
