@@ -4251,30 +4251,52 @@ h2 + i {
 	display: -webkit-box; /* For multi-line truncation */
 	-webkit-line-clamp: 2; /* Limit to two lines */
 	-webkit-box-orient: vertical; /* Vertical box orientation for truncation */
+	box-sizing: border-box; /* Ensure padding/margins don't affect height */
+	white-space: normal; /* Allow text to wrap naturally within two lines */
 	margin: 0.5rem 0; /* Consistent spacing */
 }
 
-/* Responsive adjustments for article titles */
+/* Fallback for older browsers without -webkit-line-clamp */
+#main .posts article h2:not(:-webkit-any()) {
+	display: block;
+	max-height: 2.8rem;
+	overflow: hidden;
+}
+
+/* Responsive adjustments */
 @media screen and (max-width: 980px) {
 	#main .posts article h2 {
 		font-size: 1.1rem; /* Scale down font size */
 		max-height: 2.6rem; /* Adjust max height for two lines */
 	}
+
+	#main .posts article h2:not(:-webkit-any()) {
+		max-height: 2.6rem;
+	}
 }
 
 @media screen and (max-width: 736px) {
 	#main .posts article h2 {
-		font-size: 1rem; /* Further scale down font size */
+		font-size: 0.95rem; /* Further scale down for mobile */
 		max-height: 2.4rem; /* Adjust max height for two lines */
+	}
+
+	#main .posts article h2:not(:-webkit-any()) {
+		max-height: 2.4rem;
 	}
 }
 
 @media screen and (max-width: 480px) {
 	#main .posts article h2 {
-		font-size: 0.9rem; /* Smallest font size for mobile */
+		font-size: 0.85rem; /* Smallest font size for smaller mobile screens */
 		max-height: 2.2rem; /* Adjust max height for two lines */
 	}
+
+	#main .posts article h2:not(:-webkit-any()) {
+		max-height: 2.2rem;
+	}
 }
+
 
 
 
