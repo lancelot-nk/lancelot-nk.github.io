@@ -198,9 +198,20 @@ input, select, textarea {
 		}
 
 	h1 {
-		font-size: clamp(2rem, 1rem + 5vw, 4rem);
-		line-height: 1.1;
-		margin: 0 0 2rem 0;
+  		font-size: 8vw; /* Scales font size based on viewport width */
+  		max-width: 100%; /* Ensures h1 stays within container */
+  		white-space: nowrap; /* Prevents text from wrapping */
+  		padding: 0 10px; /* Adds padding to avoid touching edges */
+  		box-sizing: border-box; /* Includes padding in width calculation */
+	}
+
+/* Media query for mobile devices */
+@media (max-width: 768px) {
+  h1 {
+    font-size: 6vw; /* Smaller font size for mobile */
+    line-height: 1.2; /* Improves readability */
+  }
+};
 	}
 
 	h2 {
@@ -4689,3 +4700,4 @@ input, select, textarea {
 		}
 
 	}
+
