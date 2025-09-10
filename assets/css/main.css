@@ -4140,23 +4140,72 @@ h2 + i {
   }
 }
 
-/* Footer centering fix for mobile */
+/* Footer styles for desktop */
+#footer {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 0;
+}
+
+#footer > section.split.contact {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center; /* Center textboxes */
+  gap: 1rem; /* Space between textboxes */
+  width: 100%;
+  max-width: 64rem; /* Constrain width to prevent stretching */
+}
+
+#footer > section.split.contact > section,
+#footer > section.split.contact > section.alt {
+  flex: 0 0 auto;
+  width: 20rem; /* Fixed width for consistent textbox size */
+  max-width: calc(25% - 1rem); /* Desktop: four columns with gap */
+  padding: 1rem;
+  box-sizing: border-box;
+  text-align: left; /* Left-align text content */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* Left-align content within textbox */
+}
+
+#footer > section.split.contact > section > *,
+#footer > section.split.contact > section.alt > * {
+  text-align: left; /* Ensure h3, p, a are left-aligned */
+  width: 100%; /* Ensure text doesn’t overflow */
+  word-break: break-word; /* Prevent long URLs from overflowing */
+}
+
+#footer > section.split.contact > section ul.icons {
+  display: flex;
+  justify-content: flex-start; /* Left-align GitHub icon */
+  width: 100%;
+}
+
+/* Mobile adjustments for footer */
 @media screen and (max-width: 980px) {
   #footer > section.split.contact > section,
   #footer > section.split.contact > section.alt {
-    text-align: center;
-    justify-content: center;
-    align-items: center;
+    width: 100%; /* Full-width for stacking */
+    max-width: 20rem; /* Constrain textbox width for centering */
+    margin: 0 auto; /* Center textboxes */
+    padding: 0.5rem 1rem; /* Vertical spacing, horizontal padding */
+    text-align: left;
+    align-items: flex-start;
   }
 
   #footer > section.split.contact > section > *,
   #footer > section.split.contact > section.alt > * {
-    text-align: center;
+    text-align: left;
+    width: 100%;
+    word-break: break-word;
   }
 
   #footer > section.split.contact > section ul.icons {
-    display: flex;
-    justify-content: center;
+    justify-content: flex-start; /* Left-align GitHub icon on mobile */
   }
 }
+
 
