@@ -4245,7 +4245,7 @@ h2 + i {
 #main .posts article h2 {
 	font-size: 1.25rem; /* Base font size */
 	line-height: 1.4; /* Line height for two lines */
-	max-height: 3rem; /* Max height for two lines */
+	max-height: 3.2rem; /* Increased to prevent truncation */
 	overflow: hidden; /* Prevent overflow */
 	text-overflow: ellipsis; /* Add ellipsis for overflow text */
 	display: -webkit-box; /* For multi-line truncation */
@@ -4253,21 +4253,27 @@ h2 + i {
 	-webkit-box-orient: vertical; /* Vertical box orientation for truncation */
 	box-sizing: border-box; /* Ensure padding/margins don't affect height */
 	white-space: normal; /* Allow text to wrap naturally within two lines */
-	margin: 0.5rem 0 2.5rem 0; /* Increased bottom margin for more space */
+	margin: 0.5rem 0 2.5rem 0; /* Maintain increased bottom margin */
+	padding: 0.5rem 0; /* Add padding to expand text box */
 	text-align: center; /* Center-align the text */
+}
+
+/* Article Header Container */
+#main .posts article header {
+	padding: 1rem 0; /* Add padding to ensure space for h2 */
 }
 
 /* Article Container */
 #main .posts article {
-	padding: 1.5rem; /* Consistent padding */
-	min-height: 28rem; /* Increased height to accommodate content */
+	padding: 2rem 1.5rem 1.5rem 1.5rem; /* Increased top padding */
+	min-height: 28rem; /* Maintain increased height */
 	box-sizing: border-box;
 }
 
 /* Fallback for older browsers without -webkit-line-clamp */
 #main .posts article h2:not(:-webkit-any()) {
 	display: block;
-	max-height: 3rem; /* Match increased max-height */
+	max-height: 3.2rem; /* Match increased max-height */
 	overflow: hidden;
 	text-align: center; /* Center-align fallback */
 }
@@ -4276,12 +4282,17 @@ h2 + i {
 @media screen and (max-width: 980px) {
 	#main .posts article h2 {
 		font-size: 1.1rem; /* Scale down font size */
-		max-height: 2.8rem; /* Adjust max height for two lines */
-		margin: 0.5rem 0 2rem 0; /* Adjusted bottom margin */
+		max-height: 2.8rem; /* Adjust max height */
+		margin: 0.5rem 0 2rem 0; /* Maintain margin */
+		padding: 0.4rem 0; /* Adjusted padding */
+	}
+
+	#main .posts article header {
+		padding: 0.8rem 0; /* Adjusted padding */
 	}
 
 	#main .posts article {
-		padding: 1.2rem; /* Adjusted padding for medium screens */
+		padding: 1.5rem 1.2rem 1.2rem 1.2rem; /* Adjusted padding */
 		min-height: 26rem; /* Adjusted height */
 	}
 
@@ -4292,14 +4303,19 @@ h2 + i {
 
 @media screen and (max-width: 736px) {
 	#main .posts article h2 {
-		font-size: 0.95rem; /* Further scale down for mobile */
-		max-height: 2.6rem; /* Adjust max height for two lines */
-		margin: 0.5rem 0 1.5rem 0; /* Adjusted bottom margin for mobile */
+		font-size: 0.95rem; /* Further scale down */
+		max-height: 2.6rem; /* Adjust max height */
+		margin: 0.5rem 0 1.5rem 0; /* Adjusted margin */
+		padding: 0.3rem 0; /* Adjusted padding */
+	}
+
+	#main .posts article header {
+		padding: 0.6rem 0; /* Adjusted padding */
 	}
 
 	#main .posts article {
-		padding: 1rem; /* Adjusted padding for mobile */
-		min-height: 24rem; /* Adjusted height for mobile */
+		padding: 1.2rem 1rem 1rem 1rem; /* Adjusted padding */
+		min-height: 24rem; /* Adjusted height */
 	}
 
 	#main .posts article h2:not(:-webkit-any()) {
@@ -4309,20 +4325,26 @@ h2 + i {
 
 @media screen and (max-width: 480px) {
 	#main .posts article h2 {
-		font-size: 0.85rem; /* Smallest font size for smaller mobile screens */
-		max-height: 2.4rem; /* Adjust max height for two lines */
-		margin: 0.5rem 0 1.2rem 0; /* Further adjusted bottom margin */
+		font-size: 0.85rem; /* Smallest font size */
+		max-height: 2.4rem; /* Adjust max height */
+		margin: 0.5rem 0 1.2rem 0; /* Adjusted margin */
+		padding: 0.2rem 0; /* Minimal padding */
+	}
+
+	#main .posts article header {
+		padding: 0.5rem 0; /* Minimal padding */
 	}
 
 	#main .posts article {
-		padding: 0.8rem; /* Minimal padding for smaller screens */
-		min-height: 22rem; /* Minimal height for smaller screens */
+		padding: 1rem 0.8rem 0.8rem 0.8rem; /* Minimal padding */
+		min-height: 22rem; /* Minimal height */
 	}
 
 	#main .posts article h2:not(:-webkit-any()) {
 		max-height: 2.4rem;
 	}
 }
+
 
 
 
