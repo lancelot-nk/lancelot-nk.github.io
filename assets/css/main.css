@@ -4193,19 +4193,19 @@ body {
 
 @media screen and (max-width: 736px) {
 	#footer {
-		padding: 1rem;
+		padding: 1rem 1.5rem; /* Increased padding for mobile */
 	}
 
 	.contact-table td {
 		padding: 0.5rem 0.75rem 0.5rem 0;
-		font-size: 0.9rem; /* Scale down font size */
+		font-size: 0.85rem; /* Slightly scaled down font size */
 	}
 }
 
 @media screen and (max-width: 480px) {
 	#footer {
 		width: 100%;
-		padding: 1rem 0.5rem;
+		padding: 1rem 1.25rem; /* Further increased padding for smaller screens */
 	}
 
 	.contact-table {
@@ -4213,13 +4213,13 @@ body {
 	}
 
 	.contact-table td {
-		padding: 0.4rem 0.5rem 0.4rem 0;
-		font-size: 0.8rem; /* Further scale down font size */
+		padding: 0.4rem 0.75rem 0.4rem 0;
+		font-size: 0.75rem; /* Further scaled down font size */
 		word-break: break-word; /* Prevent text bleed */
 	}
 
 	.contact-table td:first-child {
-		min-width: 6rem;
+		min-width: 5rem; /* Adjusted for better fit */
 	}
 }
 
@@ -4240,6 +4240,7 @@ h2 + i {
     margin: 0.2rem 0 0.8rem 0;
   }
 }
+
 
 
 
