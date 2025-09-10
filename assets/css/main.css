@@ -3981,7 +3981,7 @@ body {
 #main > .posts > article {
     width: 100%;
     max-width: 30rem; /* Fixed width for uniformity */
-    min-height: 32rem; /* Ensure space for vertical centering */
+    min-height: 32rem; /* Ensure space for content */
     padding: 2rem;
     box-sizing: border-box;
     border: solid 2px #eeeeee;
@@ -3994,8 +3994,10 @@ body {
 }
 
 #main > .posts > article .image {
-    width: 30rem; /* Fixed width for all images */
-    height: calc(30rem * 9 / 16); /* Fixed height for 16:9 (≈16.875rem) */
+    width: calc(100% - 4rem); /* Fit within article, accounting for 2rem + 2rem padding */
+    height: calc((100% - 4rem) * 9 / 16); /* Maintain 16:9 aspect ratio */
+    max-width: 26rem; /* Ensure image fits within article (30rem - 4rem padding) */
+    max-height: calc(26rem * 9 / 16); /* 16:9 height ≈ 14.625rem */
     object-fit: cover; /* Zoom/crop to fill space, maintaining aspect ratio */
     object-position: center; /* Center image content */
     display: block;
@@ -4016,7 +4018,7 @@ body {
     left: 0.5rem; /* Top-left with small padding */
     margin: 0;
     text-align: left;
-    color: #909498; /* Match footer text color for consistency */
+    color: #909498; /* Match footer text color */
 }
 
 #main > .posts > article header.major > h2 {
@@ -4056,8 +4058,8 @@ body {
     }
 
     #main > .posts > article .image {
-        width: 25rem;
-        height: calc(25rem * 9 / 16); /* Maintain 16:9 */
+        max-width: calc(25rem - 3rem); /* Adjust for 1.5rem + 1.5rem padding */
+        max-height: calc((25rem - 3rem) * 9 / 16);
     }
 }
 
@@ -4074,8 +4076,10 @@ body {
     }
 
     #main > .posts > article .image {
-        width: 100%;
-        height: calc(100% * 9 / 16); /* Maintain 16:9 */
+        width: calc(100% - 2rem); /* Adjust for 1rem + 1rem padding */
+        height: calc((100% - 2rem) * 9 / 16);
+        max-width: calc(100% - 2rem);
+        max-height: calc((100% - 2rem) * 9 / 16);
     }
 
     #main > .posts > article header.major > .date {
@@ -4095,4 +4099,5 @@ body {
         padding: 0 0.5rem;
     }
 }
+
 
