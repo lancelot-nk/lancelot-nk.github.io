@@ -4121,26 +4121,26 @@ body {
     }
 }
 
-/* Certification date indentation and styling */
+/* Preserve certification date indentation and styling */
 h2 + i {
   display: block;
   padding-left: 2rem; /* Indent more than h2's 1rem padding */
   margin: 0.25rem 0 1rem 0; /* Reduced margins for tighter spacing */
   color: #909498; /* Gray for metadata look */
-  font-size: clamp(0.6rem, 1.8vw, 0.8rem); /* Slightly smaller than h2 but consistent */
-  line-height: 1.4; /* Match mobile typography for consistency */
+  font-size: clamp(0.6rem, 1.8vw, 0.8rem); /* Slightly smaller than h2 */
+  line-height: 1.4; /* Match mobile typography */
 }
 
 /* Mobile adjustments for certifications */
 @media screen and (max-width: 736px) {
   h2 + i {
     padding-left: 1.5rem; /* Slightly less indent on mobile */
-    font-size: clamp(0.4rem, 1.5vw, 0.65rem); /* Align closer to h2's 0.7rem max */
+    font-size: clamp(0.4rem, 1.5vw, 0.65rem); /* Align closer to h2's 0.7rem */
     margin: 0.2rem 0 0.8rem 0; /* Tighter spacing on mobile */
   }
 }
 
-/* Footer styles */
+/* Footer styles - Apply side-by-side layout to all sections with vertical text alignment */
 #footer > section.split.contact {
   display: flex;
   flex-wrap: wrap;
@@ -4165,18 +4165,34 @@ h2 + i {
   margin-right: 1rem; /* Gap to prevent overlap with p/ul */
   flex-shrink: 0; /* Prevent h3 from shrinking */
   line-height: 1.5; /* Match typography for consistent vertical alignment */
+  margin-top: 0; /* Ensure no top margin disrupts alignment */
+  padding-top: 0; /* Ensure no padding disrupts alignment */
 }
 
 #footer > section.split.contact > section > p,
 #footer > section.split.contact > section > ul {
   flex-grow: 1; /* Allow p or ul to take remaining space */
-  margin: 0; /* Remove default margins */
+  margin: 0; /* Remove default margins for clean alignment */
+  padding-top: 0; /* Ensure no padding disrupts alignment */
   line-height: 1.5; /* Match h3 for consistent vertical alignment */
 }
 
 #footer > section.split.contact > section > ul.icons {
   display: flex;
   align-items: flex-start; /* Align icons with text start point */
+  list-style: none; /* Remove bullets if present */
+  padding: 0;
+  margin: 0;
+}
+
+/* Limit Address content to 2 lines (only for .alt section) */
+#footer > section.split.contact > section.alt > p {
+  max-height: 3rem; /* Approximately 2 lines at line-height 1.5 */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 
 /* Mobile adjustments */
@@ -4186,7 +4202,7 @@ h2 + i {
   }
 
   #footer > section.split.contact > section {
-    flex-direction: row; /* Keep h3 and p/ul side by side */
+    flex-direction: row; /* Keep side by side */
     justify-content: flex-start; /* Left-align content */
     align-items: flex-start; /* Vertically align text start points */
     text-align: left; /* Left-align text */
@@ -4206,30 +4222,15 @@ h2 + i {
     line-height: 1.4; /* Match mobile typography */
   }
 
+  #footer > section.split.contact > section.alt > p {
+    max-height: 2.8rem; /* Adjust for mobile line-height 1.4 */
+    -webkit-line-clamp: 2;
+  }
+
   #footer > section.split.contact > section > ul.icons {
     display: flex;
     align-items: flex-start; /* Align icons with text */
   }
 }
-
-/* Preserve certification date indentation and styling */
-h2 + i {
-  display: block;
-  padding-left: 2rem; /* Indent more than h2's 1rem padding */
-  margin: 0.25rem 0 1rem 0; /* Reduced margins for tighter spacing */
-  color: #909498; /* Gray for metadata look */
-  font-size: clamp(0.6rem, 1.8vw, 0.8rem); /* Slightly smaller than h2 */
-  line-height: 1.4; /* Match mobile typography */
-}
-
-/* Mobile adjustments for certifications */
-@media screen and (max-width: 736px) {
-  h2 + i {
-    padding-left: 1.5rem; /* Slightly less indent on mobile */
-    font-size: clamp(0.4rem, 1.5vw, 0.65rem); /* Align closer to h2's 0.7rem */
-    margin: 0.2rem 0 0.8rem 0; /* Tighter spacing on mobile */
-  }
-}
-
 
 
