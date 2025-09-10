@@ -4121,6 +4121,25 @@ body {
     }
 }
 
+/* Certification date indentation and styling */
+h2 + i {
+  display: block;
+  padding-left: 2rem; /* Indent more than h2's 1rem padding */
+  margin: 0.25rem 0 1rem 0; /* Reduced margins for tighter spacing */
+  color: #909498; /* Gray for metadata look */
+  font-size: clamp(0.6rem, 1.8vw, 0.8rem); /* Slightly smaller than h2 but consistent */
+  line-height: 1.4; /* Match mobile typography for consistency */
+}
+
+/* Mobile adjustments for certifications */
+@media screen and (max-width: 736px) {
+  h2 + i {
+    padding-left: 1.5rem; /* Slightly less indent on mobile */
+    font-size: clamp(0.4rem, 1.5vw, 0.65rem); /* Align closer to h2's 0.7rem max */
+    margin: 0.2rem 0 0.8rem 0; /* Tighter spacing on mobile */
+  }
+}
+
 /* Footer centering fix for mobile */
 @media screen and (max-width: 980px) {
   #footer > section.split.contact > section,
@@ -4135,25 +4154,9 @@ body {
     text-align: center;
   }
 
-  #footer > section.split.contact > section.alt ul.icons {
+  #footer > section.split.contact > section ul.icons {
     display: flex;
     justify-content: center;
-  }
-}
-
-/* Certification date indentation */
-h2 + i {
-  display: block;
-  padding-left: 2rem;
-  margin: 0.5rem 0 2rem 0;
-  color: #909498;
-  font-size: 0.9rem;
-}
-
-@media screen and (max-width: 736px) {
-  h2 + i {
-    padding-left: 1.5rem;
-    font-size: clamp(0.5rem, 1.2vw, 0.7rem);
   }
 }
 
