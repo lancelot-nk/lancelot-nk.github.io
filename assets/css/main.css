@@ -84,7 +84,12 @@ input, select, textarea {
 	}
 
 	@media screen and (max-width: 480px) {
-
+	@media (max-width: 768px) {
+  		h1 {
+    		font-size: 6vw; /* Smaller font size for mobile */
+   			line-height: 1.2; /* Improves readability */
+  		}
+	}
 		html, body {
 			min-width: 320px;
 		}
@@ -4700,4 +4705,5 @@ input, select, textarea {
 		}
 
 	}
+
 
