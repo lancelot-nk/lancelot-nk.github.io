@@ -4254,6 +4254,7 @@ h2 + i {
 	box-sizing: border-box; /* Ensure padding/margins don't affect height */
 	white-space: normal; /* Allow text to wrap naturally within two lines */
 	margin: 0.5rem 0; /* Consistent spacing */
+	text-align: center; /* Center-align the text */
 }
 
 /* Fallback for older browsers without -webkit-line-clamp */
@@ -4261,6 +4262,7 @@ h2 + i {
 	display: block;
 	max-height: 2.8rem;
 	overflow: hidden;
+	text-align: center; /* Center-align fallback */
 }
 
 /* Responsive adjustments */
