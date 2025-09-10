@@ -4121,6 +4121,13 @@ body {
     }
 }
 
+h2 + i {
+  display: block; /* Ensures it's treated as a full line, like a paragraph */
+  padding-left: 2rem; /* Indents more than the h2's 1rem padding; adjust as needed (e.g., 3rem for more indent) */
+  margin: 0.5rem 0 2rem 0; /* Reduced top margin for tighter spacing, bottom margin to match p elements */
+  color: #909498; /* Optional: Gray color to make it look like subdued metadata, matching your footer text */
+  font-size: 0.9rem; /* Optional: Slightly smaller for subtitle-like appearance */
+}
 
 
 
