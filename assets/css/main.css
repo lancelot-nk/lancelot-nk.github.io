@@ -4074,10 +4074,8 @@ body {
     }
 
     #main > .posts > article .image {
-        width: calc(100% - 2rem); /* Adjust for 1rem + 1rem padding */
-        height: calc((100% - 2rem) * 9 / 16); /* Maintain 16:9 */
-        max-width: 20rem; /* Cap for smaller screens */
-        max-height: calc(20rem * 9 / 16); /* ≈ 11.25rem */
+        width: 20rem; /* Fixed size for smaller screens */
+        height: calc(20rem * 9 / 16); /* Maintain 16:9 ≈ 11.25rem */
     }
 
     #main > .posts > article header.major > .date {
