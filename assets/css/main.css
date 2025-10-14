@@ -4399,6 +4399,77 @@ hr.major {
     background-color: #555;
 }
 
+/* Last Updated Styling */
+.last-updated {
+    text-align: center;
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 20px;
+}
+
+/* Mobile-specific adjustments */
+@media (max-width: 736px) {
+    /* Keep name plate on one line */
+    .post h1:first-of-type {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+        font-size: 1.5em; /* Adjust size if needed */
+    }
+
+    /* Control line breaks for company and location in experience section */
+    .post h2:not(:first-of-type) {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+        display: inline-block;
+        line-height: 1.2;
+        max-height: 2.4em; /* Approximately 2 lines */
+    }
+    .post h2:not(:first-of-type) + p {
+        margin-left: 10px;
+        display: inline;
+        white-space: normal;
+    }
+
+    /* Add spacing before Professional Skills on mobile */
+    .post h1:last-of-type {
+        margin-top: 20px;
+    }
+
+    /* Make skills table responsive */
+    .skills-table {
+        width: 100%;
+        display: block;
+        overflow-x: auto;
+    }
+    .skills-table th, .skills-table td {
+        min-width: 100px; /* Ensure minimum readability */
+        box-sizing: border-box;
+    }
+    .skills-table tr {
+        display: table-row;
+    }
+    .skills-table th {
+        background-color: #333;
+        color: #fff;
+        padding: 8px;
+        text-align: left;
+        font-size: 1em;
+    }
+    .skills-table td {
+        padding: 6px;
+        border-bottom: 1px solid #ddd;
+    }
+    .skills-table tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+    .skills-table tr:hover {
+        background-color: #f1f1f1;
+    }
+}
 
 
 
