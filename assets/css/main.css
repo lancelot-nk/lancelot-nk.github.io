@@ -4341,8 +4341,46 @@ h2 + i {
 	}
 }
 
+/* Spacing improvements for better legibility */
+.post h1, .post h2 {
+    margin-bottom: 20px;
+}
+.post > * {
+    margin-bottom: 15px;
+}
 
+/* Enhance table styling for skills */
+.skills-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+.skills-table th {
+    background-color: #333;
+    color: #fff;
+    padding: 10px;
+    text-align: left;
+    font-size: 1.1em;
+    font-weight: bold;
+}
+.skills-table td {
+    padding: 8px;
+    border-bottom: 1px solid #ddd;
+}
+.skills-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+.skills-table tr:hover {
+    background-color: #f1f1f1;
+}
 
+/* Visual separator styling */
+hr.major {
+    border: 0;
+    height: 1px;
+    background: #333;
+    margin: 20px 0;
+}
 
 
 
