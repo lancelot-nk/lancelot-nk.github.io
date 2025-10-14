@@ -4407,67 +4407,84 @@ hr.major {
     margin-bottom: 20px;
 }
 
-/* Mobile-specific adjustments */
+/* Mobile-specific adjustments (max-width: 736px) */
 @media (max-width: 736px) {
-    /* Keep name plate on one line */
+    /* Keep name plate on one line, adjust font size to fit */
     .post h1:first-of-type {
         white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        max-width: 100%;
-        font-size: 1.5em; /* Adjust size if needed */
+        font-size: 1.2em; /* Reduce size to fit on small screens */
+        margin: 0;
+        padding: 0;
     }
 
     /* Control line breaks for company and location in experience section */
     .post h2:not(:first-of-type) {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        max-width: 100%;
         display: inline-block;
-        line-height: 1.2;
-        max-height: 2.4em; /* Approximately 2 lines */
+        max-width: 60%; /* Allow text to wrap naturally within a constrained width */
+        vertical-align: top;
+        margin: 0;
+        padding: 0;
     }
     .post h2:not(:first-of-type) + p {
-        margin-left: 10px;
-        display: inline;
-        white-space: normal;
+        display: inline-block;
+        max-width: 35%; /* Balance with company name */
+        margin-left: 5%;
+        vertical-align: top;
+        margin: 0;
+        padding: 0;
     }
 
-    /* Add spacing before Professional Skills on mobile */
+    /* Ensure proper spacing before Professional Skills */
     .post h1:last-of-type {
-        margin-top: 20px;
+        margin-top: 10px; /* Reduced from 20px for subtlety */
     }
 
-    /* Make skills table responsive */
+    /* Make skills table responsive and fit window */
     .skills-table {
         width: 100%;
-        display: block;
-        overflow-x: auto;
+        border-collapse: collapse;
+        margin-bottom: 20px;
     }
     .skills-table th, .skills-table td {
-        min-width: 100px; /* Ensure minimum readability */
+        padding: 6px;
+        text-align: left;
+        font-size: 0.9em; /* Smaller font for mobile */
         box-sizing: border-box;
-    }
-    .skills-table tr {
-        display: table-row;
     }
     .skills-table th {
         background-color: #333;
         color: #fff;
-        padding: 8px;
-        text-align: left;
-        font-size: 1em;
     }
     .skills-table td {
-        padding: 6px;
         border-bottom: 1px solid #ddd;
     }
     .skills-table tr:nth-child(even) {
         background-color: #f9f9f9;
     }
-    .skills-table tr:hover {
-        background-color: #f1f1f1;
+    .skills-table tr {
+        display: table-row;
+    }
+    .skills-table {
+        display: block;
+        overflow-x: hidden; /* Prevent unwanted scrolling */
+    }
+    .skills-table thead {
+        display: table;
+        width: 100%;
+        table-layout: fixed;
+    }
+    .skills-table tbody {
+        display: block;
+        width: 100%;
+    }
+    .skills-table tr {
+        display: table;
+        width: 100%;
+        table-layout: fixed;
+    }
+    .skills-table td, .skills-table th {
+        width: 33.33%; /* Equal columns */
+        word-wrap: break-word; /* Allow text to wrap */
     }
 }
 
