@@ -4469,6 +4469,100 @@ hr.major {
     }
 }
 
+/* Mobile-specific adjustments (max-width: 736px) */
+@media (max-width: 736px) {
+    /* A. Fix intro section bleed of parentheticals */
+    .post header.major span.date {
+        display: block; /* Move date to its own line */
+        font-size: 0.8em; /* Smaller to reduce bleed */
+        margin-bottom: 5px;
+    }
+    .post header.major h1:first-of-type + p {
+        margin-left: 0; /* Remove any inherited indentation */
+        padding-left: 0;
+    }
+
+    /* B. Larger spacing between career blocks, not within */
+    .post section.post > * {
+        margin-bottom: 20px; /* Increased space between career blocks */
+    }
+    .post section.post > *:last-child {
+        margin-bottom: 0; /* Avoid extra space at end */
+    }
+    .post h2 + p + p {
+        margin-top: 0; /* No extra space within block contents */
+    }
+
+    /* C. Larger spacing for section dividers (Certifications, Education, etc.) */
+    .post h1 {
+        margin-top: 25px; /* Increased space before major sections */
+        margin-bottom: 10px;
+    }
+    .post h1:first-of-type {
+        margin-top: 10px; /* Preserve intro spacing */
+    }
+
+    /* D. Left-align non-table content, remove messy indentation */
+    .post, .post p, .post h1, .post h2, .post header {
+        text-align: left;
+        margin-left: 0;
+        padding-left: 0;
+    }
+    .post a {
+        margin-left: 0;
+        padding-left: 0;
+    }
+    .contact-table td, .contact-table th {
+        text-align: left; /* Ensure contact table aligns left */
+    }
+
+    /* Maintain text hierarchy and table responsiveness */
+    .post h1 {
+        font-size: 1.3em;
+        margin: 10px 0;
+    }
+    .post h2 {
+        font-size: 1.1em;
+        line-height: 1.3;
+        margin: 8px 0;
+        word-wrap: break-word;
+    }
+    .post h2 + p {
+        font-size: 0.95em;
+        margin: 4px 0 8px 5px;
+        display: inline;
+    }
+    .post p:not(h2 + p) {
+        font-size: 0.85em;
+        margin: 4px 0;
+        line-height: 1.4;
+    }
+    .skills-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 12px;
+    }
+    .skills-table th {
+        font-size: 0.9em;
+        background-color: #333;
+        color: #fff;
+        padding: 6px;
+        text-align: left;
+    }
+    .skills-table td {
+        font-size: 0.85em;
+        padding: 4px;
+        border-bottom: 1px solid #ddd;
+        word-wrap: break-word;
+    }
+    .skills-table tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+    .skills-table {
+        display: table;
+        table-layout: auto;
+    }
+}
 
 
 
