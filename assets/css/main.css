@@ -4409,47 +4409,36 @@ hr.major {
 
 /* Mobile-specific adjustments (max-width: 736px) */
 @media (max-width: 736px) {
-    /* Keep name plate on one line, adjust font size to fit */
-    .post h1:first-of-type {
-        white-space: nowrap;
-        font-size: 1.2em; /* Reduce size to fit on small screens */
-        margin: 0;
-        padding: 0;
-    }
-
-    /* Control line breaks for company and location in experience section */
+    /* Ensure company and location title line fits properly */
     .post h2:not(:first-of-type) {
-        display: inline-block;
-        max-width: 60%; /* Allow text to wrap naturally within a constrained width */
-        vertical-align: top;
+        display: flex;
+        flex-wrap: nowrap;
+        align-items: center;
+        font-size: 1em; /* Base size for mobile */
         margin: 0;
         padding: 0;
     }
     .post h2:not(:first-of-type) + p {
-        display: inline-block;
-        max-width: 35%; /* Balance with company name */
-        margin-left: 5%;
-        vertical-align: top;
+        margin-left: 5px;
+        display: inline;
         margin: 0;
         padding: 0;
     }
 
-    /* Ensure proper spacing before Professional Skills */
-    .post h1:last-of-type {
-        margin-top: 10px; /* Reduced from 20px for subtlety */
-    }
-
-    /* Make skills table responsive and fit window */
+    /* Make skills table responsive with dynamic font scaling */
     .skills-table {
         width: 100%;
         border-collapse: collapse;
         margin-bottom: 20px;
+        table-layout: auto; /* Allow dynamic column width */
     }
     .skills-table th, .skills-table td {
-        padding: 6px;
+        padding: 4px;
         text-align: left;
-        font-size: 0.9em; /* Smaller font for mobile */
         box-sizing: border-box;
+        font-size: clamp(0.7em, 2.5vw, 0.9em); /* Scale font between 0.7em and 0.9em based on viewport */
+        word-break: normal; /* Prevent awkward wrapping */
+        overflow-wrap: anywhere; /* Allow natural wrapping without overhang */
     }
     .skills-table th {
         background-color: #333;
@@ -4465,30 +4454,16 @@ hr.major {
         display: table-row;
     }
     .skills-table {
-        display: block;
+        display: table;
         overflow-x: hidden; /* Prevent unwanted scrolling */
     }
     .skills-table thead {
-        display: table;
-        width: 100%;
-        table-layout: fixed;
+        display: table-header-group;
     }
     .skills-table tbody {
-        display: block;
-        width: 100%;
-    }
-    .skills-table tr {
-        display: table;
-        width: 100%;
-        table-layout: fixed;
-    }
-    .skills-table td, .skills-table th {
-        width: 33.33%; /* Equal columns */
-        word-wrap: break-word; /* Allow text to wrap */
+        display: table-row-group;
     }
 }
-
-
 
 
 
