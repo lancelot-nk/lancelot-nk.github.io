@@ -4409,42 +4409,63 @@ hr.major {
 
 /* Mobile-specific adjustments (max-width: 736px) */
 @media (max-width: 736px) {
-    /* Ensure company and location title line fits naturally */
-    .post h2:not(:first-of-type) {
-        font-size: 0.95em; /* Slight reduction for mobile */
-        line-height: 1.2; /* Control vertical spacing */
-        margin: 0;
-        padding: 0;
+    /* Reset and establish text hierarchy */
+    .post h1 {
+        font-size: 1.3em; /* Largest for main headings like name */
+        margin: 10px 0;
     }
-    .post h2:not(:first-of-type) + p {
-        font-size: 0.95em; /* Match heading size */
-        margin-left: 5px;
+    .post h2 {
+        font-size: 1.1em; /* Largest for titles (company, institute, certs) */
+        line-height: 1.3; /* Allow 1-2-3 lines with natural wrapping */
+        margin: 8px 0;
+        word-wrap: break-word; /* Prevent overhang, allow clean breaks */
+        max-width: 100%;
+    }
+    .post h2 + p {
+        font-size: 0.95em; /* Next largest for roles/dates */
+        margin: 4px 0 8px 5px; /* Small space, inline with title */
         display: inline;
-        margin: 0;
-        padding: 0;
+    }
+    .post p:not(h2 + p) {
+        font-size: 0.85em; /* Smallest for descriptions */
+        margin: 4px 0;
+        line-height: 1.4; /* Improve readability */
     }
 
-    /* Make skills table fit responsively */
+    /* Ensure sections have scaled spacing */
+    .post > section,
+    .post > * {
+        margin-bottom: 12px; /* Scaled space between major sections */
+    }
+    .post header.major {
+        margin-bottom: 10px; /* Space after headers */
+    }
+
+    /* Make skills table responsive with hierarchy */
     .skills-table {
         width: 100%;
         border-collapse: collapse;
-        margin-bottom: 10px;
-    }
-    .skills-table th, .skills-table td {
-        font-size: 0.85em; /* Smaller, consistent size */
-        padding: 3px;
-        text-align: left;
-        word-break: break-all; /* Allow full word breaking */
+        margin-bottom: 12px;
     }
     .skills-table th {
+        font-size: 0.9em; /* Slightly larger than td for headers */
         background-color: #333;
         color: #fff;
+        padding: 6px;
+        text-align: left;
     }
     .skills-table td {
+        font-size: 0.85em; /* Match description text size */
+        padding: 4px;
         border-bottom: 1px solid #ddd;
+        word-wrap: break-word; /* Clean wrapping */
     }
     .skills-table tr:nth-child(even) {
         background-color: #f9f9f9;
+    }
+    .skills-table {
+        display: table;
+        table-layout: auto; /* Dynamic column width */
     }
 }
 
