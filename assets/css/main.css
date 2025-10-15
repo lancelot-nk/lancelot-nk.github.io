@@ -4510,48 +4510,21 @@ hr.major {
 
 
 /* Page-specific styles for graphic-design.html */
-.graphic-design-page body {
-	background: url("assets/images/bg.jpg") no-repeat center center;
-	background-size: cover; /* Full coverage without distortion */
-	background-attachment: fixed; /* Fixed background while content scrolls */
-}
-
-.graphic-design-page #wrapper {
-	background-color: rgba(255, 255, 255, 0.85); /* Slightly opaque white */
-	padding: 2rem !important;
-	border-radius: 8px;
-	max-width: 1200px;
-	margin: 0 auto !important;
-	width: 90%;
-	min-width: 320px !important;
-	box-sizing: border-box;
-}
-
-.graphic-design-page #main {
-	padding: 1rem !important;
-}
-
 .graphic-design-page .posts {
 	display: grid;
 	grid-template-columns: repeat(3, 1fr);
-	grid-gap: 0.5rem !important; /* Tighter gap for uniformity */
-	max-width: 100% !important;
-	margin: 0 auto !important;
+	grid-gap: 0.5rem;
+	max-width: 100%;
+	margin: 0 auto;
 }
 
 .graphic-design-page .posts article {
-	background-color: rgba(255, 255, 255, 0.9);
-	border-radius: 8px;
 	padding: 1rem;
 	box-sizing: border-box;
-	height: 400px; /* Fixed height for uniformity */
+	height: 350px; /* Standardized height */
 	display: flex;
 	flex-direction: column;
 	justify-content: space-between;
-}
-
-.graphic-design-page .posts header {
-	margin: 0;
 }
 
 .graphic-design-page .posts h2 {
@@ -4568,9 +4541,8 @@ hr.major {
 }
 
 .graphic-design-page .posts .image.fit img {
-	max-width: 100%;
-	height: 150px; /* Standardized height */
-	object-fit: cover; /* Maintain aspect ratio, fill space */
+	height: 150px;
+	object-fit: cover;
 	border-radius: 4px;
 	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
@@ -4578,9 +4550,8 @@ hr.major {
 .graphic-design-page .actions.special .button {
 	background-color: #333333;
 	color: #ffffff;
-	padding: 0.5rem 1rem; /* Smaller padding for consistency */
+	padding: 0.5rem 1rem;
 	border-radius: 4px;
-	font-family: "Source Sans Pro", sans-serif;
 	font-size: 0.9rem;
 	text-transform: uppercase;
 	letter-spacing: 0.05em;
@@ -4604,11 +4575,8 @@ hr.major {
 	.graphic-design-page .posts {
 		grid-template-columns: repeat(2, 1fr);
 	}
-	.graphic-design-page #wrapper {
-		width: 95% !important;
-	}
 	.graphic-design-page .posts article {
-		height: 350px;
+		height: 300px;
 	}
 	.graphic-design-page .posts .image.fit img {
 		height: 120px;
@@ -4619,20 +4587,14 @@ hr.major {
 	.graphic-design-page .posts {
 		grid-template-columns: 1fr;
 	}
-	.graphic-design-page #wrapper {
-		width: 100% !important;
-		padding: 1rem !important;
-	}
-	.graphic-design-page #main {
-		padding: 0.5rem !important;
-	}
 	.graphic-design-page .posts article {
-		height: 300px;
+		height: 250px;
 	}
 	.graphic-design-page .posts .image.fit img {
 		height: 100px;
 	}
 }
+
 
 
 
