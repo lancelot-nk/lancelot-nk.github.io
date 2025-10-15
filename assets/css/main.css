@@ -4487,6 +4487,22 @@ hr.major {
     }
 }
 
+.dashboard-container {
+  position: relative;
+  overflow-x: auto; /* Enables horizontal scrolling */
+  overflow-y: hidden; /* Prevents vertical overflow */
+  padding: 0 2rem; /* Matches site padding—adjust as needed (e.g., 1rem, 3rem) */
+  max-width: 100%; /* Conforms to container */
+  margin: 0 auto; /* Centers if needed */
+}
+
+.tableauPlaceholder {
+  min-width: 100%; /* Ensures it scales with container */
+}
+
+.tableauViz {
+  min-width: 0 !important; /* Overrides Tableau’s fixed width */
+}
 
 
 
