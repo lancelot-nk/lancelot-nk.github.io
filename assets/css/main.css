@@ -4508,18 +4508,20 @@ hr.major {
 
 /* Background Image Styling */
 body {
-	background: url("assets/images/bg.jpg") no-repeat center center fixed;
-	background-size: cover;
-	color: #ffffff; /* Adjust text color for visibility on potentially dark/light bg */
+	background: url("assets/images/bg.jpg") no-repeat center center;
+	background-size: 100% 100%; /* Fill viewport fully, maintain aspect ratio */
+	background-attachment: fixed; /* Fixed background while content scrolls */
 }
 
-/* Adjust wrapper for better contrast if bg is busy */
+/* Adjust wrapper for centered, dynamic resizing with full background */
 #wrapper {
-	background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent white overlay */
+	background-color: rgba(255, 255, 255, 0.85); /* Slightly opaque white for readability */
 	padding: 2rem;
 	border-radius: 8px;
-	max-width: 1200px;
-	margin: 2rem auto;
+	max-width: 1200px; /* Consistent with other pages */
+	margin: 0 auto; /* Center horizontally */
+	width: 90%; /* Dynamic width for smaller screens */
+	box-sizing: border-box;
 }
 
 /* Ensure links and headers are visible */
@@ -4577,11 +4579,18 @@ a, h1, h2, h3, h4, h5, h6 {
 	.posts {
 		grid-template-columns: repeat(2, 1fr); /* 2 columns for tablets */
 	}
+	#wrapper {
+		width: 95%; /* Slightly wider on tablets */
+	}
 }
 
 @media screen and (max-width: 736px) {
 	.posts {
 		grid-template-columns: 1fr; /* 1 column for mobile */
+	}
+	#wrapper {
+		width: 100%; /* Full width on mobile */
+		padding: 1rem; /* Reduce padding on mobile */
 	}
 }
 
