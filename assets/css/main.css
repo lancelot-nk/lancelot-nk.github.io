@@ -4511,7 +4511,7 @@ hr.major {
 /* Page-specific styles for graphic-design.html */
 .graphic-design-page body {
 	background: url("assets/images/bg.jpg") no-repeat center center;
-	background-size: 100% 100%; /* Fill viewport fully, maintain aspect ratio */
+	background-size: cover; /* Ensure full coverage without distortion */
 	background-attachment: fixed; /* Fixed background while content scrolls */
 }
 
@@ -4522,14 +4522,20 @@ hr.major {
 	max-width: 1200px; /* Consistent with other pages */
 	margin: 0 auto; /* Center horizontally */
 	width: 90%; /* Dynamic width for smaller screens */
+	min-width: 300px; /* Prevent collapse on very small screens */
 	box-sizing: border-box;
+}
+
+.graphic-design-page #main {
+	padding: 1rem; /* Add padding to main for better spacing */
 }
 
 .graphic-design-page .posts {
 	display: grid;
 	grid-template-columns: repeat(3, 1fr); /* 3 columns */
-	grid-gap: 1.5rem; /* Padding between tiles */
+	grid-gap: 1rem; /* Reduced gap for better fit */
 	max-width: 100%; /* Fit within main container */
+	margin: 0 auto; /* Center the grid */
 }
 
 .graphic-design-page .posts article {
@@ -4583,6 +4589,9 @@ hr.major {
 	.graphic-design-page #wrapper {
 		width: 100%; /* Full width on mobile */
 		padding: 1rem; /* Reduce padding on mobile */
+	}
+	.graphic-design-page #main {
+		padding: 0.5rem; /* Further reduce padding on mobile */
 	}
 }
 
