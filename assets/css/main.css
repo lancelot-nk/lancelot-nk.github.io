@@ -4543,7 +4543,7 @@ hr.major {
 }
 
 .graphic-design-page .actions.special {
-	list-style: none; /* Remove dot */
+	list-style: none; /* Remove bullet */
 	margin: 0;
 	text-align: center; /* Center the button */
 }
@@ -4558,7 +4558,8 @@ hr.major {
 	letter-spacing: 0.05em;
 	border: 1px solid #444444;
 	transition: all 0.3s ease;
-	display: inline-block; /* Ensure centering works */
+	display: inline-block; /* Match index.html button display */
+	text-align: center; /* Center text within button */
 }
 
 .graphic-design-page .actions.special .button:hover {
