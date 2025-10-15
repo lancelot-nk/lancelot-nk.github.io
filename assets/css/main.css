@@ -4547,8 +4547,8 @@ hr.major {
 
 .graphic-design-page .posts .image.fit img {
 	width: 100%;
-	height: auto; /* Revert to auto for uniform scaling */
-	max-height: 150px; /* Cap height to maintain consistency */
+	height: auto; /* Uniform scaling with container */
+	max-height: 150px; /* Cap height for consistency */
 	border-radius: 4px;
 	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
@@ -4604,6 +4604,7 @@ hr.major {
 		max-height: 100px;
 	}
 }
+
 
 
 
