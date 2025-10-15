@@ -1,88 +1,104 @@
-<script type="text/javascript">
-        var gk_isXlsx = false;
-        var gk_xlsxFileLookup = {};
-        var gk_fileData = {};
-        function filledCell(cell) {
-          return cell !== '' && cell != null;
-        }
-        function loadFileData(filename) {
-        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
-            try {
-                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
-                var firstSheetName = workbook.SheetNames[0];
-                var worksheet = workbook.Sheets[firstSheetName];
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>Tableau & Power BI Dashboards - Lancelot NK</title>
+		<base target="_blank" rel="noopener noreferrer">
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
 
-                // Convert sheet to JSON to filter blank rows
-                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
-                // Filter out blank rows (rows where all cells are empty, null, or undefined)
-                var filteredData = jsonData.filter(row => row.some(filledCell));
+		<!-- Wrapper -->
+			<div id="wrapper" class="fade-in">
 
-                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
-                var headerRowIndex = filteredData.findIndex((row, index) =>
-                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
-                );
-                // Fallback
-                if (headerRowIndex === -1 || headerRowIndex > 25) {
-                  headerRowIndex = 0;
-                }
+				<!-- Header -->
+					<header id="header">
+						<a href="index.html" class="logo">Lancelot NK</a>
+					</header>
 
-                // Convert filtered JSON back to CSV
-                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
-                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
-                return csv;
-            } catch (e) {
-                console.error(e);
-                return "";
-            }
-        }
-        return gk_fileData[filename] || "";
-        }
-        </script><!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tableau & Power BI Dashboards - Lancelot NK</title>
-    <link rel="stylesheet" href="assets/css/main.css">
-</head>
-<body>
-    <!-- Header (reuse structure from index.html/generic.html) -->
-    <header id="header">
-        <a href="index.html" class="logo">Lancelot NK</a>
-        <nav>
-            <ul>
-                <li><a href="index.html">Home</a></li>
-                <li><a href="generic.html">Resume</a></li>
-                <li><a href="dashboards.html" class="active">Dashboards</a></li>
-            </ul>
-        </nav>
-    </header>
+				<!-- Nav -->
+					<nav id="nav">
+						<ul class="links">
+							<li><a href="index.html">Home</a></li>
+							<li><a href="generic.html">Resume</a></li>
+							<li class="active"><a href="dashboards.html">Dashboards</a></li>
+						</ul>
+						<ul class="icons">
+							<li><a href="https://www.linkedin.com/in/lancelotnk/" class="icon brands fa-linkedin"><span class="label">Linkedin</span></a></li>
+							<li><a href="https://github.com/lancelot-nk/lancelot-nk-github-io/tree/main" class="icon brands fa-github"><span class="label">GitHub</span></a></li>
+						</ul>
+					</nav>
 
-    <!-- Main Content -->
-    <section id="main">
-        <div class="inner">
-            <h1>Tableau & Power BI Dashboards</h1>
-            <p>Explore interactive dashboards built with Tableau Public and Power BI Desktop.</p>
+				<!-- Main -->
+					<div id="main">
+						<!-- Post -->
+							<section class="post">
+								<header class="major">
+									<h1>Tableau & Power BI Dashboards</h1>
+									<p>Explore interactive dashboards built with Tableau Public and Power BI Desktop.</p>
+								</header>
+
+								<h2>Tableau Dashboard</h2>
+								<iframe src="YOUR_TABLEAU_PUBLIC_URL" frameborder="0" style="width: 100%; height: 500px;"></iframe>
             
-            <h2>Tableau Dashboard</h2>
-            <iframe src="YOUR_TABLEAU_PUBLIC_URL" frameborder="0" style="width: 100%; height: 500px;"></iframe>
+								<h2>Power BI Dashboard</h2>
+								<iframe src="YOUR_POWER_BI_PUBLIC_URL" frameborder="0" style="width: 100%; height: 500px;"></iframe>
             
-            <h2>Power BI Dashboard</h2>
-            <iframe src="YOUR_POWER_BI_PUBLIC_URL" frameborder="0" style="width: 100%; height: 500px;"></iframe>
-            
-            <h3>Download Source Files</h3>
-            <ul>
-                <li><a href="assets/files/sample.twbx">Tableau Workbook (.twbx)</a></li>
-                <li><a href="assets/files/sample.pbix">Power BI File (.pbix)</a></li>
-            </ul>
-        </div>
-    </section>
+								<h3>Download Source Files</h3>
+								<ul>
+									<li><a href="assets/files/sample.twbx">Tableau Workbook (.twbx)</a></li>
+									<li><a href="assets/files/sample.pbix">Power BI File (.pbix)</a></li>
+								</ul>
+							</section>
+					</div>
 
-    <!-- Footer (optional, reuse from index.html if present) -->
-    <footer id="footer">
-        <div class="inner">
-            <p>&copy; Lancelot NK. All rights reserved.</p>
-        </div>
-    </footer>
-</body>
+				<!-- Footer -->
+					<footer id="footer">
+						<table class="contact-table">
+							<tr>
+								<td>Address</td>
+								<td>15 Essex St<br />New York, New York 10002</td>
+							</tr>
+							<tr>
+								<td>Phone</td>
+								<td><a href="tel:+17079911031">(707) 991-1031</a></td>
+							</tr>
+							<tr>
+								<td>Email</td>
+								<td><a href="mailto:lancelotsmnk@gmail.com">lancelotsmnk@gmail.com</a></td>
+							</tr>
+							<tr>
+								<td>Linkedin</td>
+								<td><a href="https://www.linkedin.com/in/lancelotnk/">https://www.linkedin.com/in/lancelotnk/</a></td>
+							</tr>
+							<tr>
+								<td>Github</td>
+								<td>
+									<ul class="icons alt">
+										<li><a href="https://github.com/lancelot-nk/lancelot-nk-github-io/tree/main" class="icon brands alt fa-github"><span class="label">GitHub</span></a></li>
+									</ul>
+								</td>
+							</tr>
+						</table>
+					</footer>
+
+				<!-- Copyright -->
+					<div id="copyright">
+						<ul><li>&copy; Lancelot Naipier-Kane</li><li>Design: <a href="https://www.linkedin.com/in/lancelotnk/">Lancelot NK</a></li></ul>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
 </html>
