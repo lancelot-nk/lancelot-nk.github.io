@@ -1,0 +1,196 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE HTML>
+<html>
+	<head>
+		<title>Graphic Design Showcase - Lancelot NK</title>
+		<base target="_blank" rel="noopener noreferrer">
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+
+		<!-- Wrapper -->
+			<div id="wrapper" class="fade-in">
+
+				<!-- Header -->
+					<header id="header">
+						<a href="index.html" class="logo">Lancelot NK</a>
+					</header>
+
+				<!-- Nav -->
+					<nav id="nav">
+						<ul class="links">
+							<li><a href="index.html">Home</a></li>
+							<li><a href="generic.html">Resume</a></li>
+							<li><a href="dashboards.html">Dashboards</a></li>
+							<li><a href="graphic-design.html">Graphic Design</a></li>
+						</ul>
+						<ul class="icons">
+							<li><a href="https://www.linkedin.com/in/lancelotnk/" class="icon brands fa-linkedin"><span class="label">Linkedin</span></a></li>
+							<li><a href="https://github.com/lancelot-nk/lancelot-nk-github-io/tree/main" class="icon brands fa-github"><span class="label">GitHub</span></a></li>
+						</ul>
+					</nav>
+
+				<!-- Main -->
+					<div id="main">
+						<!-- Post -->
+							<section class="post">
+								<header class="major">
+									<h1>Graphic & Web Design Showcase</h1>
+									<p>Explore a selection of my graphic and web design projects from over 12 years of experience. Click on each tile to view the full project externally.</p>
+								</header>
+
+								<!-- Projects Grid (Similar to index posts) -->
+								<section class="posts">
+									<article>
+										<header>
+											<h2>RyuCreative</h2>
+										</header>
+										<a href="https://www.ryucreative.com/" class="image fit"><img src="https://www.founderjar.com/wp-content/uploads/2023/08/11.-Kath-Anderson-Graphic-Design-Portfolio-Example.jpeg" alt="RyuCreative" /></a>
+										<p>RyuCreative is a boutique-style marketing agency in PR, Social Branding, and Creative Design.</p>
+										<ul class="actions special">
+											<li><a href="https://www.ryucreative.com/" class="button">View Project</a></li>
+										</ul>
+									</article>
+									<article>
+										<header>
+											<h2>Hom Sweet Hom</h2>
+										</header>
+										<a href="https://www.homsweethom.com/" class="image fit"><img src="https://www.founderjar.com/wp-content/uploads/2023/08/2.-Hom-Sweet-Hom-Graphic-Design-Portfolio-Example.jpeg" alt="Hom Sweet Hom" /></a>
+										<p>Hom Sweet Hom showcases Lauren Hom’s work as a designer and lettering artist.</p>
+										<ul class="actions special">
+											<li><a href="https://www.homsweethom.com/" class="button">View Project</a></li>
+										</ul>
+									</article>
+									article>
+										<header>
+											<h2>Khanna Shalumova</h2>
+										</header>
+										<a href="https://khanna.format.com" class="image fit"><img src="https://mir-s3-cdn-cf.behance.net/projects/808/d08c50224396507.Y3JvcCwxMDA3LDc4OCwxOTcsMA.jpg" alt="Khanna Shalumova" /></a>
+										<p>Khanna is a graphic and brand designer based in New York, focusing on fashion and lifestyle brands.</p>
+										<ul class="actions special">
+											<li><a href="https://khanna.format.com" class="button">View Project</a></li>
+										</ul>
+									</article>
+									<article>
+										<header>
+											<h2>Masvell Restaurant Identity</h2>
+										</header>
+										<a href="https://ingridpicanyol.com" class="image fit"><img src="https://the-brandidentity.com/uploads/articles/2021/02/studio-ingrid-picanyol-brings-classic-contemporary-together-mas-vells-identity/MasVell-IngridPicanyol-1.jpg" alt="Masvell Restaurant Identity" /></a>
+										<p>Ingrid Picanyol collaborated with typographer Noe Blanco to develop a custom typeface for the Masvell restaurant.</p>
+										<ul class="actions special">
+											<li><a href="https://ingridpicanyol.com" class="button">View Project</a></li>
+										</ul>
+									</article>
+									<article>
+										<header>
+											<h2>Airbnb & Dropbox Projects</h2>
+										</header>
+										<a href="https://rachelgogel.com" class="image fit"><img src="https://designby-women.com/wp-content/uploads/2023/08/RachelG12@2x.jpg" alt="Airbnb & Dropbox Projects" /></a>
+										<p>Rachel Gogel created sophisticated visual storytelling for global organizations including Airbnb and Dropbox.</p>
+										<ul class="actions special">
+											<li><a href="https://rachelgogel.com" class="button">View Project</a></li>
+										</ul>
+									</article>
+									<article>
+										<header>
+											<h2>Robin Mehra Senior Product Designer</h2>
+										</header>
+										<a href="https://www.wallofportfolios.in/portfolios/robin-mehra/" class="image fit"><img src="https://framerusercontent.com/assets/gLqE1h2pvLHdtoEn1B9l1jAQTDQ.png" alt="Robin Mehra Senior Product Designer" /></a>
+										<p>Robin Mehra’s portfolio is a delightful blend of creativity, personality, and product thinking.</p>
+										<ul class="actions special">
+											<li><a href="https://www.wallofportfolios.in/portfolios/robin-mehra/" class="button">View Project</a></li>
+										</ul>
+									</article>
+								</section>
+							</section>
+					</div>
+
+				<!-- Footer -->
+					<footer id="footer">
+						<table class="contact-table">
+							<tr>
+								<td>Address</td>
+								<td>15 Essex St<br />New York, New York 10002</td>
+							</tr>
+							<tr>
+								<td>Phone</td>
+								<td><a href="tel:+17079911031">(707) 991-1031</a></td>
+							</tr>
+							<tr>
+								<td>Email</td>
+								<td><a href="mailto:lancelotsmnk@gmail.com">lancelotsmnk@gmail.com</a></td>
+							</tr>
+							<tr>
+								<td>Linkedin</td>
+								<td><a href="https://www.linkedin.com/in/lancelotnk/">https://www.linkedin.com/in/lancelotnk/</a></td>
+							</tr>
+							<tr>
+								<td>Github</td>
+								<td>
+									<ul class="icons alt">
+										<li><a href="https://github.com/lancelot-nk/lancelot-nk-github-io/tree/main" class="icon brands alt fa-github"><span class="label">GitHub</span></a></li>
+									</ul>
+								</td>
+							</tr>
+						</table>
+					</footer>
+
+				<!-- Copyright -->
+					<div id="copyright">
+						<ul><li>&copy; Lancelot Naipier-Kane</li><li>Design: <a href="https://www.linkedin.com/in/lancelotnk/">Lancelot NK</a></li></ul>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>
