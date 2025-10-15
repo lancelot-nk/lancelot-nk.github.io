@@ -4512,8 +4512,8 @@ hr.major {
 /* Page-specific styles for graphic-design.html */
 .graphic-design-page .posts {
 	display: grid;
-	grid-template-columns: repeat(3, 1fr);
-	grid-gap: 0.5rem;
+	grid-template-columns: repeat(3, 1fr); /* 3 columns */
+	grid-gap: 0.5rem; /* Tighter gap for better fit */
 	max-width: 100%;
 	margin: 0 auto;
 }
@@ -4521,10 +4521,6 @@ hr.major {
 .graphic-design-page .posts article {
 	padding: 1rem;
 	box-sizing: border-box;
-	height: 350px; /* Standardized height */
-	display: flex;
-	flex-direction: column;
-	justify-content: space-between;
 }
 
 .graphic-design-page .posts h2 {
@@ -4537,14 +4533,19 @@ hr.major {
 	font-size: 0.9rem;
 	line-height: 1.3;
 	margin: 0;
-	flex-grow: 1;
 }
 
 .graphic-design-page .posts .image.fit img {
-	height: 150px;
-	object-fit: cover;
+	width: 100%;
+	height: auto;
 	border-radius: 4px;
 	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.graphic-design-page .actions.special {
+	list-style: none; /* Remove dot */
+	margin: 0;
+	text-align: center; /* Center the button */
 }
 
 .graphic-design-page .actions.special .button {
@@ -4557,6 +4558,7 @@ hr.major {
 	letter-spacing: 0.05em;
 	border: 1px solid #444444;
 	transition: all 0.3s ease;
+	display: inline-block; /* Ensure centering works */
 }
 
 .graphic-design-page .actions.special .button:hover {
@@ -4566,20 +4568,10 @@ hr.major {
 	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-.graphic-design-page .actions.special {
-	margin: 0;
-}
-
 /* Responsive adjustments for graphic-design page */
 @media screen and (max-width: 980px) {
 	.graphic-design-page .posts {
 		grid-template-columns: repeat(2, 1fr);
-	}
-	.graphic-design-page .posts article {
-		height: 300px;
-	}
-	.graphic-design-page .posts .image.fit img {
-		height: 120px;
 	}
 }
 
@@ -4587,15 +4579,7 @@ hr.major {
 	.graphic-design-page .posts {
 		grid-template-columns: 1fr;
 	}
-	.graphic-design-page .posts article {
-		height: 250px;
-	}
-	.graphic-design-page .posts .image.fit img {
-		height: 100px;
-	}
 }
-
-
 
 
 
