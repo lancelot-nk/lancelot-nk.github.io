@@ -1,0 +1,197 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE HTML>
+<html>
+	<head>
+		<title>Publications and Grants - Lancelot NK</title>
+		<base target="_blank" rel="noopener noreferrer">
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload publications-grants-page">
+
+		<!-- Wrapper -->
+			<div id="wrapper" class="fade-in">
+
+				<!-- Header -->
+					<header id="header">
+						<a href="index.html" class="logo">Lancelot NK</a>
+					</header>
+
+				<!-- Nav -->
+					<nav id="nav">
+						<ul class="links">
+							<li><a href="index.html">Home</a></li>
+							<li><a href="generic.html">Resume</a></li>
+							<li><a href="dashboards.html">Dashboards</a></li>
+							<li><a href="graphic-design.html">Graphic Design</a></li>
+							<li class="active"><a href="publications-grants.html">Publications and Grants</a></li>
+						</ul>
+						<ul class="icons">
+							<li><a href="https://www.linkedin.com/in/lancelotnk/" class="icon brands fa-linkedin"><span class="label">Linkedin</span></a></li>
+							<li><a href="https://github.com/lancelot-nk/lancelot-nk-github-io/tree/main" class="icon brands fa-github"><span class="label">GitHub</span></a></li>
+						</ul>
+					</nav>
+
+				<!-- Main -->
+					<div id="main">
+						<!-- Post -->
+							<section class="post">
+								<header class="major">
+									<h1>Publications and Grants Showcase</h1>
+									<p>Explore my top publications and grants. Click each tile for more details.</p>
+								</header>
+
+								<!-- Projects Grid (3x2 layout) -->
+								<section class="posts">
+									<article>
+										<header>
+											<h2>RFP Example DOEE</h2>
+										</header>
+										<a href="https://drive.google.com/file/d/1WZZ8LXzijtkjxMY1qIorSmzfGsAcDe-_" class="image fit"><iframe src="https://drive.google.com/file/d/1WZZ8LXzijtkjxMY1qIorSmzfGsAcDe-_/preview" style="width: 100%; height: 150px; border: none;"></iframe></a>
+										<p>Standard placeholder text for uniformity. This is line two.</p>
+										<ul class="actions special">
+											<li><a href="https://drive.google.com/file/d/1WZZ8LXzijtkjxMY1qIorSmzfGsAcDe-_" class="button">View Project</a></li>
+										</ul>
+									</article>
+									<article>
+										<header>
+											<h2>Private Proposal Example FXB</h2>
+										</header>
+										<a href="https://docs.google.com/document/d/1332TzoM4aOG2hpZElFrzaTTTUUH6XJkA" class="image fit"><iframe src="https://docs.google.com/document/d/1332TzoM4aOG2hpZElFrzaTTTUUH6XJkA/preview" style="width: 100%; height: 150px; border: none;"></iframe></a>
+										<p>Standard placeholder text for uniformity. This is line two.</p>
+										<ul class="actions special">
+											<li><a href="https://docs.google.com/document/d/1332TzoM4aOG2hpZElFrzaTTTUUH6XJkA" class="button">View Project</a></li>
+										</ul>
+									</article>
+									<article>
+										<header>
+											<h2>Literature Review Example Research</h2>
+										</header>
+										<a href="https://docs.google.com/document/d/1CW4dZtRgOWOLbsXNkw_kf6LD2AiknIfL" class="image fit"><iframe src="https://docs.google.com/document/d/1CW4dZtRgOWOLbsXNkw_kf6LD2AiknIfL/preview" style="width: 100%; height: 150px; border: none;"></iframe></a>
+										<p>Standard placeholder text for uniformity. This is line two.</p>
+										<ul class="actions special">
+											<li><a href="https://docs.google.com/document/d/1CW4dZtRgOWOLbsXNkw_kf6LD2AiknIfL" class="button">View Project</a></li>
+										</ul>
+									</article>
+									<article>
+										<header>
+											<h2>Formal Essay Example Academic</h2>
+										</header>
+										<a href="https://docs.google.com/document/d/1Rjrx8UXRTJMeNOKCaJUZTDVAe5sYP_4B" class="image fit"><iframe src="https://docs.google.com/document/d/1Rjrx8UXRTJMeNOKCaJUZTDVAe5sYP_4B/preview" style="width: 100%; height: 150px; border: none;"></iframe></a>
+										<p>Standard placeholder text for uniformity. This is line two.</p>
+										<ul class="actions special">
+											<li><a href="https://docs.google.com/document/d/1Rjrx8UXRTJMeNOKCaJUZTDVAe5sYP_4B" class="button">View Project</a></li>
+										</ul>
+									</article>
+									<article>
+										<header>
+											<h2>Annual Report Example And Design</h2>
+										</header>
+										<a href="https://drive.google.com/file/d/124sxt1oo8aXMW9WZaSE8gJ4BE5_8X5ET" class="image fit"><iframe src="https://drive.google.com/file/d/124sxt1oo8aXMW9WZaSE8gJ4BE5_8X5ET/preview" style="width: 100%; height: 150px; border: none;"></iframe></a>
+										<p>Standard placeholder text for uniformity. This is line two.</p>
+										<ul class="actions special">
+											<li><a href="https://drive.google.com/file/d/124sxt1oo8aXMW9WZaSE8gJ4BE5_8X5ET" class="button">View Project</a></li>
+										</ul>
+									</article>
+									<article>
+										<header>
+											<h2>International Study Example IRB</h2>
+										</header>
+										<a href="https://drive.google.com/file/d/1mCYOgNBPo_6ZS2A_PCVpUHdUXcOgVBSu" class="image fit"><iframe src="https://drive.google.com/file/d/1mCYOgNBPo_6ZS2A_PCVpUHdUXcOgVBSu/preview" style="width: 100%; height: 150px; border: none;"></iframe></a>
+										<p>Standard placeholder text for uniformity. This is line two.</p>
+										<ul class="actions special">
+											<li><a href="https://drive.google.com/file/d/1mCYOgNBPo_6ZS2A_PCVpUHdUXcOgVBSu" class="button">View Project</a></li>
+										</ul>
+									</article>
+								</section>
+							</section>
+					</div>
+
+				<!-- Footer -->
+					<footer id="footer">
+						<table class="contact-table">
+							<tr>
+								<td>Address</td>
+								<td>15 Essex St<br />New York, New York 10002</td>
+							</tr>
+							<tr>
+								<td>Phone</td>
+								<td><a href="tel:+17079911031">(707) 991-1031</a></td>
+							</tr>
+							<tr>
+								<td>Email</td>
+								<td><a href="mailto:lancelotsmnk@gmail.com">lancelotsmnk@gmail.com</a></td>
+							</tr>
+							<tr>
+								<td>Linkedin</td>
+								<td><a href="https://www.linkedin.com/in/lancelotnk/">https://www.linkedin.com/in/lancelotnk/</a></td>
+							</tr>
+							<tr>
+								<td>Github</td>
+								<td>
+									<ul class="icons alt">
+										<li><a href="https://github.com/lancelot-nk/lancelot-nk-github-io/tree/main" class="icon brands alt fa-github"><span class="label">GitHub</span></a></li>
+									</ul>
+								</td>
+							</tr>
+						</table>
+					</footer>
+
+				<!-- Copyright -->
+					<div id="copyright">
+						<ul><li>&copy; Lancelot Naipier-Kane</li><li>Design: <a href="https://www.linkedin.com/in/lancelotnk/">Lancelot NK</a></li></ul>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>
