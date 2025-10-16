@@ -4722,6 +4722,8 @@ hr.major {
 
 
 
+
+
 /* Page-specific styles for certifications.html */
 .certifications-page .posts {
 	display: grid;
@@ -4744,7 +4746,7 @@ hr.major {
 	min-height: 360px; /* Adjusted height for no description text */
 }
 
-.certifications-page .posts h2 {
+.certifications-page .posts article header h2 {
 	font-size: 1.35rem; /* Match publications-grants for readability */
 	line-height: 1.4; /* Increased line height */
 	margin: 0 0 1rem 0; /* Space below heading */
@@ -4755,20 +4757,11 @@ hr.major {
 
 .certifications-page .posts .image.fit iframe {
 	width: 100%;
-	height: 180px; /* Match publications-grants iframe height */
+	height: 150px; /* Match publications-grants iframe height */
 	border: none;
 	border-radius: 4px;
 	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 	margin-bottom: 1rem; /* Margin below iframe */
-}
-
-.certifications-page .posts .image.fit img {
-	width: 100%;
-	height: 180px; /* Match iframe height for consistency */
-	object-fit: cover; /* Stretch and crop, center on middle */
-	border-radius: 4px;
-	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-	margin-bottom: 1rem; /* Match iframe margin */
 }
 
 .certifications-page .actions.special {
@@ -4777,7 +4770,7 @@ hr.major {
 	padding: 0; /* Remove any padding */
 	width: 100%; /* Span full width of article */
 	display: flex; /* Use flexbox to center button */
-	justify-content: center; /* Horizontally center button */
+	justify-content: center !important; /* Force horizontal centering */
 	align-items: center; /* Vertically align within container */
 }
 
@@ -4792,8 +4785,8 @@ hr.major {
 	border: 1px solid #18bfef; /* Matching outline color */
 	transition: all 0.3s ease;
 	display: inline-flex; /* Flexbox for text centering */
-	align-items: center; /* Vertically center text */
-	justify-content: center; /* Horizontally center text */
+	align-items: center !important; /* Vertically center text */
+	justify-content: center !important; /* Horizontally center text */
 	min-height: 2.5rem; /* Ensure sufficient height for centering */
 }
 
@@ -4803,6 +4796,19 @@ hr.major {
 	border-color: #cccccc; /* Light gray outline on hover */
 	transform: translateY(-2px);
 	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Override universal styles for certifications page */
+.certifications-page .posts article h2 {
+	font-size: 1.35rem !important; /* Override #main .posts article h2 */
+	line-height: 1.4 !important;
+	max-height: none !important; /* Remove truncation */
+	-webkit-line-clamp: none !important; /* Disable line clamping */
+	-webkit-box-orient: unset !important; /* Remove box orientation */
+}
+
+.certifications-page .posts article .image.fit {
+	margin-top: 0 !important; /* Override universal margin */
 }
 
 /* Responsive adjustments for certifications page */
@@ -4815,9 +4821,8 @@ hr.major {
 	.certifications-page .posts article {
 		min-height: 340px; /* Adjusted for medium screens */
 	}
-	.certifications-page .posts .image.fit img,
 	.certifications-page .posts .image.fit iframe {
-		height: 150px; /* Slightly smaller previews */
+		height: 120px; /* Slightly smaller previews */
 	}
 }
 
@@ -4830,9 +4835,8 @@ hr.major {
 	.certifications-page .posts article {
 		min-height: 320px; /* Adjusted for small screens */
 	}
-	.certifications-page .posts .image.fit img,
 	.certifications-page .posts .image.fit iframe {
-		height: 120px; /* Smaller previews for mobile */
+		height: 100px; /* Smaller previews for mobile */
 	}
 }
 
