@@ -4543,7 +4543,7 @@ hr.major {
 	margin: 0 0 2rem 0; /* Increased bottom margin to separate from button */
 	height: auto; /* Allow natural height, no fixed limit */
 	overflow: visible; /* No overflow hiding for description */
-	text-align: center; /* Center description */
+	/* Description text alignment unchanged, as requested */
 }
 
 .graphic-design-page .posts .image.fit {
@@ -4561,27 +4561,33 @@ hr.major {
 .graphic-design-page .actions.special {
 	list-style: none;
 	margin: 0;
-	text-align: center; /* Center the button */
 	padding: 0; /* No additional padding, rely on article padding */
+	width: 100%; /* Span full width of article */
+	display: flex; /* Use flexbox to ensure button container is centered */
+	justify-content: center; /* Horizontally center the button */
+	align-items: center; /* Vertically align within container */
 }
 
 .graphic-design-page .actions.special .button {
-	background-color: #333333;
-	color: #ffffff;
-	padding: 0.5rem 1rem;
+	background-color: #18bfef; /* Button background color */
+	color: #ffffff; /* White text */
+	padding: 0.75rem 1.5rem; /* Increased padding for consistency with publications-grants */
 	border-radius: 4px;
-	font-size: 0.9rem;
+	font-size: 1rem; /* Slightly larger font for consistency */
 	text-transform: uppercase;
 	letter-spacing: 0.05em;
-	border: 1px solid #444444;
+	border: 1px solid #18bfef; /* Matching outline color */
 	transition: all 0.3s ease;
-	display: inline-block;
-	text-align: center;
+	display: inline-flex; /* Use flexbox for text centering */
+	align-items: center; /* Vertically center text */
+	justify-content: center; /* Horizontally center text */
+	min-height: 2.5rem; /* Ensure sufficient height for vertical centering */
 }
 
 .graphic-design-page .actions.special .button:hover {
-	background-color: #555555;
-	border-color: #666666;
+	background-color: #ffffff; /* White background on hover */
+	color: #333333; /* Dark text for contrast */
+	border-color: #cccccc; /* Light gray outline on hover */
 	transform: translateY(-2px);
 	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
@@ -4711,5 +4717,6 @@ hr.major {
 		padding: 0; /* Ensure no padding */
 	}
 }
+
 
 
