@@ -4621,44 +4621,49 @@ hr.major {
 	grid-template-columns: repeat(3, 1fr); /* 3 columns */
 	grid-gap: 1.5rem; /* Increased gap for better spacing between tiles */
 	max-width: 100%;
-	margin: 2rem auto; /* Added vertical margin for breathing room */
+	margin: 2rem auto; /* Vertical margin for breathing room */
 }
 
 .publications-grants-page .posts article {
 	padding: 1.5rem; /* Increased padding inside each tile */
 	box-sizing: border-box;
+	display: flex; /* Use flexbox to control internal layout */
+	flex-direction: column; /* Stack elements vertically */
+	align-items: center; /* Center content horizontally */
 }
 
 .publications-grants-page .posts h2 {
-	font-size: 1.35rem; /* Slightly larger font for better readability */
+	font-size: 1.35rem; /* Slightly larger font for readability */
 	line-height: 1.4; /* Increased line height for clarity */
 	margin-bottom: 1rem; /* More space below the heading */
 }
 
 .publications-grants-page .posts p {
 	font-size: 1rem; /* Slightly larger font size */
-	line-height: 1.5; /* Increased line height for better readability */
-	margin: 0.5rem 0; /* Added vertical margin for separation */
+	line-height: 1.5; /* Increased line height for readability */
+	margin: 0.5rem 0; /* Vertical margin for separation */
 	text-align: center; /* Center the description text */
 }
 
 .publications-grants-page .posts .image.fit iframe {
 	width: 100%;
-	height: 180px; /* Slightly taller iframe for better proportion */
+	height: 180px; /* Slightly taller iframe for proportion */
 	border: none;
 	border-radius: 4px;
 	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-	margin-bottom: 1rem; /* Added margin below iframe */
+	margin-bottom: 1rem; /* Margin below iframe */
 }
 
 .publications-grants-page .actions.special {
 	list-style: none; /* Remove bullet */
 	margin: 1rem 0; /* Increased margin for button spacing */
-	text-align: center; /* Center the button */
+	width: 100%; /* Ensure container spans full width */
+	display: flex; /* Use flexbox to center button */
+	justify-content: center; /* Horizontally center the button */
 }
 
 .publications-grants-page .actions.special .button {
-	background-color: #18bfef; /* Set button background to #18bfef */
+	background-color: #18bfef; /* Button background color */
 	color: #ffffff; /* White text */
 	padding: 0.75rem 1.5rem; /* Increased padding for larger button */
 	border-radius: 4px;
@@ -4667,7 +4672,7 @@ hr.major {
 	letter-spacing: 0.05em;
 	border: 1px solid #18bfef; /* Matching outline color */
 	transition: all 0.3s ease;
-	display: inline-flex; /* Use flexbox for centering */
+	display: inline-flex; /* Use flexbox for text centering */
 	align-items: center; /* Vertically center text */
 	justify-content: center; /* Horizontally center text */
 	min-height: 2.5rem; /* Ensure sufficient height for vertical centering */
@@ -4697,3 +4702,4 @@ hr.major {
 		margin: 1rem auto; /* Adjusted margin */
 	}
 }
+
