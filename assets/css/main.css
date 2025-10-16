@@ -4764,6 +4764,15 @@ hr.major {
 	margin-bottom: 1rem; /* Margin below iframe */
 }
 
+.certifications-page .posts .image.fit img {
+	width: 100%;
+	height: 150px; /* Match iframe height for uniformity */
+	object-fit: cover; /* Stretch and crop, center on middle */
+	border-radius: 4px;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	margin-bottom: 1rem; /* Match iframe margin */
+}
+
 .certifications-page .actions.special {
 	list-style: none; /* Remove bullet */
 	margin: 1rem 0 0 0; /* Consistent margin, no horizontal offset */
@@ -4821,7 +4830,8 @@ hr.major {
 	.certifications-page .posts article {
 		min-height: 340px; /* Adjusted for medium screens */
 	}
-	.certifications-page .posts .image.fit iframe {
+	.certifications-page .posts .image.fit iframe,
+	.certifications-page .posts .image.fit img {
 		height: 120px; /* Slightly smaller previews */
 	}
 }
@@ -4835,7 +4845,8 @@ hr.major {
 	.certifications-page .posts article {
 		min-height: 320px; /* Adjusted for small screens */
 	}
-	.certifications-page .posts .image.fit iframe {
+	.certifications-page .posts .image.fit iframe,
+	.certifications-page .posts .image.fit img {
 		height: 100px; /* Smaller previews for mobile */
 	}
 }
