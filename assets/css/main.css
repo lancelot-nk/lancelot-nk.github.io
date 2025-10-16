@@ -4720,3 +4720,120 @@ hr.major {
 
 
 
+
+
+/* Page-specific styles for certifications.html */
+.certifications-page .posts {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr); /* 3 columns */
+	grid-template-rows: repeat(2, auto); /* 2 rows with auto height */
+	grid-gap: 1.5rem; /* Balanced gap for spacing */
+	max-width: 100%;
+	margin: 2rem auto; /* Vertical margin for breathing room */
+	padding: 0; /* Ensure no padding interferes */
+}
+
+.certifications-page .posts article {
+	padding: 1.5rem; /* Consistent padding inside each tile */
+	margin: 0; /* Remove any default margins */
+	box-sizing: border-box;
+	display: flex; /* Use flexbox for internal layout */
+	flex-direction: column; /* Stack elements vertically */
+	align-items: center; /* Center content horizontally */
+	justify-content: space-between; /* Distribute space evenly */
+	min-height: 360px; /* Adjusted height for no description text */
+}
+
+.certifications-page .posts h2 {
+	font-size: 1.35rem; /* Match publications-grants for readability */
+	line-height: 1.4; /* Increased line height */
+	margin-bottom: 1rem; /* Space below heading */
+	text-align: center; /* Center title */
+	height: auto; /* Allow natural height */
+	overflow: visible; /* No overflow hiding */
+}
+
+.certifications-page .posts .image.fit iframe {
+	width: 100%;
+	height: 180px; /* Match publications-grants iframe height */
+	border: none;
+	border-radius: 4px;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	margin-bottom: 1rem; /* Margin below iframe */
+}
+
+.certifications-page .posts .image.fit img {
+	width: 100%;
+	height: 180px; /* Match iframe height for consistency */
+	object-fit: cover; /* Stretch and crop, center on middle */
+	border-radius: 4px;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	margin-bottom: 1rem; /* Match iframe margin */
+}
+
+.certifications-page .actions.special {
+	list-style: none; /* Remove bullet */
+	margin: 1rem 0 0 0; /* Consistent margin, no horizontal offset */
+	padding: 0; /* Remove any padding */
+	width: 100%; /* Span full width of article */
+	display: flex; /* Use flexbox to center button */
+	justify-content: center; /* Horizontally center button */
+	align-items: center; /* Vertically align within container */
+}
+
+.certifications-page .actions.special .button {
+	background-color: #18bfef; /* Button background color */
+	color: #ffffff; /* White text */
+	padding: 0.75rem 1.5rem; /* Match publications-grants button size */
+	border-radius: 4px;
+	font-size: 1rem; /* Match publications-grants font size */
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	border: 1px solid #18bfef; /* Matching outline color */
+	transition: all 0.3s ease;
+	display: inline-flex; /* Flexbox for text centering */
+	align-items: center; /* Vertically center text */
+	justify-content: center; /* Horizontally center text */
+	min-height: 2.5rem; /* Ensure sufficient height for centering */
+}
+
+.certifications-page .actions.special .button:hover {
+	background-color: #ffffff; /* White background on hover */
+	color: #333333; /* Dark text for contrast */
+	border-color: #cccccc; /* Light gray outline on hover */
+	transform: translateY(-2px);
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Responsive adjustments for certifications page */
+@media screen and (max-width: 980px) {
+	.certifications-page .posts {
+		grid-template-columns: repeat(2, 1fr);
+		grid-gap: 1.25rem; /* Slightly reduced gap */
+		margin: 1.5rem auto; /* Adjusted margin */
+	}
+	.certifications-page .posts article {
+		min-height: 340px; /* Adjusted for medium screens */
+	}
+	.certifications-page .posts .image.fit img,
+	.certifications-page .posts .image.fit iframe {
+		height: 150px; /* Slightly smaller previews */
+	}
+}
+
+@media screen and (max-width: 736px) {
+	.certifications-page .posts {
+		grid-template-columns: 1fr;
+		grid-gap: 1rem; /* Adjusted gap for small screens */
+		margin: 1rem auto; /* Adjusted margin */
+	}
+	.certifications-page .posts article {
+		min-height: 320px; /* Adjusted for small screens */
+	}
+	.certifications-page .posts .image.fit img,
+	.certifications-page .posts .image.fit iframe {
+		height: 120px; /* Smaller previews for mobile */
+	}
+}
+
+
