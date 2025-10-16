@@ -4747,7 +4747,7 @@ hr.major {
 .certifications-page .posts h2 {
 	font-size: 1.35rem; /* Match publications-grants for readability */
 	line-height: 1.4; /* Increased line height */
-	margin-bottom: 1rem; /* Space below heading */
+	margin: 0 0 1rem 0; /* Space below heading */
 	text-align: center; /* Center title */
 	height: auto; /* Allow natural height */
 	overflow: visible; /* No overflow hiding */
@@ -4835,5 +4835,6 @@ hr.major {
 		height: 120px; /* Smaller previews for mobile */
 	}
 }
+
 
 
