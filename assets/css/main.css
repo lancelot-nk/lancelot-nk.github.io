@@ -4512,7 +4512,7 @@ hr.major {
 .graphic-design-page .posts {
 	display: grid;
 	grid-template-columns: repeat(3, 1fr); /* 3 columns */
-	grid-gap: 1rem; /* Increased gap for better separation */
+	grid-gap: 1.5rem; /* Increased gap for better vertical spacing between rows */
 	max-width: 100%;
 	margin: 0 auto;
 }
@@ -4567,7 +4567,7 @@ hr.major {
 	list-style: none;
 	margin: 0;
 	text-align: center; /* Center the button */
-	padding-bottom: 0.5rem; /* Bottom padding for spacing */
+	padding-top: 2rem; /* Quadrupled padding (from 0.5rem to 2rem) to separate from description */
 }
 
 .graphic-design-page .actions.special .button {
@@ -4615,8 +4615,6 @@ hr.major {
 		height: 100px; /* Adjusted for responsive height */
 	}
 }
-
-
 
 
 
