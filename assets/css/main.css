@@ -4547,8 +4547,8 @@ hr.major {
 
 .graphic-design-page .posts .image.fit img {
 	width: 100%;
-	height: auto; /* Uniform scaling with container */
-	max-height: 150px; /* Cap height for consistency */
+	height: 150px; /* Fixed height to match max-height, ensuring fill */
+	object-fit: cover; /* Stretch and crop to fill, centering on middle */
 	border-radius: 4px;
 	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
@@ -4589,7 +4589,7 @@ hr.major {
 		height: 280px;
 	}
 	.graphic-design-page .posts .image.fit img {
-		max-height: 120px;
+		height: 120px; /* Adjusted for responsive height */
 	}
 }
 
@@ -4601,7 +4601,7 @@ hr.major {
 		height: 260px;
 	}
 	.graphic-design-page .posts .image.fit img {
-		max-height: 100px;
+		height: 100px; /* Adjusted for responsive height */
 	}
 }
 
