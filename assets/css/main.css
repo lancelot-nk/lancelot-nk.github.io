@@ -4622,27 +4622,31 @@ hr.major {
 	grid-gap: 1.5rem; /* Increased gap for better spacing between tiles */
 	max-width: 100%;
 	margin: 2rem auto; /* Vertical margin for breathing room */
+	padding: 0; /* Ensure no padding interferes with grid */
 }
 
 .publications-grants-page .posts article {
-	padding: 1.5rem; /* Increased padding inside each tile */
+	padding: 1.5rem; /* Consistent padding inside each tile */
+	margin: 0; /* Remove any default margins */
 	box-sizing: border-box;
-	display: flex; /* Use flexbox to control internal layout */
+	display: flex; /* Use flexbox for internal layout */
 	flex-direction: column; /* Stack elements vertically */
 	align-items: center; /* Center content horizontally */
+	justify-content: space-between; /* Distribute space evenly */
 }
 
 .publications-grants-page .posts h2 {
 	font-size: 1.35rem; /* Slightly larger font for readability */
 	line-height: 1.4; /* Increased line height for clarity */
-	margin-bottom: 1rem; /* More space below the heading */
+	margin-bottom: 1rem; /* Space below heading */
+	text-align: center; /* Ensure heading is centered */
 }
 
 .publications-grants-page .posts p {
 	font-size: 1rem; /* Slightly larger font size */
 	line-height: 1.5; /* Increased line height for readability */
 	margin: 0.5rem 0; /* Vertical margin for separation */
-	text-align: center; /* Center the description text */
+	text-align: center; /* Center description text */
 }
 
 .publications-grants-page .posts .image.fit iframe {
@@ -4656,26 +4660,29 @@ hr.major {
 
 .publications-grants-page .actions.special {
 	list-style: none; /* Remove bullet */
-	margin: 1rem 0; /* Increased margin for button spacing */
-	width: 100%; /* Ensure container spans full width */
+	margin: 1rem 0 0 0; /* Consistent margin, no horizontal offset */
+	padding: 0; /* Remove any padding */
+	width: 100%; /* Span full width of article */
 	display: flex; /* Use flexbox to center button */
-	justify-content: center; /* Horizontally center the button */
+	justify-content: center !important; /* Force horizontal centering */
+	align-items: center; /* Ensure vertical alignment */
 }
 
 .publications-grants-page .actions.special .button {
 	background-color: #18bfef; /* Button background color */
 	color: #ffffff; /* White text */
-	padding: 0.75rem 1.5rem; /* Increased padding for larger button */
+	padding: 0.75rem 1.5rem; /* Consistent padding */
+	margin: 0; /* Remove any margins */
 	border-radius: 4px;
 	font-size: 1rem; /* Slightly larger font */
 	text-transform: uppercase;
 	letter-spacing: 0.05em;
 	border: 1px solid #18bfef; /* Matching outline color */
 	transition: all 0.3s ease;
-	display: inline-flex; /* Use flexbox for text centering */
-	align-items: center; /* Vertically center text */
-	justify-content: center; /* Horizontally center text */
-	min-height: 2.5rem; /* Ensure sufficient height for vertical centering */
+	display: inline-flex; /* Flexbox for text centering */
+	align-items: center !important; /* Vertically center text */
+	justify-content: center !important; /* Horizontally center text */
+	min-height: 2.5rem; /* Ensure sufficient height */
 }
 
 .publications-grants-page .actions.special .button:hover {
@@ -4692,6 +4699,7 @@ hr.major {
 		grid-template-columns: repeat(2, 1fr);
 		grid-gap: 1.25rem; /* Slightly reduced gap for medium screens */
 		margin: 1.5rem auto; /* Adjusted margin */
+		padding: 0; /* Ensure no padding */
 	}
 }
 
@@ -4700,6 +4708,8 @@ hr.major {
 		grid-template-columns: 1fr;
 		grid-gap: 1rem; /* Adjusted gap for smaller screens */
 		margin: 1rem auto; /* Adjusted margin */
+		padding: 0; /* Ensure no padding */
 	}
 }
+
 
