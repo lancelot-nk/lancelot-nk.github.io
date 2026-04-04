@@ -20,49 +20,42 @@ function getLayout(w) {
   return { size: 850, core: 175, radius: 255, hex: 155, fontSize: 24, isMobile: false };
 }
 
-function renderInwardPath(cx, cy, endX, endY, seed) {
-  let path = `M ${cx} ${cy}`;
-  let curX = cx; let curY = cy;
-  const bends = 2;
-  for (let i = 0; i < bends; i++) {
-    const progress = (i + 1) / (bends + 1);
-    if (i === bends - 1) { path += ` L ${endX} ${curY} L ${endX} ${endY}`; } 
-    else {
-      const horizontalFirst = (seed + i) % 2 === 0;
-      if (horizontalFirst) { curX = cx + (endX - cx) * progress; path += ` L ${curX} ${curY}`; } 
-      else { curY = cy + (endY - cy) * progress; path += ` L ${curX} ${curY}`; }
-    }
-  }
-  return path;
-}
-
-function renderOutwardPath(startX, startY, normalAngle, seed) {
+function renderOutwardPath(startX, startY, normalAngle, seed, isGhost = false) {
   let path = `M ${startX} ${startY}`;
   let curX = startX; 
   let curY = startY;
   
-  // 1. STRICT MINIMUM TRAVEL (Launch Phase)
-  const minDistance = 80; 
-  curX += Math.cos(normalAngle) * minDistance;
-  curY += Math.sin(normalAngle) * minDistance;
+  // Upper Bound Enforcement: Stay below the top textbox (roughly Y=140 on 850px scale)
+  const upperBoundY = 150; 
+  
+  // 1. Half-Length Launch
+  const launch = isGhost ? 15 : 25; 
+  curX += Math.cos(normalAngle) * launch;
+  curY += Math.sin(normalAngle) * launch;
   path += ` L ${curX} ${curY}`;
 
-  // 2. RANDOMIZED TURNS (Always getting further away)
-  const numTurns = 1 + (seed % 4); // 1 to 4 turns
+  const numTurns = 2 + (seed % 3);
   let currentAngle = normalAngle;
 
   for (let i = 0; i < numTurns; i++) {
-    // Logic: Turn 90 degrees left or right
-    const turn = ((seed + i) % 2 === 0) ? Math.PI / 2 : -Math.PI / 2;
+    const turn = (isGhost ? -1.2 : 1) * (((seed + i) % 2 === 0) ? Math.PI / 2 : -Math.PI / 2);
     const nextAngle = currentAngle + turn;
     
-    // We only commit to the turn if the new vector still has a positive 
-    // dot product with the original normal (meaning it's moving "away")
-    // If it's perfectly perpendicular, we allow it, but we never allow it to turn "back"
-    const segmentLen = 40 + (seed % 50);
-    curX += Math.cos(nextAngle) * segmentLen;
-    curY += Math.sin(nextAngle) * segmentLen;
-    path += ` L ${curX} ${curY}`;
+    // Half-length segments (10-25px)
+    const segmentLen = 10 + (seed % 15); 
+    
+    const nextX = curX + Math.cos(nextAngle) * segmentLen;
+    const nextY = curY + Math.sin(nextAngle) * segmentLen;
+
+    // Safety check: if the next turn hits the upper bound, flatten it
+    if (nextY < upperBoundY) {
+      curX = nextX;
+      path += ` L ${curX} ${curY}`; // Stay at current Y
+    } else {
+      curX = nextX;
+      curY = nextY;
+      path += ` L ${curX} ${curY}`;
+    }
     currentAngle = nextAngle;
   }
   return path;
@@ -85,62 +78,56 @@ export default function Nexus({ activeSection, onSelect }) {
 
   return (
     <div className="relative flex-shrink-0" style={{ width: size, height: size }}>
-      <svg className="absolute inset-0 w-full h-full overflow-visible z-[5]">
+      {/* LAYER 1: DENDRIES (Z-1) */}
+      <svg className="absolute inset-0 w-full h-full overflow-visible z-[1]">
         <defs>
-          <filter id="active-glow"><feGaussianBlur stdDeviation="3" result="blur" /><feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge></filter>
+          <filter id="active-glow"><feGaussianBlur stdDeviation="1.5" result="blur" /><feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge></filter>
         </defs>
 
-        {/* LAYER 1: LINES (Rendered first so they stay behind hexagons/text) */}
         {SECTIONS.map((s, i) => {
           const baseA = ((i * 60) - 90 - 30) * (Math.PI / 180);
           const hx = cx + radius * Math.cos(baseA), hy = cy + radius * Math.sin(baseA);
           const isActive = activeSection === s.id;
 
-          return (
-            <AnimatePresence key={`lines-${s.id}`}>
-              {isActive && (
-                <motion.g initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                  {/* INWARD DENDRIES */}
-                  {[ -12, 0, 12 ].map((off, idx) => (
+          return (isActive && (
+            <motion.g key={`lines-${s.id}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+              {!isMobile && Array.from({ length: 10 }).map((_, idx) => {
+                const sideIdx = (idx + i) % 6;
+                const normalAngle = ((sideIdx * 60) - 120) * (Math.PI / 180);
+                const tightSpread = (hex * 0.04) * (idx - 5);
+                
+                const startX = hx + Math.cos(normalAngle) * (hex / 2.1) + Math.cos(normalAngle + Math.PI/2) * tightSpread;
+                const startY = hy + Math.sin(normalAngle) * (hexH / 4) + Math.sin(normalAngle + Math.PI/2) * tightSpread;
+
+                // Random variations
+                const sw = 0.5 + (idx % 3); // 0.5 to 2.5 width
+                const op = 0.2 + (idx % 5) * 0.15; // 0.2 to 0.95 opacity
+
+                return (
+                  <g key={`out-group-${idx}`}>
+                    {/* Parent */}
                     <motion.path
-                      key={`in-${idx}`}
-                      d={renderInwardPath(cx, cy, hx + off, hy + off, i * 7 + idx)}
-                      fill="none" stroke="white" strokeWidth={idx === 1 ? 3 : 1.5}
-                      opacity={idx === 1 ? 0.9 : 0.3} filter="url(#active-glow)"
-                      initial={{ pathLength: 0 }} animate={{ pathLength: 1 }}
-                      transition={{ duration: 0.6 }}
+                      d={renderOutwardPath(startX, startY, normalAngle, i * 33 + idx, false)}
+                      fill="none" stroke="white" strokeWidth={sw} opacity={op}
+                      filter="url(#active-glow)" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }}
                     />
-                  ))}
-
-                  {/* OUTWARD DENDRIES */}
-                  {!isMobile && Array.from({ length: 10 }).map((_, idx) => {
-                    const sideIdx = idx % 6;
-                    const normalAngle = ((sideIdx * 60) - 120) * (Math.PI / 180);
-                    
-                    // ULTRA-TIGHT SPAWN: Only the center 15% of the face
-                    const tightSpread = (hex * 0.08) * ((idx % 3) - 1);
-                    
-                    const startX = hx + Math.cos(normalAngle) * (hex / 2.1) + Math.cos(normalAngle + Math.PI/2) * tightSpread;
-                    const startY = hy + Math.sin(normalAngle) * (hexH / 4) + Math.sin(normalAngle + Math.PI/2) * tightSpread;
-
-                    return (
-                      <motion.path
-                        key={`out-${idx}`}
-                        d={renderOutwardPath(startX, startY, normalAngle, i * 42 + idx)}
-                        fill="none" stroke="white" strokeWidth={1.5} opacity={0.5}
-                        filter="url(#active-glow)"
-                        initial={{ pathLength: 0 }} animate={{ pathLength: 1 }}
-                        transition={{ duration: 0.9, delay: 0.3 + (idx * 0.03) }}
-                      />
-                    );
-                  })}
-                </motion.g>
-              )}
-            </AnimatePresence>
-          );
+                    {/* Ghost Mirror - Varying size and transparency */}
+                    <motion.path
+                      d={renderOutwardPath(startX, startY, normalAngle, i * 33 + idx, true)}
+                      fill="none" stroke="white" strokeWidth={sw * 0.5} opacity={op * 0.4}
+                      filter="url(#active-glow)" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }}
+                      style={{ transform: `scale(${0.8 + (idx % 4) * 0.1})`, transformOrigin: `${startX}px ${startY}px` }}
+                    />
+                  </g>
+                );
+              })}
+            </motion.g>
+          ));
         })}
+      </svg>
 
-        {/* LAYER 2: HEXAGONS (Rendered after lines) */}
+      {/* LAYER 2: HEXAGONS (Z-10) */}
+      <svg className="absolute inset-0 w-full h-full overflow-visible z-[10] pointer-events-none">
         {SECTIONS.map((s, i) => {
           const a = ((i * 60) - 90 - 30) * (Math.PI / 180);
           const hx = cx + radius * Math.cos(a), hy = cy + radius * Math.sin(a);
@@ -150,31 +137,28 @@ export default function Nexus({ activeSection, onSelect }) {
               points={`${hx},${hy - hexH / 2} ${hx + hex / 2},${hy - hexH / 4} ${hx + hex / 2},${hy + hexH / 4} ${hx},${hy + hexH / 2} ${hx - hex / 2},${hy + hexH / 4} ${hx - hex / 2},${hy - hexH / 4}`}
               fill={hoveredId === s.id ? 'white' : brandPink}
               stroke={hoveredId === s.id ? brandPink : '#4A0000'}
-              strokeWidth={activeSection === s.id ? 5 : 2.5}
-              className="cursor-pointer"
+              strokeWidth={activeSection === s.id ? 4 : 2}
               style={{ transformOrigin: `${hx}px ${hy}px` }}
-              onClick={() => onSelect(s.id)}
             />
           );
         })}
       </svg>
 
-      {/* LAYER 3: INTERACTIVE BUTTONS */}
+      {/* LAYER 3: INTERACTION (Z-20) */}
       {SECTIONS.map((s, i) => {
         const a = ((i * 60) - 90 - 30) * (Math.PI / 180);
         const hx = cx + radius * Math.cos(a), hy = cy + radius * Math.sin(a);
-        const Icon = s.icon;
         return (
           <motion.button
             key={`btn-${s.id}`}
-            className="absolute z-20 bg-none border-none cursor-pointer p-0"
+            className="absolute z-[20] bg-none border-none cursor-pointer p-0"
             style={{ left: hx - hex / 2, top: hy - hexH / 2, width: hex, height: hexH }}
             onMouseEnter={() => setHoveredId(s.id)}
             onMouseLeave={() => setHoveredId(null)}
             onClick={() => onSelect(s.id)}
           >
             <div className="relative w-full h-full flex flex-col items-center justify-center pointer-events-none">
-              <Icon size={isMobile ? 18 : 24} style={{ color: hoveredId === s.id ? '#4A0000' : 'white' }} />
+              <s.icon size={isMobile ? 18 : 24} style={{ color: hoveredId === s.id ? '#4A0000' : 'white' }} />
               <span className="font-mono uppercase font-black text-center whitespace-pre-line" 
                     style={{ fontSize: `${fontSize}px`, color: hoveredId === s.id ? '#4A0000' : 'white', lineHeight: '1.0' }}>
                 {s.label}
@@ -184,21 +168,26 @@ export default function Nexus({ activeSection, onSelect }) {
         );
       })}
 
-      {/* LAYER 4: PORTRAIT (Using object-position for stable head-framing) */}
+      {/* PORTRAIT: FIXING HOVER BREAKAGE */}
       <motion.a
         href="https://www.linkedin.com/in/lancelotnk/"
         target="_blank" rel="noopener noreferrer"
-        className="absolute top-1/2 left-1/2 z-[60] block overflow-hidden rounded-full border-4 border-[#E01880] cursor-pointer shadow-2xl"
-        style={{ width: core, height: core, transform: "translate(-50%, -50%)" }}
-        whileHover={{ scale: 1.15 }}
+        className="absolute top-1/2 left-1/2 z-[100] block overflow-hidden rounded-full border-4 border-[#E01880] cursor-pointer shadow-2xl"
+        style={{ 
+            width: core, 
+            height: core, 
+            x: "-50%", 
+            y: "-50%" 
+        }}
+        whileHover={{ scale: 1.1 }}
       >
         <img 
           src={profilePic} 
           alt="Lancelot" 
           className="w-full h-full object-cover" 
           style={{ 
-            transform: 'scale(1.8)', 
-            objectPosition: 'center 15%' 
+            objectPosition: 'center 15%',
+            transform: 'scale(1.7)'
           }} 
         />
       </motion.a>
