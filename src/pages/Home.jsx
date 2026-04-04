@@ -1,3 +1,32 @@
+// Top of Home.jsx
+const [gameActive, setGameActive] = useState(false);
+
+// Update handleGameUnlock
+const handleGameUnlock = useCallback(() => {
+  setGameActive(true);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}, []);
+
+// Inside the return, wrap your main UI in an AnimatePresence
+<AnimatePresence>
+  {!gameActive && (
+    <motion.div 
+      exit={{ opacity: 0, scale: 0.9 }} 
+      className="relative z-10 flex flex-col items-center ..."
+    >
+      {/* ... All your existing GlitchText, Nexus, and PillBtns ... */}
+    </motion.div>
+  )}
+</AnimatePresence>
+
+{/* Add the Game Overlay */}
+{gameActive && (
+  <BlobGame onClose={() => setGameActive(false)} />
+)}
+
+{/* Update ParticleField call to pass the multiplier */}
+<ParticleField isGameMode={gameActive} />
+
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Linkedin, Github, Mail, ArrowUp, FileDown, Gamepad2 } from 'lucide-react';
