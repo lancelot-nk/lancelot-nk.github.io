@@ -211,11 +211,11 @@ function QuoteBox({ onGameUnlock }) {
             onClick={(e) => { e.stopPropagation(); onGameUnlock(); }}
             className="absolute flex items-center justify-center w-10 h-10 rounded-xl border-2"
             style={{
-              top:         '-14px',
+              top:          '-14px',
               right:       '-14px',
               borderColor: PINK,
               background:  'rgba(255,255,255,0.97)',
-              color:        PINK,
+              color:         PINK,
               boxShadow:   `0 0 18px rgba(224,24,128,0.45), 0 2px 8px rgba(0,0,0,0.10)`,
               zIndex:       50,
             }}
@@ -313,29 +313,21 @@ export default function Home() {
           <QuoteBox onGameUnlock={handleGameUnlock} />
         </motion.div>
 
-        {/*
-          Dead-space math (SVG container size vs actual hex bounds):
-            Desktop (size=850, radius=255, hexH≈178): hex top edge ≈ y=81  → eat 71px each side → my-[-71px]
-            Tablet  (size=550, radius=180, hexH≈126): hex top edge ≈ y=54  → eat 44px each side → sm:my-[-44px]
-            Mobile  (size=340, radius=105, hexH≈ 86): hex top edge ≈ y=32  → eat 26px each side → base my-[-26px]
-          A ~10px breathing room kept on each side so nothing clips.
-        -->
-        -->  mobile slightly more aggressive (extra -8px) since small screen gap ratio is worse
-        -->  py-1/py-4 removed — was adding back space we're trying to remove
-        -->  lg: targets desktop specifically (900px+ matches the 850 layout breakpoint)
-        -->  sm: targets tablet (480-900px, uses 550 layout)
-        -->  base: mobile (<480px, uses 340 layout)
+        {/* FIX 1: pointer-events-none added to wrapper to restore button clicks below.
+            FIX 2: Aggressive negative margins to decrease the gap.
         */}
-        <div className="my-[-34px] sm:my-[-44px] lg:my-[-71px]">
-          <Nexus activeSection={activeSection} onSelect={handleSelect} />
+        <div className="relative pointer-events-none my-[-50px] sm:my-[-65px] lg:my-[-90px] z-20">
+          <div className="pointer-events-auto">
+            <Nexus activeSection={activeSection} onSelect={handleSelect} />
+          </div>
         </div>
 
         {/* mt-0 mobile (was mt-[-8px] which could clip), sm keeps existing pull-up */}
-        <div className="flex gap-4 flex-wrap justify-center mt-0 sm:mt-[-15px] pb-8 sm:pb-0">
+        <div className="flex gap-4 flex-wrap justify-center mt-0 sm:mt-[-15px] pb-8 sm:pb-0 z-30">
           <PillBtn href="https://www.linkedin.com/in/lancelotnk/" icon={Linkedin} label="LinkedIn" />
-          <PillBtn href="https://github.com/lancelot-nk"          icon={Github}   label="GitHub" />
-          <PillBtn href="mailto:lancelotsmnk@gmail.com"           icon={Mail}     label="Contact For Work" />
-          <PillBtn onClick={() => handleSelect('resume')}          icon={FileDown} label="Resume" />
+          <PillBtn href="https://github.com/lancelot-nk"           icon={Github}   label="GitHub" />
+          <PillBtn href="mailto:lancelotsmnk@gmail.com"            icon={Mail}     label="Contact For Work" />
+          <PillBtn onClick={() => handleSelect('resume')}           icon={FileDown} label="Resume" />
         </div>
       </div>
 
