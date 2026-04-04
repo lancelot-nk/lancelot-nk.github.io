@@ -14,9 +14,9 @@
     --card-foreground: 280 20% 15%;
     --popover: 0 0% 100%;
     --popover-foreground: 280 20% 15%;
-    --primary: 320 90% 55%; /* The #E01880 Pink */
+    --primary: 320 90% 55%; /* #E01880 Pink */
     --primary-foreground: 0 0% 100%;
-    --secondary: 270 80% 55%; /* The #8B00E8 Violet */
+    --secondary: 270 80% 55%; /* #8B00E8 Violet */
     --secondary-foreground: 0 0% 100%;
     --muted: 320 20% 96%;
     --muted-foreground: 280 15% 45%;
@@ -38,6 +38,43 @@
     font-family: var(--font-inter);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+@layer components {
+  /* RESTORED GLITCH ENGINE */
+  .glitch {
+    @apply relative inline-block;
+  }
+
+  .glitch::before,
+  .glitch::after {
+    content: attr(data-text);
+    @apply absolute top-0 left-0 w-full h-full opacity-80;
+    background: transparent;
+    pointer-events: none;
+  }
+
+  /* Red/Pink Shadow Layer */
+  .glitch::before {
+    @apply text-primary;
+    z-index: -1;
+    animation: glitch 0.4s steps(2) infinite;
+  }
+
+  /* Blue/Violet Shadow Layer */
+  .glitch::after {
+    @apply text-secondary;
+    z-index: -2;
+    animation: glitch 0.4s steps(2) infinite reverse;
+  }
+
+  /* Always active on your name/title, but feels more responsive on hover */
+  .glitch:hover::before {
+    transform: translate(2px, -2px);
+  }
+  .glitch:hover::after {
+    transform: translate(-2px, 2px);
   }
 }
 
@@ -63,6 +100,7 @@
   50% { box-shadow: 0 0 40px hsla(var(--primary), 0.3); opacity: 1; }
 }
 
+/* The Glitch Logic defined in tailwind.config.js keyframes */
 @keyframes glitch {
   0%   { clip-path: inset(0 0 95% 0); transform: translate(-2px, 0); }
   10%  { clip-path: inset(40% 0 50% 0); transform: translate(2px, 0); }

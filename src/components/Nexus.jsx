@@ -6,7 +6,7 @@ import { Code, FileText, BarChart3, Palette, BookOpen, Award } from 'lucide-reac
 import profilePic from '../assets/profile.jpg';
 
 export const SECTIONS = [
-  { id: 'projects',       label: 'Projects',       icon: Code },
+  { id: 'projects',      label: 'Projects',       icon: Code },
   { id: 'resume',         label: 'Resume',          icon: FileText },
   { id: 'dashboards',     label: 'Dash\nBoards',    icon: BarChart3 }, 
   { id: 'design',         label: 'Design',          icon: Palette },
@@ -22,23 +22,20 @@ function getLayout(w) {
 
 function renderCircuit(startX, startY, endX, endY, seed) {
   let path = `M ${startX} ${startY}`;
+  const segments = 2 + (seed % 2);
   let curX = startX;
   let curY = startY;
-
-  const segments = 2 + (seed % 3);
   
   for (let i = 0; i < segments; i++) {
     const isLast = i === segments - 1;
     const progress = (i + 1) / segments;
-
     if (isLast) {
       path += ` L ${endX} ${curY} L ${endX} ${endY}`;
     } else {
-      const targetStepX = startX + (endX - startX) * progress + (Math.sin(seed + i) * 20);
-      const targetStepY = startY + (endY - startY) * progress + (Math.cos(seed + i) * 20);
-      path += ` L ${targetStepX} ${curY} L ${targetStepX} ${targetStepY}`;
-      curX = targetStepX;
-      curY = targetStepY;
+      const tx = startX + (endX - startX) * progress + (Math.sin(seed + i) * 15);
+      const ty = startY + (endY - startY) * progress + (Math.cos(seed + i) * 15);
+      path += ` L ${tx} ${curY} L ${tx} ${ty}`;
+      curX = tx; curY = ty;
     }
   }
   return path;
@@ -48,16 +45,15 @@ function getPath(cx, cy, hx, hy, seed, offset = 0, type = 'inward') {
   if (type === 'inward') {
     return renderCircuit(cx, cy, hx + offset, hy + offset, seed);
   }
-
-  const sideIndex = seed % 6;
-  const sideAngle = (sideIndex * 60) * (Math.PI / 180);
-  const startX = hx + Math.cos(sideAngle) * 20;
-  const startY = hy + Math.sin(sideAngle) * 20;
+  // Outward logic: burst from the node's angle
+  const angle = Math.atan2(hy - cy, hx - cx);
+  const spread = (seed % 40 - 20) * (Math.PI / 180);
+  const startX = hx + Math.cos(angle + spread) * 30;
+  const startY = hy + Math.sin(angle + spread) * 30;
+  const dist = 150 + (seed % 250);
+  const destX = startX + Math.cos(angle + spread) * dist;
+  const destY = startY + Math.sin(angle + spread) * dist;
   
-  const dist = 40 + (seed % 40);
-  const destX = startX + Math.cos(sideAngle) * dist + (Math.sin(seed) * 20);
-  const destY = startY + Math.sin(sideAngle) * dist + (Math.cos(seed) * 20);
-
   return renderCircuit(startX, startY, destX, destY, seed);
 }
 
@@ -75,7 +71,6 @@ export default function Nexus({ activeSection, onSelect }) {
   const hexH = Math.round(hex * 1.15); 
   const cx = size / 2, cy = size / 2;
   const brandPink = '#E01880';
-  const glowColor = '#FFD1E8';
 
   return (
     <div className="relative flex-shrink-0" style={{ width: size, height: size }}>
@@ -95,14 +90,13 @@ export default function Nexus({ activeSection, onSelect }) {
 
           return (
             <g key={`circuit-group-${s.id}`}>
-              <AnimatePresence mode="wait">
+              <AnimatePresence>
                 {isActive && (
                   <motion.g 
-                    key={`active-g-${s.id}`}
-                    initial={{ opacity: 0 }} 
-                    animate={{ opacity: 1 }} 
-                    exit={{ opacity: 0 }}
+                    key={`active-lines-${s.id}`}
+                    initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                   >
+                    {/* INWARD CONNECTORS */}
                     {[ -18, -12, -6, 0, 6, 12, 18 ].map((offset, idx) => (
                       <motion.path
                         key={`inward-${idx}`}
@@ -118,16 +112,17 @@ export default function Nexus({ activeSection, onSelect }) {
                       />
                     ))}
 
-                    {!isMobile && Array.from({ length: 12 }).map((_, idx) => (
+                    {/* OUTWARD EXPLOSION */}
+                    {!isMobile && Array.from({ length: 20 }).map((_, idx) => (
                       <motion.path
                         key={`outward-${idx}`}
-                        d={getPath(cx, cy, hx, hy, (i + 5) * (idx + 100), 0, 'outward')}
-                        fill="none" stroke="white" strokeWidth={1.5}
-                        opacity={0.6} filter="url(#active-glow)"
-                        initial={{ pathLength: 0, opacity: 0 }}
-                        animate={{ pathLength: 1, opacity: 0.6 }}
-                        exit={{ pathLength: 0, opacity: 0 }}
-                        transition={{ duration: 0.6, delay: 0.2 + (idx * 0.04) }}
+                        d={getPath(cx, cy, hx, hy, (i + 1) * (idx + 200), 0, 'outward')}
+                        fill="none" stroke="white" strokeWidth={0.8}
+                        opacity={0.4} filter="url(#active-glow)"
+                        initial={{ pathLength: 0 }}
+                        animate={{ pathLength: 1 }}
+                        exit={{ pathLength: 0 }}
+                        transition={{ duration: 0.7, delay: 0.1 + (idx * 0.02) }}
                       />
                     ))}
                   </motion.g>
@@ -140,7 +135,7 @@ export default function Nexus({ activeSection, onSelect }) {
                 stroke={isHovered ? brandPink : '#4A0000'}
                 strokeWidth={isActive ? 6 : 3}
                 className="transition-all duration-300 cursor-pointer"
-                style={{ filter: isActive ? `drop-shadow(0 0 25px ${glowColor})` : 'none' }}
+                style={{ filter: isActive ? `drop-shadow(0 0 25px rgba(224, 24, 128, 0.6))` : 'none' }}
                 onClick={() => onSelect(s.id)}
               />
             </g>
@@ -155,9 +150,6 @@ export default function Nexus({ activeSection, onSelect }) {
         const isHovered = hoveredId === s.id;
         const Icon = s.icon;
         
-        const iconSize = isMobile ? Math.round(hex * 0.22) : Math.round(hex * 0.20); 
-        const currentFontSize = isActive ? Math.round(fontSize * 1.1) : fontSize;
-
         return (
           <motion.button
             key={`btn-${s.id}`}
@@ -170,24 +162,22 @@ export default function Nexus({ activeSection, onSelect }) {
           >
             <div className="relative w-full h-full flex flex-col items-center justify-center">
               <Icon 
-                size={iconSize} 
+                size={isMobile ? Math.round(hex * 0.22) : 24} 
                 className="transition-all duration-300"
                 style={{ 
                   color: isHovered ? '#4A0000' : 'white',
-                  transform: isMobile ? 'translateY(0px)' : 'translateY(-10px)',
+                  transform: isMobile ? 'translateY(0)' : 'translateY(-8px)',
                 }} 
               />
               <span 
                 className="font-mono uppercase font-black text-center transition-colors duration-300"
                 style={{ 
-                  width: isMobile ? '85%' : '98%',
-                  fontSize: `${currentFontSize}px`, 
+                  width: '90%',
+                  fontSize: `${isActive ? fontSize * 1.1 : fontSize}px`, 
                   color: isHovered ? '#4A0000' : 'white', 
-                  lineHeight: isMobile ? '0.85' : '0.9', 
+                  lineHeight: '0.9', 
                   letterSpacing: '0.05em',
                   whiteSpace: 'pre-line',
-                  display: 'inline-block',
-                  transform: isMobile ? 'none' : 'scaleX(1.05)'
                 }}
               >
                 {s.label}
@@ -201,7 +191,7 @@ export default function Nexus({ activeSection, onSelect }) {
         className="absolute top-1/2 left-1/2 z-10 overflow-hidden rounded-full border-4 border-[#E01880] shadow-2xl"
         style={{ width: core, height: core, x: "-50%", y: "-50%" }}
       >
-        <img src={profilePic} alt="Lancelot" className="w-full h-full object-cover object-top" />
+        <img src={profilePic} alt="Core" className="w-full h-full object-cover object-top" />
       </motion.div>
     </div>
   );

@@ -74,33 +74,35 @@ export default function Home() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const scrollToContent = () => {
-    // 3s delay to allow Nexus reverse + forward animations to complete
+  const triggerScroll = (delay) => {
     setTimeout(() => {
       if (contentRef.current) {
         const y = contentRef.current.getBoundingClientRect().top + window.pageYOffset - 20;
         smoothScrollTo(y, 2000); 
       }
-    }, 3000); 
+    }, delay);
   };
 
   const handleSelect = (id) => {
+    // If clicking the same node, just close it
     if (activeSection === id) {
       setActiveSection(null);
       return;
     }
 
     if (activeSection !== null) {
-      // Step 1: Trigger exit/reverse animation
+      // SWAPPING: Clear current to trigger reversal
       setActiveSection(null);
-      // Step 2: Trigger new entrance after exit duration
+      
+      // Wait for exit duration, then set new and scroll after 2s
       setTimeout(() => {
         setActiveSection(id);
-        scrollToContent();
+        triggerScroll(2000); 
       }, 800); 
     } else {
+      // FRESH SELECT: Set immediately and scroll after 1.5s
       setActiveSection(id);
-      scrollToContent();
+      triggerScroll(1500);
     }
   };
 
@@ -115,7 +117,6 @@ export default function Home() {
         <motion.div className="text-center flex flex-col items-center w-full" 
           initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
           
-          {/* ORIGINAL GLITCH LOGIC RESTORED */}
           <h1 className="glitch font-inter" data-text="Lancelot Naipier-Kane" style={{
             fontSize: 'clamp(1.8rem, 8vw, 4.5rem)', fontWeight: 900,
             color: '#1A0010', letterSpacing: '-0.05em', margin: 0, lineHeight: 1.1,
