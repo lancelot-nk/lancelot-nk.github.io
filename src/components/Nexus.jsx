@@ -42,7 +42,7 @@ function renderOutwardPath(startX, startY, normalAngle, seed, isMobile) {
   let path = `M ${startX} ${startY}`;
   let curX = startX; let curY = startY;
   
-  // Straight perpendicular launch from the specific face
+  // Straight perpendicular launch
   const launch = isMobile ? 20 : 45;
   curX += Math.cos(normalAngle) * launch;
   curY += Math.sin(normalAngle) * launch;
@@ -88,7 +88,8 @@ export default function Nexus({ activeSection, onSelect }) {
         </defs>
 
         {SECTIONS.map((s, i) => {
-          const a = (i * 60 - 90) * (Math.PI / 180);
+          // PHASE FIX A: Rotate the Hex Coordinate Schema by -30deg (Flat Top)
+          const a = ((i * 60) - 90 - 30) * (Math.PI / 180);
           const hx = cx + radius * Math.cos(a), hy = cy + radius * Math.sin(a);
           const isActive = activeSection === s.id;
 
@@ -109,11 +110,12 @@ export default function Nexus({ activeSection, onSelect }) {
                     />
                   ))}
 
-                  {/* PHASE 2: OUTWARD (TRUE PERPENDICULAR SIDES) */}
+                  {/* PHASE FIX B: OUTWARD (PERPENDICULAR SIDES) */}
                   {!isMobile && Array.from({ length: 12 }).map((_, idx) => {
                     const sideIdx = idx % 6;
                     // Normals for a flat-top hexagon (sides are 0, 60, 120...)
-                    const normals = [0, 60, 120, 180, 240, 300].map(d => (d - 90) * Math.PI / 180);
+                    // Rotated by -30deg relative to base math
+                    const normals = [0, 60, 120, 180, 240, 300].map(d => (d - 120) * Math.PI / 180);
                     const normalAngle = normals[sideIdx];
                     
                     const spread = (hex / 3) * (((idx % 5) - 2) / 2);
@@ -127,7 +129,7 @@ export default function Nexus({ activeSection, onSelect }) {
                         fill="none" stroke="white" strokeWidth={2} opacity={0.7}
                         filter="url(#active-glow)"
                         initial={{ pathLength: 0 }} animate={{ pathLength: 1 }}
-                        transition={{ duration: 0.6, delay: 0.7 + (idx * 0.03) }}
+                        transition={{ duration: 0.6, delay: 0.7 + (idx * 0.03) }} // Starts AFTER Inward
                       />
                     );
                   })}
@@ -138,7 +140,7 @@ export default function Nexus({ activeSection, onSelect }) {
         })}
 
         {SECTIONS.map((s, i) => {
-          const a = (i * 60 - 90) * (Math.PI / 180);
+          const a = ((i * 60) - 90 - 30) * (Math.PI / 180);
           const hx = cx + radius * Math.cos(a), hy = cy + radius * Math.sin(a);
           return (
             <motion.polygon
@@ -156,7 +158,7 @@ export default function Nexus({ activeSection, onSelect }) {
       </svg>
 
       {SECTIONS.map((s, i) => {
-        const a = (i * 60 - 90) * (Math.PI / 180);
+        const a = ((i * 60) - 90 - 30) * (Math.PI / 180);
         const hx = cx + radius * Math.cos(a), hy = cy + radius * Math.sin(a);
         const Icon = s.icon;
         return (
@@ -179,7 +181,7 @@ export default function Nexus({ activeSection, onSelect }) {
         );
       })}
 
-      {/* PORTRAIT - FINAL POSITIONING */}
+      {/* PORTRAIT - DROP-SHIFT ADDED */}
       <motion.a
         href="https://www.linkedin.com/in/lancelotnk/"
         target="_blank" rel="noopener noreferrer"
@@ -194,8 +196,8 @@ export default function Nexus({ activeSection, onSelect }) {
           alt="LinkedIn" 
           className="w-full h-full object-cover" 
           style={{ 
-            // Dropped to 22% and adjusted origin to 50% to prevent head-clipping
-            transform: 'scale(2.2) translate(-5%, 22%)', 
+            // Shifted Y translation to 30% to drop head down significantly
+            transform: 'scale(2.2) translate(-5%, 30%)', 
             transformOrigin: '50% 50%' 
           }} 
         />
