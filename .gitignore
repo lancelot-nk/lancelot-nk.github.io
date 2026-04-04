@@ -1,5 +1,29 @@
-# Logs
-logs
+# --- Dependencies ---
+node_modules/
+.pnp
+.pnp.js
+jspm_packages/
+
+# --- Build & Output ---
+dist/
+dist-ssr/
+.output/
+.vercel/
+.next/
+.nuxt/
+.parcel-cache/
+/workspaces/
+
+# --- Environment & Secrets ---
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.local
+
+# --- Logs ---
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
@@ -7,34 +31,10 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# Dependency directories
-node_modules/
-jspm_packages/
-
-# Build outputs
-dist/
-dist-ssr/
-*.local
-
-# Static assets and caches
-.eslintcache
-.stylelintcache
-.vite
-.parcel-cache
-.next
-.nuxt
-.output
-.vercel
-
-# Environment variables
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-# Editor and OS files
+# --- Editor & IDE ---
+# We ignore the folder BUT allow specific workspace settings for Tailwind/Linting
 .vscode/*
+!.vscode/settings.json
 !.vscode/extensions.json
 .idea/
 *.suo
@@ -42,9 +42,13 @@ dist-ssr/
 *.njsproj
 *.sln
 *.sw?
+
+# --- OS Specific ---
 .DS_Store
 Thumbs.db
 
-# Project-specific ignores
-/workspaces
-.github
+# --- Tools & Caches ---
+.vite/
+.eslintcache
+.stylelintcache
+.github/
