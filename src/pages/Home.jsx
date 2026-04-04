@@ -1,38 +1,10 @@
-// Top of Home.jsx
-const [gameActive, setGameActive] = useState(false);
-
-// Update handleGameUnlock
-const handleGameUnlock = useCallback(() => {
-  setGameActive(true);
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}, []);
-
-// Inside the return, wrap your main UI in an AnimatePresence
-<AnimatePresence>
-  {!gameActive && (
-    <motion.div 
-      exit={{ opacity: 0, scale: 0.9 }} 
-      className="relative z-10 flex flex-col items-center ..."
-    >
-      {/* ... All your existing GlitchText, Nexus, and PillBtns ... */}
-    </motion.div>
-  )}
-</AnimatePresence>
-
-{/* Add the Game Overlay */}
-{gameActive && (
-  <BlobGame onClose={() => setGameActive(false)} />
-)}
-
-{/* Update ParticleField call to pass the multiplier */}
-<ParticleField isGameMode={gameActive} />
-
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Linkedin, Github, Mail, ArrowUp, FileDown, Gamepad2 } from 'lucide-react';
 import ParticleField from '../components/ParticleField';
 import Nexus from '../components/Nexus';
 import ContentPanel from '../components/ContentPanel';
+import BlobGame from '../components/BlobGame'; // Ensure this file exists!
 
 import bgAsset from '../assets/bg.jpg';
 
@@ -96,7 +68,6 @@ function initScrollInterruptListeners() {
     if (['ArrowUp','ArrowDown','PageUp','PageDown','Home','End',' '].includes(e.key)) userInterrupted = true;
   });
 }
-// ─────────────────────────────────────────────────────────────────────────────
 
 function CertBadge({ label, color, onSelect }) {
   const [hov, setHov] = useState(false);
@@ -180,12 +151,9 @@ function QuoteBox({ onGameUnlock }) {
   }, []);
 
   return (
-    // Outer wrapper is the positioning context for the floating game button
-    <div className="relative mt-4 mb-1 sm:mb-0 mx-auto max-w-[750px]">
-
-      {/* The visible quote card */}
+    <div className="relative mt-4 mb-1 sm:mb-0 mx-auto max-w-[750px] pointer-events-auto">
       <motion.div
-        className="rounded-2xl border border-white/80 shadow-2xl cursor-default select-none"
+        className="rounded-2xl border border-white/80 shadow-2xl cursor-default select-none relative z-40"
         style={{ background: 'rgba(255,255,255,0.70)', backdropFilter: 'blur(16px)' }}
         initial={false}
         whileHover={{
@@ -211,7 +179,6 @@ function QuoteBox({ onGameUnlock }) {
           "Turning complex data into decisive action — from $7.6B budgets to AI-driven systems, I architect solutions that move organizations forward."
         </motion.p>
 
-        {/* Hold progress ring — inside card, top-right */}
         {holding && (
           <svg
             className="absolute top-2 right-2 pointer-events-none"
@@ -229,7 +196,6 @@ function QuoteBox({ onGameUnlock }) {
         )}
       </motion.div>
 
-      {/* Game button — floats off the top-right corner of the wrapper, not inside the card */}
       <AnimatePresence>
         {gameVisible && (
           <motion.button
@@ -240,13 +206,13 @@ function QuoteBox({ onGameUnlock }) {
             onClick={(e) => { e.stopPropagation(); onGameUnlock(); }}
             className="absolute flex items-center justify-center w-10 h-10 rounded-xl border-2"
             style={{
-              top:          '-14px',
-              right:       '-14px',
+              top: '-14px',
+              right: '-14px',
               borderColor: PINK,
-              background:  'rgba(255,255,255,0.97)',
-              color:         PINK,
-              boxShadow:   `0 0 18px rgba(224,24,128,0.45), 0 2px 8px rgba(0,0,0,0.10)`,
-              zIndex:       50,
+              background: 'rgba(255,255,255,0.97)',
+              color: PINK,
+              boxShadow: `0 0 18px rgba(224,24,128,0.45), 0 2px 8px rgba(0,0,0,0.10)`,
+              zIndex: 50,
             }}
             title="???"
           >
@@ -257,11 +223,13 @@ function QuoteBox({ onGameUnlock }) {
     </div>
   );
 }
-// ─────────────────────────────────────────────────────────────────────────────
 
+// ── MAIN HOME COMPONENT ───────────────────────────────────────────────────────
 export default function Home() {
   const [activeSection, setActiveSection] = useState(null);
   const [showBackToTop, setShowBackToTop] = useState(false);
+  const [gameActive, setGameActive] = useState(false);
+  
   const contentRef    = useRef(null);
   const pendingSelect = useRef(null);
 
@@ -304,68 +272,83 @@ export default function Home() {
   }, [activeSection, scrollToContent]);
 
   const handleGameUnlock = useCallback(() => {
-    console.log('🎮 secret game unlocked');
+    setGameActive(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
   return (
     <div className="min-h-screen relative overflow-x-hidden bg-white">
       <div className="fixed inset-0 z-0 bg-cover bg-center" style={{ backgroundImage: `url(${bgAsset})` }} />
-      <ParticleField />
-
-      {/*
-        pt-6 mobile (halved from pt-12), sm+ keeps py-12.
-        gap-2 mobile, gap-4 sm+ — tight between all flex children.
-      */}
-      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 pt-6 pb-12 sm:py-12 gap-2 sm:gap-4">
-
-        <motion.div
-          className="text-center flex flex-col items-center w-full"
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          <GlitchText
-            text="Lancelot Naipier-Kane"
-            style={{ fontSize: 'clamp(1.8rem, 8vw, 4.5rem)', fontWeight: 900, letterSpacing: '-0.05em', lineHeight: 1.1, fontFamily: 'Inter, sans-serif' }}
-          />
-
-          <div className="flex gap-2 mt-3 mb-3 flex-wrap justify-center">
-            <CertBadge label="MIT Certified"       color="#A31F34" onSelect={handleSelect} />
-            <CertBadge label="Microsoft Certified" color="#00A4EF" onSelect={handleSelect} />
-            <CertBadge label="Google Certified"    color="#34A853" onSelect={handleSelect} />
-          </div>
-
-          <GlitchText
-            text="Program and Data Manager"
-            style={{ fontSize: 'clamp(0.85rem, 3vw, 1.1rem)', fontFamily: 'var(--font-mono)', fontWeight: 900, letterSpacing: '0.3em', textTransform: 'uppercase', color: '#000000' }}
-          />
-
-          <QuoteBox onGameUnlock={handleGameUnlock} />
-        </motion.div>
-
-        {/* FIX 1: pointer-events-none added to wrapper to restore button clicks below.
-            FIX 2: Aggressive negative margins to decrease the gap.
-        */}
-        <div className="relative pointer-events-none my-[-50px] sm:my-[-65px] lg:my-[-90px] z-20">
-          <div className="pointer-events-auto">
-            <Nexus activeSection={activeSection} onSelect={handleSelect} />
-          </div>
-        </div>
-
-        {/* mt-0 mobile (was mt-[-8px] which could clip), sm keeps existing pull-up */}
-        <div className="flex gap-4 flex-wrap justify-center mt-0 sm:mt-[-15px] pb-8 sm:pb-0 z-30">
-          <PillBtn href="https://www.linkedin.com/in/lancelotnk/" icon={Linkedin} label="LinkedIn" />
-          <PillBtn href="https://github.com/lancelot-nk"           icon={Github}   label="GitHub" />
-          <PillBtn href="mailto:lancelotsmnk@gmail.com"            icon={Mail}     label="Contact For Work" />
-          <PillBtn onClick={() => handleSelect('resume')}           icon={FileDown} label="Resume" />
-        </div>
-      </div>
-
-      <div ref={contentRef} className="relative z-10">
-        <ContentPanel activeSection={activeSection} />
-      </div>
+      
+      {/* Updated ParticleField with Game Mode prop */}
+      <ParticleField isGameMode={gameActive} />
 
       <AnimatePresence>
-        {showBackToTop && (
+        {!gameActive && (
+          <motion.div 
+            key="main-content"
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.5 } }}
+            className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 pt-6 pb-12 sm:py-12 gap-2 sm:gap-4"
+          >
+            {/* Header Section */}
+            <motion.div
+              className="text-center flex flex-col items-center w-full"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
+              <GlitchText
+                text="Lancelot Naipier-Kane"
+                style={{ fontSize: 'clamp(1.8rem, 8vw, 4.5rem)', fontWeight: 900, letterSpacing: '-0.05em', lineHeight: 1.1, fontFamily: 'Inter, sans-serif' }}
+              />
+
+              <div className="flex gap-2 mt-3 mb-3 flex-wrap justify-center">
+                <CertBadge label="MIT Certified" color="#A31F34" onSelect={handleSelect} />
+                <CertBadge label="Microsoft Certified" color="#00A4EF" onSelect={handleSelect} />
+                <CertBadge label="Google Certified" color="#34A853" onSelect={handleSelect} />
+              </div>
+
+              <GlitchText
+                text="Program and Data Manager"
+                style={{ fontSize: 'clamp(0.85rem, 3vw, 1.1rem)', fontFamily: 'var(--font-mono)', fontWeight: 900, letterSpacing: '0.3em', textTransform: 'uppercase', color: '#000000' }}
+              />
+
+              <QuoteBox onGameUnlock={handleGameUnlock} />
+            </motion.div>
+
+            {/* Nexus Component */}
+            <div className="relative pointer-events-none my-[-50px] sm:my-[-65px] lg:my-[-90px] z-20">
+              <div className="pointer-events-auto">
+                <Nexus activeSection={activeSection} onSelect={handleSelect} />
+              </div>
+            </div>
+
+            {/* Footer Buttons */}
+            <div className="flex gap-4 flex-wrap justify-center mt-0 sm:mt-[-15px] pb-8 sm:pb-0 z-30">
+              <PillBtn href="https://www.linkedin.com/in/lancelotnk/" icon={Linkedin} label="LinkedIn" />
+              <PillBtn href="https://github.com/lancelot-nk" icon={Github} label="GitHub" />
+              <PillBtn href="mailto:lancelotsmnk@gmail.com" icon={Mail} label="Contact For Work" />
+              <PillBtn onClick={() => handleSelect('resume')} icon={FileDown} label="Resume" />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Conditional Game Layer */}
+      {gameActive && (
+        <BlobGame onClose={() => setGameActive(false)} />
+      )}
+
+      {/* Content Panel Section */}
+      {!gameActive && (
+        <div ref={contentRef} className="relative z-10">
+          <ContentPanel activeSection={activeSection} />
+        </div>
+      )}
+
+      {/* Back to Top Button */}
+      <AnimatePresence>
+        {showBackToTop && !gameActive && (
           <motion.button
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             onClick={() => smoothScrollTo(0, 700)}
