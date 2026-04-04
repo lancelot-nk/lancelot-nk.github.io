@@ -90,6 +90,7 @@ export default function Home() {
   const [showBackToTop, setShowBackToTop] = useState(false);
   const contentRef = useRef(null);
 
+  // Monitor scroll for Back to Top button visibility
   useEffect(() => {
     const handleScroll = () => {
       setShowBackToTop(window.scrollY > 400);
@@ -102,20 +103,29 @@ export default function Home() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  /**
+   * HEXAGON SELECT LOGIC
+   * Includes a 600ms delay to allow Nexus dendrites to complete 
+   * their animation before smooth scrolling down to content.
+   */
   const handleSelect = (id) => {
     const next = activeSection === id ? null : id;
     setActiveSection(next);
+    
     if (next) {
       setTimeout(() => {
-        contentRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 300);
+        contentRef.current?.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start' 
+        });
+      }, 600); // Syncs with the Nexus.jsx path animation duration
     }
   };
 
   return (
     <div className="min-h-screen relative overflow-x-hidden bg-white">
       
-      {/* BACKGROUND LAYER */}
+      {/* BACKGROUND LAYER: 100% Opacity, NO Blur */}
       <div 
         className="fixed inset-0 z-0 bg-cover bg-center opacity-100" 
         style={{ backgroundImage: `url(${bgAsset})` }} 
@@ -129,7 +139,7 @@ export default function Home() {
 
       <ParticleField />
 
-      {/* Hero Section */}
+      {/* Main UI */}
       <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 py-8 gap-6">
         
         <motion.div className="text-center flex flex-col items-center" initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
@@ -140,13 +150,13 @@ export default function Home() {
             <CertBadge label="Microsoft Certified" color="#0078D4" />
           </div>
 
-          {/* LARGE TITLE */}
-          <p className="mb-4 text-[clamp(1.4rem,4vw,2.2rem)] font-mono text-[#400020] font-black tracking-[0.25em] uppercase leading-tight">
+          {/* Title: Black, Sharp, Sub-header size */}
+          <p className="mb-4 text-[1.1rem] md:text-[1.3rem] font-mono text-black font-black tracking-[0.25em] uppercase leading-tight">
             Program and Data Manager
           </p>
 
-          {/* REFINED QUOTE: Scaled box width to be narrower than the title */}
-          <p className="mx-auto text-[clamp(0.85rem,2vw,0.95rem)] text-[#1A0010] font-extrabold italic max-w-[480px] leading-relaxed font-inter bg-white/30 backdrop-blur-sm p-3 rounded-xl border border-white/40 shadow-lg">
+          {/* Quote: Vibrant, Larger, High-Visibility Background */}
+          <p className="mx-auto text-[clamp(1rem,2.8vw,1.2rem)] text-[#1A0010] font-extrabold italic max-w-[700px] leading-relaxed font-inter bg-white/60 backdrop-blur-md p-4 rounded-xl border border-white/60 shadow-xl">
             "Turning complex data into decisive action — from $7.6B budgets to AI-driven systems, I architect solutions that move organizations forward."
           </p>
         </motion.div>
@@ -164,6 +174,7 @@ export default function Home() {
         </motion.div>
       </div>
 
+      {/* Content Container Target for Smooth Scroll */}
       <div ref={contentRef} className="relative z-10">
         <ContentPanel activeSection={activeSection} />
       </div>
@@ -184,7 +195,7 @@ export default function Home() {
       </AnimatePresence>
 
       <footer className="relative z-10 text-center py-12 px-4 border-t-4 border-[#E01880] bg-white">
-        <p className="text-[0.85rem] font-mono text-[#400020] font-black tracking-widest uppercase">
+        <p className="text-[0.85rem] font-mono text-black font-black tracking-widest uppercase">
           © {new Date().getFullYear()} LANCELOT NAIPIER-KANE // NEW YORK CITY
         </p>
       </footer>
