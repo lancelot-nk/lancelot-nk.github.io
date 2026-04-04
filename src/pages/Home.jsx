@@ -9,7 +9,7 @@ import ContentPanel from '../components/ContentPanel';
 import bgAsset from '../assets/bg.jpg';
 
 /**
- * High-Definition, High-Contrast Pill Button
+ * High-Definition Pill Button
  */
 function PillBtn({ href, icon: Icon, label }) {
   const [hov, setHov] = useState(false);
@@ -90,7 +90,6 @@ export default function Home() {
   const [showBackToTop, setShowBackToTop] = useState(false);
   const contentRef = useRef(null);
 
-  // Monitor scroll for Back to Top button visibility
   useEffect(() => {
     const handleScroll = () => {
       setShowBackToTop(window.scrollY > 400);
@@ -104,9 +103,9 @@ export default function Home() {
   };
 
   /**
-   * HEXAGON SELECT LOGIC
-   * Includes a 600ms delay to allow Nexus dendrites to complete 
-   * their animation before smooth scrolling down to content.
+   * REFINED SCROLL LOGIC
+   * 1. Extends delay to 1000ms for full dendrite payoff.
+   * 2. Uses window.scrollTo for guaranteed smooth behavior.
    */
   const handleSelect = (id) => {
     const next = activeSection === id ? null : id;
@@ -114,32 +113,33 @@ export default function Home() {
     
     if (next) {
       setTimeout(() => {
-        contentRef.current?.scrollIntoView({ 
-          behavior: 'smooth', 
-          block: 'start' 
-        });
-      }, 600); // Syncs with the Nexus.jsx path animation duration
+        if (contentRef.current) {
+          const yOffset = -20; 
+          const y = contentRef.current.getBoundingClientRect().top + window.pageYOffset + yOffset;
+          
+          window.scrollTo({
+            top: y,
+            behavior: 'smooth'
+          });
+        }
+      }, 1000); 
     }
   };
 
   return (
     <div className="min-h-screen relative overflow-x-hidden bg-white">
       
-      {/* BACKGROUND LAYER: 100% Opacity, NO Blur */}
       <div 
         className="fixed inset-0 z-0 bg-cover bg-center opacity-100" 
         style={{ backgroundImage: `url(${bgAsset})` }} 
       />
       
-      {/* SHARP OVERLAY */}
       <div className="fixed inset-0 z-[1] bg-gradient-to-b from-white/20 via-transparent to-white/40 pointer-events-none" />
       
-      {/* VIBRANT BORDER */}
       <div className="fixed inset-0 z-50 pointer-events-none border-4 border-[#E01880]/30 animate-border-pulse" />
 
       <ParticleField />
 
-      {/* Main UI */}
       <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 py-8 gap-6">
         
         <motion.div className="text-center flex flex-col items-center" initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
@@ -150,12 +150,10 @@ export default function Home() {
             <CertBadge label="Microsoft Certified" color="#0078D4" />
           </div>
 
-          {/* Title: Black, Sharp, Sub-header size */}
           <p className="mb-4 text-[1.1rem] md:text-[1.3rem] font-mono text-black font-black tracking-[0.25em] uppercase leading-tight">
             Program and Data Manager
           </p>
 
-          {/* Quote: Vibrant, Larger, High-Visibility Background */}
           <p className="mx-auto text-[clamp(1rem,2.8vw,1.2rem)] text-[#1A0010] font-extrabold italic max-w-[700px] leading-relaxed font-inter bg-white/60 backdrop-blur-md p-4 rounded-xl border border-white/60 shadow-xl">
             "Turning complex data into decisive action — from $7.6B budgets to AI-driven systems, I architect solutions that move organizations forward."
           </p>
@@ -174,12 +172,10 @@ export default function Home() {
         </motion.div>
       </div>
 
-      {/* Content Container Target for Smooth Scroll */}
       <div ref={contentRef} className="relative z-10">
         <ContentPanel activeSection={activeSection} />
       </div>
 
-      {/* Back to Top Button */}
       <AnimatePresence>
         {showBackToTop && (
           <motion.button
