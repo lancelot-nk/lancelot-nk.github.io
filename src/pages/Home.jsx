@@ -10,6 +10,7 @@ import bgAsset from '../assets/bg.jpg';
 
 /**
  * High-Definition, High-Contrast Pill Button
+ * Uses a solid white-ish background for clarity against the HD backdrop.
  */
 function PillBtn({ href, icon: Icon, label }) {
   const [hov, setHov] = useState(false);
@@ -20,7 +21,7 @@ function PillBtn({ href, icon: Icon, label }) {
       rel="noopener noreferrer"
       className="inline-flex items-center gap-[8px] px-6 py-[12px] rounded-full border-2 text-[0.85rem] font-bold no-underline transition-all duration-200 whitespace-nowrap"
       style={{
-        background: hov ? '#E01880' : 'rgba(255, 255, 255, 0.9)', // Brighter default for visibility
+        background: hov ? '#E01880' : 'rgba(255, 255, 255, 0.9)',
         borderColor: '#E01880',
         color: hov ? '#fff' : '#E01880',
         boxShadow: hov ? '0 0 25px rgba(224, 24, 128, 0.5)' : 'none',
@@ -77,7 +78,7 @@ function CertBadge({ label, color }) {
       fontSize: '0.7rem', fontFamily: 'var(--font-mono)',
       fontWeight: 900, letterSpacing: '0.1em', textTransform: 'uppercase',
       borderColor: color,
-      background: '#FFFFFF', // Solid White Background for Visibility
+      background: '#FFFFFF', 
       color,
     }}>
       ✦ {label}
@@ -102,13 +103,13 @@ export default function Home() {
   return (
     <div className="min-h-screen relative overflow-x-hidden bg-white">
       
-      {/* BACKGROUND LAYER: 100% Opacity, NO Blur */}
+      {/* BACKGROUND LAYER: 100% Opacity, NO Blur for maximum definition */}
       <div 
         className="fixed inset-0 z-0 bg-cover bg-center opacity-100" 
         style={{ backgroundImage: `url(${bgAsset})` }} 
       />
       
-      {/* SHARP OVERLAY */}
+      {/* SHARP OVERLAY: Prevents "muddy" pixels while keeping text readable */}
       <div className="fixed inset-0 z-[1] bg-gradient-to-b from-white/20 via-transparent to-white/40 pointer-events-none" />
       
       {/* VIBRANT BORDER */}
@@ -116,7 +117,7 @@ export default function Home() {
 
       <ParticleField />
 
-      {/* Main UI */}
+      {/* Hero Section */}
       <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 py-8 gap-6">
         
         <motion.div className="text-center" initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
@@ -127,7 +128,7 @@ export default function Home() {
             <CertBadge label="Microsoft Certified" color="#0078D4" />
           </div>
 
-          {/* INCREASED SIZE: Program and Data Manager Title */}
+          {/* LARGE TITLE */}
           <p className="mb-4 text-[1.1rem] md:text-[1.4rem] font-mono text-black font-black tracking-[0.25em] uppercase leading-tight">
             Program and Data Manager
           </p>
@@ -161,4 +162,4 @@ export default function Home() {
       </footer>
     </div>
   );
-}git commit -am "update" && git push origin V2
+}
