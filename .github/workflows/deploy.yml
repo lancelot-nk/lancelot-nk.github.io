@@ -12,21 +12,21 @@ permissions:
 jobs:
   build_site:
     runs-on: ubuntu-latest
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 24 # Modernized version
           cache: 'npm'
       - name: Install dependencies
         run: npm install
       - name: Build
-        # CI=false prevents warnings from being treated as errors
-        run: CI=false npm run build
+        # CI=false prevents the build from failing on non-critical warnings
+        run: npm run build
+        env:
+          CI: false
       - name: Upload Artifacts
         uses: actions/upload-pages-artifact@v3
         with:
