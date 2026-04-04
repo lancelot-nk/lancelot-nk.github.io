@@ -1,125 +1,114 @@
-import { useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 
-export default function ParticleField() {
+const ParticleField = () => {
   const canvasRef = useRef(null);
-  const mouseRef = useRef({ x: null, y: null });
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
     const ctx = canvas.getContext('2d');
-    let animId;
+    let animationFrameId;
+
     let particles = [];
-
-    // Sharper, more vibrant pink for high-contrast clarity
-    const getBrandColor = (alpha) => {
-      return `hsla(320, 90%, 55%, ${alpha})`;
-    };
-
-    const createParticles = () => {
-      // INCREASED FREQUENCY: Calculation adjusted for higher density
-      const count = Math.min(120, Math.floor(window.innerWidth / 10));
-      const newParticles = [];
-      for (let i = 0; i < count; i++) {
-        newParticles.push({
-          x: Math.random() * canvas.width,
-          y: Math.random() * canvas.height,
-          vx: (Math.random() - 0.5) * 0.4, // Slightly faster movement
-          vy: (Math.random() - 0.5) * 0.4,
-          r: Math.random() * 2.5 + 1.2,    // LARGER: Increased dot radius
-          o: Math.random() * 0.5 + 0.3,    // CLEARER: Increased particle opacity
-        });
-      }
-      return newParticles;
-    };
+    const particleCount = 60; // Slightly fewer particles because they are BIGGER now
+    const connectionDistance = 150;
 
     const resize = () => {
-      const dpr = window.devicePixelRatio || 1;
-      canvas.width = window.innerWidth * dpr;
-      canvas.height = window.innerHeight * dpr;
-      ctx.scale(dpr, dpr);
-      canvas.style.width = `${window.innerWidth}px`;
-      canvas.style.height = `${window.innerHeight}px`;
-      particles = createParticles();
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
     };
 
-    const handleMouseMove = (e) => {
-      mouseRef.current = { x: e.clientX, y: e.clientY };
+    class Particle {
+      constructor() {
+        this.reset();
+      }
+
+      reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.vx = (Math.random() - 0.5) * 0.5;
+        this.vy = (Math.random() - 0.5) * 0.5;
+        
+        /** * BIGGER PARTICLES:
+         * Increased radius from ~1-2 to 4-7 for high visibility.
+         */
+        this.radius = Math.random() * 3 + 4; 
+        this.opacity = Math.random() * 0.5 + 0.2;
+      }
+
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+
+        if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+        if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+      }
+
+      draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        // Using your brand pink with variable opacity
+        ctx.fillStyle = `rgba(224, 24, 128, ${this.opacity})`;
+        ctx.fill();
+        
+        // Add a small glow ring around each particle
+        ctx.strokeStyle = `rgba(255, 209, 232, ${this.opacity * 0.5})`;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
+    }
+
+    const init = () => {
+      resize();
+      particles = Array.from({ length: particleCount }, () => new Particle());
     };
 
-    window.addEventListener('resize', resize);
-    window.addEventListener('mousemove', handleMouseMove);
-    resize();
-
-    const draw = () => {
-      if (!ctx) return;
-      ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-      
-      const mouse = mouseRef.current;
-      const lineDist = 160; // INCREASED: Longer connections for a denser web
+    const animate = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       particles.forEach((p, i) => {
-        p.x += p.vx; 
-        p.y += p.vy;
+        p.update();
+        p.draw();
 
-        if (mouse.x !== null) {
-          const dx = p.x - mouse.x;
-          const dy = p.y - mouse.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 180) {
-            const force = (180 - dist) / 180;
-            p.x += (dx / dist) * force * 2;
-            p.y += (dy / dist) * force * 2;
-          }
-        }
-
-        if (p.x < 0) p.x = window.innerWidth;
-        if (p.x > window.innerWidth) p.x = 0;
-        if (p.y < 0) p.y = window.innerHeight;
-        if (p.y > window.innerHeight) p.y = 0;
-
-        // Draw Dot - LARGER AND CLEARER
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = getBrandColor(p.o);
-        ctx.fill();
-
-        // Draw Lines
         for (let j = i + 1; j < particles.length; j++) {
           const p2 = particles[j];
           const dx = p.x - p2.x;
           const dy = p.y - p2.y;
           const dist = Math.sqrt(dx * dx + dy * dy);
 
-          if (dist < lineDist) {
+          if (dist < connectionDistance) {
             ctx.beginPath();
             ctx.moveTo(p.x, p.y);
             ctx.lineTo(p2.x, p2.y);
-            
-            // CLEARER: Boosted line opacity for better visibility
-            const lineOpacity = 0.25 * (1 - dist / lineDist);
-            ctx.strokeStyle = getBrandColor(lineOpacity);
-            ctx.lineWidth = 1.0; // LARGER: Increased line width
+            /**
+             * Thicker connection lines to match the bigger particles
+             */
+            ctx.strokeStyle = `rgba(224, 24, 128, ${0.15 * (1 - dist / connectionDistance)})`;
+            ctx.lineWidth = 1.5;
             ctx.stroke();
           }
         }
       });
-      animId = requestAnimationFrame(draw);
+
+      animationFrameId = requestAnimationFrame(animate);
     };
 
-    draw();
+    window.addEventListener('resize', resize);
+    init();
+    animate();
 
     return () => {
-      cancelAnimationFrame(animId);
       window.removeEventListener('resize', resize);
-      window.removeEventListener('mousemove', handleMouseMove);
+      cancelAnimationFrame(animationFrameId);
     };
   }, []);
 
   return (
-    <canvas 
-      ref={canvasRef} 
-      className="fixed inset-0 pointer-events-none z-[2] bg-transparent"
+    <canvas
+      ref={canvasRef}
+      className="fixed inset-0 pointer-events-none z-[2]"
+      style={{ background: 'transparent' }}
     />
   );
-}
+};
+
+export default ParticleField;

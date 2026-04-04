@@ -5,10 +5,11 @@ import ParticleField from '../components/ParticleField';
 import Nexus from '../components/Nexus';
 import ContentPanel from '../components/ContentPanel';
 
-// IMPORT LOCAL ASSET
-import bgAsset from '../assets/profile.jpg'; // Using profile as placeholder if bg.jpg is missing
+// CORRECTED ASSETS
+import bgAsset from '../assets/bg.jpg'; 
+import profilePic from '../assets/profile.jpg';
 
-const smoothScrollTo = (targetY, duration = 1200) => {
+const smoothScrollTo = (targetY, duration = 1400) => {
   const startY = window.pageYOffset;
   const difference = targetY - startY;
   let startTime = null;
@@ -29,7 +30,7 @@ const smoothScrollTo = (targetY, duration = 1200) => {
 
 function CertBadge({ label, color }) {
   return (
-    <div className="flex items-center gap-2 px-3 py-1 rounded-full border-2 font-mono text-[9px] sm:text-[10px] font-black uppercase tracking-widest bg-white shadow-sm"
+    <div className="flex items-center gap-2 px-3 py-1 rounded-full border-2 font-mono text-[9px] sm:text-[10px] font-black uppercase tracking-widest bg-white/90 shadow-sm"
       style={{ borderColor: color, color: color }}>
       <span>✦</span>{label}
     </div>
@@ -38,15 +39,14 @@ function CertBadge({ label, color }) {
 
 function PillBtn({ href, icon: Icon, label, onClick }) {
   const [hov, setHov] = useState(false);
-  const isButton = !!onClick;
-  const Tag = isButton ? 'button' : 'a';
+  const Tag = onClick ? 'button' : 'a';
 
   return (
     <Tag
-      href={isButton ? undefined : href}
+      href={onClick ? undefined : href}
       onClick={onClick}
-      target={isButton ? undefined : "_blank"}
-      rel={isButton ? undefined : "noopener noreferrer"}
+      target={onClick ? undefined : "_blank"}
+      rel={onClick ? undefined : "noopener noreferrer"}
       className="inline-flex items-center gap-[8px] px-6 py-[12px] rounded-full border-2 text-[0.85rem] font-bold no-underline transition-all duration-200 cursor-pointer"
       style={{
         background: hov ? '#E01880' : 'rgba(255, 255, 255, 0.9)',
@@ -79,7 +79,7 @@ export default function Home() {
     setTimeout(() => {
       if (contentRef.current) {
         const y = contentRef.current.getBoundingClientRect().top + window.pageYOffset - 20;
-        smoothScrollTo(y, 1400);
+        smoothScrollTo(y, 1500); // 1.5s Buttery transition
       }
     }, 800);
   };
@@ -97,7 +97,9 @@ export default function Home() {
 
   return (
     <div className="min-h-screen relative overflow-x-hidden bg-white">
-      <div className="fixed inset-0 z-0 bg-cover bg-center opacity-10" style={{ backgroundImage: `url(${bgAsset})` }} />
+      {/* BACKGROUND IMAGE RESTORED */}
+      <div className="fixed inset-0 z-0 bg-cover bg-center opacity-100" style={{ backgroundImage: `url(${bgAsset})` }} />
+      <div className="fixed inset-0 z-[1] bg-gradient-to-b from-white/10 via-transparent to-white/30 pointer-events-none" />
       <ParticleField />
 
       <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 py-12 gap-8">
@@ -105,7 +107,7 @@ export default function Home() {
         <motion.div className="text-center flex flex-col items-center w-full" 
           initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
           
-          {/* 1. NAME (One line always) */}
+          {/* 1. NAME */}
           <h1 className="whitespace-nowrap" style={{
             fontSize: 'clamp(1.8rem, 8vw, 4.5rem)', fontWeight: 900,
             color: '#1A0010', letterSpacing: '-0.05em', margin: 0, lineHeight: 1.1,
@@ -119,8 +121,8 @@ export default function Home() {
             <CertBadge label="Google Certified" color="#34A853" />
           </div>
 
-          {/* 3. TITLE (One line always) */}
-          <p className="whitespace-nowrap text-[0.8rem] sm:text-[1.2rem] font-mono text-black font-black tracking-[0.15em] sm:tracking-[0.3em] uppercase">
+          {/* 3. TITLE */}
+          <p className="whitespace-nowrap text-[0.85rem] sm:text-[1.2rem] font-mono text-black font-black tracking-[0.15em] sm:tracking-[0.3em] uppercase">
             Program and Data Manager
           </p>
 
@@ -132,8 +134,10 @@ export default function Home() {
           </div>
         </motion.div>
 
+        {/* NEXUS COMPONENT */}
         <Nexus activeSection={activeSection} onSelect={handleSelect} />
 
+        {/* CTA ROW */}
         <div className="flex gap-4 flex-wrap justify-center mt-4">
           <PillBtn href="https://www.linkedin.com/in/lancelotnk/" icon={Linkedin} label="LinkedIn" />
           <PillBtn href="https://github.com/lancelot-nk" icon={Github} label="GitHub" />

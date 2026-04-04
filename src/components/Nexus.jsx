@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Code, FileText, BarChart3, Palette, BookOpen, Award } from 'lucide-react';
 
-// IMPORT LOCAL ASSET
+// ASSET
 import profilePic from '../assets/profile.jpg';
 
 export const SECTIONS = [
@@ -18,14 +18,10 @@ function getLayout(w) {
   if (w < 480) return { size: 320, core: 75, radius: 95, hex: 75, fontSize: 11, isMobile: true };
   if (w < 900) return { size: 500, core: 110, radius: 165, hex: 110, fontSize: 16, isMobile: false };
   
-  // Web Optimization: Larger Hexagons (150) and wider text area
-  return { size: 750, core: 175, radius: 230, hex: 150, fontSize: 22, isMobile: false };
+  // WEB OPTIMIZATION: Large hex (155) and slightly wider radius (235)
+  return { size: 750, core: 175, radius: 235, hex: 155, fontSize: 24, isMobile: false };
 }
 
-/**
- * JAGGED CIRCUIT PATH
- * Creates 90-degree "trace" movements for a circuit board effect.
- */
 function circuitPath(x1, y1, x2, y2, seed, offset = 0) {
   const midX = x1 + (x2 - x1) * (0.4 + (seed % 10) / 50) + offset;
   const midY = y1 + (y2 - y1) * (0.6 - (seed % 10) / 50) + offset;
@@ -71,13 +67,11 @@ export default function Nexus({ activeSection, onSelect }) {
             <g key={`circuit-${s.id}`}>
               {isActive && (
                 <>
-                  {/* Main Active Trace */}
                   <motion.path
                     d={circuitPath(cx, cy, hx, hy, i)}
                     fill="none" stroke="white" strokeWidth={3} filter="url(#active-glow)"
                     initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.6 }}
                   />
-                  {/* Secondary Parallel Trace (Circuit Board Effect) */}
                   <motion.path
                     d={circuitPath(cx, cy, hx, hy, i, 12)}
                     fill="none" stroke="white" strokeWidth={1} opacity={0.4}
@@ -106,7 +100,8 @@ export default function Nexus({ activeSection, onSelect }) {
         const isHovered = hoveredId === s.id;
         const Icon = s.icon;
         
-        const iconSize = Math.round(hex * 0.22); 
+        // Slightly smaller icon on web to give text more "max potential" width
+        const iconSize = isMobile ? Math.round(hex * 0.22) : Math.round(hex * 0.20); 
         const currentFontSize = isActive ? Math.round(fontSize * 1.1) : fontSize;
 
         return (
@@ -120,26 +115,30 @@ export default function Nexus({ activeSection, onSelect }) {
             onClick={() => onSelect(s.id)}
           >
             <div className="relative w-full h-full flex flex-col items-center justify-center">
-              {/* ICON: Shifted up on Web, frozen on mobile */}
               <Icon 
                 size={iconSize} 
                 className="transition-all duration-300"
                 style={{ 
                   color: isHovered ? deepBurgundy : 'white',
-                  transform: isMobile ? 'translateY(0px)' : 'translateY(-8px)',
-                  marginBottom: isMobile ? '2px' : '4px'
+                  // Freeze mobile, shift up for Web
+                  transform: isMobile ? 'translateY(0px)' : 'translateY(-10px)',
+                  marginBottom: isMobile ? '2px' : '2px'
                 }} 
               />
               
-              {/* TEXT: Expanded width for Web to fill the Hexagon belly */}
               <span 
-                className="font-mono uppercase font-black tracking-tighter text-center transition-colors duration-300"
+                className="font-mono uppercase font-black text-center transition-colors duration-300"
                 style={{ 
-                  width: isMobile ? '85%' : '95%',
+                  // Expanded width for Web to allow massive text scaling
+                  width: isMobile ? '85%' : '98%',
                   fontSize: `${currentFontSize}px`, 
                   color: isHovered ? deepBurgundy : 'white', 
-                  lineHeight: '0.85', 
-                  whiteSpace: 'pre-line' 
+                  lineHeight: isMobile ? '0.85' : '0.9', 
+                  letterSpacing: '0.05em', // Added small letter spacing for clarity
+                  whiteSpace: 'pre-line',
+                  // Ensure single-word phrases like RESUME fill width
+                  display: 'inline-block',
+                  transform: isMobile ? 'none' : 'scaleX(1.05)'
                 }}
               >
                 {s.label}
