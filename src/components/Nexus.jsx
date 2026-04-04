@@ -15,9 +15,10 @@ export const SECTIONS = [
 ];
 
 function getLayout(w) {
-  if (w < 480) return { size: 340, core: 75, radius: 105, hex: 75, fontSize: 10, isMobile: true };
-  if (w < 900) return { size: 550, core: 110, radius: 180, hex: 110, fontSize: 16, isMobile: false };
-  return { size: 850, core: 175, radius: 255, hex: 155, fontSize: 24, isMobile: false };
+  // Mobile: 5 lines, scaled down dendrites | Desktop: 10 lines, full scale
+  if (w < 480) return { size: 340, core: 75, radius: 105, hex: 75, fontSize: 10, isMobile: true, lineCount: 5, scaleFactor: 0.6 };
+  if (w < 900) return { size: 550, core: 110, radius: 180, hex: 110, fontSize: 16, isMobile: false, lineCount: 10, scaleFactor: 0.8 };
+  return { size: 850, core: 175, radius: 255, hex: 155, fontSize: 24, isMobile: false, lineCount: 10, scaleFactor: 1 };
 }
 
 function renderInwardPath(cx, cy, endX, endY, seed) {
@@ -36,13 +37,13 @@ function renderInwardPath(cx, cy, endX, endY, seed) {
   return path;
 }
 
-function renderOutwardPath(startX, startY, normalAngle, seed, isGhost = false) {
+function renderOutwardPath(startX, startY, normalAngle, seed, scaleFactor, isGhost = false) {
   let path = `M ${startX} ${startY}`;
   let curX = startX; 
   let curY = startY;
-  const upperBoundY = 145; 
+  const upperBoundY = 145 * scaleFactor; 
 
-  const launch = isGhost ? 35 : 60; 
+  const launch = (isGhost ? 35 : 65) * scaleFactor; 
   curX += Math.cos(normalAngle) * launch;
   curY += Math.sin(normalAngle) * launch;
   path += ` L ${curX} ${curY}`;
@@ -53,7 +54,7 @@ function renderOutwardPath(startX, startY, normalAngle, seed, isGhost = false) {
   for (let i = 0; i < numTurns; i++) {
     const turn = (isGhost ? -1.1 : 1) * (((seed + i) % 2 === 0) ? Math.PI / 2 : -Math.PI / 2);
     const nextAngle = currentAngle + turn;
-    const segmentLen = 30 + (seed % 40); 
+    const segmentLen = (35 + (seed % 45)) * scaleFactor; 
     
     const nextX = curX + Math.cos(nextAngle) * segmentLen;
     const nextY = curY + Math.sin(nextAngle) * segmentLen;
@@ -81,67 +82,63 @@ export default function Nexus({ activeSection, onSelect }) {
     return () => window.removeEventListener('resize', update);
   }, []);
 
-  const { size, core, radius, hex, fontSize, isMobile } = layout;
+  const { size, core, radius, hex, fontSize, isMobile, lineCount, scaleFactor } = layout;
   const hexH = Math.round(hex * 1.15); 
   const cx = size / 2, cy = size / 2;
   const brandPink = '#E01880';
 
   return (
     <div className="relative flex-shrink-0" style={{ width: size, height: size }}>
-      {/* BACKGROUND SVG (Z-1) */}
       <svg className="absolute inset-0 w-full h-full overflow-visible z-[1]">
         <defs>
           <filter id="active-glow"><feGaussianBlur stdDeviation="2" result="blur" /><feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge></filter>
         </defs>
 
         {SECTIONS.map((s, i) => {
-          const baseA = ((i * 60) - 90 - 30) * (Math.PI / 180);
+          const baseA = ((i * 60) - 120) * (Math.PI / 180);
           const hx = cx + radius * Math.cos(baseA), hy = cy + radius * Math.sin(baseA);
           const isActive = activeSection === s.id;
 
           return (isActive && (
             <motion.g key={`lines-${s.id}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
               
-              {/* 10 INWARD CONNECTIONS */}
-              {Array.from({ length: 10 }).map((_, idx) => {
-                const off = (idx - 4.5) * 4; 
+              {/* INWARD CONNECTIONS (Dynamic lineCount) */}
+              {Array.from({ length: lineCount }).map((_, idx) => {
+                const off = (idx - (lineCount / 2 - 0.5)) * 4; 
                 return (
                   <motion.path
                     key={`in-${idx}`}
                     d={renderInwardPath(cx, cy, hx + off, hy + off, i * 10 + idx)}
-                    fill="none" stroke="white" 
-                    strokeWidth={idx % 2 === 0 ? 1.8 : 0.8}
-                    opacity={0.3 + (idx % 3) * 0.2} 
-                    filter="url(#active-glow)"
+                    fill="none" stroke="white" strokeWidth={idx % 2 === 0 ? 1.6 : 0.7}
+                    opacity={0.3} filter="url(#active-glow)"
                     initial={{ pathLength: 0 }} animate={{ pathLength: 1 }}
+                    transition={{ duration: 0.5, ease: "easeOut" }}
                   />
                 );
               })}
 
-              {/* OUTER DENDRIES (10 REAL + 10 GHOST) */}
-              {!isMobile && Array.from({ length: 10 }).map((_, idx) => {
+              {/* OUTER DENDRIES (Enabled for Mobile, Dynamic lineCount) */}
+              {Array.from({ length: lineCount }).map((_, idx) => {
                 const sideIdx = (idx + i) % 6;
                 const normalAngle = ((sideIdx * 60) - 120) * (Math.PI / 180);
-                const tightSpread = (hex * 0.04) * (idx - 5);
-                
+                const tightSpread = (hex * 0.04) * (idx - (lineCount / 2 - 0.5));
                 const startX = hx + Math.cos(normalAngle) * (hex / 2.1) + Math.cos(normalAngle + Math.PI/2) * tightSpread;
                 const startY = hy + Math.sin(normalAngle) * (hexH / 4) + Math.sin(normalAngle + Math.PI/2) * tightSpread;
-
-                const sw = 0.8 + (idx % 3); 
-                const op = 0.3 + (idx % 5) * 0.12; 
 
                 return (
                   <g key={`out-group-${idx}`}>
                     <motion.path
-                      d={renderOutwardPath(startX, startY, normalAngle, i * 40 + idx, false)}
-                      fill="none" stroke="white" strokeWidth={sw} opacity={op}
+                      d={renderOutwardPath(startX, startY, normalAngle, i * 40 + idx, scaleFactor, false)}
+                      fill="none" stroke="white" strokeWidth={0.8 + (idx % 3) * 0.5} opacity={0.35}
                       filter="url(#active-glow)" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }}
+                      transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
                     />
                     <motion.path
-                      d={renderOutwardPath(startX, startY, normalAngle, i * 40 + idx, true)}
-                      fill="none" stroke="white" strokeWidth={sw * 0.6} opacity={op * 0.3}
+                      d={renderOutwardPath(startX, startY, normalAngle, i * 40 + idx, scaleFactor, true)}
+                      fill="none" stroke="white" strokeWidth={0.5} opacity={0.15}
                       filter="url(#active-glow)" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }}
-                      style={{ transform: `scale(${0.9 + (idx % 3) * 0.15})`, transformOrigin: `${startX}px ${startY}px` }}
+                      transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
+                      style={{ transform: `scale(1.2)`, transformOrigin: `${startX}px ${startY}px` }}
                     />
                   </g>
                 );
@@ -154,24 +151,23 @@ export default function Nexus({ activeSection, onSelect }) {
       {/* HEX LAYER (Z-10) */}
       <svg className="absolute inset-0 w-full h-full overflow-visible z-[10] pointer-events-none">
         {SECTIONS.map((s, i) => {
-          const a = ((i * 60) - 90 - 30) * (Math.PI / 180);
+          const a = ((i * 60) - 120) * (Math.PI / 180);
           const hx = cx + radius * Math.cos(a), hy = cy + radius * Math.sin(a);
           return (
             <motion.polygon
               key={`poly-${s.id}`}
               points={`${hx},${hy - hexH / 2} ${hx + hex / 2},${hy - hexH / 4} ${hx + hex / 2},${hy + hexH / 4} ${hx},${hy + hexH / 2} ${hx - hex / 2},${hy + hexH / 4} ${hx - hex / 2},${hy - hexH / 4}`}
               fill={hoveredId === s.id ? 'white' : brandPink}
-              stroke={hoveredId === s.id ? brandPink : '#4A0000'}
+              stroke={activeSection === s.id ? 'white' : '#4A0000'}
               strokeWidth={activeSection === s.id ? 4 : 2}
-              style={{ transformOrigin: `${hx}px ${hy}px` }}
             />
           );
         })}
       </svg>
 
-      {/* BUTTONS (Z-20) */}
+      {/* INTERACTION LAYER (Z-20) */}
       {SECTIONS.map((s, i) => {
-        const a = ((i * 60) - 90 - 30) * (Math.PI / 180);
+        const a = ((i * 60) - 120) * (Math.PI / 180);
         const hx = cx + radius * Math.cos(a), hy = cy + radius * Math.sin(a);
         return (
           <motion.button
@@ -182,10 +178,10 @@ export default function Nexus({ activeSection, onSelect }) {
             onMouseLeave={() => setHoveredId(null)}
             onClick={() => onSelect(s.id)}
           >
-            <div className="relative w-full h-full flex flex-col items-center justify-center pointer-events-none">
-              <s.icon size={isMobile ? 18 : 24} style={{ color: hoveredId === s.id ? '#4A0000' : 'white' }} />
+            <div className="relative w-full h-full flex flex-col items-center justify-center gap-3 pointer-events-none">
+              <s.icon size={isMobile ? 22 : 34} style={{ color: hoveredId === s.id ? brandPink : 'white' }} />
               <span className="font-mono uppercase font-black text-center whitespace-pre-line" 
-                    style={{ fontSize: `${fontSize}px`, color: hoveredId === s.id ? '#4A0000' : 'white', lineHeight: '1.0' }}>
+                    style={{ fontSize: `${fontSize}px`, color: hoveredId === s.id ? '#4A0000' : 'white', lineHeight: '1.1' }}>
                 {s.label}
               </span>
             </div>
@@ -194,23 +190,21 @@ export default function Nexus({ activeSection, onSelect }) {
       })}
 
       {/* PORTRAIT (Z-100) */}
-      <motion.a
-        href="https://www.linkedin.com/in/lancelotnk/"
-        target="_blank" rel="noopener noreferrer"
-        className="absolute top-1/2 left-1/2 z-[100] block overflow-hidden rounded-full border-4 border-[#E01880] cursor-pointer shadow-2xl"
+      <motion.div
+        className="absolute top-1/2 left-1/2 z-[100] overflow-hidden rounded-full border-4 border-[#E01880] shadow-2xl"
         style={{ width: core, height: core, x: "-50%", y: "-50%" }}
-        whileHover={{ scale: 1.35 }} // Increased hover zoom
+        whileHover={{ scale: 1.5 }}
       >
         <img 
           src={profilePic} 
           alt="Lancelot" 
           className="w-full h-full object-cover" 
           style={{ 
-            objectPosition: 'center 22%', // Shifted down further from 15%
-            transform: 'scale(1.7)' 
+            objectPosition: 'center 45%', 
+            transform: 'scale(1.8)' 
           }} 
         />
-      </motion.a>
+      </motion.div>
     </div>
   );
 }
