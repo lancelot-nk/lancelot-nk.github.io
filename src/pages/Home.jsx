@@ -27,16 +27,6 @@ const smoothScrollTo = (targetY, duration = 2000) => {
   window.requestAnimationFrame(step);
 };
 
-function GlitchText({ text, fontSize, letterSpacing = 'normal', color = '#1A0010' }) {
-  return (
-    <div className="relative inline-block group cursor-default" style={{ color, fontSize, letterSpacing, fontWeight: 900, fontFamily: 'var(--font-inter)', lineHeight: 1.1 }}>
-      <span className="relative z-10">{text}</span>
-      <span className="absolute top-0 left-0 -translate-x-[2px] -translate-y-[2px] text-[#ff0080] opacity-0 group-hover:opacity-70 group-hover:animate-glitch-1 z-0">{text}</span>
-      <span className="absolute top-0 left-0 translate-x-[2px] translate-y-[2px] text-[#00ffff] opacity-0 group-hover:opacity-70 group-hover:animate-glitch-2 z-0">{text}</span>
-    </div>
-  );
-}
-
 function CertBadge({ label, color }) {
   return (
     <div className="flex items-center gap-2 px-3 py-1 rounded-full border-2 font-mono text-[9px] sm:text-[10px] font-black uppercase tracking-widest bg-white/90 shadow-sm"
@@ -85,6 +75,7 @@ export default function Home() {
   }, []);
 
   const scrollToContent = () => {
+    // 3s delay to allow Nexus reverse + forward animations to complete
     setTimeout(() => {
       if (contentRef.current) {
         const y = contentRef.current.getBoundingClientRect().top + window.pageYOffset - 20;
@@ -98,12 +89,15 @@ export default function Home() {
       setActiveSection(null);
       return;
     }
+
     if (activeSection !== null) {
+      // Step 1: Trigger exit/reverse animation
       setActiveSection(null);
+      // Step 2: Trigger new entrance after exit duration
       setTimeout(() => {
         setActiveSection(id);
         scrollToContent();
-      }, 800);
+      }, 800); 
     } else {
       setActiveSection(id);
       scrollToContent();
@@ -121,11 +115,11 @@ export default function Home() {
         <motion.div className="text-center flex flex-col items-center w-full" 
           initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
           
-          <GlitchText 
-            text="Lancelot Naipier-Kane" 
-            fontSize="clamp(1.8rem, 8vw, 4.5rem)" 
-            letterSpacing="-0.05em" 
-          />
+          {/* ORIGINAL GLITCH LOGIC RESTORED */}
+          <h1 className="glitch font-inter" data-text="Lancelot Naipier-Kane" style={{
+            fontSize: 'clamp(1.8rem, 8vw, 4.5rem)', fontWeight: 900,
+            color: '#1A0010', letterSpacing: '-0.05em', margin: 0, lineHeight: 1.1,
+          }}>Lancelot Naipier-Kane</h1>
 
           <div className="flex gap-2 mt-3 mb-3 flex-wrap justify-center">
             <CertBadge label="MIT Certified" color="#A31F34" />
@@ -133,14 +127,11 @@ export default function Home() {
             <CertBadge label="Google Certified" color="#34A853" />
           </div>
 
-          <div className="hover:scale-105 transition-transform duration-300">
-            <GlitchText 
-              text="Program and Data Manager" 
-              fontSize="clamp(0.85rem, 3vw, 1.1rem)" 
-              letterSpacing="0.3em"
-              color="#000"
-            />
-          </div>
+          <p className="glitch font-mono text-black font-black tracking-[0.15em] sm:tracking-[0.3em] uppercase" 
+             data-text="Program and Data Manager"
+             style={{ fontSize: 'clamp(0.85rem, 3vw, 1.1rem)' }}>
+            Program and Data Manager
+          </p>
 
           <div className="mt-4 mx-auto max-w-[750px] bg-white/70 backdrop-blur-xl p-5 rounded-2xl border border-white/80 shadow-2xl">
             <p className="text-[0.95rem] sm:text-[1.1rem] text-[#1A0010] font-extrabold italic leading-relaxed font-inter">
