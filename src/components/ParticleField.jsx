@@ -2,7 +2,8 @@ import React, { useEffect, useRef } from 'react';
 
 const ParticleField = () => {
   const canvasRef = useRef(null);
-  const mouse = useRef({ x: null, y: null, radius: 180 });
+  // Reduced radius: you now need to be much closer (120px vs 180px)
+  const mouse = useRef({ x: null, y: null, radius: 120 });
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -10,10 +11,9 @@ const ParticleField = () => {
     let animationFrameId;
     let particles = [];
     
-    // Config
-    const particleCount = 75; 
-    const connectionDistance = 160;
-    const brandPink = '#E01880';
+    // Increased particle count for better density
+    const particleCount = 90; 
+    const connectionDistance = 150;
 
     const resize = () => {
       canvas.width = window.innerWidth;
@@ -28,40 +28,40 @@ const ParticleField = () => {
       reset(x, y) {
         this.x = x || Math.random() * canvas.width;
         this.y = y || Math.random() * canvas.height;
-        this.baseX = this.x;
-        this.baseY = this.y;
-        this.vx = (Math.random() - 0.5) * 0.8;
-        this.vy = (Math.random() - 0.5) * 0.8;
         
-        // MAINTAINING BIGGER SIZE
+        // Slower base velocity for a "floating" feel
+        this.vx = (Math.random() - 0.5) * 0.4;
+        this.vy = (Math.random() - 0.5) * 0.4;
+        
         this.radius = Math.random() * 3 + 4; 
-        this.density = (Math.random() * 30) + 10;
-        this.opacity = Math.random() * 0.6 + 0.2;
+        // Lower density = slower, smoother reaction to force
+        this.density = (Math.random() * 15) + 5; 
+        this.opacity = Math.random() * 0.5 + 0.2;
       }
 
       update() {
-        // Interactivity: Mouse Repulsion
+        // SMOOTH INTERACTION LOGIC
         if (mouse.current.x !== null) {
           let dx = mouse.current.x - this.x;
           let dy = mouse.current.y - this.y;
           let distance = Math.sqrt(dx * dx + dy * dy);
-          let forceDirectionX = dx / distance;
-          let forceDirectionY = dy / distance;
-          let maxDistance = mouse.current.radius;
-          let force = (maxDistance - distance) / maxDistance;
-          let directionX = forceDirectionX * force * this.density;
-          let directionY = forceDirectionY * force * this.density;
-
+          
           if (distance < mouse.current.radius) {
+            // Calculate force with a smoother easing curve
+            const force = (mouse.current.radius - distance) / mouse.current.radius;
+            const directionX = (dx / distance) * force * this.density * 0.4;
+            const directionY = (dy / distance) * force * this.density * 0.4;
+
+            // Apply "soft" push
             this.x -= directionX;
             this.y -= directionY;
           }
         }
 
+        // Apply movement with high dampening
         this.x += this.vx;
         this.y += this.vy;
 
-        // Bounce off walls
         if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
         if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
       }
@@ -72,8 +72,7 @@ const ParticleField = () => {
         ctx.fillStyle = `rgba(224, 24, 128, ${this.opacity})`;
         ctx.fill();
 
-        // Glow ring
-        ctx.strokeStyle = `rgba(255, 209, 232, ${this.opacity * 0.4})`;
+        ctx.strokeStyle = `rgba(255, 209, 232, ${this.opacity * 0.3})`;
         ctx.lineWidth = 1.5;
         ctx.stroke();
       }
@@ -101,8 +100,7 @@ const ParticleField = () => {
             ctx.beginPath();
             ctx.moveTo(p.x, p.y);
             ctx.lineTo(p2.x, p2.y);
-            // Dynamic opacity based on distance
-            ctx.strokeStyle = `rgba(224, 24, 128, ${0.2 * (1 - dist / connectionDistance)})`;
+            ctx.strokeStyle = `rgba(224, 24, 128, ${0.12 * (1 - dist / connectionDistance)})`;
             ctx.lineWidth = 1;
             ctx.stroke();
           }
@@ -123,10 +121,9 @@ const ParticleField = () => {
     };
 
     const handleClick = (e) => {
-      // Spawn new big particles on click
-      for(let i = 0; i < 5; i++) {
+      for(let i = 0; i < 3; i++) {
         particles.push(new Particle(e.clientX, e.clientY));
-        if (particles.length > 100) particles.shift();
+        if (particles.length > 120) particles.shift();
       }
     };
 

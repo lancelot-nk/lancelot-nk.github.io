@@ -21,15 +21,23 @@ function getLayout(w) {
 }
 
 function circuitPath(x1, y1, x2, y2, seed, offset = 0, isSpawning = false) {
-  // Add slight jitter to mid-points for a more "organic" circuit feel
-  const midX = x1 + (x2 - x1) * (0.35 + (seed % 15) / 50) + offset;
-  const midY = y1 + (y2 - y1) * (0.55 - (seed % 15) / 50) + offset;
+  // Random jitter for the 7 inward lines to prevent overlap
+  const rand = (Math.sin(seed * 437.5) * 15);
+  const midX = x1 + (x2 - x1) * (0.3 + (seed % 10) / 40) + offset + rand;
+  const midY = y1 + (y2 - y1) * (0.5 + (seed % 10) / 40) + offset + rand;
   
   if (isSpawning) {
-    const angle = (seed * 137.5) * (Math.PI / 180); // Fibonacci spiral-ish spawning
-    const targetX = x2 + Math.cos(angle) * 80;
-    const targetY = y2 + Math.sin(angle) * 80;
-    return `M ${x2} ${y2} L ${targetX} ${midY} L ${targetX} ${targetY}`;
+    // Spawns from random sides/angles of the hex
+    const angle = (seed * 60) * (Math.PI / 180);
+    const spawnX = x2 + Math.cos(angle) * 2;
+    const spawnY = y2 + Math.sin(angle) * 2;
+    
+    // Architectural 90-degree bend constrained to safe distance
+    const dist = 35 + (seed % 25);
+    const targetX = spawnX + Math.cos(angle) * dist;
+    const targetY = spawnY + Math.sin(angle) * dist;
+    
+    return `M ${spawnX} ${spawnY} L ${targetX} ${midY} L ${targetX} ${targetY}`;
   }
   
   return `M ${x1} ${y1} L ${midX} ${y1} L ${midX} ${midY} L ${x2} ${midY} L ${x2} ${y2}`;
@@ -73,44 +81,32 @@ export default function Nexus({ activeSection, onSelect }) {
             <g key={`circuit-group-${s.id}`}>
               <AnimatePresence>
                 {isActive && (
-                  <motion.g
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0, transition: { duration: 0.4 } }}
-                  >
-                    {/* 7 VARYING INWARD TRACES (Grid-style Manifold) */}
-                    {[ -18, -12, -6, 0, 6, 12, 18 ].map((offset, idx) => {
-                      const opacities = [ 0.1, 0.3, 0.5, 1, 0.5, 0.3, 0.1 ];
-                      const widths = [ 1, 1, 1.5, 3, 1.5, 1, 1 ];
-                      return (
-                        <motion.path
-                          key={`inward-${idx}`}
-                          d={circuitPath(cx, cy, hx, hy, i + idx, offset)}
-                          fill="none" 
-                          stroke="white" 
-                          strokeWidth={widths[idx]} 
-                          opacity={opacities[idx]}
-                          filter={idx === 3 ? "url(#active-glow)" : "none"}
-                          initial={{ pathLength: 0 }}
-                          animate={{ pathLength: 1 }}
-                          exit={{ pathLength: 0 }}
-                          transition={{ duration: 0.7, ease: "easeInOut", delay: idx * 0.02 }}
-                        />
-                      );
-                    })}
+                  <motion.g initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                    {/* RANDOMIZED 7-PATH INWARD MANIFOLD */}
+                    {[ -18, -12, -6, 0, 6, 12, 18 ].map((offset, idx) => (
+                      <motion.path
+                        key={`inward-${idx}`}
+                        d={circuitPath(cx, cy, hx, hy, i * 77 + idx, offset)}
+                        fill="none" stroke="white" 
+                        strokeWidth={idx === 3 ? 3 : 1}
+                        opacity={[0.1, 0.3, 0.5, 1, 0.5, 0.3, 0.1][idx]}
+                        filter={idx === 3 ? "url(#active-glow)" : "none"}
+                        initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} exit={{ pathLength: 0 }}
+                        transition={{ duration: 0.7, ease: "easeInOut", delay: idx * 0.02 }}
+                      />
+                    ))}
 
-                    {/* 10 SPAWNING OUTWARD TRACES */}
+                    {/* WHITE GLOW OUTWARD SPINDLES (10 paths, architecture style) */}
                     {!isMobile && Array.from({ length: 10 }).map((_, idx) => (
                       <motion.path
                         key={`outward-${idx}`}
-                        d={circuitPath(cx, cy, hx, hy, i * 10 + idx, 0, true)}
-                        fill="none" 
-                        stroke={brandPink} 
-                        strokeWidth={1.2}
+                        d={circuitPath(cx, cy, hx, hy, i * 13 + (idx * 17), 0, true)}
+                        fill="none" stroke="white" strokeWidth={1}
+                        opacity={0.4} filter="url(#active-glow)"
                         initial={{ pathLength: 0, opacity: 0 }}
-                        animate={{ pathLength: 1, opacity: 0.4 }}
+                        animate={{ pathLength: 1, opacity: 0.5 }}
                         exit={{ pathLength: 0, opacity: 0 }}
-                        transition={{ duration: 0.5, delay: 0.2 + (idx * 0.04) }}
+                        transition={{ duration: 0.5, delay: 0.2 + (idx * 0.05) }}
                       />
                     ))}
                   </motion.g>

@@ -5,9 +5,8 @@ import ParticleField from '../components/ParticleField';
 import Nexus from '../components/Nexus';
 import ContentPanel from '../components/ContentPanel';
 
-// CORRECTED ASSETS
-import bgAsset from '../assets/bg.jpg'; 
-import profilePic from '../assets/profile.jpg';
+// ASSETS
+import bgAsset from '../assets/bg.jpg';
 
 const smoothScrollTo = (targetY, duration = 1400) => {
   const startY = window.pageYOffset;
@@ -79,7 +78,7 @@ export default function Home() {
     setTimeout(() => {
       if (contentRef.current) {
         const y = contentRef.current.getBoundingClientRect().top + window.pageYOffset - 20;
-        smoothScrollTo(y, 1500); // 1.5s Buttery transition
+        smoothScrollTo(y, 1500);
       }
     }, 800);
   };
@@ -97,52 +96,46 @@ export default function Home() {
 
   return (
     <div className="min-h-screen relative overflow-x-hidden bg-white">
-      {/* BACKGROUND IMAGE RESTORED */}
       <div className="fixed inset-0 z-0 bg-cover bg-center opacity-100" style={{ backgroundImage: `url(${bgAsset})` }} />
-      <div className="fixed inset-0 z-[1] bg-gradient-to-b from-white/10 via-transparent to-white/30 pointer-events-none" />
       <ParticleField />
 
-      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 py-12 gap-8">
+      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 py-8 gap-4">
         
         <motion.div className="text-center flex flex-col items-center w-full" 
-          initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
+          initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
           
-          {/* 1. NAME */}
           <h1 className="whitespace-nowrap" style={{
             fontSize: 'clamp(1.8rem, 8vw, 4.5rem)', fontWeight: 900,
             color: '#1A0010', letterSpacing: '-0.05em', margin: 0, lineHeight: 1.1,
             fontFamily: 'var(--font-inter)',
           }}>Lancelot Naipier-Kane</h1>
 
-          {/* 2. CERT PILLS */}
-          <div className="flex gap-2 mt-6 mb-6 flex-wrap justify-center">
+          <div className="flex gap-2 mt-3 mb-3 flex-wrap justify-center">
             <CertBadge label="MIT Certified" color="#A31F34" />
             <CertBadge label="Microsoft Certified" color="#00A4EF" />
             <CertBadge label="Google Certified" color="#34A853" />
           </div>
 
-          {/* 3. TITLE */}
-          <p className="whitespace-nowrap text-[0.85rem] sm:text-[1.2rem] font-mono text-black font-black tracking-[0.15em] sm:tracking-[0.3em] uppercase">
+          <p className="whitespace-nowrap text-[0.85rem] sm:text-[1.1rem] font-mono text-black font-black tracking-[0.15em] sm:tracking-[0.3em] uppercase">
             Program and Data Manager
           </p>
 
-          {/* 4. QUOTE */}
-          <div className="mt-6 mx-auto max-w-[750px] bg-white/70 backdrop-blur-xl p-6 rounded-2xl border border-white/80 shadow-2xl">
-            <p className="text-[1rem] sm:text-[1.15rem] text-[#1A0010] font-extrabold italic leading-relaxed font-inter">
+          <div className="mt-4 mx-auto max-w-[750px] bg-white/70 backdrop-blur-xl p-5 rounded-2xl border border-white/80 shadow-2xl">
+            <p className="text-[0.95rem] sm:text-[1.1rem] text-[#1A0010] font-extrabold italic leading-relaxed font-inter">
               "Turning complex data into decisive action — from $7.6B budgets to AI-driven systems, I architect solutions that move organizations forward."
             </p>
           </div>
         </motion.div>
 
-        {/* NEXUS COMPONENT */}
-        <Nexus activeSection={activeSection} onSelect={handleSelect} />
+        <div className="my-[-25px]"> 
+          <Nexus activeSection={activeSection} onSelect={handleSelect} />
+        </div>
 
-        {/* CTA ROW */}
-        <div className="flex gap-4 flex-wrap justify-center mt-4">
+        <div className="flex gap-4 flex-wrap justify-center mt-[-15px]">
           <PillBtn href="https://www.linkedin.com/in/lancelotnk/" icon={Linkedin} label="LinkedIn" />
           <PillBtn href="https://github.com/lancelot-nk" icon={Github} label="GitHub" />
           <PillBtn href="mailto:lancelotsmnk@gmail.com" icon={Mail} label="Contact For Work" />
-          <PillBtn onClick={triggerResume} icon={FileDown} label="Resume" />
+          <PillBtn onClick={triggerResume} icon={FileDown} label="Resume download" />
         </div>
       </div>
 
