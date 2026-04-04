@@ -31,59 +31,40 @@ function GlitchText({ text, className, style }) {
   );
 }
 
-// ── SCROLL SYSTEM ────────────────────────────────────────────────────────────
-// Single rAF handle so we can cancel any in-flight animation instantly
-let scrollRaf = null;
-// Whether the user has grabbed the scroll themselves
+// ── SCROLL SYSTEM ─────────────────────────────────────────────────────────────
+let scrollRaf       = null;
 let userInterrupted = false;
-let lastScrollY = 0;
+let lastScrollY     = 0;
 
 function cancelScroll() {
-  if (scrollRaf) {
-    cancelAnimationFrame(scrollRaf);
-    scrollRaf = null;
-  }
+  if (scrollRaf) { cancelAnimationFrame(scrollRaf); scrollRaf = null; }
 }
 
 function smoothScrollTo(targetY, duration = 900) {
   cancelScroll();
   userInterrupted = false;
-  lastScrollY = window.pageYOffset;
-
-  const startY = window.pageYOffset;
-  const diff   = targetY - startY;
-  let startTime = null;
-
+  lastScrollY     = window.pageYOffset;
+  const startY    = window.pageYOffset;
+  const diff      = targetY - startY;
+  let startTime   = null;
   const step = (ts) => {
-    // If user scrolled manually since last frame — abort
-    if (Math.abs(window.pageYOffset - lastScrollY) > 2 && userInterrupted) {
-      cancelScroll();
-      return;
-    }
+    if (Math.abs(window.pageYOffset - lastScrollY) > 2 && userInterrupted) { cancelScroll(); return; }
     lastScrollY = window.pageYOffset;
-
     if (!startTime) startTime = ts;
     const p = Math.min((ts - startTime) / duration, 1);
     const e = p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
     window.scrollTo(0, startY + diff * e);
-    if (p < 1) {
-      scrollRaf = requestAnimationFrame(step);
-    } else {
-      scrollRaf = null;
-    }
+    if (p < 1) { scrollRaf = requestAnimationFrame(step); } else { scrollRaf = null; }
   };
   scrollRaf = requestAnimationFrame(step);
 }
 
-// Detect genuine user wheel/touch scroll — set flag so next rAF frame bails
 function initScrollInterruptListeners() {
   const onUserScroll = () => { userInterrupted = true; };
-  window.addEventListener('wheel',      onUserScroll, { passive: true });
-  window.addEventListener('touchmove',  onUserScroll, { passive: true });
-  window.addEventListener('keydown',    (e) => {
-    if (['ArrowUp','ArrowDown','PageUp','PageDown','Home','End',' '].includes(e.key)) {
-      userInterrupted = true;
-    }
+  window.addEventListener('wheel',     onUserScroll, { passive: true });
+  window.addEventListener('touchmove', onUserScroll, { passive: true });
+  window.addEventListener('keydown', (e) => {
+    if (['ArrowUp','ArrowDown','PageUp','PageDown','Home','End',' '].includes(e.key)) userInterrupted = true;
   });
 }
 // ─────────────────────────────────────────────────────────────────────────────
@@ -133,12 +114,11 @@ function PillBtn({ href, icon: Icon, label, onClick }) {
   );
 }
 
-// ── SECRET GAME BUTTON ───────────────────────────────────────────────────────
+// ── SECRET GAME BUTTON ────────────────────────────────────────────────────────
 function QuoteBox({ onGameUnlock }) {
-  const [hov,         setHov]         = useState(false);
-  const [gameVisible, setGameVisible] = useState(false);
-  const [holding,     setHolding]     = useState(false);
-  const [holdProgress, setHoldProgress] = useState(0); // 0–1
+  const [gameVisible,  setGameVisible]  = useState(false);
+  const [holding,      setHolding]      = useState(false);
+  const [holdProgress, setHoldProgress] = useState(0);
   const holdTimer   = useRef(null);
   const progressRaf = useRef(null);
   const holdStart   = useRef(null);
@@ -147,21 +127,14 @@ function QuoteBox({ onGameUnlock }) {
   const startHold = useCallback(() => {
     holdStart.current = performance.now();
     setHolding(true);
-
     const tick = () => {
-      const elapsed  = performance.now() - holdStart.current;
-      const progress = Math.min(elapsed / HOLD_MS, 1);
+      const progress = Math.min((performance.now() - holdStart.current) / HOLD_MS, 1);
       setHoldProgress(progress);
-      if (progress < 1) {
-        progressRaf.current = requestAnimationFrame(tick);
-      }
+      if (progress < 1) { progressRaf.current = requestAnimationFrame(tick); }
     };
     progressRaf.current = requestAnimationFrame(tick);
-
     holdTimer.current = setTimeout(() => {
-      setGameVisible(true);
-      setHolding(false);
-      setHoldProgress(0);
+      setGameVisible(true); setHolding(false); setHoldProgress(0);
     }, HOLD_MS);
   }, []);
 
@@ -172,80 +145,87 @@ function QuoteBox({ onGameUnlock }) {
     setHoldProgress(0);
   }, []);
 
-  // Cleanup on unmount
   useEffect(() => () => {
     clearTimeout(holdTimer.current);
     cancelAnimationFrame(progressRaf.current);
   }, []);
 
   return (
-    <motion.div
-      className="relative mt-4 mb-1 sm:mb-0 mx-auto max-w-[750px] rounded-2xl border border-white/80 shadow-2xl cursor-default select-none"
-      style={{ background: 'rgba(255,255,255,0.70)', backdropFilter: 'blur(16px)' }}
-      initial={false}
-      whileHover={{ scale: 1.012, background: 'rgba(255,255,255,0.92)', boxShadow: '0 8px 48px rgba(224,24,128,0.10)' }}
-      transition={{ duration: 0.25, ease: 'easeOut' }}
-      onMouseEnter={() => setHov(true)}
-      onMouseLeave={() => { setHov(false); cancelHold(); }}
-      onMouseDown={startHold}
-      onMouseUp={cancelHold}
-      onTouchStart={startHold}
-      onTouchEnd={cancelHold}
-      onTouchCancel={cancelHold}
-    >
-      <motion.p
-        className="p-5 text-[0.95rem] sm:text-[1.1rem] font-extrabold italic leading-relaxed font-inter"
+    // Outer wrapper is the positioning context for the floating game button
+    <div className="relative mt-4 mb-1 sm:mb-0 mx-auto max-w-[750px]">
+
+      {/* The visible quote card */}
+      <motion.div
+        className="rounded-2xl border border-white/80 shadow-2xl cursor-default select-none"
+        style={{ background: 'rgba(255,255,255,0.70)', backdropFilter: 'blur(16px)' }}
         initial={false}
-        whileHover={{ color: '#5A0018' }}
-        transition={{ duration: 0.25 }}
-        style={{ color: '#1A0010' }}
+        whileHover={{
+          scale:      1.012,
+          background: 'rgba(255,255,255,0.92)',
+          boxShadow:  '0 8px 48px rgba(224,24,128,0.10)',
+        }}
+        transition={{ duration: 0.25, ease: 'easeOut' }}
+        onMouseLeave={cancelHold}
+        onMouseDown={startHold}
+        onMouseUp={cancelHold}
+        onTouchStart={startHold}
+        onTouchEnd={cancelHold}
+        onTouchCancel={cancelHold}
       >
-        "Turning complex data into decisive action — from $7.6B budgets to AI-driven systems, I architect solutions that move organizations forward."
-      </motion.p>
-
-      {/* Hold-progress ring — subtle arc that fills while holding */}
-      {holding && (
-        <svg
-          className="absolute top-2 right-2 pointer-events-none"
-          width={28} height={28}
-          style={{ transform: 'rotate(-90deg)' }}
+        <motion.p
+          className="p-5 text-[0.95rem] sm:text-[1.1rem] font-extrabold italic leading-relaxed font-inter"
+          initial={false}
+          whileHover={{ color: '#5A0018' }}
+          transition={{ duration: 0.25 }}
+          style={{ color: '#1A0010' }}
         >
-          <circle cx={14} cy={14} r={11} fill="none" stroke="rgba(224,24,128,0.15)" strokeWidth={2.5} />
-          <circle
-            cx={14} cy={14} r={11}
-            fill="none"
-            stroke={PINK}
-            strokeWidth={2.5}
-            strokeDasharray={`${2 * Math.PI * 11}`}
-            strokeDashoffset={`${2 * Math.PI * 11 * (1 - holdProgress)}`}
-            strokeLinecap="round"
-          />
-        </svg>
-      )}
+          "Turning complex data into decisive action — from $7.6B budgets to AI-driven systems, I architect solutions that move organizations forward."
+        </motion.p>
 
-      {/* Secret game button — appears after 3s hold */}
+        {/* Hold progress ring — inside card, top-right */}
+        {holding && (
+          <svg
+            className="absolute top-2 right-2 pointer-events-none"
+            width={28} height={28}
+            style={{ transform: 'rotate(-90deg)' }}
+          >
+            <circle cx={14} cy={14} r={11} fill="none" stroke="rgba(224,24,128,0.15)" strokeWidth={2.5} />
+            <circle
+              cx={14} cy={14} r={11} fill="none" stroke={PINK} strokeWidth={2.5}
+              strokeDasharray={`${2 * Math.PI * 11}`}
+              strokeDashoffset={`${2 * Math.PI * 11 * (1 - holdProgress)}`}
+              strokeLinecap="round"
+            />
+          </svg>
+        )}
+      </motion.div>
+
+      {/* Game button — floats off the top-right corner of the wrapper, not inside the card */}
       <AnimatePresence>
         {gameVisible && (
           <motion.button
-            initial={{ opacity: 0, scale: 0.6 }}
+            initial={{ opacity: 0, scale: 0.5 }}
             animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.6 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 22 }}
+            exit={{ opacity: 0, scale: 0.5 }}
+            transition={{ type: 'spring', stiffness: 420, damping: 20 }}
             onClick={(e) => { e.stopPropagation(); onGameUnlock(); }}
-            className="absolute top-2 right-2 w-9 h-9 rounded-lg border-2 flex items-center justify-center"
+            className="absolute flex items-center justify-center w-10 h-10 rounded-xl border-2"
             style={{
+              top:         '-14px',
+              right:       '-14px',
               borderColor: PINK,
-              background:  'rgba(255,255,255,0.95)',
+              background:  'rgba(255,255,255,0.97)',
               color:        PINK,
-              boxShadow:   `0 0 14px rgba(224,24,128,0.35)`,
+              boxShadow:   `0 0 18px rgba(224,24,128,0.45), 0 2px 8px rgba(0,0,0,0.10)`,
+              zIndex:       50,
             }}
             title="???"
           >
-            <Gamepad2 size={18} />
+            <Gamepad2 size={20} />
           </motion.button>
         )}
       </AnimatePresence>
-    </motion.div>
+    </div>
   );
 }
 // ─────────────────────────────────────────────────────────────────────────────
@@ -254,10 +234,8 @@ export default function Home() {
   const [activeSection, setActiveSection] = useState(null);
   const [showBackToTop, setShowBackToTop] = useState(false);
   const contentRef    = useRef(null);
-  // Pending deferred selection — so we can cancel it if user clicks again mid-transition
   const pendingSelect = useRef(null);
 
-  // Wire up scroll-interrupt detection once
   useEffect(() => { initScrollInterruptListeners(); }, []);
 
   useEffect(() => {
@@ -267,10 +245,8 @@ export default function Home() {
   }, []);
 
   const scrollToContent = useCallback((delay, scrollDuration = 900) => {
-    // Cancel any previously queued scroll
     cancelScroll();
     clearTimeout(pendingSelect.current);
-
     pendingSelect.current = setTimeout(() => {
       if (contentRef.current) {
         const y = contentRef.current.getBoundingClientRect().top + window.pageYOffset - 20;
@@ -280,48 +256,25 @@ export default function Home() {
   }, []);
 
   const handleSelect = useCallback((id) => {
-    // Cancel any in-flight or queued scroll immediately
     cancelScroll();
     clearTimeout(pendingSelect.current);
 
-    if (activeSection === id) {
-      // Toggle off — no scroll needed
-      setActiveSection(null);
-      return;
-    }
+    if (activeSection === id) { setActiveSection(null); return; }
 
     if (activeSection !== null) {
-      // Switching nodes:
-      // Retract anim: ~1100ms (outward retract 380ms + gap 120ms + inward retract 380ms + buffer)
-      // Then draw-in: ~1400ms (inward 500ms + gap 150ms + outward 750ms)
-      // Total before content is meaningful: ~2500ms + small breath = 2600ms scroll delay
-      const SWITCH_ANIM_MS   = 1100; // retract
-      const BREATH_MS        =  150;
-      const DRAW_IN_MS       = 1400; // draw
-      const SCROLL_DELAY     = SWITCH_ANIM_MS + BREATH_MS + DRAW_IN_MS;
-      const SCROLL_DURATION  =  800;
-
+      const SWITCH_ANIM_MS = 1100, BREATH_MS = 150, DRAW_IN_MS = 1400;
       setActiveSection(null);
-      // Wait for retract + breath, then set new section
       pendingSelect.current = setTimeout(() => {
         setActiveSection(id);
-        // Then wait for draw-in to mostly complete before scrolling
-        scrollToContent(DRAW_IN_MS, SCROLL_DURATION);
+        scrollToContent(DRAW_IN_MS, 800);
       }, SWITCH_ANIM_MS + BREATH_MS);
-
     } else {
-      // Fresh selection — just draw-in then scroll
-      const DRAW_IN_MS      = 1400;
-      const BREATH_MS       =  100;
-      const SCROLL_DURATION =  800;
-
       setActiveSection(id);
-      scrollToContent(DRAW_IN_MS + BREATH_MS, SCROLL_DURATION);
+      scrollToContent(1400 + 100, 800);
     }
   }, [activeSection, scrollToContent]);
 
   const handleGameUnlock = useCallback(() => {
-    // Placeholder — game activation hook
     console.log('🎮 secret game unlocked');
   }, []);
 
@@ -330,7 +283,12 @@ export default function Home() {
       <div className="fixed inset-0 z-0 bg-cover bg-center" style={{ backgroundImage: `url(${bgAsset})` }} />
       <ParticleField />
 
+      {/*
+        pt-6 mobile (halved from pt-12), sm+ keeps py-12.
+        gap-2 mobile, gap-4 sm+ — tight between all flex children.
+      */}
       <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 pt-6 pb-12 sm:py-12 gap-2 sm:gap-4">
+
         <motion.div
           className="text-center flex flex-col items-center w-full"
           initial={{ opacity: 0, y: -10 }}
@@ -355,11 +313,25 @@ export default function Home() {
           <QuoteBox onGameUnlock={handleGameUnlock} />
         </motion.div>
 
-        <div className="my-[-12px] sm:my-[-25px] py-1 sm:py-0">
+        {/*
+          Dead-space math (SVG container size vs actual hex bounds):
+            Desktop (size=850, radius=255, hexH≈178): hex top edge ≈ y=81  → eat 71px each side → my-[-71px]
+            Tablet  (size=550, radius=180, hexH≈126): hex top edge ≈ y=54  → eat 44px each side → sm:my-[-44px]
+            Mobile  (size=340, radius=105, hexH≈ 86): hex top edge ≈ y=32  → eat 26px each side → base my-[-26px]
+          A ~10px breathing room kept on each side so nothing clips.
+        -->
+        -->  mobile slightly more aggressive (extra -8px) since small screen gap ratio is worse
+        -->  py-1/py-4 removed — was adding back space we're trying to remove
+        -->  lg: targets desktop specifically (900px+ matches the 850 layout breakpoint)
+        -->  sm: targets tablet (480-900px, uses 550 layout)
+        -->  base: mobile (<480px, uses 340 layout)
+        */}
+        <div className="my-[-34px] sm:my-[-44px] lg:my-[-71px]">
           <Nexus activeSection={activeSection} onSelect={handleSelect} />
         </div>
 
-        <div className="flex gap-4 flex-wrap justify-center mt-[-8px] sm:mt-[-15px] pb-8 sm:pb-0">
+        {/* mt-0 mobile (was mt-[-8px] which could clip), sm keeps existing pull-up */}
+        <div className="flex gap-4 flex-wrap justify-center mt-0 sm:mt-[-15px] pb-8 sm:pb-0">
           <PillBtn href="https://www.linkedin.com/in/lancelotnk/" icon={Linkedin} label="LinkedIn" />
           <PillBtn href="https://github.com/lancelot-nk"          icon={Github}   label="GitHub" />
           <PillBtn href="mailto:lancelotsmnk@gmail.com"           icon={Mail}     label="Contact For Work" />
