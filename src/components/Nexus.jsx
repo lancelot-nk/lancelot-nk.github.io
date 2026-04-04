@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 import { Code, FileText, BarChart3, Palette, BookOpen, Award } from 'lucide-react';
 
 // IMPORT LOCAL ASSET
@@ -18,10 +18,7 @@ function getLayout(w) {
   if (w < 480) return { size: 320, core: 75, radius: 95, hex: 70, fontSize: 11 };
   if (w < 900) return { size: 480, core: 110, radius: 155, hex: 100, fontSize: 15 };
   
-  /** * Desktop "High-Density" Optimized: 
-   * - hex: 135 (Reduced for a sharper look)
-   * - radius: 215 (Closer to center)
-   */
+  // Desktop "High-Density" Optimized
   return { size: 700, core: 175, radius: 215, hex: 135, fontSize: 20 };
 }
 
@@ -99,9 +96,7 @@ export default function Nexus({ activeSection, onSelect }) {
         const isHovered = hoveredId === s.id;
         const Icon = s.icon;
         
-        // Icon is secondary (shrunk to 25% of hex width)
         const iconSize = Math.round(hex * 0.25); 
-        // Text is primary (large and clear)
         const currentFontSize = isActive ? Math.round(fontSize * 1.15) : fontSize;
 
         return (
@@ -114,18 +109,15 @@ export default function Nexus({ activeSection, onSelect }) {
             whileHover={{ scale: 1.1 }}
             onClick={() => onSelect(s.id)}
           >
-            {/* Unified Relative Container: treated as a single block that stays centered */}
             <div className="relative w-full h-full flex flex-col items-center justify-center">
-              
               <Icon 
                 size={iconSize} 
                 className="transition-colors duration-300"
                 style={{ 
                   color: isHovered ? deepBurgundy : 'white',
-                  marginBottom: '2px' // Puts the icon *right above* the text, closing the weird gap
+                  marginBottom: '2px' 
                 }} 
               />
-              
               <span 
                 className="font-mono uppercase font-black tracking-tighter text-center transition-colors duration-300"
                 style={{ 
