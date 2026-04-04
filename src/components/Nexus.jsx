@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Code, FileText, BarChart3, Palette, BookOpen, Award } from 'lucide-react';
 
-// IMPORT LOCAL ASSET - Ensure this file exists in src/assets/profile.jpg
+// IMPORT LOCAL ASSET
 import profilePic from '../assets/profile.jpg';
 
 export const SECTIONS = [
@@ -15,10 +15,12 @@ export const SECTIONS = [
 ];
 
 function getLayout(w) {
-  if (w < 400) return { size: 300, core: 70, radius: 105, hex: 65 };
-  if (w < 600) return { size: 360, core: 85, radius: 125, hex: 75 };
-  if (w < 900) return { size: 450, core: 110, radius: 160, hex: 95 };
-  return { size: 550, core: 140, radius: 200, hex: 110 };
+  // Mobile
+  if (w < 480) return { size: 320, core: 75, radius: 110, hex: 70, fontSize: 11 };
+  // Tablet
+  if (w < 900) return { size: 480, core: 110, radius: 170, hex: 100, fontSize: 14 };
+  // Web / Desktop - MASSIVE INCREASE
+  return { size: 650, core: 160, radius: 230, hex: 140, fontSize: 18 };
 }
 
 function dendriticPath(x1, y1, x2, y2, seed) {
@@ -33,7 +35,7 @@ function dendriticPath(x1, y1, x2, y2, seed) {
 }
 
 export default function Nexus({ activeSection, onSelect }) {
-  const [layout, setLayout] = useState(() => getLayout(typeof window !== 'undefined' ? window.innerWidth : 900));
+  const [layout, setLayout] = useState(() => getLayout(typeof window !== 'undefined' ? window.innerWidth : 1000));
 
   useEffect(() => {
     const update = () => setLayout(getLayout(window.innerWidth));
@@ -41,11 +43,12 @@ export default function Nexus({ activeSection, onSelect }) {
     return () => window.removeEventListener('resize', update);
   }, []);
 
-  const { size, core, radius, hex } = layout;
-  const hexH = Math.round(hex * 1.15);
+  const { size, core, radius, hex, fontSize } = layout;
+  const hexH = Math.round(hex * 1.18); // Slightly taller for better text vertical centering
   const cx = size / 2, cy = size / 2;
   
-  const brandPink = '#E01880'; 
+  const brandPink = '#E01880';
+  const deepBurgundy = '#4A0000'; // Dark Red/Burgundy Outline
 
   return (
     <div className="relative flex-shrink-0" style={{ width: size, height: size }}>
@@ -53,8 +56,8 @@ export default function Nexus({ activeSection, onSelect }) {
       {/* SVG Layer for Connections */}
       <svg className="absolute inset-0 w-full h-full overflow-visible z-[5]">
         <defs>
-          <filter id="nexus-glow">
-            <feGaussianBlur stdDeviation="3" result="blur" />
+          <filter id="white-glow">
+            <feGaussianBlur stdDeviation="4" result="blur" />
             <feMerge>
               <feMergeNode in="blur" />
               <feMergeNode in="SourceGraphic" />
@@ -75,10 +78,9 @@ export default function Nexus({ activeSection, onSelect }) {
                   d={dendriticPath(cx, cy, hx, hy, i)}
                   fill="none"
                   stroke="white"
-                  strokeWidth={3}
-                  strokeOpacity={0.9}
-                  strokeDasharray="8 5"
-                  filter="url(#nexus-glow)"
+                  strokeWidth={4}
+                  strokeOpacity={1}
+                  filter="url(#white-glow)"
                   initial={{ pathLength: 0, opacity: 0 }}
                   animate={{ pathLength: 1, opacity: 1 }}
                   transition={{ duration: 0.5, ease: 'easeOut' }}
@@ -88,13 +90,13 @@ export default function Nexus({ activeSection, onSelect }) {
 
               {/* HEXAGON SHAPE */}
               <polygon
-                points={`${hx},${hy - hexH / 2 + 2} ${hx + hex / 2 - 1},${hy - hexH / 4} ${hx + hex / 2 - 1},${hy + hexH / 4} ${hx},${hy + hexH / 2 - 2} ${hx - hex / 2 + 1},${hy + hexH / 4} ${hx - hex / 2 + 1},${hy - hexH / 4}`}
-                fill={brandPink} // Solid Violet/Red background
-                stroke="white"   // White outer line
-                strokeWidth={isActive ? 4 : 2}
+                points={`${hx},${hy - hexH / 2} ${hx + hex / 2},${hy - hexH / 4} ${hx + hex / 2},${hy + hexH / 4} ${hx},${hy + hexH / 2} ${hx - hex / 2},${hy + hexH / 4} ${hx - hex / 2},${hy - hexH / 4}`}
+                fill={brandPink}
+                stroke={deepBurgundy} 
+                strokeWidth={isActive ? 6 : 4}
                 className="transition-all duration-300 cursor-pointer"
                 style={{ 
-                  filter: isActive ? `drop-shadow(0 0 15px white)` : 'none' 
+                  filter: isActive ? `drop-shadow(0 0 20px white)` : `drop-shadow(0 0 5px rgba(255,255,255,0.3))` 
                 }}
                 onClick={() => onSelect(s.id)}
               />
@@ -111,33 +113,40 @@ export default function Nexus({ activeSection, onSelect }) {
         const isActive = activeSection === s.id;
         const Icon = s.icon;
         
-        const iconSize = Math.round(hex * 0.28);
-        const fontSize = isActive ? '13px' : '11px';
+        // Large scale icon shifted up
+        const iconSize = Math.round(hex * 0.32);
+        const currentFontSize = isActive ? fontSize + 4 : fontSize;
 
         return (
           <motion.button
             key={`btn-${s.id}`}
-            className="absolute flex flex-col items-center justify-center gap-1 z-20 bg-none border-none p-0 cursor-pointer"
+            className="absolute flex flex-col items-center justify-center z-20 bg-none border-none p-0 cursor-pointer"
             style={{
               left: hx - hex / 2,
               top: hy - hexH / 2,
               width: hex, height: hexH,
             }}
-            whileHover={{ scale: 1.05 }}
+            whileHover={{ scale: 1.08 }}
             onClick={() => onSelect(s.id)}
           >
-            <Icon 
-              size={iconSize} 
-              className="pointer-events-none"
-              style={{ color: 'white' }} // White Icons
-            />
+            {/* Shift Icon UP */}
+            <div className="mt-[-15%] transition-transform duration-300">
+              <Icon 
+                size={iconSize} 
+                className="pointer-events-none"
+                style={{ color: 'white', filter: 'drop-shadow(0 0 8px rgba(255,255,255,0.5))' }} 
+              />
+            </div>
+
+            {/* LARGE TEXT spanning width */}
             <span 
-              className="font-mono uppercase font-black tracking-tighter text-center pointer-events-none leading-[0.95]"
+              className="font-mono uppercase font-black tracking-tight text-center pointer-events-none leading-[1.0] mt-1 px-1"
               style={{
-                fontSize,
-                color: 'white', // White Text
-                maxWidth: hex - 10,
-                whiteSpace: 'pre-line'
+                fontSize: `${currentFontSize}px`,
+                color: 'white',
+                maxWidth: '90%',
+                whiteSpace: 'pre-line',
+                textShadow: '0 0 10px rgba(0,0,0,0.3)'
               }}
             >
               {s.label}
@@ -146,9 +155,9 @@ export default function Nexus({ activeSection, onSelect }) {
         );
       })}
 
-      {/* CORE AVATAR - CENTERING FIX */}
+      {/* CORE AVATAR */}
       <motion.div
-        className="absolute top-1/2 left-1/2 z-10 overflow-hidden rounded-full border-4 border-[#E01880] shadow-[0_0_40px_rgba(224,24,128,0.5)]"
+        className="absolute top-1/2 left-1/2 z-10 overflow-hidden rounded-full border-4 border-[#E01880] shadow-[0_0_50px_rgba(255,255,255,0.4)]"
         style={{
           width: core, height: core,
         }}
@@ -165,9 +174,9 @@ export default function Nexus({ activeSection, onSelect }) {
 
       {/* Pulse Effect Rings */}
       <div 
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-[#E01880]/40 animate-glow-pulse z-[9] pointer-events-none"
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border-4 border-white/20 animate-glow-pulse z-[9] pointer-events-none"
         style={{
-          width: core + 30, height: core + 30,
+          width: core + 40, height: core + 40,
         }}
       />
     </div>
