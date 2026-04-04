@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Code, FileText, BarChart3, Palette, BookOpen, Award } from 'lucide-react';
 
 // ASSET
@@ -15,16 +15,23 @@ export const SECTIONS = [
 ];
 
 function getLayout(w) {
-  if (w < 480) return { size: 320, core: 75, radius: 95, hex: 75, fontSize: 11, isMobile: true };
-  if (w < 900) return { size: 500, core: 110, radius: 165, hex: 110, fontSize: 16, isMobile: false };
-  
-  // WEB OPTIMIZATION: Large hex (155) and slightly wider radius (235)
-  return { size: 750, core: 175, radius: 235, hex: 155, fontSize: 24, isMobile: false };
+  if (w < 480) return { size: 320, core: 75, radius: 100, hex: 75, fontSize: 11, isMobile: true };
+  if (w < 900) return { size: 550, core: 110, radius: 180, hex: 110, fontSize: 16, isMobile: false };
+  return { size: 850, core: 175, radius: 255, hex: 155, fontSize: 24, isMobile: false };
 }
 
-function circuitPath(x1, y1, x2, y2, seed, offset = 0) {
-  const midX = x1 + (x2 - x1) * (0.4 + (seed % 10) / 50) + offset;
-  const midY = y1 + (y2 - y1) * (0.6 - (seed % 10) / 50) + offset;
+function circuitPath(x1, y1, x2, y2, seed, offset = 0, isSpawning = false) {
+  // Add slight jitter to mid-points for a more "organic" circuit feel
+  const midX = x1 + (x2 - x1) * (0.35 + (seed % 15) / 50) + offset;
+  const midY = y1 + (y2 - y1) * (0.55 - (seed % 15) / 50) + offset;
+  
+  if (isSpawning) {
+    const angle = (seed * 137.5) * (Math.PI / 180); // Fibonacci spiral-ish spawning
+    const targetX = x2 + Math.cos(angle) * 80;
+    const targetY = y2 + Math.sin(angle) * 80;
+    return `M ${x2} ${y2} L ${targetX} ${midY} L ${targetX} ${targetY}`;
+  }
+  
   return `M ${x1} ${y1} L ${midX} ${y1} L ${midX} ${midY} L ${x2} ${midY} L ${x2} ${y2}`;
 }
 
@@ -43,7 +50,6 @@ export default function Nexus({ activeSection, onSelect }) {
   const cx = size / 2, cy = size / 2;
   
   const brandPink = '#E01880';
-  const deepBurgundy = '#4A0000';
   const glowColor = '#FFD1E8';
 
   return (
@@ -52,7 +58,7 @@ export default function Nexus({ activeSection, onSelect }) {
       <svg className="absolute inset-0 w-full h-full overflow-visible z-[5]">
         <defs>
           <filter id="active-glow">
-            <feGaussianBlur stdDeviation="4" result="blur" />
+            <feGaussianBlur stdDeviation="3" result="blur" />
             <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
           </filter>
         </defs>
@@ -64,25 +70,57 @@ export default function Nexus({ activeSection, onSelect }) {
           const isHovered = hoveredId === s.id;
 
           return (
-            <g key={`circuit-${s.id}`}>
-              {isActive && (
-                <>
-                  <motion.path
-                    d={circuitPath(cx, cy, hx, hy, i)}
-                    fill="none" stroke="white" strokeWidth={3} filter="url(#active-glow)"
-                    initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.6 }}
-                  />
-                  <motion.path
-                    d={circuitPath(cx, cy, hx, hy, i, 12)}
-                    fill="none" stroke="white" strokeWidth={1} opacity={0.4}
-                    initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.8, delay: 0.2 }}
-                  />
-                </>
-              )}
+            <g key={`circuit-group-${s.id}`}>
+              <AnimatePresence>
+                {isActive && (
+                  <motion.g
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0, transition: { duration: 0.4 } }}
+                  >
+                    {/* 7 VARYING INWARD TRACES (Grid-style Manifold) */}
+                    {[ -18, -12, -6, 0, 6, 12, 18 ].map((offset, idx) => {
+                      const opacities = [ 0.1, 0.3, 0.5, 1, 0.5, 0.3, 0.1 ];
+                      const widths = [ 1, 1, 1.5, 3, 1.5, 1, 1 ];
+                      return (
+                        <motion.path
+                          key={`inward-${idx}`}
+                          d={circuitPath(cx, cy, hx, hy, i + idx, offset)}
+                          fill="none" 
+                          stroke="white" 
+                          strokeWidth={widths[idx]} 
+                          opacity={opacities[idx]}
+                          filter={idx === 3 ? "url(#active-glow)" : "none"}
+                          initial={{ pathLength: 0 }}
+                          animate={{ pathLength: 1 }}
+                          exit={{ pathLength: 0 }}
+                          transition={{ duration: 0.7, ease: "easeInOut", delay: idx * 0.02 }}
+                        />
+                      );
+                    })}
+
+                    {/* 10 SPAWNING OUTWARD TRACES */}
+                    {!isMobile && Array.from({ length: 10 }).map((_, idx) => (
+                      <motion.path
+                        key={`outward-${idx}`}
+                        d={circuitPath(cx, cy, hx, hy, i * 10 + idx, 0, true)}
+                        fill="none" 
+                        stroke={brandPink} 
+                        strokeWidth={1.2}
+                        initial={{ pathLength: 0, opacity: 0 }}
+                        animate={{ pathLength: 1, opacity: 0.4 }}
+                        exit={{ pathLength: 0, opacity: 0 }}
+                        transition={{ duration: 0.5, delay: 0.2 + (idx * 0.04) }}
+                      />
+                    ))}
+                  </motion.g>
+                )}
+              </AnimatePresence>
+              
               <polygon
                 points={`${hx},${hy - hexH / 2} ${hx + hex / 2},${hy - hexH / 4} ${hx + hex / 2},${hy + hexH / 4} ${hx},${hy + hexH / 2} ${hx - hex / 2},${hy + hexH / 4} ${hx - hex / 2},${hy - hexH / 4}`}
                 fill={isHovered ? 'white' : brandPink}
-                stroke={isHovered ? brandPink : deepBurgundy}
+                stroke={isHovered ? brandPink : '#4A0000'}
                 strokeWidth={isActive ? 6 : 3}
                 className="transition-all duration-300 cursor-pointer"
                 style={{ filter: isActive ? `drop-shadow(0 0 25px ${glowColor})` : 'none' }}
@@ -100,7 +138,6 @@ export default function Nexus({ activeSection, onSelect }) {
         const isHovered = hoveredId === s.id;
         const Icon = s.icon;
         
-        // Slightly smaller icon on web to give text more "max potential" width
         const iconSize = isMobile ? Math.round(hex * 0.22) : Math.round(hex * 0.20); 
         const currentFontSize = isActive ? Math.round(fontSize * 1.1) : fontSize;
 
@@ -119,24 +156,20 @@ export default function Nexus({ activeSection, onSelect }) {
                 size={iconSize} 
                 className="transition-all duration-300"
                 style={{ 
-                  color: isHovered ? deepBurgundy : 'white',
-                  // Freeze mobile, shift up for Web
+                  color: isHovered ? '#4A0000' : 'white',
                   transform: isMobile ? 'translateY(0px)' : 'translateY(-10px)',
-                  marginBottom: isMobile ? '2px' : '2px'
+                  marginBottom: '2px'
                 }} 
               />
-              
               <span 
                 className="font-mono uppercase font-black text-center transition-colors duration-300"
                 style={{ 
-                  // Expanded width for Web to allow massive text scaling
                   width: isMobile ? '85%' : '98%',
                   fontSize: `${currentFontSize}px`, 
-                  color: isHovered ? deepBurgundy : 'white', 
+                  color: isHovered ? '#4A0000' : 'white', 
                   lineHeight: isMobile ? '0.85' : '0.9', 
-                  letterSpacing: '0.05em', // Added small letter spacing for clarity
+                  letterSpacing: '0.05em',
                   whiteSpace: 'pre-line',
-                  // Ensure single-word phrases like RESUME fill width
                   display: 'inline-block',
                   transform: isMobile ? 'none' : 'scaleX(1.05)'
                 }}
