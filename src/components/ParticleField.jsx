@@ -43,7 +43,7 @@ const ParticleField = ({ isGameMode }) => {
         this.opacity = Math.random() * 0.5 + 0.2;
       }
 
-      // NEW: Smooth edge respawn to keep particle count static
+      // Smooth edge respawn to keep particle count static
       respawnAtEdge() {
         const edge = Math.floor(Math.random() * 4);
         if (edge === 0) { this.x = Math.random() * canvas.width; this.y = -20; } // Top
@@ -63,9 +63,9 @@ const ParticleField = ({ isGameMode }) => {
           let distance = Math.sqrt(dx * dx + dy * dy);
           
           // ABSORPTION LOGIC (Game Mode Only)
-          // Threshold matches the blob's core radius for visual consistency
-          if (isGameMode && distance < 40) {
-            window.dispatchEvent(new CustomEvent('particleEaten'));
+          // Matches the logic in BlobGame.jsx
+          if (isGameMode && distance < 45) {
+            window.dispatchEvent(new CustomEvent('particleCollected')); 
             this.respawnAtEdge(); 
             return;
           }
@@ -133,7 +133,6 @@ const ParticleField = ({ isGameMode }) => {
         p.draw();
 
         // Optimized connections: 
-        // We skip lines in game mode to keep FPS at 60 despite high particle count
         const skip = isGameMode ? 4 : 1; 
         if (i % skip === 0) {
           for (let j = i + 1; j < particles.current.length; j += skip) {

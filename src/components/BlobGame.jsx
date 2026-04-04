@@ -22,23 +22,37 @@ const BlobGame = ({ onClose }) => {
   const lastBossScore = useRef(0);
   const lastPlayerFire = useRef(0);
 
+  // Balanced Game Constants
   const PLAYER_SPEED = 6; 
   const ENEMY_SPEED = 3.5; 
   const PROJECTILE_SPEED = 12;
-  const FIRE_COOLDOWN = 800; // Reduced cooldown for better gameplay feel
+  const PLAYER_FIRE_COOLDOWN = 800; 
+  const ENEMY_FIRE_COOLDOWN = 5000;
 
   const BANNED_WORDS = ['SLUR1', 'SLUR2', 'FUCK', 'SHIT', 'PISS', 'CUNT'];
 
   useEffect(() => {
     fetchScores();
-    
-    // ESCAPE KEY TO CLOSE
+
+    // Matches the updated ParticleField.jsx event
+    const handleParticleScore = () => {
+      if (gameState === 'playing') {
+        setScore(s => s + 10);
+      }
+    };
+
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') onClose();
     };
+
+    window.addEventListener('particleCollected', handleParticleScore);
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onClose]);
+    
+    return () => {
+      window.removeEventListener('particleCollected', handleParticleScore);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [gameState, onClose]);
 
   const fetchScores = async () => {
     const { data, error } = await supabase
@@ -55,20 +69,16 @@ const BlobGame = ({ onClose }) => {
     }
   };
 
-  const fireProjectile = (x, y, vx, vy, color, owner, isLaser = false) => {
+  const fireProjectile = (x, y, vx, vy, color, owner) => {
     projectiles.current.push({
       id: Math.random(),
-      x, y, vx, vy, color, owner, isLaser,
-      size: isLaser ? 12 : 15 // Made projectiles larger as requested
+      x, y, vx, vy, color, owner,
+      size: 20 
     });
   };
 
   const spawnEnemy = (isBoss = false) => {
-    const difficulty = Math.min(score / 50000, 1.0);
-    const minRange = 0.5 + (difficulty * 0.3);
-    const maxRange = 1.5 + (difficulty * 0.5);
-    const size = isBoss ? playerSize * 1.5 : playerSize * (Math.random() * (maxRange - minRange) + minRange);
-    
+    const size = isBoss ? playerSize * 1.8 : playerSize * (Math.random() * 1.0 + 0.5);
     let x, y;
     do {
       x = Math.random() * window.innerWidth;
@@ -84,21 +94,7 @@ const BlobGame = ({ onClose }) => {
       vy: Math.sin(angle),
       lastFire: Date.now() + Math.random() * 2000,
       targetAngle: angle,
-      turnSpeed: 0.02 + Math.random() * 0.05 
-    });
-  };
-
-  const addEnemy = (x, y, size) => {
-    const angle = Math.random() * Math.PI * 2;
-    enemies.current.push({
-      id: Math.random(),
-      x, y, size, isBoss: false,
-      color: ['#FF1493', '#00FF7F', '#1E90FF', '#FFD700'][Math.floor(Math.random() * 4)],
-      vx: Math.cos(angle),
-      vy: Math.sin(angle),
-      lastFire: Date.now() + Math.random() * 1000,
-      targetAngle: angle,
-      turnSpeed: 0.05
+      turnSpeed: isBoss ? 0.02 : 0.04
     });
   };
 
@@ -117,10 +113,11 @@ const BlobGame = ({ onClose }) => {
       }
 
       const now = Date.now();
+      
+      // Move Player
       const dxP = targetPos.current.x - playerPos.current.x;
       const dyP = targetPos.current.y - playerPos.current.y;
       const distP = Math.sqrt(dxP * dxP + dyP * dyP);
-      
       if (distP > 5) {
         playerPos.current.x += (dxP / distP) * PLAYER_SPEED;
         playerPos.current.y += (dyP / distP) * PLAYER_SPEED;
@@ -130,6 +127,7 @@ const BlobGame = ({ onClose }) => {
         blobRef.current.style.transform = `translate3d(${playerPos.current.x - playerSize / 2}px, ${playerPos.current.y - playerSize / 2}px, 0)`;
       }
 
+      // Projectiles Logic: HIT = HALVE SIZE
       projectiles.current.forEach((p, idx) => {
         p.x += p.vx;
         p.y += p.vy;
@@ -137,27 +135,29 @@ const BlobGame = ({ onClose }) => {
         if (p.owner === 'enemy') {
           const d = Math.sqrt((p.x - playerPos.current.x)**2 + (p.y - playerPos.current.y)**2);
           if (d < playerSize / 2) {
-            setPlayerSize(s => Math.max(s - 15, 20));
+            setPlayerSize(s => Math.max(s / 2, 25)); // Cut player in half
             projectiles.current.splice(idx, 1);
           }
         } else {
           enemies.current.forEach((e, eIdx) => {
             const d = Math.sqrt((p.x - e.x)**2 + (p.y - e.y)**2);
             if (d < e.size / 2) {
-              e.size -= 25;
+              e.size = e.size / 2; // Cut enemy in half
               if (e.size < 15) {
-                setScore(s => s + 500); // Bonus score for killing via shooting
+                setScore(s => s + 500);
                 enemies.current.splice(eIdx, 1);
               }
               projectiles.current.splice(idx, 1);
             }
           });
         }
+        
         if (p.x < -100 || p.x > window.innerWidth + 100 || p.y < -100 || p.y > window.innerHeight + 100) {
           projectiles.current.splice(idx, 1);
         }
       });
 
+      // Enemy AI & Shooting
       enemies.current.forEach(e => {
         const angleToPlayer = Math.atan2(playerPos.current.y - e.y, playerPos.current.x - e.x);
         let diff = angleToPlayer - e.targetAngle;
@@ -170,31 +170,27 @@ const BlobGame = ({ onClose }) => {
         e.x += e.vx * ENEMY_SPEED;
         e.y += e.vy * ENEMY_SPEED;
 
-        if (e.x < 0 || e.x > window.innerWidth) e.targetAngle = Math.PI - e.targetAngle;
-        if (e.y < 0 || e.y > window.innerHeight) e.targetAngle = -e.targetAngle;
-
-        // ENEMY & BOSS SHOOTING
-        if (now - e.lastFire > FIRE_COOLDOWN + 1500) {
+        // Auto-shoot every 5s
+        if (now - e.lastFire > ENEMY_FIRE_COOLDOWN) {
           if (e.isBoss) {
-            // 6-STAR PATTERN
             for (let i = 0; i < 6; i++) {
               const angle = (Math.PI * 2 / 6) * i;
-              fireProjectile(e.x, e.y, Math.cos(angle) * (PROJECTILE_SPEED * 0.7), Math.sin(angle) * (PROJECTILE_SPEED * 0.7), '#00FFFF', 'enemy');
+              fireProjectile(e.x, e.y, Math.cos(angle) * 8, Math.sin(angle) * 8, '#FF0000', 'enemy');
             }
           } else {
-            // Standard enemy shoot
             fireProjectile(e.x, e.y, e.vx * PROJECTILE_SPEED, e.vy * PROJECTILE_SPEED, '#00FFFF', 'enemy');
           }
           e.lastFire = now;
         }
 
+        // Consumption Logic
         const dPlayer = Math.sqrt((e.x - playerPos.current.x)**2 + (e.y - playerPos.current.y)**2);
         if (dPlayer < (playerSize / 2 + e.size / 2) * 0.85) {
           if (e.size > playerSize) {
-             setGameState('enteringName');
+            setGameState('enteringName');
           } else {
             setPlayerSize(s => Math.min(s + e.size * 0.15, 500));
-            setScore(s => s + Math.floor(e.size)); // FIXED: Score increases by size of consumed particle
+            setScore(s => s + Math.floor(e.size));
             enemies.current = enemies.current.filter(item => item.id !== e.id);
           }
         }
@@ -206,42 +202,17 @@ const BlobGame = ({ onClose }) => {
     return () => cancelAnimationFrame(animationFrameId);
   }, [gameState, playerSize, score]);
 
-  const commitScore = async () => {
-    const cleanName = playerName.trim().toUpperCase();
-    if (BANNED_WORDS.some(word => cleanName.includes(word))) {
-      setErrorMsg('IDENTIFIED AS GRIEFING. ACCESS DENIED.');
-      return;
-    }
-    if (cleanName.length < 1) {
-      setErrorMsg('NAME REQUIRED FOR NEURAL SYNC.');
-      return;
-    }
-
-    setIsSubmitting(true);
-    setErrorMsg('');
-    try {
-      await supabase.from('leaderboard').insert([{ player_name: cleanName.substring(0,5), score: score }]);
-      await fetchScores();
-      setGameState('gameOver');
-    } catch (err) {
-      setGameState('gameOver');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
   const handleAction = (e) => {
     if (gameState !== 'playing') return;
     const x = e.touches ? e.touches[0].clientX : e.clientX;
     const y = e.touches ? e.touches[0].clientY : e.clientY;
     const now = Date.now();
     
-    if (now - lastPlayerFire.current > FIRE_COOLDOWN) {
+    if (now - lastPlayerFire.current > PLAYER_FIRE_COOLDOWN) {
       const dx = x - playerPos.current.x;
       const dy = y - playerPos.current.y;
       const mag = Math.sqrt(dx*dx + dy*dy);
-      // PLAYER SHOOTING GREEN
-      fireProjectile(playerPos.current.x, playerPos.current.y, (dx / mag) * PROJECTILE_SPEED, (dy / mag) * PROJECTILE_SPEED, '#00FF00', 'player', true);
+      fireProjectile(playerPos.current.x, playerPos.current.y, (dx / mag) * PROJECTILE_SPEED, (dy / mag) * PROJECTILE_SPEED, '#00FF00', 'player');
       lastPlayerFire.current = now;
     }
   };
@@ -259,6 +230,21 @@ const BlobGame = ({ onClose }) => {
       window.removeEventListener('touchmove', handleInput);
     };
   }, []);
+
+  const commitScore = async () => {
+    const cleanName = playerName.trim().toUpperCase() || '?????';
+    if (BANNED_WORDS.some(word => cleanName.includes(word))) {
+      setErrorMsg('IDENTIFIED AS GRIEFING. ACCESS DENIED.');
+      return;
+    }
+    setIsSubmitting(true);
+    try {
+      await supabase.from('leaderboard').insert([{ player_name: cleanName.substring(0,5), score: score }]);
+      await fetchScores();
+      setGameState('gameOver');
+    } catch (err) { setGameState('gameOver'); }
+    finally { setIsSubmitting(false); }
+  };
 
   const getRankColor = (index) => {
     if (index === 0) return 'bg-yellow-400 border-yellow-600'; 
@@ -282,7 +268,7 @@ const BlobGame = ({ onClose }) => {
       {projectiles.current.map(p => (
         <div key={p.id} className="fixed top-0 left-0" style={{
           width: p.size, height: p.size, backgroundColor: p.color,
-          transform: `translate3d(${p.x}px, ${p.y}px, 0)`,
+          transform: `translate3d(${p.x - p.size/2}px, ${p.y - p.size/2}px, 0)`,
           boxShadow: `0 0 20px ${p.color}`, borderRadius: '50%'
         }} />
       ))}
@@ -304,17 +290,10 @@ const BlobGame = ({ onClose }) => {
           <motion.div className="fixed inset-0 bg-black/95 z-[300] flex items-center justify-center p-6 italic">
             <div className="max-w-sm w-full text-center">
               <h2 className="text-5xl font-black text-white mb-2 uppercase skew-x-[-10deg]">Neural Entry</h2>
-              <AnimatePresence>
-                {errorMsg && (
-                  <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-                    className="text-red-500 font-bold mb-4 flex items-center justify-center gap-2">
-                    <AlertTriangle size={16} /> {errorMsg}
-                  </motion.p>
-                )}
-              </AnimatePresence>
+              {errorMsg && <p className="text-red-500 font-bold mb-4">{errorMsg}</p>}
               <input autoFocus maxLength={5} value={playerName} onChange={(e) => setPlayerName(e.target.value)}
                 className="w-full bg-white text-black text-6xl text-center font-black uppercase outline-none mb-6 skew-x-[-10deg] border-4 border-[#E01880]"
-                placeholder="#####" disabled={isSubmitting} />
+                placeholder="#####" />
               <button onClick={commitScore} disabled={isSubmitting}
                 className="w-full py-4 bg-[#E01880] text-white font-black rounded-none skew-x-[-10deg] flex items-center justify-center gap-2 hover:bg-white hover:text-black transition-all">
                 {isSubmitting ? <Loader2 className="animate-spin" /> : 'UPLOAD DATA'}
@@ -326,25 +305,16 @@ const BlobGame = ({ onClose }) => {
         {gameState === 'gameOver' && (
           <motion.div className="fixed inset-0 bg-[#E01880]/20 backdrop-blur-xl z-[200] flex items-center justify-center p-6">
             <div className="max-w-lg w-full p-4 relative">
-              <h2 className="text-7xl font-black mb-8 italic text-white tracking-tighter skew-x-[-12deg] drop-shadow-xl text-center">HALL OF FAME</h2>
+              <h2 className="text-7xl font-black mb-8 italic text-white tracking-tighter skew-x-[-12deg] text-center">HALL OF FAME</h2>
               <div className="space-y-3 mb-10">
                 {highScores.map((entry, i) => (
-                  <motion.div key={i} 
-                    initial={{ x: -50, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: i * 0.05 }}
-                    className={`flex justify-between items-center px-8 py-3 border-4 ${getRankColor(i)} skew-x-[-15deg] shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]`}>
-                    <div className="flex items-center gap-4 skew-x-[15deg]">
-                      <span className="text-2xl font-black italic opacity-50">#{i + 1}</span>
-                      <span className="text-2xl font-black uppercase tracking-tight">
-                        {entry ? entry.name : '[EMPTY]'}
-                      </span>
-                    </div>
-                    <span className="text-2xl font-black skew-x-[15deg]">
-                      {entry ? entry.score.toLocaleString() : '---'}
-                    </span>
-                  </motion.div>
+                  <div key={i} className={`flex justify-between items-center px-8 py-3 border-4 ${getRankColor(i)} skew-x-[-15deg] shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]`}>
+                    <span className="text-2xl font-black uppercase">{entry ? entry.name : '[EMPTY]'}</span>
+                    <span className="text-2xl font-black">{entry ? entry.score.toLocaleString() : '---'}</span>
+                  </div>
                 ))}
               </div>
-              <button onClick={() => window.location.reload()} className="w-full py-6 bg-white text-black border-4 border-black font-black text-3xl skew-x-[-15deg] shadow-[10px_10px_0px_0px_#000] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all uppercase italic">
+              <button onClick={() => window.location.reload()} className="w-full py-6 bg-white text-black border-4 border-black font-black text-3xl skew-x-[-15deg] shadow-[10px_10px_0px_0px_#000]">
                 Restart System
               </button>
             </div>
