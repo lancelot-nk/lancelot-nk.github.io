@@ -35,7 +35,6 @@ function GlitchText({ text, className, style }) {
       </h1>
       {hovered && (
         <>
-          {/* Violet Layer */}
           <h1 aria-hidden style={{
             ...style,
             position: 'absolute', top: 0, left: 0, width: '100%',
@@ -45,7 +44,6 @@ function GlitchText({ text, className, style }) {
             zIndex: 5
           }}>{text}</h1>
           
-          {/* Red/Pink Offset Layer */}
           <h1 aria-hidden style={{
             ...style,
             position: 'absolute', top: 0, left: 0, width: '100%',
@@ -153,11 +151,11 @@ export default function Home() {
       <div className="fixed inset-0 z-0 bg-cover bg-center" style={{ backgroundImage: `url(${bgAsset})` }} />
       <ParticleField />
 
-      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 py-8 gap-4">
+      {/* Responsive gap-6 for mobile spacing */}
+      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 py-12 gap-6 sm:gap-4">
         <motion.div className="text-center flex flex-col items-center w-full" 
           initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
           
-          {/* RESTORED NAME GLITCH */}
           <GlitchText 
             text="Lancelot Naipier-Kane"
             style={{
@@ -175,7 +173,6 @@ export default function Home() {
             <CertBadge label="Google Certified" color="#34A853" />
           </div>
 
-          {/* RESTORED TITLE GLITCH */}
           <GlitchText 
             text="Program and Data Manager"
             style={{
@@ -188,18 +185,21 @@ export default function Home() {
             }}
           />
 
-          <div className="mt-4 mx-auto max-w-[750px] bg-white/70 backdrop-blur-xl p-5 rounded-2xl border border-white/80 shadow-2xl">
+          {/* Added mb-4 for mobile spacing away from Nexus */}
+          <div className="mt-4 mb-4 sm:mb-0 mx-auto max-w-[750px] bg-white/70 backdrop-blur-xl p-5 rounded-2xl border border-white/80 shadow-2xl">
             <p className="text-[0.95rem] sm:text-[1.1rem] text-[#1A0010] font-extrabold italic leading-relaxed font-inter">
               "Turning complex data into decisive action — from $7.6B budgets to AI-driven systems, I architect solutions that move organizations forward."
             </p>
           </div>
         </motion.div>
 
-        <div className="my-[-25px]"> 
+        {/* Removed negative margin on mobile (my-0) */}
+        <div className="my-0 sm:my-[-25px] py-4 sm:py-0"> 
           <Nexus activeSection={activeSection} onSelect={handleSelect} />
         </div>
 
-        <div className="flex gap-4 flex-wrap justify-center mt-[-15px]">
+        {/* Added mt-4 for mobile buttons gap */}
+        <div className="flex gap-4 flex-wrap justify-center mt-4 sm:mt-[-15px] pb-8 sm:pb-0">
           <PillBtn href="https://www.linkedin.com/in/lancelotnk/" icon={Linkedin} label="LinkedIn" />
           <PillBtn href="https://github.com/lancelot-nk" icon={Github} label="GitHub" />
           <PillBtn href="mailto:lancelotsmnk@gmail.com" icon={Mail} label="Contact For Work" />
