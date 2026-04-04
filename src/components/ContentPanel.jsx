@@ -8,9 +8,9 @@ import PublicationsSection from './sections/PublicationsSection';
 import CertificationsSection from './sections/CertificationsSection';
 
 const SECTIONS = {
-  projects:      { title: 'Projects',               Component: ProjectsSection },
-  resume:        { title: 'Resume',                 Component: ResumeSection },
-  dashboards:    { title: 'Dashboards',             Component: DashboardsSection },
+  projects:      { title: 'Projects',             Component: ProjectsSection },
+  resume:        { title: 'Resume',                Component: ResumeSection },
+  dashboards:    { title: 'Dashboards',            Component: DashboardsSection },
   design:        { title: 'Graphic Design',         Component: DesignSection },
   publications:  { title: 'Publications & Grants',  Component: PublicationsSection },
   certifications: { title: 'Certifications',        Component: CertificationsSection },
@@ -19,9 +19,9 @@ const SECTIONS = {
 const PINK = '#E01880';
 
 export default function ContentPanel({ activeSection }) {
-  // Reset scroll position within the panel when section changes
+  // We keep the internal scroll reset light to avoid jumping
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (!activeSection) return;
   }, [activeSection]);
 
   const ActiveComponent = SECTIONS[activeSection]?.Component;
@@ -34,61 +34,61 @@ export default function ContentPanel({ activeSection }) {
           key={activeSection}
           role="region"
           aria-label={activeTitle}
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -15 }}
-          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+          exit={{ opacity: 0, y: -20 }}
+          transition={{ 
+            duration: 0.5, 
+            ease: [0.16, 1, 0.3, 1] // Custom quint ease for a premium feel
+          }}
+          className="relative w-full"
           style={{ 
-            paddingBottom: '5rem', 
-            background: 'rgba(255,255,255,0.6)', 
-            backdropFilter: 'blur(16px)', 
+            paddingBottom: '8rem', 
+            background: 'rgba(255,255,255,0.65)', 
+            backdropFilter: 'blur(20px)', 
             borderTop: '1px solid rgba(224,24,128,0.12)',
-            minHeight: '60vh'
+            minHeight: '70vh',
+            zIndex: 20
           }}
         >
-          {/* Section Header with Decorative Lines */}
-          <div style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: '1.5rem', 
-            maxWidth: 1040, 
-            margin: '0 auto', 
-            padding: '2rem 1.5rem 1.5rem' 
-          }}>
-            <div style={{ 
-              flex: 1, 
-              height: 1, 
-              background: `linear-gradient(to right, transparent, ${PINK}40)` 
-            }} />
+          {/* Section Header with Decorative Gradient Lines */}
+          <div className="flex items-center gap-6 max-w-[1040px] mx-auto px-6 py-12">
+            <div 
+              className="flex-1 h-[1px]" 
+              style={{ background: `linear-gradient(to right, transparent, ${PINK}50)` }} 
+            />
             
-            <h2 style={{ 
-              fontSize: '0.7rem', 
-              fontFamily: 'JetBrains Mono, monospace', 
-              textTransform: 'uppercase', 
-              letterSpacing: '0.4em', 
-              color: PINK, 
-              margin: 0, 
-              whiteSpace: 'nowrap',
-              fontWeight: 600
-            }}>
+            <motion.h2 
+              initial={{ letterSpacing: '0.2em', opacity: 0 }}
+              animate={{ letterSpacing: '0.4em', opacity: 1 }}
+              transition={{ delay: 0.2, duration: 0.8 }}
+              className="font-mono text-[0.7rem] uppercase font-bold whitespace-nowrap m-0"
+              style={{ 
+                color: PINK, 
+                fontFamily: 'var(--font-mono)',
+              }}
+            >
               {activeTitle}
-            </h2>
+            </motion.h2>
             
-            <div style={{ 
-              flex: 1, 
-              height: 1, 
-              background: `linear-gradient(to left, transparent, ${PINK}40)` 
-            }} />
+            <div 
+              className="flex-1 h-[1px]" 
+              style={{ background: `linear-gradient(to left, transparent, ${PINK}50)` }} 
+            />
           </div>
 
-          {/* Dynamic Component Content */}
-          <div style={{ 
-            maxWidth: 1040, 
-            margin: '0 auto', 
-            padding: '0 1.5rem' 
-          }}>
+          {/* Component Injection Site */}
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3, duration: 0.5 }}
+            className="max-w-[1040px] mx-auto px-6"
+          >
             <ActiveComponent />
-          </div>
+          </motion.div>
+
+          {/* Subtle Bottom Accent */}
+          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-px h-24 bg-gradient-to-b from-[#E01880]/20 to-transparent" />
         </motion.div>
       )}
     </AnimatePresence>
