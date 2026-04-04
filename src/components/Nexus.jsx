@@ -15,10 +15,16 @@ export const SECTIONS = [
 ];
 
 function getLayout(w) {
-  if (w < 480) return { size: 340, core: 80, radius: 115, hex: 85, fontSize: 13 };
-  if (w < 900) return { size: 520, core: 115, radius: 185, hex: 115, fontSize: 17 };
-  // Max Web Scale: 165px hexagons with 23px font
-  return { size: 750, core: 170, radius: 260, hex: 165, fontSize: 23 };
+  // Mobile: Tighter radius
+  if (w < 480) return { size: 340, core: 80, radius: 105, hex: 80, fontSize: 12 };
+  // Tablet: Tighter radius
+  if (w < 900) return { size: 500, core: 115, radius: 170, hex: 110, fontSize: 17 };
+  
+  /** * Desktop "Tight-Density" Update: 
+   * - radius: 275 -> 240 (Brings them closer to center)
+   * - hex: 175 -> 155 (Slightly smaller, sharper hexagons)
+   */
+  return { size: 750, core: 175, radius: 240, hex: 155, fontSize: 22 };
 }
 
 function dendriticPath(x1, y1, x2, y2, seed) {
@@ -27,8 +33,8 @@ function dendriticPath(x1, y1, x2, y2, seed) {
   const my = y1 + dy * 0.35;
   const mx2 = x1 + dx * 0.65;
   const my2 = y1 + dy * 0.65;
-  const off1x = (seed % 2 === 0 ? 1 : -1) * Math.abs(dy) * 0.25;
-  const off2x = (seed % 3 === 0 ? -1 : 1) * Math.abs(dy) * 0.18;
+  const off1x = (seed % 2 === 0 ? 1 : -1) * Math.abs(dy) * 0.2;
+  const off2x = (seed % 3 === 0 ? -1 : 1) * Math.abs(dy) * 0.15;
   return `M ${x1} ${y1} L ${mx + off1x} ${y1} L ${mx + off1x} ${my + 10} L ${mx2 + off2x} ${my2 - 10} L ${mx2 + off2x} ${y2} L ${x2} ${y2}`;
 }
 
@@ -43,7 +49,7 @@ export default function Nexus({ activeSection, onSelect }) {
   }, []);
 
   const { size, core, radius, hex, fontSize } = layout;
-  const hexH = Math.round(hex * 1.15); // Golden hexagon ratio
+  const hexH = Math.round(hex * 1.15); 
   const cx = size / 2, cy = size / 2;
   
   const brandPink = '#E01880';
@@ -53,11 +59,10 @@ export default function Nexus({ activeSection, onSelect }) {
   return (
     <div className="relative flex-shrink-0" style={{ width: size, height: size }}>
       
-      {/* 1. SVG LAYER: Connectors & Glow */}
       <svg className="absolute inset-0 w-full h-full overflow-visible z-[5]">
         <defs>
           <filter id="active-glow">
-            <feGaussianBlur stdDeviation="6" result="blur" />
+            <feGaussianBlur stdDeviation="5" result="blur" />
             <feMerge>
               <feMergeNode in="blur" />
               <feMergeNode in="SourceGraphic" />
@@ -91,10 +96,10 @@ export default function Nexus({ activeSection, onSelect }) {
                 points={`${hx},${hy - hexH / 2} ${hx + hex / 2},${hy - hexH / 4} ${hx + hex / 2},${hy + hexH / 4} ${hx},${hy + hexH / 2} ${hx - hex / 2},${hy + hexH / 4} ${hx - hex / 2},${hy - hexH / 4}`}
                 fill={isHovered ? 'white' : brandPink}
                 stroke={isHovered ? brandPink : deepBurgundy}
-                strokeWidth={isActive ? 7 : 4}
+                strokeWidth={isActive ? 8 : 4}
                 className="transition-all duration-300 cursor-pointer"
                 style={{ 
-                  filter: isActive ? `drop-shadow(0 0 30px ${glowColor})` : 'none' 
+                  filter: isActive ? `drop-shadow(0 0 35px ${glowColor})` : 'none' 
                 }}
                 onClick={() => onSelect(s.id)}
               />
@@ -103,7 +108,6 @@ export default function Nexus({ activeSection, onSelect }) {
         })}
       </svg>
 
-      {/* 2. BUTTON LAYER: Absolute Icon & Text Alignment */}
       {SECTIONS.map((s, i) => {
         const a = (i * 60 - 90) * (Math.PI / 180);
         const hx = cx + radius * Math.cos(a);
@@ -112,13 +116,13 @@ export default function Nexus({ activeSection, onSelect }) {
         const isHovered = hoveredId === s.id;
         const Icon = s.icon;
         
-        const iconSize = Math.round(hex * 0.42);
-        const currentFontSize = isActive ? fontSize + 5 : fontSize;
+        const iconSize = Math.round(hex * 0.28); 
+        const currentFontSize = isActive ? Math.round(fontSize * 1.2) : fontSize;
 
         return (
           <motion.button
             key={`btn-${s.id}`}
-            className="absolute z-20 bg-none border-none cursor-pointer p-0 overflow-visible"
+            className="absolute z-20 bg-none border-none cursor-pointer p-0"
             style={{
               left: hx - hex / 2,
               top: hy - hexH / 2,
@@ -126,29 +130,31 @@ export default function Nexus({ activeSection, onSelect }) {
             }}
             onMouseEnter={() => setHoveredId(s.id)}
             onMouseLeave={() => setHoveredId(null)}
-            whileHover={{ scale: 1.25 }}
+            whileHover={{ scale: 1.15 }}
             onClick={() => onSelect(s.id)}
           >
-            {/* ICON: Centered at exactly 18% from the top of the hex */}
-            <div className="absolute left-1/2 -translate-x-1/2 top-[18%] transition-colors duration-300">
+            {/* ICON: Pinned very tight to top cap */}
+            <div className="absolute left-1/2 -translate-x-1/2 top-[10%] transition-colors duration-300">
               <Icon 
                 size={iconSize} 
+                className="pointer-events-none"
                 style={{ 
                   color: isHovered ? deepBurgundy : 'white',
-                  filter: isActive ? `drop-shadow(0 0 12px white)` : 'none'
+                  filter: isActive ? `drop-shadow(0 0 8px white)` : 'none'
                 }} 
               />
             </div>
 
-            {/* TEXT: Centered at exactly 12% from the bottom of the hex */}
-            <div className="absolute left-1/2 -translate-x-1/2 bottom-[12%] w-[96%] flex justify-center items-center">
+            {/* TEXT: Centered in the main belly of the hexagon */}
+            <div className="absolute left-1/2 -translate-x-1/2 top-[38%] w-[92%] h-[55%] flex justify-center items-center">
               <span 
-                className="font-mono uppercase font-black tracking-tighter text-center leading-[0.8] transition-colors duration-300"
+                className="font-mono uppercase font-black tracking-tighter text-center transition-colors duration-300"
                 style={{
                   fontSize: `${currentFontSize}px`,
                   color: isHovered ? deepBurgundy : 'white',
+                  lineHeight: '0.95', 
                   whiteSpace: 'pre-line',
-                  textShadow: isActive ? `0 0 12px ${glowColor}` : 'none'
+                  textShadow: isActive ? `0 0 15px ${glowColor}` : 'none'
                 }}
               >
                 {s.label}
@@ -158,7 +164,6 @@ export default function Nexus({ activeSection, onSelect }) {
         );
       })}
 
-      {/* 3. CORE AVATAR */}
       <motion.div
         className="absolute top-1/2 left-1/2 z-10 overflow-hidden rounded-full border-4 border-[#E01880] shadow-[0_0_50px_rgba(255,255,255,0.4)]"
         style={{ width: core, height: core }}
