@@ -5,7 +5,9 @@ import ParticleField from '../components/ParticleField';
 import Nexus from '../components/Nexus';
 import ContentPanel from '../components/ContentPanel';
 
-const BG = "https://lancelot-nk.github.io/images/bg.jpg";
+// IMPORT LOCAL ASSET
+import bgAsset from '../assets/bg.jpg';
+
 const PINK = 'hsl(var(--primary))';
 const VIOLET = 'hsl(var(--secondary))';
 
@@ -98,7 +100,11 @@ export default function Home() {
   return (
     <div className="min-h-screen relative overflow-x-hidden bg-white">
       {/* Background Layers */}
-      <div className="fixed inset-0 z-0 bg-cover bg-center opacity-[0.55]" style={{ backgroundImage: `url(${BG})` }} />
+      {/* UPDATED: Using bgAsset here with fixed positioning and high-quality cover settings */}
+      <div 
+        className="fixed inset-0 z-0 bg-cover bg-center opacity-[0.55]" 
+        style={{ backgroundImage: `url(${bgAsset})` }} 
+      />
       <div className="fixed inset-0 z-[1] bg-gradient-to-br from-white/55 to-[#FFDEF0]/30" />
       <div className="fixed inset-0 z-50 pointer-events-none border border-[#E01880]/15 animate-border-pulse" />
 
