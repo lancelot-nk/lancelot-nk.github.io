@@ -37,11 +37,12 @@ function renderInwardPath(cx, cy, endX, endY, seed) {
   return path;
 }
 
-// 2. OUTWARD ENGINE (FIXED VECTORS & ANTI-BACKTRACK)
+// 2. OUTWARD ENGINE
 function renderOutwardPath(startX, startY, normalAngle, seed, isMobile) {
   let path = `M ${startX} ${startY}`;
   let curX = startX; let curY = startY;
   
+  // Straight perpendicular launch from the specific face
   const launch = isMobile ? 20 : 45;
   curX += Math.cos(normalAngle) * launch;
   curY += Math.sin(normalAngle) * launch;
@@ -51,11 +52,9 @@ function renderOutwardPath(startX, startY, normalAngle, seed, isMobile) {
   let currentAngle = normalAngle;
 
   for (let i = 0; i < bends; i++) {
-    // 90 degree turns
     const turn = (seed + i) % 2 === 0 ? Math.PI / 2 : -Math.PI / 2;
     let nextAngle = currentAngle + turn;
     
-    // Safety check: if turning 90 degrees points us back toward the hex, we flip it
     const segmentLen = 40 + (seed % 40);
     curX += Math.cos(nextAngle) * segmentLen;
     curY += Math.sin(nextAngle) * segmentLen;
@@ -98,25 +97,23 @@ export default function Nexus({ activeSection, onSelect }) {
               {isActive && (
                 <motion.g initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                   
-                  {/* PHASE 1: INWARD (RESTORED THICKNESS & BRIGHTNESS) */}
+                  {/* PHASE 1: INWARD (CENTER CONNECTIONS) */}
                   {[ -18, -10, 0, 10, 18 ].map((off, idx) => (
                     <motion.path
                       key={`in-${idx}`}
                       d={renderInwardPath(cx, cy, hx + off, hy + off, i * 11 + idx)}
                       fill="none" stroke="white" strokeWidth={idx === 2 ? 3 : 2}
-                      opacity={idx === 2 ? 1 : 0.5} 
-                      filter="url(#active-glow)"
-                      initial={{ pathLength: 0 }} 
-                      animate={{ pathLength: 1 }}
+                      opacity={idx === 2 ? 1 : 0.5} filter="url(#active-glow)"
+                      initial={{ pathLength: 0 }} animate={{ pathLength: 1 }}
                       transition={{ duration: 0.7, ease: "easeOut" }}
                     />
                   ))}
 
-                  {/* PHASE 2: OUTWARD (PERPENDICULAR SIDES) */}
+                  {/* PHASE 2: OUTWARD (TRUE PERPENDICULAR SIDES) */}
                   {!isMobile && Array.from({ length: 12 }).map((_, idx) => {
-                    const sideIdx = (idx + i) % 6;
-                    // Angles of the flat faces: Top/Bottom are tilted
-                    const normals = [ -90, -30, 30, 90, 150, 210 ].map(d => d * Math.PI / 180);
+                    const sideIdx = idx % 6;
+                    // Normals for a flat-top hexagon (sides are 0, 60, 120...)
+                    const normals = [0, 60, 120, 180, 240, 300].map(d => (d - 90) * Math.PI / 180);
                     const normalAngle = normals[sideIdx];
                     
                     const spread = (hex / 3) * (((idx % 5) - 2) / 2);
@@ -129,9 +126,8 @@ export default function Nexus({ activeSection, onSelect }) {
                         d={renderOutwardPath(startX, startY, normalAngle, i * 30 + idx, isMobile)}
                         fill="none" stroke="white" strokeWidth={2} opacity={0.7}
                         filter="url(#active-glow)"
-                        initial={{ pathLength: 0 }} 
-                        animate={{ pathLength: 1 }}
-                        transition={{ duration: 0.6, delay: 0.7 + (idx * 0.03) }} // Starts AFTER Inward
+                        initial={{ pathLength: 0 }} animate={{ pathLength: 1 }}
+                        transition={{ duration: 0.6, delay: 0.7 + (idx * 0.03) }}
                       />
                     );
                   })}
@@ -183,7 +179,7 @@ export default function Nexus({ activeSection, onSelect }) {
         );
       })}
 
-      {/* PORTRAIT - FINAL CENTERING & DOWN-SHIFT */}
+      {/* PORTRAIT - FINAL POSITIONING */}
       <motion.a
         href="https://www.linkedin.com/in/lancelotnk/"
         target="_blank" rel="noopener noreferrer"
@@ -198,9 +194,9 @@ export default function Nexus({ activeSection, onSelect }) {
           alt="LinkedIn" 
           className="w-full h-full object-cover" 
           style={{ 
-            // Shifted Y translation to 18% to bring head down significantly
-            transform: 'scale(2.2) translate(-5%, 18%)', 
-            transformOrigin: '45% 45%' 
+            // Dropped to 22% and adjusted origin to 50% to prevent head-clipping
+            transform: 'scale(2.2) translate(-5%, 22%)', 
+            transformOrigin: '50% 50%' 
           }} 
         />
       </motion.a>
