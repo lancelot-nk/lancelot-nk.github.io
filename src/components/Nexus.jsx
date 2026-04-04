@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Code, FileText, BarChart3, Palette, BookOpen, Award } from 'lucide-react';
 
-// IMPORT LOCAL ASSET
+// IMPORT LOCAL ASSET - Ensure this file exists in src/assets/profile.jpg
 import profilePic from '../assets/profile.jpg';
 
 export const SECTIONS = [
@@ -45,8 +45,7 @@ export default function Nexus({ activeSection, onSelect }) {
   const hexH = Math.round(hex * 1.15);
   const cx = size / 2, cy = size / 2;
   
-  const pink = '#E01880'; 
-  const darkBurgundy = '#300018'; // High contrast dark color
+  const brandPink = '#E01880'; 
 
   return (
     <div className="relative flex-shrink-0" style={{ width: size, height: size }}>
@@ -75,9 +74,9 @@ export default function Nexus({ activeSection, onSelect }) {
                 <motion.path
                   d={dendriticPath(cx, cy, hx, hy, i)}
                   fill="none"
-                  stroke={pink}
+                  stroke="white"
                   strokeWidth={3}
-                  strokeOpacity={0.8}
+                  strokeOpacity={0.9}
                   strokeDasharray="8 5"
                   filter="url(#nexus-glow)"
                   initial={{ pathLength: 0, opacity: 0 }}
@@ -87,14 +86,15 @@ export default function Nexus({ activeSection, onSelect }) {
                 />
               )}
 
+              {/* HEXAGON SHAPE */}
               <polygon
                 points={`${hx},${hy - hexH / 2 + 2} ${hx + hex / 2 - 1},${hy - hexH / 4} ${hx + hex / 2 - 1},${hy + hexH / 4} ${hx},${hy + hexH / 2 - 2} ${hx - hex / 2 + 1},${hy + hexH / 4} ${hx - hex / 2 + 1},${hy - hexH / 4}`}
-                fill={isActive ? 'rgba(224,24,128,0.12)' : 'rgba(255,255,255,0.85)'}
-                stroke={isActive ? pink : darkBurgundy}
-                strokeWidth={isActive ? 4 : 2.5}
+                fill={brandPink} // Solid Violet/Red background
+                stroke="white"   // White outer line
+                strokeWidth={isActive ? 4 : 2}
                 className="transition-all duration-300 cursor-pointer"
                 style={{ 
-                  filter: isActive ? `drop-shadow(0 0 12px ${pink}88)` : 'none' 
+                  filter: isActive ? `drop-shadow(0 0 15px white)` : 'none' 
                 }}
                 onClick={() => onSelect(s.id)}
               />
@@ -103,7 +103,7 @@ export default function Nexus({ activeSection, onSelect }) {
         })}
       </svg>
 
-      {/* Interactive Icons Layer */}
+      {/* Interactive Icons & Labels Layer */}
       {SECTIONS.map((s, i) => {
         const a = (i * 60 - 90) * (Math.PI / 180);
         const hx = cx + radius * Math.cos(a);
@@ -111,7 +111,6 @@ export default function Nexus({ activeSection, onSelect }) {
         const isActive = activeSection === s.id;
         const Icon = s.icon;
         
-        // Dynamic sizing for clarity
         const iconSize = Math.round(hex * 0.28);
         const fontSize = isActive ? '13px' : '11px';
 
@@ -124,21 +123,21 @@ export default function Nexus({ activeSection, onSelect }) {
               top: hy - hexH / 2,
               width: hex, height: hexH,
             }}
-            whileHover={{ scale: 1.1 }}
+            whileHover={{ scale: 1.05 }}
             onClick={() => onSelect(s.id)}
           >
             <Icon 
               size={iconSize} 
-              className="transition-colors duration-300 pointer-events-none"
-              style={{ color: isActive ? pink : darkBurgundy }} 
+              className="pointer-events-none"
+              style={{ color: 'white' }} // White Icons
             />
             <span 
-              className="font-mono uppercase font-black tracking-tighter text-center pointer-events-none transition-colors duration-300 leading-[0.95]"
+              className="font-mono uppercase font-black tracking-tighter text-center pointer-events-none leading-[0.95]"
               style={{
                 fontSize,
-                color: isActive ? pink : darkBurgundy,
+                color: 'white', // White Text
                 maxWidth: hex - 10,
-                whiteSpace: 'pre-line' // Enables multi-line support for \n
+                whiteSpace: 'pre-line'
               }}
             >
               {s.label}
@@ -147,30 +146,28 @@ export default function Nexus({ activeSection, onSelect }) {
         );
       })}
 
-      {/* Core Avatar */}
+      {/* CORE AVATAR - CENTERING FIX */}
       <motion.div
-        className="absolute top-1/2 left-1/2 z-10 overflow-hidden rounded-full border-4 border-[#E01880] shadow-[0_0_40px_rgba(224,24,128,0.3)]"
+        className="absolute top-1/2 left-1/2 z-10 overflow-hidden rounded-full border-4 border-[#E01880] shadow-[0_0_40px_rgba(224,24,128,0.5)]"
         style={{
           width: core, height: core,
-          transform: 'translate(-50%, -50%)',
         }}
-        initial={{ scale: 0 }}
-        animate={{ scale: 1 }}
+        initial={{ x: "-50%", y: "-50%", scale: 0 }}
+        animate={{ x: "-50%", y: "-50%", scale: 1 }}
         transition={{ type: 'spring', damping: 15 }}
       >
         <img 
           src={profilePic} 
           alt="Lancelot Naipier-Kane" 
-          className="w-full h-full object-cover object-top" 
+          className="w-full h-full object-cover object-center" 
         />
       </motion.div>
 
       {/* Pulse Effect Rings */}
       <div 
-        className="absolute top-1/2 left-1/2 rounded-full border-2 border-[#E01880]/30 animate-glow-pulse z-[9] pointer-events-none"
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-[#E01880]/40 animate-glow-pulse z-[9] pointer-events-none"
         style={{
           width: core + 30, height: core + 30,
-          transform: 'translate(-50%, -50%)',
         }}
       />
     </div>
