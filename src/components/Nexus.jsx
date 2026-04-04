@@ -2,27 +2,25 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Code, FileText, BarChart3, Palette, BookOpen, Award } from 'lucide-react';
 
+// IMPORT LOCAL ASSET
+import profilePic from '../assets/profile.jpg';
+
 export const SECTIONS = [
   { id: 'projects',       label: 'Projects',       icon: Code },
   { id: 'resume',         label: 'Resume',          icon: FileText },
-  { id: 'dashboards',     label: 'Dashboards',      icon: BarChart3 },
+  { id: 'dashboards',     label: 'Dash\nBoards',    icon: BarChart3 }, 
   { id: 'design',         label: 'Design',          icon: Palette },
-  { id: 'publications',   label: 'Pub & Grants',    icon: BookOpen },
+  { id: 'publications',   label: 'Pub &\nGrants',   icon: BookOpen }, 
   { id: 'certifications', label: 'Certs',           icon: Award },
 ];
 
-const NEXUS_IMG = "https://lancelot-nk.github.io/images/pic10.jpg";
-
 function getLayout(w) {
-  if (w < 400) return { size: 280, core: 64, radius: 98, hex: 58 };
-  if (w < 600) return { size: 340, core: 78, radius: 118, hex: 66 };
-  if (w < 900) return { size: 420, core: 96, radius: 148, hex: 80 };
-  return { size: 520, core: 120, radius: 180, hex: 92 };
+  if (w < 400) return { size: 300, core: 70, radius: 105, hex: 65 };
+  if (w < 600) return { size: 360, core: 85, radius: 125, hex: 75 };
+  if (w < 900) return { size: 450, core: 110, radius: 160, hex: 95 };
+  return { size: 550, core: 140, radius: 200, hex: 110 };
 }
 
-/**
- * Creates a "dendritic" or circuit-like path from core to node
- */
 function dendriticPath(x1, y1, x2, y2, seed) {
   const dx = x2 - x1, dy = y2 - y1;
   const mx = x1 + dx * 0.35;
@@ -47,8 +45,8 @@ export default function Nexus({ activeSection, onSelect }) {
   const hexH = Math.round(hex * 1.15);
   const cx = size / 2, cy = size / 2;
   
-  // Use HSL from CSS variables for consistency
   const pink = '#E01880'; 
+  const darkBurgundy = '#300018'; // High contrast dark color
 
   return (
     <div className="relative flex-shrink-0" style={{ width: size, height: size }}>
@@ -57,7 +55,7 @@ export default function Nexus({ activeSection, onSelect }) {
       <svg className="absolute inset-0 w-full h-full overflow-visible z-[5]">
         <defs>
           <filter id="nexus-glow">
-            <feGaussianBlur stdDeviation="2.5" result="blur" />
+            <feGaussianBlur stdDeviation="3" result="blur" />
             <feMerge>
               <feMergeNode in="blur" />
               <feMergeNode in="SourceGraphic" />
@@ -78,25 +76,25 @@ export default function Nexus({ activeSection, onSelect }) {
                   d={dendriticPath(cx, cy, hx, hy, i)}
                   fill="none"
                   stroke={pink}
-                  strokeWidth={2}
-                  strokeOpacity={0.5}
-                  strokeDasharray="6 4"
+                  strokeWidth={3}
+                  strokeOpacity={0.8}
+                  strokeDasharray="8 5"
                   filter="url(#nexus-glow)"
                   initial={{ pathLength: 0, opacity: 0 }}
                   animate={{ pathLength: 1, opacity: 1 }}
-                  transition={{ duration: 0.6, ease: 'easeOut' }}
+                  transition={{ duration: 0.5, ease: 'easeOut' }}
                   className="animate-dashFlow"
                 />
               )}
 
               <polygon
                 points={`${hx},${hy - hexH / 2 + 2} ${hx + hex / 2 - 1},${hy - hexH / 4} ${hx + hex / 2 - 1},${hy + hexH / 4} ${hx},${hy + hexH / 2 - 2} ${hx - hex / 2 + 1},${hy + hexH / 4} ${hx - hex / 2 + 1},${hy - hexH / 4}`}
-                fill={isActive ? 'rgba(224,24,128,0.08)' : 'rgba(255,255,255,0.7)'}
-                stroke={isActive ? pink : 'rgba(224,24,128,0.25)'}
-                strokeWidth={isActive ? 2.5 : 1}
+                fill={isActive ? 'rgba(224,24,128,0.12)' : 'rgba(255,255,255,0.85)'}
+                stroke={isActive ? pink : darkBurgundy}
+                strokeWidth={isActive ? 4 : 2.5}
                 className="transition-all duration-300 cursor-pointer"
                 style={{ 
-                  filter: isActive ? `drop-shadow(0 0 8px ${pink}66)` : 'none' 
+                  filter: isActive ? `drop-shadow(0 0 12px ${pink}88)` : 'none' 
                 }}
                 onClick={() => onSelect(s.id)}
               />
@@ -112,8 +110,10 @@ export default function Nexus({ activeSection, onSelect }) {
         const hy = cy + radius * Math.sin(a);
         const isActive = activeSection === s.id;
         const Icon = s.icon;
-        const iconSize = Math.round(hex * 0.24);
-        const fontSize = Math.min(9, Math.round(hex * 0.12));
+        
+        // Dynamic sizing for clarity
+        const iconSize = Math.round(hex * 0.28);
+        const fontSize = isActive ? '13px' : '11px';
 
         return (
           <motion.button
@@ -124,22 +124,21 @@ export default function Nexus({ activeSection, onSelect }) {
               top: hy - hexH / 2,
               width: hex, height: hexH,
             }}
-            initial={{ opacity: 0, scale: 0.5 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2 + i * 0.08, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            whileHover={{ scale: 1.1 }}
             onClick={() => onSelect(s.id)}
           >
             <Icon 
               size={iconSize} 
               className="transition-colors duration-300 pointer-events-none"
-              style={{ color: isActive ? pink : 'rgba(120,0,140,0.5)' }} 
+              style={{ color: isActive ? pink : darkBurgundy }} 
             />
             <span 
-              className="font-mono uppercase tracking-wider text-center pointer-events-none transition-colors duration-300"
+              className="font-mono uppercase font-black tracking-tighter text-center pointer-events-none transition-colors duration-300 leading-[0.95]"
               style={{
                 fontSize,
-                color: isActive ? pink : 'rgba(100,0,120,0.55)',
-                maxWidth: hex - 8,
+                color: isActive ? pink : darkBurgundy,
+                maxWidth: hex - 10,
+                whiteSpace: 'pre-line' // Enables multi-line support for \n
               }}
             >
               {s.label}
@@ -150,27 +149,27 @@ export default function Nexus({ activeSection, onSelect }) {
 
       {/* Core Avatar */}
       <motion.div
-        className="absolute top-1/2 left-1/2 z-10 overflow-hidden rounded-full border-2 border-[#E01880]/40 shadow-[0_0_30px_rgba(224,24,128,0.2)]"
+        className="absolute top-1/2 left-1/2 z-10 overflow-hidden rounded-full border-4 border-[#E01880] shadow-[0_0_40px_rgba(224,24,128,0.3)]"
         style={{
           width: core, height: core,
           transform: 'translate(-50%, -50%)',
         }}
-        initial={{ scale: 0, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+        initial={{ scale: 0 }}
+        animate={{ scale: 1 }}
+        transition={{ type: 'spring', damping: 15 }}
       >
         <img 
-          src={NEXUS_IMG} 
-          alt="Core Identity" 
-          className="w-full h-full object-cover object-top scale-110" 
+          src={profilePic} 
+          alt="Lancelot Naipier-Kane" 
+          className="w-full h-full object-cover object-top" 
         />
       </motion.div>
 
       {/* Pulse Effect Rings */}
       <div 
-        className="absolute top-1/2 left-1/2 rounded-full border border-[#E01880]/15 animate-glow-pulse z-[9] pointer-events-none"
+        className="absolute top-1/2 left-1/2 rounded-full border-2 border-[#E01880]/30 animate-glow-pulse z-[9] pointer-events-none"
         style={{
-          width: core + 24, height: core + 24,
+          width: core + 30, height: core + 30,
           transform: 'translate(-50%, -50%)',
         }}
       />

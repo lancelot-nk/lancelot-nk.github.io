@@ -11,23 +11,23 @@ export default function ParticleField() {
     let animId;
     let particles = [];
 
-    // Helper to get brand color from CSS variables
+    // Sharper, more vibrant pink for high-contrast clarity
     const getBrandColor = (alpha) => {
-      // Defaults to your E01880 Pink if variable fails
       return `hsla(320, 90%, 55%, ${alpha})`;
     };
 
     const createParticles = () => {
-      const count = Math.min(60, Math.floor(window.innerWidth / 20));
+      // INCREASED FREQUENCY: Calculation adjusted for higher density
+      const count = Math.min(120, Math.floor(window.innerWidth / 10));
       const newParticles = [];
       for (let i = 0; i < count; i++) {
         newParticles.push({
           x: Math.random() * canvas.width,
           y: Math.random() * canvas.height,
-          vx: (Math.random() - 0.5) * 0.3,
-          vy: (Math.random() - 0.5) * 0.3,
-          r: Math.random() * 1.8 + 0.5,
-          o: Math.random() * 0.3 + 0.1,
+          vx: (Math.random() - 0.5) * 0.4, // Slightly faster movement
+          vy: (Math.random() - 0.5) * 0.4,
+          r: Math.random() * 2.5 + 1.2,    // LARGER: Increased dot radius
+          o: Math.random() * 0.5 + 0.3,    // CLEARER: Increased particle opacity
         });
       }
       return newParticles;
@@ -56,31 +56,29 @@ export default function ParticleField() {
       ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
       
       const mouse = mouseRef.current;
+      const lineDist = 160; // INCREASED: Longer connections for a denser web
 
       particles.forEach((p, i) => {
-        // Basic Movement
         p.x += p.vx; 
         p.y += p.vy;
 
-        // Interaction: Gentle Repulsion from Mouse
         if (mouse.x !== null) {
           const dx = p.x - mouse.x;
           const dy = p.y - mouse.y;
           const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 150) {
-            const force = (150 - dist) / 150;
-            p.x += (dx / dist) * force * 1.5;
-            p.y += (dy / dist) * force * 1.5;
+          if (dist < 180) {
+            const force = (180 - dist) / 180;
+            p.x += (dx / dist) * force * 2;
+            p.y += (dy / dist) * force * 2;
           }
         }
 
-        // Screen Wrap
         if (p.x < 0) p.x = window.innerWidth;
         if (p.x > window.innerWidth) p.x = 0;
         if (p.y < 0) p.y = window.innerHeight;
         if (p.y > window.innerHeight) p.y = 0;
 
-        // Draw Dot
+        // Draw Dot - LARGER AND CLEARER
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
         ctx.fillStyle = getBrandColor(p.o);
@@ -93,14 +91,15 @@ export default function ParticleField() {
           const dy = p.y - p2.y;
           const dist = Math.sqrt(dx * dx + dy * dy);
 
-          if (dist < 120) {
+          if (dist < lineDist) {
             ctx.beginPath();
             ctx.moveTo(p.x, p.y);
             ctx.lineTo(p2.x, p2.y);
-            // Linear falloff for line opacity
-            const lineOpacity = 0.08 * (1 - dist / 120);
+            
+            // CLEARER: Boosted line opacity for better visibility
+            const lineOpacity = 0.25 * (1 - dist / lineDist);
             ctx.strokeStyle = getBrandColor(lineOpacity);
-            ctx.lineWidth = 0.6;
+            ctx.lineWidth = 1.0; // LARGER: Increased line width
             ctx.stroke();
           }
         }
