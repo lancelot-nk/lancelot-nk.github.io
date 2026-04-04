@@ -40,8 +40,8 @@ function renderOutwardPath(startX, startY, normalAngle, seed, isMobile) {
   let path = `M ${startX} ${startY}`;
   let curX = startX; let curY = startY;
   
-  // SAFE ZONE: Travel a strict set distance before any randomization
-  const launch = isMobile ? 30 : 60; 
+  // MINIMUM TRAVEL: Force a set distance before the first 90-degree turn
+  const launch = isMobile ? 40 : 80; 
   curX += Math.cos(normalAngle) * launch;
   curY += Math.sin(normalAngle) * launch;
   path += ` L ${curX} ${curY}`;
@@ -52,7 +52,7 @@ function renderOutwardPath(startX, startY, normalAngle, seed, isMobile) {
   for (let i = 0; i < bends; i++) {
     const turn = (seed + i) % 2 === 0 ? Math.PI / 2 : -Math.PI / 2;
     let nextAngle = currentAngle + turn;
-    const segmentLen = 50 + (seed % 30);
+    const segmentLen = 60 + (seed % 40);
     curX += Math.cos(nextAngle) * segmentLen;
     curY += Math.sin(nextAngle) * segmentLen;
     path += ` L ${curX} ${curY}`;
@@ -92,35 +92,38 @@ export default function Nexus({ activeSection, onSelect }) {
             <AnimatePresence key={`lines-${s.id}`}>
               {isActive && (
                 <motion.g initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                  {[ -18, -10, 0, 10, 18 ].map((off, idx) => (
+                  {/* INWARD LINES */}
+                  {[ -15, 0, 15 ].map((off, idx) => (
                     <motion.path
                       key={`in-${idx}`}
                       d={renderInwardPath(cx, cy, hx + off, hy + off, i * 11 + idx)}
-                      fill="none" stroke="white" strokeWidth={idx === 2 ? 3 : 2}
-                      opacity={idx === 2 ? 1 : 0.5} filter="url(#active-glow)"
+                      fill="none" stroke="white" strokeWidth={idx === 1 ? 3 : 2}
+                      opacity={idx === 1 ? 1 : 0.4} filter="url(#active-glow)"
                       initial={{ pathLength: 0 }} animate={{ pathLength: 1 }}
-                      transition={{ duration: 0.7 }}
+                      transition={{ duration: 0.6 }}
                     />
                   ))}
 
+                  {/* OUTWARD LINES WITH VERTEX SAFE-ZONES */}
                   {!isMobile && Array.from({ length: 12 }).map((_, idx) => {
                     const sideIdx = idx % 6;
-                    // SYNCED NORMALS: Fixed to flat-top orientation
                     const normalAngle = ((sideIdx * 60) - 120) * (Math.PI / 180);
                     
-                    // VERTEX SAFE ZONE: Ensure lines don't spawn exactly on corners
-                    const spread = (hex / 4) * (((idx % 5) - 2) / 2);
-                    const startX = hx + Math.cos(normalAngle) * (hex / 2.2) + Math.cos(normalAngle + Math.PI/2) * spread;
-                    const startY = hy + Math.sin(normalAngle) * (hexH / 4) + Math.sin(normalAngle + Math.PI/2) * spread;
+                    // SPREAD CONSTRAINT: Only spawn in the middle 40% of the face
+                    // This prevents lines from ever hitting the corners/vertices
+                    const limitedSpread = (hex * 0.2) * ((idx % 4) - 1.5);
+                    
+                    const startX = hx + Math.cos(normalAngle) * (hex / 2.1) + Math.cos(normalAngle + Math.PI/2) * limitedSpread;
+                    const startY = hy + Math.sin(normalAngle) * (hexH / 4) + Math.sin(normalAngle + Math.PI/2) * limitedSpread;
 
                     return (
                       <motion.path
                         key={`out-${idx}`}
                         d={renderOutwardPath(startX, startY, normalAngle, i * 30 + idx, isMobile)}
-                        fill="none" stroke="white" strokeWidth={2} opacity={0.7}
+                        fill="none" stroke="white" strokeWidth={2} opacity={0.6}
                         filter="url(#active-glow)"
                         initial={{ pathLength: 0 }} animate={{ pathLength: 1 }}
-                        transition={{ duration: 0.6, delay: 0.7 + (idx * 0.03) }}
+                        transition={{ duration: 0.8, delay: 0.5 + (idx * 0.02) }}
                       />
                     );
                   })}
@@ -130,6 +133,7 @@ export default function Nexus({ activeSection, onSelect }) {
           );
         })}
 
+        {/* HEXAGONS */}
         {SECTIONS.map((s, i) => {
           const a = ((i * 60) - 90 - 30) * (Math.PI / 180);
           const hx = cx + radius * Math.cos(a), hy = cy + radius * Math.sin(a);
@@ -148,6 +152,7 @@ export default function Nexus({ activeSection, onSelect }) {
         })}
       </svg>
 
+      {/* BUTTONS/LABELS */}
       {SECTIONS.map((s, i) => {
         const a = ((i * 60) - 90 - 30) * (Math.PI / 180);
         const hx = cx + radius * Math.cos(a), hy = cy + radius * Math.sin(a);
@@ -172,22 +177,21 @@ export default function Nexus({ activeSection, onSelect }) {
         );
       })}
 
-      {/* PORTRAIT - RE-CENTERED AND DROPPED */}
+      {/* PORTRAIT FIX: Removed translate transform, using object-position and top padding */}
       <motion.a
         href="https://www.linkedin.com/in/lancelotnk/"
         target="_blank" rel="noopener noreferrer"
         className="absolute top-1/2 left-1/2 z-[60] block overflow-hidden rounded-full border-4 border-[#E01880] cursor-pointer shadow-2xl"
-        style={{ width: core, height: core, translateX: "-50%", translateY: "-50%" }}
-        whileHover={{ scale: 1.75 }}
+        style={{ width: core, height: core, transform: "translate(-50%, -50%)" }}
+        whileHover={{ scale: 1.1 }}
       >
         <img 
           src={profilePic} 
-          alt="LinkedIn" 
+          alt="Lancelot" 
           className="w-full h-full object-cover" 
           style={{ 
-            // 35% drop and 40% origin to keep the face from hitting the crop ceiling
-            transform: 'scale(2.2) translate(-5%, 35%)', 
-            transformOrigin: '50% 40%' 
+            transform: 'scale(1.8)',
+            objectPosition: 'center 20%' // Forces the crop to focus on the top of the source image
           }} 
         />
       </motion.a>
