@@ -32,7 +32,6 @@ pnpm-debug.log*
 lerna-debug.log*
 
 # --- Editor & IDE ---
-# We ignore the folder BUT allow specific workspace settings for Tailwind/Linting
 .vscode/*
 !.vscode/settings.json
 !.vscode/extensions.json
@@ -51,4 +50,6 @@ Thumbs.db
 .vite/
 .eslintcache
 .stylelintcache
-.github/
+
+# --- DO NOT IGNORE .github ---
+# Removed .github from here to allow Actions to run
