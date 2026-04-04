@@ -8,19 +8,68 @@ import ContentPanel from '../components/ContentPanel';
 // ASSETS
 import bgAsset from '../assets/bg.jpg';
 
+const PINK = '#E01880';
+const VIOLET = '#8B00E8';
+
+/**
+ * ORIGINAL GLITCH COMPONENT
+ * Restored exactly as requested with multiply blend mode and staggered timing.
+ */
+function GlitchText({ text, className, style }) {
+  const [hovered, setHovered] = useState(false);
+  
+  return (
+    <div
+      className={`relative inline-block cursor-default ${className}`}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      <h1 style={{
+        ...style,
+        color: hovered ? PINK : (style.color || '#1A0010'),
+        transition: 'color 0.2s',
+        position: 'relative',
+        zIndex: 10
+      }}>
+        {text}
+      </h1>
+      {hovered && (
+        <>
+          {/* Violet Layer */}
+          <h1 aria-hidden style={{
+            ...style,
+            position: 'absolute', top: 0, left: 0, width: '100%',
+            color: VIOLET,
+            animation: 'glitch 0.4s steps(1) infinite',
+            mixBlendMode: 'multiply', pointerEvents: 'none',
+            zIndex: 5
+          }}>{text}</h1>
+          
+          {/* Red/Pink Offset Layer */}
+          <h1 aria-hidden style={{
+            ...style,
+            position: 'absolute', top: 0, left: 0, width: '100%',
+            color: '#FF3366',
+            animation: 'glitch 0.4s steps(1) infinite 0.1s',
+            mixBlendMode: 'multiply', pointerEvents: 'none',
+            transform: 'translateX(3px)',
+            zIndex: 5
+          }}>{text}</h1>
+        </>
+      )}
+    </div>
+  );
+}
+
 const smoothScrollTo = (targetY, duration = 2000) => {
   const startY = window.pageYOffset;
   const difference = targetY - startY;
   let startTime = null;
-
   const step = (timestamp) => {
     if (!startTime) startTime = timestamp;
     const progress = timestamp - startTime;
     const percent = Math.min(progress / duration, 1);
-    const easing = percent < 0.5 
-      ? 4 * percent * percent * percent 
-      : 1 - Math.pow(-2 * percent + 2, 3) / 2;
-
+    const easing = percent < 0.5 ? 4 * percent * percent * percent : 1 - Math.pow(-2 * percent + 2, 3) / 2;
     window.scrollTo(0, startY + difference * easing);
     if (progress < duration) window.requestAnimationFrame(step);
   };
@@ -39,7 +88,6 @@ function CertBadge({ label, color }) {
 function PillBtn({ href, icon: Icon, label, onClick }) {
   const [hov, setHov] = useState(false);
   const Tag = onClick ? 'button' : 'a';
-
   return (
     <Tag
       href={onClick ? undefined : href}
@@ -84,29 +132,21 @@ export default function Home() {
   };
 
   const handleSelect = (id) => {
-    // If clicking the same node, just close it
     if (activeSection === id) {
       setActiveSection(null);
       return;
     }
-
     if (activeSection !== null) {
-      // SWAPPING: Clear current to trigger reversal
       setActiveSection(null);
-      
-      // Wait for exit duration, then set new and scroll after 2s
       setTimeout(() => {
         setActiveSection(id);
         triggerScroll(2000); 
       }, 800); 
     } else {
-      // FRESH SELECT: Set immediately and scroll after 1.5s
       setActiveSection(id);
       triggerScroll(1500);
     }
   };
-
-  const triggerResume = () => handleSelect('resume');
 
   return (
     <div className="min-h-screen relative overflow-x-hidden bg-white">
@@ -117,10 +157,17 @@ export default function Home() {
         <motion.div className="text-center flex flex-col items-center w-full" 
           initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
           
-          <h1 className="glitch font-inter" data-text="Lancelot Naipier-Kane" style={{
-            fontSize: 'clamp(1.8rem, 8vw, 4.5rem)', fontWeight: 900,
-            color: '#1A0010', letterSpacing: '-0.05em', margin: 0, lineHeight: 1.1,
-          }}>Lancelot Naipier-Kane</h1>
+          {/* RESTORED NAME GLITCH */}
+          <GlitchText 
+            text="Lancelot Naipier-Kane"
+            style={{
+              fontSize: 'clamp(1.8rem, 8vw, 4.5rem)',
+              fontWeight: 900,
+              letterSpacing: '-0.05em',
+              lineHeight: 1.1,
+              fontFamily: 'Inter, sans-serif'
+            }}
+          />
 
           <div className="flex gap-2 mt-3 mb-3 flex-wrap justify-center">
             <CertBadge label="MIT Certified" color="#A31F34" />
@@ -128,11 +175,18 @@ export default function Home() {
             <CertBadge label="Google Certified" color="#34A853" />
           </div>
 
-          <p className="glitch font-mono text-black font-black tracking-[0.15em] sm:tracking-[0.3em] uppercase" 
-             data-text="Program and Data Manager"
-             style={{ fontSize: 'clamp(0.85rem, 3vw, 1.1rem)' }}>
-            Program and Data Manager
-          </p>
+          {/* RESTORED TITLE GLITCH */}
+          <GlitchText 
+            text="Program and Data Manager"
+            style={{
+              fontSize: 'clamp(0.85rem, 3vw, 1.1rem)',
+              fontFamily: 'var(--font-mono)',
+              fontWeight: 900,
+              letterSpacing: '0.3em',
+              textTransform: 'uppercase',
+              color: '#000000'
+            }}
+          />
 
           <div className="mt-4 mx-auto max-w-[750px] bg-white/70 backdrop-blur-xl p-5 rounded-2xl border border-white/80 shadow-2xl">
             <p className="text-[0.95rem] sm:text-[1.1rem] text-[#1A0010] font-extrabold italic leading-relaxed font-inter">
@@ -149,7 +203,7 @@ export default function Home() {
           <PillBtn href="https://www.linkedin.com/in/lancelotnk/" icon={Linkedin} label="LinkedIn" />
           <PillBtn href="https://github.com/lancelot-nk" icon={Github} label="GitHub" />
           <PillBtn href="mailto:lancelotsmnk@gmail.com" icon={Mail} label="Contact For Work" />
-          <PillBtn onClick={triggerResume} icon={FileDown} label="Resume" />
+          <PillBtn onClick={() => handleSelect('resume')} icon={FileDown} label="Resume" />
         </div>
       </div>
 

@@ -20,22 +20,35 @@ function getLayout(w) {
   return { size: 850, core: 175, radius: 255, hex: 155, fontSize: 24, isMobile: false };
 }
 
-function renderCircuit(startX, startY, endX, endY, seed) {
+/**
+ * RECTILINEAR ROUTING ENGINE
+ * Forces 90-degree bends for that PCB/Circuit look.
+ */
+function render90DegreeCircuit(startX, startY, endX, endY, seed) {
   let path = `M ${startX} ${startY}`;
-  const segments = 2 + (seed % 3);
   let curX = startX;
   let curY = startY;
 
-  for (let i = 0; i < segments; i++) {
-    const isLast = i === segments - 1;
-    const progress = (i + 1) / segments;
+  // Number of 90-degree "elbows"
+  const bends = 2 + (seed % 3);
+  
+  for (let i = 0; i < bends; i++) {
+    const isLast = i === bends - 1;
+    const progress = (i + 1) / (bends + 1);
+
     if (isLast) {
+      // Final two moves to snap to target
       path += ` L ${endX} ${curY} L ${endX} ${endY}`;
     } else {
-      const tx = startX + (endX - startX) * progress + (Math.sin(seed + i) * 20);
-      const ty = startY + (endY - startY) * progress + (Math.cos(seed + i) * 20);
-      path += ` L ${tx} ${curY} L ${tx} ${ty}`;
-      curX = tx; curY = ty;
+      // Alternate between horizontal and vertical priority
+      const horizontalFirst = (seed + i) % 2 === 0;
+      if (horizontalFirst) {
+        curX = startX + (endX - startX) * progress;
+        path += ` L ${curX} ${curY}`;
+      } else {
+        curY = startY + (endY - startY) * progress;
+        path += ` L ${curX} ${curY}`;
+      }
     }
   }
   return path;
@@ -43,36 +56,23 @@ function renderCircuit(startX, startY, endX, endY, seed) {
 
 function getPath(cx, cy, hx, hy, seed, offset = 0, type = 'inward') {
   if (type === 'inward') {
-    return renderCircuit(cx, cy, hx + offset, hy + offset, seed);
+    return render90DegreeCircuit(cx, cy, hx + offset, hy + offset, seed);
   }
 
-  // OUTWARD MULTI-FACE LOGIC
+  // OUTWARD 90-DEGREE BLAST
   const sideIndex = seed % 6; 
   const sideAngle = (sideIndex * 60 - 90) * (Math.PI / 180);
-  const startX = hx + Math.cos(sideAngle) * 30;
-  const startY = hy + Math.sin(sideAngle) * 30;
   
-  // CUT RANGE IN HALF: Tight 125px - 225px blast
-  const dist = 125 + (seed % 100); 
+  // Start slightly offset from the hex perimeter
+  const startX = hx + Math.cos(sideAngle) * 35;
+  const startY = hy + Math.sin(sideAngle) * 35;
+  
+  // Cut distance in half (Short, sharp bursts)
+  const dist = 110 + (seed % 90); 
   const endX = startX + Math.cos(sideAngle) * dist;
   const endY = startY + Math.sin(sideAngle) * dist;
 
-  let path = `M ${startX} ${startY}`;
-  const initialBurst = 20 + (seed % 15);
-  const midX = startX + Math.cos(sideAngle) * initialBurst;
-  const midY = startY + Math.sin(sideAngle) * initialBurst;
-  path += ` L ${midX} ${midY}`;
-
-  const segments = 2 + (seed % 3);
-  for (let i = 0; i < segments; i++) {
-    const progress = (i + 1) / segments;
-    const tx = midX + (endX - midX) * progress + (Math.sin(seed + i) * 30);
-    const ty = midY + (endY - midY) * progress + (Math.cos(seed + i) * 30);
-    path += ` L ${tx} ${ty}`;
-  }
-  
-  path += ` L ${endX} ${endY}`;
-  return path;
+  return render90DegreeCircuit(startX, startY, endX, endY, seed);
 }
 
 export default function Nexus({ activeSection, onSelect }) {
@@ -98,6 +98,48 @@ export default function Nexus({ activeSection, onSelect }) {
           <filter id="active-glow"><feGaussianBlur stdDeviation="3" result="blur" /><feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge></filter>
         </defs>
 
+        {/* LAYER 1: DENDRIATE PATHS (Behind everything) */}
+        {SECTIONS.map((s, i) => {
+          const a = (i * 60 - 90) * (Math.PI / 180);
+          const hx = cx + radius * Math.cos(a), hy = cy + radius * Math.sin(a);
+          const isActive = activeSection === s.id;
+
+          return (
+            <AnimatePresence key={`lines-${s.id}`}>
+              {isActive && (
+                <motion.g initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                  {/* INWARD RECTILINEAR */}
+                  {[ -18, -12, -6, 0, 6, 12, 18 ].map((offset, idx) => (
+                    <motion.path
+                      key={`in-${idx}`}
+                      d={getPath(cx, cy, hx, hy, i * 13 + idx, offset, 'inward')}
+                      fill="none" stroke="white" strokeWidth={idx === 3 ? 3 : 1}
+                      opacity={[0.05, 0.2, 0.4, 1, 0.4, 0.2, 0.05][idx]}
+                      filter={idx === 3 ? "url(#active-glow)" : "none"}
+                      initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} exit={{ pathLength: 0 }}
+                      transition={{ duration: 0.8, ease: "easeInOut", delay: idx * 0.03 }}
+                    />
+                  ))}
+                  {/* OUTWARD RECTILINEAR (6 FACES) */}
+                  {!isMobile && Array.from({ length: 6 }).map((_, face) => (
+                    Array.from({ length: 3 }).map((__, line) => (
+                      <motion.path
+                        key={`out-${face}-${line}`}
+                        d={getPath(cx, cy, hx, hy, (i + 1) * 100 + face * 7 + line, 0, 'outward')}
+                        fill="none" stroke="white" strokeWidth={0.8} opacity={0.5}
+                        filter="url(#active-glow)"
+                        initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} exit={{ pathLength: 0 }}
+                        transition={{ duration: 0.6, delay: 0.1 + (face * 0.04) }}
+                      />
+                    ))
+                  ))}
+                </motion.g>
+              )}
+            </AnimatePresence>
+          );
+        })}
+
+        {/* LAYER 2: HEX POLYGONS */}
         {SECTIONS.map((s, i) => {
           const a = (i * 60 - 90) * (Math.PI / 180);
           const hx = cx + radius * Math.cos(a), hy = cy + radius * Math.sin(a);
@@ -105,53 +147,23 @@ export default function Nexus({ activeSection, onSelect }) {
           const isHovered = hoveredId === s.id;
 
           return (
-            <g key={`group-${s.id}`}>
-              <AnimatePresence>
-                {isActive && (
-                  <motion.g initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                    {/* INWARD */}
-                    {[ -18, -12, -6, 0, 6, 12, 18 ].map((offset, idx) => (
-                      <motion.path
-                        key={`in-${idx}`}
-                        d={getPath(cx, cy, hx, hy, i * 13 + idx, offset, 'inward')}
-                        fill="none" stroke="white" strokeWidth={idx === 3 ? 3 : 1}
-                        opacity={[0.1, 0.3, 0.5, 1, 0.5, 0.3, 0.1][idx]}
-                        filter={idx === 3 ? "url(#active-glow)" : "none"}
-                        initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} exit={{ pathLength: 0 }}
-                        transition={{ duration: 0.8, delay: idx * 0.03 }}
-                      />
-                    ))}
-                    {/* OUTWARD - ALL 6 FACES */}
-                    {!isMobile && Array.from({ length: 6 }).map((_, face) => (
-                      Array.from({ length: 3 }).map((__, line) => (
-                        <motion.path
-                          key={`out-${face}-${line}`}
-                          d={getPath(cx, cy, hx, hy, (i + 1) * 100 + face * 10 + line, 0, 'outward')}
-                          fill="none" stroke="white" strokeWidth={0.8} opacity={0.5}
-                          filter="url(#active-glow)"
-                          initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} exit={{ pathLength: 0 }}
-                          transition={{ duration: 0.6, delay: 0.1 + (face * 0.04) }}
-                        />
-                      ))
-                    ))}
-                  </motion.g>
-                )}
-              </AnimatePresence>
-              
-              <polygon
-                points={`${hx},${hy - hexH / 2} ${hx + hex / 2},${hy - hexH / 4} ${hx + hex / 2},${hy + hexH / 4} ${hx},${hy + hexH / 2} ${hx - hex / 2},${hy + hexH / 4} ${hx - hex / 2},${hy - hexH / 4}`}
-                fill={isHovered ? 'white' : brandPink}
-                stroke={isHovered ? brandPink : '#4A0000'}
-                strokeWidth={isActive ? 6 : 3}
-                className="transition-all duration-300 cursor-pointer"
-                style={{ transform: coreHovered ? 'scale(0.92)' : 'scale(1)', transformOrigin: 'center' }}
-                onClick={() => onSelect(s.id)}
-              />
-            </g>
+            <motion.polygon
+              key={`poly-${s.id}`}
+              animate={{ scale: coreHovered ? 0.92 : 1 }}
+              transition={{ duration: 0.3 }}
+              points={`${hx},${hy - hexH / 2} ${hx + hex / 2},${hy - hexH / 4} ${hx + hex / 2},${hy + hexH / 4} ${hx},${hy + hexH / 2} ${hx - hex / 2},${hy + hexH / 4} ${hx - hex / 2},${hy - hexH / 4}`}
+              fill={isHovered ? 'white' : brandPink}
+              stroke={isHovered ? brandPink : '#4A0000'}
+              strokeWidth={isActive ? 6 : 3}
+              className="cursor-pointer"
+              style={{ transformOrigin: `${hx}px ${hy}px` }}
+              onClick={() => onSelect(s.id)}
+            />
           );
         })}
       </svg>
 
+      {/* LAYER 3: BUTTON CONTENT (With Sync Scaling) */}
       {SECTIONS.map((s, i) => {
         const a = (i * 60 - 90) * (Math.PI / 180);
         const hx = cx + radius * Math.cos(a), hy = cy + radius * Math.sin(a);
@@ -161,10 +173,13 @@ export default function Nexus({ activeSection, onSelect }) {
         return (
           <motion.button
             key={`btn-${s.id}`}
-            className="absolute z-20 bg-none border-none cursor-pointer p-0 overflow-visible transition-transform duration-300"
-            style={{ left: hx - hex / 2, top: hy - hexH / 2, width: hex, height: hexH, transform: coreHovered ? 'scale(0.92)' : 'scale(1)' }}
+            className="absolute z-20 bg-none border-none cursor-pointer p-0 overflow-visible"
+            style={{ left: hx - hex / 2, top: hy - hexH / 2, width: hex, height: hexH }}
+            animate={{ scale: coreHovered ? 0.92 : 1 }}
+            transition={{ duration: 0.3 }}
             onMouseEnter={() => setHoveredId(s.id)}
             onMouseLeave={() => setHoveredId(null)}
+            whileHover={{ scale: coreHovered ? 0.95 : 1.05 }}
             onClick={() => onSelect(s.id)}
           >
             <div className="relative w-full h-full flex flex-col items-center justify-center">
@@ -175,10 +190,10 @@ export default function Nexus({ activeSection, onSelect }) {
         );
       })}
 
+      {/* LAYER 4: CENTER PORTRAIT & LINK */}
       <motion.a
         href="https://www.linkedin.com/in/lancelotnk/"
-        target="_blank"
-        rel="noopener noreferrer"
+        target="_blank" rel="noopener noreferrer"
         className="absolute top-1/2 left-1/2 z-[60] block overflow-hidden rounded-full border-4 border-[#E01880] cursor-pointer shadow-2xl transition-all duration-300"
         style={{ width: core, height: core, translateX: "-50%", translateY: "-50%" }}
         initial={{ scale: 1 }}
@@ -186,7 +201,11 @@ export default function Nexus({ activeSection, onSelect }) {
         onMouseEnter={() => setCoreHovered(true)}
         onMouseLeave={() => setCoreHovered(false)}
       >
-        <img src={profilePic} alt="LinkedIn" className="w-full h-full object-cover object-top scale-130 origin-top" />
+        <img 
+          src={profilePic} 
+          alt="LinkedIn" 
+          className="w-full h-full object-cover object-top scale-160 origin-top transition-transform duration-500" 
+        />
       </motion.a>
     </div>
   );
