@@ -30,10 +30,10 @@ const ParticleField = ({ isGameMode }) => {
       }
 
       reset(x, y) {
-        this.x = x || Math.random() * canvas.width;
-        this.y = y || Math.random() * canvas.height;
+        // If no x/y provided, randomize within canvas
+        this.x = x ?? Math.random() * canvas.width;
+        this.y = y ?? Math.random() * canvas.height;
         
-        // Faster movement in game mode to keep up with the blob
         const speedMult = isGameMode ? 1.2 : 0.4;
         this.vx = (Math.random() - 0.5) * speedMult;
         this.vy = (Math.random() - 0.5) * speedMult;
@@ -43,6 +43,19 @@ const ParticleField = ({ isGameMode }) => {
         this.opacity = Math.random() * 0.5 + 0.2;
       }
 
+      // NEW: Smooth edge respawn to keep particle count static
+      respawnAtEdge() {
+        const edge = Math.floor(Math.random() * 4);
+        if (edge === 0) { this.x = Math.random() * canvas.width; this.y = -20; } // Top
+        else if (edge === 1) { this.x = canvas.width + 20; this.y = Math.random() * canvas.height; } // Right
+        else if (edge === 2) { this.x = Math.random() * canvas.width; this.y = canvas.height + 20; } // Bottom
+        else { this.x = -20; this.y = Math.random() * canvas.height; } // Left
+        
+        const speed = isGameMode ? 1.5 : 0.5;
+        this.vx = (Math.random() - 0.5) * speed;
+        this.vy = (Math.random() - 0.5) * speed;
+      }
+
       update() {
         if (mouse.current.x !== null) {
           let dx = mouse.current.x - this.x;
@@ -50,18 +63,20 @@ const ParticleField = ({ isGameMode }) => {
           let distance = Math.sqrt(dx * dx + dy * dy);
           
           // ABSORPTION LOGIC (Game Mode Only)
-          if (isGameMode && distance < 45) {
+          // Threshold matches the blob's core radius for visual consistency
+          if (isGameMode && distance < 40) {
             window.dispatchEvent(new CustomEvent('particleEaten'));
-            this.reset(); // Respawn elsewhere to keep density constant
+            this.respawnAtEdge(); 
+            return;
           }
 
           if (distance < mouse.current.radius) {
             const force = (mouse.current.radius - distance) / mouse.current.radius;
             
             if (isGameMode) {
-              // GRAVITATIONAL PULL: In game mode, particles are sucked into the blob
-              this.x += (dx / distance) * force * 4;
-              this.y += (dy / distance) * force * 4;
+              // GRAVITATIONAL PULL: Sucked into the blob
+              this.x += (dx / distance) * force * 5;
+              this.y += (dy / distance) * force * 5;
             } else {
               // ORIGINAL SOFT PUSH: Normal site behavior
               const directionX = (dx / distance) * force * this.density * 0.4;
@@ -75,9 +90,9 @@ const ParticleField = ({ isGameMode }) => {
         this.x += this.vx;
         this.y += this.vy;
 
-        // Bounce logic
-        if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
-        if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+        // Bounce logic (Keep them on screen unless eaten)
+        if (this.x < -30 || this.x > canvas.width + 30) this.vx *= -1;
+        if (this.y < -30 || this.y > canvas.height + 30) this.vy *= -1;
       }
 
       draw() {
@@ -96,7 +111,6 @@ const ParticleField = ({ isGameMode }) => {
 
     const init = () => {
       resize();
-      // Initialize particles array based on current mode
       particles.current = Array.from({ length: baseCount }, () => new Particle());
     };
 
@@ -105,8 +119,10 @@ const ParticleField = ({ isGameMode }) => {
       for (let i = 0; i < count; i++) {
         particles.current.push(new Particle(x, y, true));
       }
-      // Cap particle count to prevent performance lag (max 600)
-      if (particles.current.length > 600) particles.current.splice(0, count);
+      // Safety cap: keep performance snappy even with multiple splits
+      if (particles.current.length > 500) {
+        particles.current.splice(0, particles.current.length - 500);
+      }
     };
 
     const animate = () => {
@@ -116,8 +132,9 @@ const ParticleField = ({ isGameMode }) => {
         p.update();
         p.draw();
 
-        // Optimized connections: fewer lines in game mode for performance
-        const skip = isGameMode ? 3 : 1; 
+        // Optimized connections: 
+        // We skip lines in game mode to keep FPS at 60 despite high particle count
+        const skip = isGameMode ? 4 : 1; 
         if (i % skip === 0) {
           for (let j = i + 1; j < particles.current.length; j += skip) {
             const p2 = particles.current[j];
@@ -165,13 +182,16 @@ const ParticleField = ({ isGameMode }) => {
       window.removeEventListener('blobSplit', handleSplit);
       cancelAnimationFrame(animationFrameId);
     };
-  }, [isGameMode]); // Recalculate everything when toggling game mode
+  }, [isGameMode]);
 
   return (
     <canvas
       ref={canvasRef}
       className="fixed inset-0 pointer-events-none z-[2]"
-      style={{ opacity: isGameMode ? 1 : 0.8 }}
+      style={{ 
+        opacity: isGameMode ? 1 : 0.8,
+        transition: 'opacity 0.5s ease-in-out' 
+      }}
     />
   );
 };
