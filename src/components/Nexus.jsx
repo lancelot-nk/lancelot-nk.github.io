@@ -15,35 +15,51 @@ export const SECTIONS = [
 ];
 
 function getLayout(w) {
-  if (w < 480) return { size: 320, core: 75, radius: 100, hex: 75, fontSize: 11, isMobile: true };
+  if (w < 480) return { size: 340, core: 75, radius: 105, hex: 75, fontSize: 10, isMobile: true };
   if (w < 900) return { size: 550, core: 110, radius: 180, hex: 110, fontSize: 16, isMobile: false };
   return { size: 850, core: 175, radius: 255, hex: 155, fontSize: 24, isMobile: false };
 }
 
+function renderInwardPath(cx, cy, endX, endY, seed) {
+  let path = `M ${cx} ${cy}`;
+  let curX = cx; let curY = cy;
+  const bends = 2 + (seed % 3);
+  for (let i = 0; i < bends; i++) {
+    const isLast = i === bends - 1;
+    const progress = (i + 1) / (bends + 1);
+    if (isLast) { path += ` L ${endX} ${curY} L ${endX} ${endY}`; } 
+    else {
+      const horizontalFirst = (seed + i) % 2 === 0;
+      if (horizontalFirst) { curX = cx + (endX - cx) * progress; path += ` L ${curX} ${curY}`; } 
+      else { curY = cy + (endY - cy) * progress; path += ` L ${curX} ${curY}`; }
+    }
+  }
+  return path;
+}
+
 /**
- * RECTILINEAR CIRCUIT ENGINE
- * Modified to take an initial angle to ensure the first "burst" is perpendicular to the side.
+ * IMPROVED OUTWARD ENGINE:
+ * Forces a perpendicular launch before randomizing.
  */
-function render90DegreeCircuit(startX, startY, sideAngle, seed, isMobile) {
+function renderOutwardPath(startX, startY, sideAngle, seed, isMobile) {
   let path = `M ${startX} ${startY}`;
   let curX = startX;
   let curY = startY;
   
-  // Initial perpendicular burst
-  const burstDist = 20 + (seed % 15);
-  curX += Math.cos(sideAngle) * burstDist;
-  curY += Math.sin(sideAngle) * burstDist;
+  // A. INITIAL PERPENDICULAR LAUNCH (Guaranteed straight line out)
+  const forcedLaunch = isMobile ? 15 : 35 + (seed % 20);
+  curX += Math.cos(sideAngle) * forcedLaunch;
+  curY += Math.sin(sideAngle) * forcedLaunch;
   path += ` L ${curX} ${curY}`;
 
-  const bends = isMobile ? 2 : 2 + (seed % 3);
+  // B. SUBSEQUENT RANDOM BENDS
+  const bends = isMobile ? 1 : 2 + (seed % 2);
   let currentAngle = sideAngle;
 
   for (let i = 0; i < bends; i++) {
-    // Force 90-degree turn relative to current direction
     const turn = (seed + i) % 2 === 0 ? Math.PI / 2 : -Math.PI / 2;
     currentAngle += turn;
-    
-    const segmentLen = isMobile ? 30 : 50 + (seed % 40);
+    const segmentLen = isMobile ? 20 : 40 + (seed % 60);
     curX += Math.cos(currentAngle) * segmentLen;
     curY += Math.sin(currentAngle) * segmentLen;
     path += ` L ${curX} ${curY}`;
@@ -51,31 +67,18 @@ function render90DegreeCircuit(startX, startY, sideAngle, seed, isMobile) {
   return path;
 }
 
-/**
- * PATH GENERATOR
- * Now specifically handles Inward (to center) and Outward (distributed across sides).
- */
-function getPath(hx, hy, hexSize, seed, type = 'inward', cx, cy) {
-  if (type === 'inward') {
-    // Inward lines move from hex to center
-    const angleToCenter = Math.atan2(cy - hy, cx - hx);
-    return render90DegreeCircuit(hx, hy, angleToCenter, seed, false);
-  }
+function getPath(cx, cy, hx, hy, hexSize, seed, type = 'inward', isMobile, offset = 0) {
+  if (type === 'inward') return renderInwardPath(cx, cy, hx + offset, hy + offset, seed);
 
-  // OUTWARD LOGIC: Distribute lines across all 6 sides
   const sideIndex = seed % 6; 
   const sideAngle = (sideIndex * 60 - 90) * (Math.PI / 180);
+  const spreadDist = (hexSize / 3) * (((seed % 11) - 5) / 5);
   
-  // Spread start point along the flat edge of the hexagon
-  const hexH = hexSize * 1.15;
-  const spreadFactor = ((seed % 11) - 5) / 5; // -1 to 1
-  const spreadDist = (hexSize / 3) * spreadFactor;
-  
-  // Calculate perpendicular offset for start
-  const startX = hx + Math.cos(sideAngle) * (hexSize / 2.2) + Math.cos(sideAngle + Math.PI/2) * spreadDist;
-  const startY = hy + Math.sin(sideAngle) * (hexH / 4) + Math.sin(sideAngle + Math.PI/2) * spreadDist;
+  // Start slightly inside the hex edge for a "connected" look
+  const startX = hx + Math.cos(sideAngle) * (hexSize / 2.5) + Math.cos(sideAngle + Math.PI/2) * spreadDist;
+  const startY = hy + Math.sin(sideAngle) * (hexSize * 0.3) + Math.sin(sideAngle + Math.PI/2) * spreadDist;
 
-  return render90DegreeCircuit(startX, startY, sideAngle, seed, false);
+  return renderOutwardPath(startX, startY, sideAngle, seed, isMobile);
 }
 
 export default function Nexus({ activeSection, onSelect }) {
@@ -98,16 +101,9 @@ export default function Nexus({ activeSection, onSelect }) {
     <div className="relative flex-shrink-0" style={{ width: size, height: size }}>
       <svg className="absolute inset-0 w-full h-full overflow-visible z-[5]">
         <defs>
-          <filter id="active-glow">
-            <feGaussianBlur stdDeviation="3" result="blur" />
-            <feMerge>
-              <feMergeNode in="blur" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
+          <filter id="active-glow"><feGaussianBlur stdDeviation="3" result="blur" /><feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge></filter>
         </defs>
 
-        {/* LAYER 1: DENDRIATE PATHS */}
         {SECTIONS.map((s, i) => {
           const a = (i * 60 - 90) * (Math.PI / 180);
           const hx = cx + radius * Math.cos(a), hy = cy + radius * Math.sin(a);
@@ -117,27 +113,29 @@ export default function Nexus({ activeSection, onSelect }) {
             <AnimatePresence key={`lines-${s.id}`}>
               {isActive && (
                 <motion.g initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                  {/* INWARD RECTILINEAR (Center bound) */}
-                  {[ -12, -6, 0, 6, 12 ].map((off, idx) => (
+                  {/* INWARD CONNECTIONS */}
+                  {[ -18, -12, -6, 0, 6, 12, 18 ].map((offset, idx) => (
                     <motion.path
                       key={`in-${idx}`}
-                      d={getPath(hx, hy, hex, i * 13 + idx, 'inward', cx, cy)}
-                      fill="none" stroke="white" strokeWidth={idx === 2 ? 2 : 0.8}
-                      opacity={idx === 2 ? 0.8 : 0.3}
+                      d={getPath(cx, cy, hx, hy, hex, i * 13 + idx, 'inward', isMobile, offset)}
+                      fill="none" stroke="white" strokeWidth={idx === 3 ? 3 : 1}
+                      opacity={[0.05, 0.2, 0.4, 1, 0.4, 0.2, 0.05][idx]}
+                      filter={idx === 3 ? "url(#active-glow)" : "none"}
                       initial={{ pathLength: 0 }} animate={{ pathLength: 1 }}
-                      transition={{ duration: 1, ease: "easeInOut" }}
+                      transition={{ duration: 0.8, ease: "easeInOut", delay: idx * 0.03 }}
                     />
                   ))}
-
-                  {/* OUTWARD RECTILINEAR (Distributed Perimeter) */}
-                  {!isMobile && Array.from({ length: 18 }).map((_, idx) => (
+                  {/* IMPROVED OUTWARD STARBURST */}
+                  {!isMobile && Array.from({ length: 12 }).map((_, idx) => (
                     <motion.path
                       key={`out-${idx}`}
-                      d={getPath(hx, hy, hex, i * 50 + idx, 'outward')}
-                      fill="none" stroke="white" strokeWidth={1} opacity={0.4}
+                      d={getPath(cx, cy, hx, hy, hex, i * 40 + idx, 'outward', isMobile)}
+                      fill="none" stroke="white" 
+                      strokeWidth={2} // THICKER
+                      opacity={0.7} // BRIGHTER
                       filter="url(#active-glow)"
                       initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} exit={{ pathLength: 0 }}
-                      transition={{ duration: 0.7, delay: idx * 0.02, ease: "easeOut" }}
+                      transition={{ duration: 0.6, delay: 0.1 + (idx * 0.03) }}
                     />
                   ))}
                 </motion.g>
@@ -146,7 +144,6 @@ export default function Nexus({ activeSection, onSelect }) {
           );
         })}
 
-        {/* LAYER 2: HEX POLYGONS */}
         {SECTIONS.map((s, i) => {
           const a = (i * 60 - 90) * (Math.PI / 180);
           const hx = cx + radius * Math.cos(a), hy = cy + radius * Math.sin(a);
@@ -154,7 +151,6 @@ export default function Nexus({ activeSection, onSelect }) {
             <motion.polygon
               key={`poly-${s.id}`}
               animate={{ scale: coreHovered ? 0.92 : 1 }}
-              transition={{ duration: 0.3 }}
               points={`${hx},${hy - hexH / 2} ${hx + hex / 2},${hy - hexH / 4} ${hx + hex / 2},${hy + hexH / 4} ${hx},${hy + hexH / 2} ${hx - hex / 2},${hy + hexH / 4} ${hx - hex / 2},${hy - hexH / 4}`}
               fill={hoveredId === s.id ? 'white' : brandPink}
               stroke={hoveredId === s.id ? brandPink : '#4A0000'}
@@ -167,7 +163,6 @@ export default function Nexus({ activeSection, onSelect }) {
         })}
       </svg>
 
-      {/* LAYER 3: BUTTON CONTENT */}
       {SECTIONS.map((s, i) => {
         const a = (i * 60 - 90) * (Math.PI / 180);
         const hx = cx + radius * Math.cos(a), hy = cy + radius * Math.sin(a);
@@ -183,9 +178,9 @@ export default function Nexus({ activeSection, onSelect }) {
             onClick={() => onSelect(s.id)}
           >
             <div className="relative w-full h-full flex flex-col items-center justify-center pointer-events-none">
-              <Icon size={isMobile ? 18 : 24} style={{ color: hoveredId === s.id ? '#4A0000' : 'white', transform: isMobile ? 'none' : 'translateY(-4px)' }} />
+              <Icon size={isMobile ? 18 : 26} style={{ color: hoveredId === s.id ? '#4A0000' : 'white', marginBottom: '2px' }} />
               <span className="font-mono uppercase font-black text-center whitespace-pre-line" 
-                    style={{ fontSize: `${fontSize}px`, color: hoveredId === s.id ? '#4A0000' : 'white', lineHeight: '0.9' }}>
+                    style={{ fontSize: `${activeSection === s.id ? fontSize * 1.1 : fontSize}px`, color: hoveredId === s.id ? '#4A0000' : 'white', lineHeight: '1.0' }}>
                 {s.label}
               </span>
             </div>
@@ -193,7 +188,6 @@ export default function Nexus({ activeSection, onSelect }) {
         );
       })}
 
-      {/* LAYER 4: CENTER PORTRAIT */}
       <motion.a
         href="https://www.linkedin.com/in/lancelotnk/"
         target="_blank" rel="noopener noreferrer"
@@ -203,11 +197,7 @@ export default function Nexus({ activeSection, onSelect }) {
         onMouseEnter={() => setCoreHovered(true)}
         onMouseLeave={() => setCoreHovered(false)}
       >
-        <img 
-          src={profilePic} alt="LinkedIn" 
-          className="w-full h-full object-cover transition-transform duration-500" 
-          style={{ transform: 'scale(2.2) translateY(12%)', transformOrigin: 'top center' }} 
-        />
+        <img src={profilePic} alt="LinkedIn" className="w-full h-full object-cover transition-transform duration-500" style={{ transform: 'scale(2.2)', transformOrigin: 'center 30%' }} />
       </motion.a>
     </div>
   );
