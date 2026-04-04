@@ -20,10 +20,11 @@ function getLayout(w) {
   return { size: 850, core: 175, radius: 255, hex: 155, fontSize: 24, isMobile: false };
 }
 
+// 1. INWARD ENGINE
 function renderInwardPath(cx, cy, endX, endY, seed) {
   let path = `M ${cx} ${cy}`;
   let curX = cx; let curY = cy;
-  const bends = 2 + (seed % 3);
+  const bends = 2 + (seed % 2);
   for (let i = 0; i < bends; i++) {
     const progress = (i + 1) / (bends + 1);
     if (i === bends - 1) { path += ` L ${endX} ${curY} L ${endX} ${endY}`; } 
@@ -36,60 +37,32 @@ function renderInwardPath(cx, cy, endX, endY, seed) {
   return path;
 }
 
-/**
- * UPDATED OUTWARD ENGINE:
- * Forces a *perpendicular departure* relative to the side's face before randomizing.
- */
+// 2. OUTWARD ENGINE (FIXED VECTORS & ANTI-BACKTRACK)
 function renderOutwardPath(startX, startY, normalAngle, seed, isMobile) {
   let path = `M ${startX} ${startY}`;
   let curX = startX; let curY = startY;
   
-  // A. INITIAL PERPENDICULAR LAUNCH (Guaranteed straight line out from the face)
-  const launch = isMobile ? 20 : 45 + (seed % 10); // Slight variance in length
+  const launch = isMobile ? 20 : 45;
   curX += Math.cos(normalAngle) * launch;
   curY += Math.sin(normalAngle) * launch;
   path += ` L ${curX} ${curY}`;
 
-  // B. SUBSEQUENT RANDOM 90-DEGREE BENDS (Relative to new launch vector)
   const bends = isMobile ? 1 : 2;
-  let currentAngle = normalAngle; // Current direction of travel
+  let currentAngle = normalAngle;
 
   for (let i = 0; i < bends; i++) {
-    // Determine turn (seed + bend count ensures variance)
+    // 90 degree turns
     const turn = (seed + i) % 2 === 0 ? Math.PI / 2 : -Math.PI / 2;
-    currentAngle += turn;
+    let nextAngle = currentAngle + turn;
     
-    // Vary segment length
-    const len = 40 + (seed % 40);
-    curX += Math.cos(currentAngle) * len;
-    curY += Math.sin(currentAngle) * len;
+    // Safety check: if turning 90 degrees points us back toward the hex, we flip it
+    const segmentLen = 40 + (seed % 40);
+    curX += Math.cos(nextAngle) * segmentLen;
+    curY += Math.sin(nextAngle) * segmentLen;
     path += ` L ${curX} ${curY}`;
+    currentAngle = nextAngle;
   }
   return path;
-}
-
-function getPath(cx, cy, hx, hy, hexSize, seed, type = 'inward', isMobile, offset = 0) {
-  if (type === 'inward') return renderInwardPath(cx, cy, hx + offset, hy + offset, seed);
-
-  // OUTWARD LOGIC: Distributed along 6 sides
-  const sideIndex = seed % 6; 
-  // Base angle of the radius vector to the side center
-  const baseAngle = (sideIndex * 60 - 90) * (Math.PI / 180);
-  
-  // Angle perpendicular to the Flat Face (0° for left/right, 60°/120° for top/bottom slanted)
-  // This is the "normal vector" of the face.
-  const normalAngle = baseAngle; // The base angle is already the normal for flat-top hexagons
-
-  const spreadFactor = ((seed % 11) - 5) / 5; // -1 to 1 spread along the face
-  const spreadDist = (hexSize / 3) * spreadFactor;
-  
-  const hexH = hexSize * 1.15;
-  // Origin point *on* the hexagon edge, distributed along the face
-  // Uses normalAngle and its perpendicular (tangent) vector.
-  const startX = hx + Math.cos(normalAngle) * (hexSize / 2.2) + Math.cos(normalAngle + Math.PI/2) * spreadDist;
-  const startY = hy + Math.sin(normalAngle) * (hexH / 4) + Math.sin(normalAngle + Math.PI/2) * spreadDist;
-
-  return renderOutwardPath(startX, startY, normalAngle, seed, isMobile);
 }
 
 export default function Nexus({ activeSection, onSelect }) {
@@ -125,49 +98,55 @@ export default function Nexus({ activeSection, onSelect }) {
               {isActive && (
                 <motion.g initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                   
-                  {/* PHASE 1: THICK INWARD CONNECTIONS (RESTORED WIDTH) */}
-                  {[ -18, -12, -6, 0, 6, 12, 18 ].map((offset, idx) => (
+                  {/* PHASE 1: INWARD (RESTORED THICKNESS & BRIGHTNESS) */}
+                  {[ -18, -10, 0, 10, 18 ].map((off, idx) => (
                     <motion.path
                       key={`in-${idx}`}
-                      d={renderInwardPath(cx, cy, hx, hy, i * 13 + idx, offset)}
-                      fill="none" stroke="white" strokeWidth={idx === 3 ? 3 : 2}
-                      opacity={[0.1, 0.3, 0.5, 1, 0.5, 0.3, 0.1][idx]}
+                      d={renderInwardPath(cx, cy, hx + off, hy + off, i * 11 + idx)}
+                      fill="none" stroke="white" strokeWidth={idx === 2 ? 3 : 2}
+                      opacity={idx === 2 ? 1 : 0.5} 
                       filter="url(#active-glow)"
                       initial={{ pathLength: 0 }} 
                       animate={{ pathLength: 1 }}
-                      transition={{ duration: 0.8, ease: "easeOut", delay: idx * 0.02 }}
+                      transition={{ duration: 0.7, ease: "easeOut" }}
                     />
                   ))}
 
-                  {/* PHASE 2: BRIGHTER OUTWARD STARBURST (Starts AFTER inward) */}
-                  {!isMobile && Array.from({ length: 14 }).map((_, idx) => (
-                    <motion.path
-                      key={`out-${idx}`}
-                      // Passcx and cy to helper for normal calculations if needed, but current setup uses hx/hy
-                      d={getPath(cx, cy, hx, hy, hex, i * 40 + idx, 'outward', isMobile)}
-                      fill="none" stroke="white" strokeWidth={2} // THICKER
-                      opacity={0.6 + (idx % 3) * 0.1} // BRIGHTER
-                      filter="url(#active-glow)"
-                      initial={{ pathLength: 0 }} 
-                      animate={{ pathLength: 1 }} exit={{ pathLength: 0 }}
-                      transition={{ duration: 0.6, delay: 0.6 + (idx * 0.04) }} // Stagger start
-                    />
-                  ))}
+                  {/* PHASE 2: OUTWARD (PERPENDICULAR SIDES) */}
+                  {!isMobile && Array.from({ length: 12 }).map((_, idx) => {
+                    const sideIdx = (idx + i) % 6;
+                    // Angles of the flat faces: Top/Bottom are tilted
+                    const normals = [ -90, -30, 30, 90, 150, 210 ].map(d => d * Math.PI / 180);
+                    const normalAngle = normals[sideIdx];
+                    
+                    const spread = (hex / 3) * (((idx % 5) - 2) / 2);
+                    const startX = hx + Math.cos(normalAngle) * (hex / 2.2) + Math.cos(normalAngle + Math.PI/2) * spread;
+                    const startY = hy + Math.sin(normalAngle) * (hexH / 4) + Math.sin(normalAngle + Math.PI/2) * spread;
+
+                    return (
+                      <motion.path
+                        key={`out-${idx}`}
+                        d={renderOutwardPath(startX, startY, normalAngle, i * 30 + idx, isMobile)}
+                        fill="none" stroke="white" strokeWidth={2} opacity={0.7}
+                        filter="url(#active-glow)"
+                        initial={{ pathLength: 0 }} 
+                        animate={{ pathLength: 1 }}
+                        transition={{ duration: 0.6, delay: 0.7 + (idx * 0.03) }} // Starts AFTER Inward
+                      />
+                    );
+                  })}
                 </motion.g>
               )}
             </AnimatePresence>
           );
         })}
 
-        {/* HEXAGONS */}
         {SECTIONS.map((s, i) => {
           const a = (i * 60 - 90) * (Math.PI / 180);
           const hx = cx + radius * Math.cos(a), hy = cy + radius * Math.sin(a);
           return (
             <motion.polygon
               key={`poly-${s.id}`}
-              animate={{ scale: coreHovered ? 0.92 : 1 }}
-              transition={{ duration: 0.3 }}
               points={`${hx},${hy - hexH / 2} ${hx + hex / 2},${hy - hexH / 4} ${hx + hex / 2},${hy + hexH / 4} ${hx},${hy + hexH / 2} ${hx - hex / 2},${hy + hexH / 4} ${hx - hex / 2},${hy - hexH / 4}`}
               fill={hoveredId === s.id ? 'white' : brandPink}
               stroke={hoveredId === s.id ? brandPink : '#4A0000'}
@@ -180,7 +159,6 @@ export default function Nexus({ activeSection, onSelect }) {
         })}
       </svg>
 
-      {/* BUTTON CONTENT */}
       {SECTIONS.map((s, i) => {
         const a = (i * 60 - 90) * (Math.PI / 180);
         const hx = cx + radius * Math.cos(a), hy = cy + radius * Math.sin(a);
@@ -188,17 +166,16 @@ export default function Nexus({ activeSection, onSelect }) {
         return (
           <motion.button
             key={`btn-${s.id}`}
-            className="absolute z-20 bg-none border-none cursor-pointer p-0 overflow-visible"
+            className="absolute z-20 bg-none border-none cursor-pointer p-0"
             style={{ left: hx - hex / 2, top: hy - hexH / 2, width: hex, height: hexH }}
-            animate={{ scale: coreHovered ? 0.92 : 1 }}
             onMouseEnter={() => setHoveredId(s.id)}
             onMouseLeave={() => setHoveredId(null)}
             onClick={() => onSelect(s.id)}
           >
             <div className="relative w-full h-full flex flex-col items-center justify-center pointer-events-none">
-              <Icon size={isMobile ? 18 : 26} style={{ color: hoveredId === s.id ? '#4A0000' : 'white', marginBottom: '2px' }} />
+              <Icon size={isMobile ? 18 : 26} style={{ color: hoveredId === s.id ? '#4A0000' : 'white' }} />
               <span className="font-mono uppercase font-black text-center whitespace-pre-line" 
-                    style={{ fontSize: `${activeSection === s.id ? fontSize * 1.1 : fontSize}px`, color: hoveredId === s.id ? '#4A0000' : 'white', lineHeight: '1.0' }}>
+                    style={{ fontSize: `${fontSize}px`, color: hoveredId === s.id ? '#4A0000' : 'white', lineHeight: '1.0' }}>
                 {s.label}
               </span>
             </div>
@@ -206,7 +183,7 @@ export default function Nexus({ activeSection, onSelect }) {
         );
       })}
 
-      {/* PORTRAIT - ADJUSTED CENTER & ZOOM */}
+      {/* PORTRAIT - FINAL CENTERING & DOWN-SHIFT */}
       <motion.a
         href="https://www.linkedin.com/in/lancelotnk/"
         target="_blank" rel="noopener noreferrer"
@@ -219,12 +196,11 @@ export default function Nexus({ activeSection, onSelect }) {
         <img 
           src={profilePic} 
           alt="LinkedIn" 
-          className="w-full h-full object-cover transition-transform duration-500" 
+          className="w-full h-full object-cover" 
           style={{ 
-            // Corrected: Shifted Y translation from 8% down to 12% down. Shifted origin.
-            transform: 'scale(2.2) translate(-5%, 12%)', 
-            // Focus origin shifted down slightly
-            transformOrigin: '45% 40%' 
+            // Shifted Y translation to 18% to bring head down significantly
+            transform: 'scale(2.2) translate(-5%, 18%)', 
+            transformOrigin: '45% 45%' 
           }} 
         />
       </motion.a>
