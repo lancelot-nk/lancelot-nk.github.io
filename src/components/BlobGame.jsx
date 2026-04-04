@@ -12,15 +12,49 @@ const BlobGame = ({ onClose }) => {
   const targetPos = useRef({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
   const enemies = useRef([]); 
   const blobRef = useRef(null);
+  const lastAutoSpawnScore = useRef(0);
 
-  // Constants for "Set Rate" movement
   const PLAYER_SPEED = 6; 
-  const GROWTH_RATE = 0.5; // Mass gained per particle (Nerfed)
+  const ENEMY_SPEED = 4.5; // Slightly slower than player for fairness, but constant
+  const GROWTH_RATE = 0.5;
 
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem('blobHighScores') || '[]');
     setHighScores(saved);
   }, []);
+
+  // AUTO-SPAWN LOGIC: Every 5000 points
+  useEffect(() => {
+    if (score >= lastAutoSpawnScore.current + 5000) {
+      lastAutoSpawnScore.current = Math.floor(score / 5000) * 5000;
+      spawnEnemyAtEdge(playerSize * 0.375); // 3/8ths size
+    }
+  }, [score, playerSize]);
+
+  const spawnEnemyAtEdge = (size) => {
+    const edge = Math.floor(Math.random() * 4);
+    let x, y;
+    if (edge === 0) { x = Math.random() * window.innerWidth; y = -50; }
+    else if (edge === 1) { x = window.innerWidth + 50; y = Math.random() * window.innerHeight; }
+    else if (edge === 2) { x = Math.random() * window.innerWidth; y = window.innerHeight + 50; }
+    else { x = -50; y = Math.random() * window.innerHeight; }
+
+    addEnemy(x, y, size);
+  };
+
+  const addEnemy = (x, y, size) => {
+    const enemyColors = ['#FF1493', '#00FF7F', '#1E90FF', '#FFD700'];
+    enemies.current.push({
+      id: Math.random(),
+      x: x,
+      y: y,
+      size: size,
+      color: enemyColors[Math.floor(Math.random() * enemyColors.length)],
+      // Constant velocity components
+      vx: (Math.random() - 0.5) * 2,
+      vy: (Math.random() - 0.5) * 2
+    });
+  };
 
   useEffect(() => {
     let animationFrameId;
@@ -28,12 +62,12 @@ const BlobGame = ({ onClose }) => {
     const update = () => {
       if (gameState !== 'playing') return;
 
-      // 1. CONSTANT RATE MOVEMENT (No Teleporting)
+      // 1. PLAYER MOVEMENT
       const dx = targetPos.current.x - playerPos.current.x;
       const dy = targetPos.current.y - playerPos.current.y;
       const distance = Math.sqrt(dx * dx + dy * dy);
 
-      if (distance > 5) { // Threshold to prevent "jitter" when arriving at cursor
+      if (distance > 5) {
         playerPos.current.x += (dx / distance) * PLAYER_SPEED;
         playerPos.current.y += (dy / distance) * PLAYER_SPEED;
       }
@@ -42,32 +76,30 @@ const BlobGame = ({ onClose }) => {
         blobRef.current.style.transform = `translate3d(${playerPos.current.x - playerSize / 2}px, ${playerPos.current.y - playerSize / 2}px, 0)`;
       }
 
-      // 2. ENEMY LOGIC (Movement & Particle Consumption)
+      // 2. ENEMY LOGIC
       enemies.current.forEach(enemy => {
-        enemy.x += enemy.vx;
-        enemy.y += enemy.vy;
+        // Move at set rate
+        const ev = Math.sqrt(enemy.vx ** 2 + enemy.vy ** 2);
+        enemy.x += (enemy.vx / ev) * ENEMY_SPEED;
+        enemy.y += (enemy.vy / ev) * ENEMY_SPEED;
 
-        // Enemy Passive Growth (Simulating eating particles)
         enemy.size += 0.04; 
 
-        // Boundary Bounce
         if (enemy.x < 0 || enemy.x > window.innerWidth) enemy.vx *= -1;
         if (enemy.y < 0 || enemy.y > window.innerHeight) enemy.vy *= -1;
 
-        // Collision Check
         const distToPlayer = Math.sqrt(
           Math.pow(enemy.x - playerPos.current.x, 2) + 
           Math.pow(enemy.y - playerPos.current.y, 2)
         );
 
+        // Collision Check
         if (distToPlayer < (playerSize / 2 + enemy.size / 2) * 0.85) {
           if (enemy.size > playerSize) {
             setGameState('gameOver');
-            const finalScore = score;
-            saveScore(finalScore);
+            saveScore(score);
           } else {
-            // Player consumes enemy
-            setPlayerSize(s => Math.min(s + enemy.size * 0.2, 450));
+            setPlayerSize(s => Math.min(s + enemy.size * 0.25, 500));
             setScore(s => s + Math.floor(enemy.size));
             enemies.current = enemies.current.filter(e => e.id !== enemy.id);
           }
@@ -98,7 +130,7 @@ const BlobGame = ({ onClose }) => {
     };
 
     const handleEat = () => {
-      setPlayerSize(s => Math.min(s + GROWTH_RATE, 450));
+      setPlayerSize(s => Math.min(s + GROWTH_RATE, 500));
       setScore(s => s + 10);
     };
 
@@ -116,24 +148,19 @@ const BlobGame = ({ onClose }) => {
   }, []);
 
   const handleSplit = (e) => {
-    if (playerSize < 45 || gameState !== 'playing') return;
-    
-    // Prevent split if clicking UI buttons
+    if (playerSize < 50 || gameState !== 'playing') return;
     if (e.target.closest('button')) return;
 
-    const newSize = playerSize / 2;
-    setPlayerSize(newSize);
+    // 3/8ths Loss Logic
+    const lostSize = playerSize * 0.375;
+    setPlayerSize(prev => prev - lostSize);
 
-    const enemyColors = ['#FF1493', '#00FF7F', '#1E90FF', '#FFD700'];
-    enemies.current.push({
-      id: Math.random(),
-      x: playerPos.current.x,
-      y: playerPos.current.y,
-      size: newSize,
-      color: enemyColors[Math.floor(Math.random() * enemyColors.length)],
-      vx: (Math.random() - 0.5) * 8,
-      vy: (Math.random() - 0.5) * 8
-    });
+    // Spawn hostile at a safe distance (150px offset)
+    const angle = Math.random() * Math.PI * 2;
+    const spawnX = playerPos.current.x + Math.cos(angle) * 150;
+    const spawnY = playerPos.current.y + Math.sin(angle) * 150;
+
+    addEnemy(spawnX, spawnY, lostSize);
 
     window.dispatchEvent(new CustomEvent('blobSplit', { 
       detail: { x: playerPos.current.x, y: playerPos.current.y, count: 15 } 
@@ -141,16 +168,16 @@ const BlobGame = ({ onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-[100] overflow-hidden cursor-none touch-none bg-transparent" onClick={handleSplit}>
+    <div className="fixed inset-0 z-[100] overflow-hidden cursor-none touch-none" onClick={handleSplit}>
       {/* HUD */}
       <div className="fixed top-12 left-12 z-[110] font-mono text-white pointer-events-none select-none">
-        <p className="text-[10px] opacity-30 uppercase tracking-[0.4em] mb-1">Mass Index</p>
+        <p className="text-[10px] opacity-30 uppercase tracking-[0.4em] mb-1">Total Mass</p>
         <p className="text-6xl font-black text-[#E01880] tabular-nums">{score}</p>
       </div>
 
       <button 
         onClick={(e) => { e.stopPropagation(); onClose(); }}
-        className="fixed top-10 right-10 z-[120] p-4 bg-white/5 hover:bg-white/20 rounded-full text-white backdrop-blur-2xl border border-white/10 transition-all active:scale-90"
+        className="fixed top-10 right-10 z-[120] p-4 bg-white/5 hover:bg-white/20 rounded-full text-white backdrop-blur-2xl border border-white/10"
       >
         <X size={24} />
       </button>
@@ -168,11 +195,11 @@ const BlobGame = ({ onClose }) => {
         }}
       />
 
-      {/* Hostile Blobs */}
+      {/* Enemies */}
       {enemies.current.map(enemy => (
         <div 
           key={enemy.id}
-          className="fixed top-0 left-0 flex items-center justify-center border border-white/20 shadow-lg"
+          className="fixed top-0 left-0 flex items-center justify-center border border-white/10 shadow-lg"
           style={{
             width: enemy.size, height: enemy.size,
             backgroundColor: enemy.color,
@@ -182,7 +209,7 @@ const BlobGame = ({ onClose }) => {
             zIndex: 90
           }}
         >
-          <span className="text-white/40 font-black text-[12px] select-none">✕</span>
+          <span className="text-white/40 font-black text-[12px] select-none italic">!</span>
         </div>
       ))}
 
@@ -191,33 +218,27 @@ const BlobGame = ({ onClose }) => {
         {gameState === 'gameOver' && (
           <motion.div 
             initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-            className="fixed inset-0 bg-black/90 backdrop-blur-3xl z-[200] flex items-center justify-center p-6"
+            className="fixed inset-0 bg-black/95 backdrop-blur-3xl z-[200] flex items-center justify-center p-6"
             onClick={(e) => e.stopPropagation()}
           >
             <motion.div 
-              initial={{ scale: 0.8, y: 40 }} animate={{ scale: 1, y: 0 }}
+              initial={{ scale: 0.8 }} animate={{ scale: 1 }}
               className="max-w-sm w-full bg-[#111] border border-white/10 rounded-[3rem] p-12 text-center"
             >
-              <h2 className="text-5xl font-black mb-1 italic text-white tracking-tighter">DISSOLVED</h2>
-              <p className="text-[#E01880] text-sm font-bold uppercase tracking-widest mb-10">Final Mass: {score}</p>
+              <h2 className="text-5xl font-black mb-1 italic text-white">RECLAIMED</h2>
+              <p className="text-[#E01880] text-sm font-bold uppercase tracking-widest mb-10">Mass: {score}</p>
               
-              <div className="bg-white/5 rounded-3xl p-6 mb-10 text-left">
-                <div className="flex items-center gap-2 mb-4 text-white/20">
-                  <Trophy size={14} /> <span className="text-[10px] font-black uppercase tracking-[0.2em]">Top Sessions</span>
-                </div>
-                {highScores.map((hs, i) => (
-                  <div key={i} className="flex justify-between py-2 border-b border-white/5 last:border-0 font-mono text-sm">
-                    <span className={i === 0 ? "text-[#E01880]" : "text-white/40"}>#0{i+1}</span>
-                    <span className="font-bold text-white">{hs.score}</span>
-                  </div>
-                ))}
-              </div>
-
               <button 
-                onClick={() => { setGameState('playing'); setScore(0); setPlayerSize(60); enemies.current = []; }}
-                className="w-full py-5 bg-[#E01880] text-white rounded-2xl font-black text-lg hover:bg-white hover:text-black transition-all active:scale-95 flex items-center justify-center gap-3"
+                onClick={() => { 
+                    setGameState('playing'); 
+                    setScore(0); 
+                    setPlayerSize(60); 
+                    enemies.current = []; 
+                    lastAutoSpawnScore.current = 0;
+                }}
+                className="w-full py-5 bg-[#E01880] text-white rounded-2xl font-black text-lg hover:bg-white hover:text-black transition-all"
               >
-                <RefreshCcw size={20} /> REBOOT
+                <RefreshCcw size={20} className="inline mr-2" /> REBOOT
               </button>
             </motion.div>
           </motion.div>
