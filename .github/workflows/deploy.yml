@@ -15,18 +15,25 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 24 # Modernized version
+          node-version: 24
           cache: 'npm'
+
       - name: Install dependencies
         run: npm install
+
       - name: Build
         # CI=false prevents the build from failing on non-critical warnings
+        # We pull the variables from the GitHub Repository Variables here
         run: npm run build
         env:
           CI: false
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
+
       - name: Upload Artifacts
         uses: actions/upload-pages-artifact@v3
         with:
