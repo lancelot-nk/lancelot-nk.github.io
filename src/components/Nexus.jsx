@@ -25,9 +25,8 @@ function renderInwardPath(cx, cy, endX, endY, seed) {
   let curX = cx; let curY = cy;
   const bends = 2 + (seed % 3);
   for (let i = 0; i < bends; i++) {
-    const isLast = i === bends - 1;
     const progress = (i + 1) / (bends + 1);
-    if (isLast) { path += ` L ${endX} ${curY} L ${endX} ${endY}`; } 
+    if (i === bends - 1) { path += ` L ${endX} ${curY} L ${endX} ${endY}`; } 
     else {
       const horizontalFirst = (seed + i) % 2 === 0;
       if (horizontalFirst) { curX = cx + (endX - cx) * progress; path += ` L ${curX} ${curY}`; } 
@@ -37,48 +36,29 @@ function renderInwardPath(cx, cy, endX, endY, seed) {
   return path;
 }
 
-/**
- * IMPROVED OUTWARD ENGINE:
- * Forces a perpendicular launch before randomizing.
- */
 function renderOutwardPath(startX, startY, sideAngle, seed, isMobile) {
   let path = `M ${startX} ${startY}`;
-  let curX = startX;
-  let curY = startY;
+  let curX = startX; let curY = startY;
   
-  // A. INITIAL PERPENDICULAR LAUNCH (Guaranteed straight line out)
-  const forcedLaunch = isMobile ? 15 : 35 + (seed % 20);
-  curX += Math.cos(sideAngle) * forcedLaunch;
-  curY += Math.sin(sideAngle) * forcedLaunch;
+  // Perpendicular Launch
+  const launch = isMobile ? 20 : 45;
+  curX += Math.cos(sideAngle) * launch;
+  curY += Math.sin(sideAngle) * launch;
   path += ` L ${curX} ${curY}`;
 
-  // B. SUBSEQUENT RANDOM BENDS
-  const bends = isMobile ? 1 : 2 + (seed % 2);
+  const bends = isMobile ? 1 : 2;
   let currentAngle = sideAngle;
 
   for (let i = 0; i < bends; i++) {
+    // Only turn +/- 90 degrees, never 180 (avoids looping back)
     const turn = (seed + i) % 2 === 0 ? Math.PI / 2 : -Math.PI / 2;
     currentAngle += turn;
-    const segmentLen = isMobile ? 20 : 40 + (seed % 60);
-    curX += Math.cos(currentAngle) * segmentLen;
-    curY += Math.sin(currentAngle) * segmentLen;
+    const len = 40 + (seed % 40);
+    curX += Math.cos(currentAngle) * len;
+    curY += Math.sin(currentAngle) * len;
     path += ` L ${curX} ${curY}`;
   }
   return path;
-}
-
-function getPath(cx, cy, hx, hy, hexSize, seed, type = 'inward', isMobile, offset = 0) {
-  if (type === 'inward') return renderInwardPath(cx, cy, hx + offset, hy + offset, seed);
-
-  const sideIndex = seed % 6; 
-  const sideAngle = (sideIndex * 60 - 90) * (Math.PI / 180);
-  const spreadDist = (hexSize / 3) * (((seed % 11) - 5) / 5);
-  
-  // Start slightly inside the hex edge for a "connected" look
-  const startX = hx + Math.cos(sideAngle) * (hexSize / 2.5) + Math.cos(sideAngle + Math.PI/2) * spreadDist;
-  const startY = hy + Math.sin(sideAngle) * (hexSize * 0.3) + Math.sin(sideAngle + Math.PI/2) * spreadDist;
-
-  return renderOutwardPath(startX, startY, sideAngle, seed, isMobile);
 }
 
 export default function Nexus({ activeSection, onSelect }) {
@@ -113,37 +93,49 @@ export default function Nexus({ activeSection, onSelect }) {
             <AnimatePresence key={`lines-${s.id}`}>
               {isActive && (
                 <motion.g initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                  {/* INWARD CONNECTIONS */}
+                  
+                  {/* PHASE 1: THICK INWARD CONNECTIONS */}
                   {[ -18, -12, -6, 0, 6, 12, 18 ].map((offset, idx) => (
                     <motion.path
                       key={`in-${idx}`}
-                      d={getPath(cx, cy, hx, hy, hex, i * 13 + idx, 'inward', isMobile, offset)}
-                      fill="none" stroke="white" strokeWidth={idx === 3 ? 3 : 1}
-                      opacity={[0.05, 0.2, 0.4, 1, 0.4, 0.2, 0.05][idx]}
-                      filter={idx === 3 ? "url(#active-glow)" : "none"}
-                      initial={{ pathLength: 0 }} animate={{ pathLength: 1 }}
-                      transition={{ duration: 0.8, ease: "easeInOut", delay: idx * 0.03 }}
-                    />
-                  ))}
-                  {/* IMPROVED OUTWARD STARBURST */}
-                  {!isMobile && Array.from({ length: 12 }).map((_, idx) => (
-                    <motion.path
-                      key={`out-${idx}`}
-                      d={getPath(cx, cy, hx, hy, hex, i * 40 + idx, 'outward', isMobile)}
-                      fill="none" stroke="white" 
-                      strokeWidth={2} // THICKER
-                      opacity={0.7} // BRIGHTER
+                      d={renderInwardPath(cx, cy, hx + offset, hy + offset, i * 13 + idx)}
+                      fill="none" stroke="white" strokeWidth={idx === 3 ? 3 : 2}
+                      opacity={[0.2, 0.4, 0.6, 1, 0.6, 0.4, 0.2][idx]}
                       filter="url(#active-glow)"
-                      initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} exit={{ pathLength: 0 }}
-                      transition={{ duration: 0.6, delay: 0.1 + (idx * 0.03) }}
+                      initial={{ pathLength: 0 }} 
+                      animate={{ pathLength: 1 }}
+                      transition={{ duration: 0.5, ease: "easeOut", delay: idx * 0.02 }}
                     />
                   ))}
+
+                  {/* PHASE 2: CONTROLLED OUTWARD STARBURST (Starts AFTER inward) */}
+                  {!isMobile && Array.from({ length: 10 }).map((_, idx) => {
+                    const sideIndex = (i + idx) % 6; 
+                    const sideAngle = (sideIndex * 60 - 90) * (Math.PI / 180);
+                    const spread = (hex / 3) * (((idx % 7) - 3) / 3);
+                    const startX = hx + Math.cos(sideAngle) * (hex / 2.2) + Math.cos(sideAngle + Math.PI/2) * spread;
+                    const startY = hy + Math.sin(sideAngle) * (hexH / 4) + Math.sin(sideAngle + Math.PI/2) * spread;
+
+                    return (
+                      <motion.path
+                        key={`out-${idx}`}
+                        d={renderOutwardPath(startX, startY, sideAngle, i * 40 + idx, isMobile)}
+                        fill="none" stroke="white" strokeWidth={1.5}
+                        opacity={0.5 + (idx % 4) * 0.1}
+                        filter="url(#active-glow)"
+                        initial={{ pathLength: 0 }} 
+                        animate={{ pathLength: 1 }}
+                        transition={{ duration: 0.6, delay: 0.5 + (idx * 0.04) }} // 0.5s Delay to wait for Inward lines
+                      />
+                    );
+                  })}
                 </motion.g>
               )}
             </AnimatePresence>
           );
         })}
 
+        {/* HEXAGONS */}
         {SECTIONS.map((s, i) => {
           const a = (i * 60 - 90) * (Math.PI / 180);
           const hx = cx + radius * Math.cos(a), hy = cy + radius * Math.sin(a);
@@ -163,6 +155,7 @@ export default function Nexus({ activeSection, onSelect }) {
         })}
       </svg>
 
+      {/* BUTTON CONTENT */}
       {SECTIONS.map((s, i) => {
         const a = (i * 60 - 90) * (Math.PI / 180);
         const hx = cx + radius * Math.cos(a), hy = cy + radius * Math.sin(a);
@@ -188,6 +181,7 @@ export default function Nexus({ activeSection, onSelect }) {
         );
       })}
 
+      {/* PORTRAIT - ADJUSTED CENTER & ZOOM */}
       <motion.a
         href="https://www.linkedin.com/in/lancelotnk/"
         target="_blank" rel="noopener noreferrer"
@@ -197,7 +191,15 @@ export default function Nexus({ activeSection, onSelect }) {
         onMouseEnter={() => setCoreHovered(true)}
         onMouseLeave={() => setCoreHovered(false)}
       >
-        <img src={profilePic} alt="LinkedIn" className="w-full h-full object-cover transition-transform duration-500" style={{ transform: 'scale(2.2)', transformOrigin: 'center 30%' }} />
+        <img 
+          src={profilePic} 
+          alt="LinkedIn" 
+          className="w-full h-full object-cover transition-transform duration-500" 
+          style={{ 
+            transform: 'scale(2.2) translate(-5%, 8%)', // Adjusted slightly Left and Down
+            transformOrigin: '45% 30%' // Focus origin shifted left
+          }} 
+        />
       </motion.a>
     </div>
   );
