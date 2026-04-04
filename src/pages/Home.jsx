@@ -8,7 +8,7 @@ import ContentPanel from '../components/ContentPanel';
 // ASSETS
 import bgAsset from '../assets/bg.jpg';
 
-const smoothScrollTo = (targetY, duration = 1400) => {
+const smoothScrollTo = (targetY, duration = 2000) => {
   const startY = window.pageYOffset;
   const difference = targetY - startY;
   let startTime = null;
@@ -26,6 +26,16 @@ const smoothScrollTo = (targetY, duration = 1400) => {
   };
   window.requestAnimationFrame(step);
 };
+
+function GlitchText({ text, fontSize, letterSpacing = 'normal', color = '#1A0010' }) {
+  return (
+    <div className="relative inline-block group cursor-default" style={{ color, fontSize, letterSpacing, fontWeight: 900, fontFamily: 'var(--font-inter)', lineHeight: 1.1 }}>
+      <span className="relative z-10">{text}</span>
+      <span className="absolute top-0 left-0 -translate-x-[2px] -translate-y-[2px] text-[#ff0080] opacity-0 group-hover:opacity-70 group-hover:animate-glitch-1 z-0">{text}</span>
+      <span className="absolute top-0 left-0 translate-x-[2px] translate-y-[2px] text-[#00ffff] opacity-0 group-hover:opacity-70 group-hover:animate-glitch-2 z-0">{text}</span>
+    </div>
+  );
+}
 
 function CertBadge({ label, color }) {
   return (
@@ -78,37 +88,44 @@ export default function Home() {
     setTimeout(() => {
       if (contentRef.current) {
         const y = contentRef.current.getBoundingClientRect().top + window.pageYOffset - 20;
-        smoothScrollTo(y, 1500);
+        smoothScrollTo(y, 2000); 
       }
-    }, 800);
+    }, 3000); 
   };
 
   const handleSelect = (id) => {
-    const next = activeSection === id ? null : id;
-    setActiveSection(next);
-    if (next) scrollToContent();
+    if (activeSection === id) {
+      setActiveSection(null);
+      return;
+    }
+    if (activeSection !== null) {
+      setActiveSection(null);
+      setTimeout(() => {
+        setActiveSection(id);
+        scrollToContent();
+      }, 800);
+    } else {
+      setActiveSection(id);
+      scrollToContent();
+    }
   };
 
-  const triggerResume = () => {
-    setActiveSection('resume');
-    scrollToContent();
-  };
+  const triggerResume = () => handleSelect('resume');
 
   return (
     <div className="min-h-screen relative overflow-x-hidden bg-white">
-      <div className="fixed inset-0 z-0 bg-cover bg-center opacity-100" style={{ backgroundImage: `url(${bgAsset})` }} />
+      <div className="fixed inset-0 z-0 bg-cover bg-center" style={{ backgroundImage: `url(${bgAsset})` }} />
       <ParticleField />
 
       <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 py-8 gap-4">
-        
         <motion.div className="text-center flex flex-col items-center w-full" 
           initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
           
-          <h1 className="whitespace-nowrap" style={{
-            fontSize: 'clamp(1.8rem, 8vw, 4.5rem)', fontWeight: 900,
-            color: '#1A0010', letterSpacing: '-0.05em', margin: 0, lineHeight: 1.1,
-            fontFamily: 'var(--font-inter)',
-          }}>Lancelot Naipier-Kane</h1>
+          <GlitchText 
+            text="Lancelot Naipier-Kane" 
+            fontSize="clamp(1.8rem, 8vw, 4.5rem)" 
+            letterSpacing="-0.05em" 
+          />
 
           <div className="flex gap-2 mt-3 mb-3 flex-wrap justify-center">
             <CertBadge label="MIT Certified" color="#A31F34" />
@@ -116,9 +133,14 @@ export default function Home() {
             <CertBadge label="Google Certified" color="#34A853" />
           </div>
 
-          <p className="whitespace-nowrap text-[0.85rem] sm:text-[1.1rem] font-mono text-black font-black tracking-[0.15em] sm:tracking-[0.3em] uppercase">
-            Program and Data Manager
-          </p>
+          <div className="hover:scale-105 transition-transform duration-300">
+            <GlitchText 
+              text="Program and Data Manager" 
+              fontSize="clamp(0.85rem, 3vw, 1.1rem)" 
+              letterSpacing="0.3em"
+              color="#000"
+            />
+          </div>
 
           <div className="mt-4 mx-auto max-w-[750px] bg-white/70 backdrop-blur-xl p-5 rounded-2xl border border-white/80 shadow-2xl">
             <p className="text-[0.95rem] sm:text-[1.1rem] text-[#1A0010] font-extrabold italic leading-relaxed font-inter">
@@ -135,7 +157,7 @@ export default function Home() {
           <PillBtn href="https://www.linkedin.com/in/lancelotnk/" icon={Linkedin} label="LinkedIn" />
           <PillBtn href="https://github.com/lancelot-nk" icon={Github} label="GitHub" />
           <PillBtn href="mailto:lancelotsmnk@gmail.com" icon={Mail} label="Contact For Work" />
-          <PillBtn onClick={triggerResume} icon={FileDown} label="Resume download" />
+          <PillBtn onClick={triggerResume} icon={FileDown} label="Resume" />
         </div>
       </div>
 
@@ -147,7 +169,7 @@ export default function Home() {
         {showBackToTop && (
           <motion.button
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            onClick={() => smoothScrollTo(0, 1000)}
+            onClick={() => smoothScrollTo(0, 1500)}
             className="fixed bottom-8 right-8 z-[100] w-14 h-14 rounded-full border-2 border-[#E01880] bg-white text-[#E01880] shadow-2xl flex items-center justify-center transition-transform active:scale-90"
           >
             <ArrowUp size={28} strokeWidth={3} />

@@ -20,27 +20,45 @@ function getLayout(w) {
   return { size: 850, core: 175, radius: 255, hex: 155, fontSize: 24, isMobile: false };
 }
 
-function circuitPath(x1, y1, x2, y2, seed, offset = 0, isSpawning = false) {
-  // Random jitter for the 7 inward lines to prevent overlap
-  const rand = (Math.sin(seed * 437.5) * 15);
-  const midX = x1 + (x2 - x1) * (0.3 + (seed % 10) / 40) + offset + rand;
-  const midY = y1 + (y2 - y1) * (0.5 + (seed % 10) / 40) + offset + rand;
+function renderCircuit(startX, startY, endX, endY, seed) {
+  let path = `M ${startX} ${startY}`;
+  let curX = startX;
+  let curY = startY;
+
+  const segments = 2 + (seed % 3);
   
-  if (isSpawning) {
-    // Spawns from random sides/angles of the hex
-    const angle = (seed * 60) * (Math.PI / 180);
-    const spawnX = x2 + Math.cos(angle) * 2;
-    const spawnY = y2 + Math.sin(angle) * 2;
-    
-    // Architectural 90-degree bend constrained to safe distance
-    const dist = 35 + (seed % 25);
-    const targetX = spawnX + Math.cos(angle) * dist;
-    const targetY = spawnY + Math.sin(angle) * dist;
-    
-    return `M ${spawnX} ${spawnY} L ${targetX} ${midY} L ${targetX} ${targetY}`;
+  for (let i = 0; i < segments; i++) {
+    const isLast = i === segments - 1;
+    const progress = (i + 1) / segments;
+
+    if (isLast) {
+      path += ` L ${endX} ${curY} L ${endX} ${endY}`;
+    } else {
+      const targetStepX = startX + (endX - startX) * progress + (Math.sin(seed + i) * 20);
+      const targetStepY = startY + (endY - startY) * progress + (Math.cos(seed + i) * 20);
+      path += ` L ${targetStepX} ${curY} L ${targetStepX} ${targetStepY}`;
+      curX = targetStepX;
+      curY = targetStepY;
+    }
   }
+  return path;
+}
+
+function getPath(cx, cy, hx, hy, seed, offset = 0, type = 'inward') {
+  if (type === 'inward') {
+    return renderCircuit(cx, cy, hx + offset, hy + offset, seed);
+  }
+
+  const sideIndex = seed % 6;
+  const sideAngle = (sideIndex * 60) * (Math.PI / 180);
+  const startX = hx + Math.cos(sideAngle) * 20;
+  const startY = hy + Math.sin(sideAngle) * 20;
   
-  return `M ${x1} ${y1} L ${midX} ${y1} L ${midX} ${midY} L ${x2} ${midY} L ${x2} ${y2}`;
+  const dist = 40 + (seed % 40);
+  const destX = startX + Math.cos(sideAngle) * dist + (Math.sin(seed) * 20);
+  const destY = startY + Math.sin(sideAngle) * dist + (Math.cos(seed) * 20);
+
+  return renderCircuit(startX, startY, destX, destY, seed);
 }
 
 export default function Nexus({ activeSection, onSelect }) {
@@ -56,13 +74,11 @@ export default function Nexus({ activeSection, onSelect }) {
   const { size, core, radius, hex, fontSize, isMobile } = layout;
   const hexH = Math.round(hex * 1.15); 
   const cx = size / 2, cy = size / 2;
-  
   const brandPink = '#E01880';
   const glowColor = '#FFD1E8';
 
   return (
     <div className="relative flex-shrink-0" style={{ width: size, height: size }}>
-      
       <svg className="absolute inset-0 w-full h-full overflow-visible z-[5]">
         <defs>
           <filter id="active-glow">
@@ -79,34 +95,39 @@ export default function Nexus({ activeSection, onSelect }) {
 
           return (
             <g key={`circuit-group-${s.id}`}>
-              <AnimatePresence>
+              <AnimatePresence mode="wait">
                 {isActive && (
-                  <motion.g initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                    {/* RANDOMIZED 7-PATH INWARD MANIFOLD */}
+                  <motion.g 
+                    key={`active-g-${s.id}`}
+                    initial={{ opacity: 0 }} 
+                    animate={{ opacity: 1 }} 
+                    exit={{ opacity: 0 }}
+                  >
                     {[ -18, -12, -6, 0, 6, 12, 18 ].map((offset, idx) => (
                       <motion.path
                         key={`inward-${idx}`}
-                        d={circuitPath(cx, cy, hx, hy, i * 77 + idx, offset)}
+                        d={getPath(cx, cy, hx, hy, i * 13 + idx, offset, 'inward')}
                         fill="none" stroke="white" 
                         strokeWidth={idx === 3 ? 3 : 1}
                         opacity={[0.1, 0.3, 0.5, 1, 0.5, 0.3, 0.1][idx]}
                         filter={idx === 3 ? "url(#active-glow)" : "none"}
-                        initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} exit={{ pathLength: 0 }}
-                        transition={{ duration: 0.7, ease: "easeInOut", delay: idx * 0.02 }}
+                        initial={{ pathLength: 0 }} 
+                        animate={{ pathLength: 1 }} 
+                        exit={{ pathLength: 0 }}
+                        transition={{ duration: 0.8, ease: "easeInOut", delay: idx * 0.03 }}
                       />
                     ))}
 
-                    {/* WHITE GLOW OUTWARD SPINDLES (10 paths, architecture style) */}
-                    {!isMobile && Array.from({ length: 10 }).map((_, idx) => (
+                    {!isMobile && Array.from({ length: 12 }).map((_, idx) => (
                       <motion.path
                         key={`outward-${idx}`}
-                        d={circuitPath(cx, cy, hx, hy, i * 13 + (idx * 17), 0, true)}
-                        fill="none" stroke="white" strokeWidth={1}
-                        opacity={0.4} filter="url(#active-glow)"
+                        d={getPath(cx, cy, hx, hy, (i + 5) * (idx + 100), 0, 'outward')}
+                        fill="none" stroke="white" strokeWidth={1.5}
+                        opacity={0.6} filter="url(#active-glow)"
                         initial={{ pathLength: 0, opacity: 0 }}
-                        animate={{ pathLength: 1, opacity: 0.5 }}
+                        animate={{ pathLength: 1, opacity: 0.6 }}
                         exit={{ pathLength: 0, opacity: 0 }}
-                        transition={{ duration: 0.5, delay: 0.2 + (idx * 0.05) }}
+                        transition={{ duration: 0.6, delay: 0.2 + (idx * 0.04) }}
                       />
                     ))}
                   </motion.g>
@@ -154,7 +175,6 @@ export default function Nexus({ activeSection, onSelect }) {
                 style={{ 
                   color: isHovered ? '#4A0000' : 'white',
                   transform: isMobile ? 'translateY(0px)' : 'translateY(-10px)',
-                  marginBottom: '2px'
                 }} 
               />
               <span 
