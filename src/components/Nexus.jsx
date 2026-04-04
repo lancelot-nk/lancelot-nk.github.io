@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Code, FileText, BarChart3, Palette, BookOpen, Award } from 'lucide-react';
 
@@ -64,12 +64,31 @@ function renderOutwardPath(startX, startY, normalAngle, seed, scaleFactor, isGho
 export default function Nexus({ activeSection, onSelect }) {
   const [layout, setLayout] = useState(() => getLayout(typeof window !== 'undefined' ? window.innerWidth : 1000));
   const [hoveredId, setHoveredId] = useState(null);
+  
+  // Stability Ref to manage the sequential timing of the new click/reverse flow
+  const animationTimer = useRef(null);
+  const [animateIn, setAnimateIn] = useState(true);
 
   useEffect(() => {
     const update = () => setLayout(getLayout(window.innerWidth));
     window.addEventListener('resize', update);
     return () => window.removeEventListener('resize', update);
   }, []);
+
+  // Web-Only Reversal Logic
+  useEffect(() => {
+    if (layout.isMobile) return; // Keep mobile fast and static
+
+    // When the active section changes, trigger the reverse animation
+    setAnimateIn(false);
+
+    // Lock the animation state, then switch the active section after the lines have withdrawn (0.6s duration)
+    clearTimeout(animationTimer.current);
+    animationTimer.current = setTimeout(() => {
+      setAnimateIn(true);
+    }, 600); // 600ms matches the reverse animation duration
+
+  }, [activeSection, layout.isMobile]);
 
   const { size, core, radius, hex, fontSize, isMobile, lineCount, scaleFactor, blur } = layout;
   const hexH = Math.round(hex * 1.15); 
@@ -91,14 +110,16 @@ export default function Nexus({ activeSection, onSelect }) {
           const hx = cx + radius * Math.cos(baseA), hy = cy + radius * Math.sin(baseA);
           const isActive = activeSection === s.id;
 
+          // stability check: use fixed seeds for mobile only to prevent recalculation lag
+          const pathSeed = isMobile ? (idx * 7) : (i * 10 + idx);
+          const dendriteSeed = isMobile ? (idx * 13) : (i * 40 + idx);
+
           return (isActive && (
             <motion.g key={`lines-${s.id}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
               
               {/* INWARD CONNECTIONS */}
               {Array.from({ length: lineCount }).map((_, idx) => {
-                const off = (idx - (lineCount / 2 - 0.5)) * 4; 
-                // Stability: Use fixed seeds for mobile to prevent recalculation lag
-                const pathSeed = isMobile ? (idx * 7) : (i * 10 + idx);
+                const off = (idx - (lineCount / 2 - 0.5)) * spread; 
                 
                 return (
                   <motion.path
@@ -107,7 +128,11 @@ export default function Nexus({ activeSection, onSelect }) {
                     fill="none" stroke="white" strokeWidth={idx % 2 === 0 ? 1.6 : 0.7}
                     opacity={0.3} filter="url(#active-glow)"
                     style={{ willChange: isMobile ? "transform, opacity" : "auto" }}
-                    initial={{ pathLength: 0 }} animate={{ pathLength: 1 }}
+                    
+                    // The Stability Reversal Animation (web only)
+                    initial={{ pathLength: 0 }} 
+                    animate={{ pathLength: animateIn ? 1 : 0 }} // Switch between animate in/out
+                    exit={{ pathLength: 0 }} 
                     transition={{ duration: 0.5, ease: "easeOut" }}
                   />
                 );
@@ -120,23 +145,28 @@ export default function Nexus({ activeSection, onSelect }) {
                 const tightSpread = (hex * 0.04) * (idx - (lineCount / 2 - 0.5));
                 const startX = hx + Math.cos(normalAngle) * (hex / 2.1) + Math.cos(normalAngle + Math.PI/2) * tightSpread;
                 const startY = hy + Math.sin(normalAngle) * (hexH / 4) + Math.sin(normalAngle + Math.PI/2) * tightSpread;
-                const pathSeed = isMobile ? (idx * 13) : (i * 40 + idx);
 
                 return (
                   <g key={`out-group-${idx}`}>
                     <motion.path
-                      d={renderOutwardPath(startX, startY, normalAngle, pathSeed, scaleFactor, false)}
+                      d={renderOutwardPath(startX, startY, normalAngle, dendriteSeed, scaleFactor, false)}
                       fill="none" stroke="white" strokeWidth={0.8 + (idx % 3) * 0.5} opacity={0.35}
                       style={{ willChange: isMobile ? "transform, opacity" : "auto" }}
-                      filter="url(#active-glow)" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }}
-                      transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
+                      filter="url(#active-glow)" 
+                      
+                      // Sequential Draw (Inward finishes, then Outward starts)
+                      initial={{ pathLength: 0 }} 
+                      animate={{ pathLength: animateIn ? 1 : 0 }} // Switch between animate in/out
+                      transition={{ duration: 0.7, delay: animateIn ? 0.2 : 0, ease: "easeOut" }} // Sequential logic
                     />
                     <motion.path
-                      d={renderOutwardPath(startX, startY, normalAngle, pathSeed, scaleFactor, true)}
+                      d={renderOutwardPath(startX, startY, normalAngle, dendriteSeed, scaleFactor, true)}
                       fill="none" stroke="white" strokeWidth={0.5} opacity={0.15}
                       style={{ willChange: isMobile ? "transform, opacity" : "auto", transform: `scale(1.2)`, transformOrigin: `${startX}px ${startY}px` }}
-                      filter="url(#active-glow)" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }}
-                      transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
+                      filter="url(#active-glow)" 
+                      initial={{ pathLength: 0 }} 
+                      animate={{ pathLength: animateIn ? 1 : 0 }} 
+                      transition={{ duration: 0.7, delay: animateIn ? 0.2 : 0, ease: "easeOut" }}
                     />
                   </g>
                 );
@@ -187,17 +217,17 @@ export default function Nexus({ activeSection, onSelect }) {
         );
       })}
 
-      {/* PORTRAIT (Z-100) - Reset for 1:1 Headshot Asset */}
+      {/* PORTRAIT (Z-100) - Much Larger Hover Effect */}
       <motion.div
         className="absolute top-1/2 left-1/2 z-[100] overflow-hidden rounded-full border-4 border-[#E01880] shadow-2xl"
         style={{ width: core, height: core, x: "-50%", y: "-50%" }}
-        whileHover={{ scale: 1.1 }} // Slight hover pop instead of massive zoom
+        whileHover={{ scale: 2.2 }} // Increased from 1.5 to 2.2
       >
         <img 
           src={profilePic} 
           alt="Lancelot" 
           className="w-full h-full object-cover" 
-          // Removed manual transform/offsets - assuming 1:1 centered asset
+          style={{ objectPosition: 'center 45%' }} 
         />
       </motion.div>
     </div>
