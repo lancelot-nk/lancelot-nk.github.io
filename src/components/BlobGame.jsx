@@ -1,37 +1,46 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Trophy, RefreshCcw } from 'lucide-react';
+import { X, Trophy, RefreshCcw, Send } from 'lucide-react';
 
 const BlobGame = ({ onClose }) => {
-  const [gameState, setGameState] = useState('playing');
+  const [gameState, setGameState] = useState('playing'); // playing, gameOver, enteringName
   const [score, setScore] = useState(0);
   const [highScores, setHighScores] = useState([]);
   const [playerSize, setPlayerSize] = useState(60);
+  const [playerName, setPlayerName] = useState('');
   
   const playerPos = useRef({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
   const targetPos = useRef({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
   const enemies = useRef([]); 
+  const projectiles = useRef([]); // { id, x, y, vx, vy, color, owner }
   const blobRef = useRef(null);
+  
   const lastAutoSpawnScore = useRef(0);
+  const lastPlayerFire = useRef(0);
 
   const PLAYER_SPEED = 6; 
-  const ENEMY_SPEED = 4.5; // Slightly slower than player for fairness, but constant
-  const GROWTH_RATE = 0.5;
+  const ENEMY_SPEED = 4.5;
+  const PROJECTILE_SPEED = 12;
+  const FIRE_COOLDOWN = 5000;
 
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem('blobHighScores') || '[]');
+    const saved = JSON.parse(localStorage.getItem('globalBlobLeaderboard') || '[]');
     setHighScores(saved);
   }, []);
 
-  // AUTO-SPAWN LOGIC: Every 5000 points
-  useEffect(() => {
-    if (score >= lastAutoSpawnScore.current + 5000) {
-      lastAutoSpawnScore.current = Math.floor(score / 5000) * 5000;
-      spawnEnemyAtEdge(playerSize * 0.375); // 3/8ths size
-    }
-  }, [score, playerSize]);
+  const fireProjectile = (x, y, vx, vy, color, owner) => {
+    projectiles.current.push({
+      id: Math.random(),
+      x, y, vx, vy, color, owner,
+      size: 8
+    });
+  };
 
-  const spawnEnemyAtEdge = (size) => {
+  const spawnEnemy = () => {
+    const scoreFactor = Math.min(score / 50000, 0.5); // Progressively harder
+    const sizeVar = 0.75 + (Math.random() * 0.5) + scoreFactor; 
+    const size = playerSize * sizeVar;
+    
     const edge = Math.floor(Math.random() * 4);
     let x, y;
     if (edge === 0) { x = Math.random() * window.innerWidth; y = -50; }
@@ -39,87 +48,112 @@ const BlobGame = ({ onClose }) => {
     else if (edge === 2) { x = Math.random() * window.innerWidth; y = window.innerHeight + 50; }
     else { x = -50; y = Math.random() * window.innerHeight; }
 
-    addEnemy(x, y, size);
-  };
-
-  const addEnemy = (x, y, size) => {
-    const enemyColors = ['#FF1493', '#00FF7F', '#1E90FF', '#FFD700'];
+    const angle = Math.random() * Math.PI * 2;
     enemies.current.push({
       id: Math.random(),
-      x: x,
-      y: y,
-      size: size,
-      color: enemyColors[Math.floor(Math.random() * enemyColors.length)],
-      // Constant velocity components
-      vx: (Math.random() - 0.5) * 2,
-      vy: (Math.random() - 0.5) * 2
+      x, y, size,
+      color: ['#FF1493', '#00FF7F', '#1E90FF', '#FFD700'][Math.floor(Math.random() * 4)],
+      vx: Math.cos(angle),
+      vy: Math.sin(angle),
+      lastFire: Date.now() + Math.random() * 2000 // Stagger initial shots
     });
   };
 
   useEffect(() => {
     let animationFrameId;
-
     const update = () => {
       if (gameState !== 'playing') return;
 
-      // 1. PLAYER MOVEMENT
+      // 1. Spawning Logic
+      if (score >= lastAutoSpawnScore.current + 1000) {
+        lastAutoSpawnScore.current = Math.floor(score / 1000) * 1000;
+        spawnEnemy();
+      }
+
+      // 2. Player Movement & Auto-Fire
+      const now = Date.now();
       const dx = targetPos.current.x - playerPos.current.x;
       const dy = targetPos.current.y - playerPos.current.y;
-      const distance = Math.sqrt(dx * dx + dy * dy);
-
-      if (distance > 5) {
-        playerPos.current.x += (dx / distance) * PLAYER_SPEED;
-        playerPos.current.y += (dy / distance) * PLAYER_SPEED;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist > 5) {
+        playerPos.current.x += (dx / dist) * PLAYER_SPEED;
+        playerPos.current.y += (dy / dist) * PLAYER_SPEED;
+      }
+      
+      if (now - lastPlayerFire.current > FIRE_COOLDOWN && dist > 10) {
+        fireProjectile(playerPos.current.x, playerPos.current.y, (dx / dist) * PROJECTILE_SPEED, (dy / dist) * PROJECTILE_SPEED, '#00FF00', 'player');
+        lastPlayerFire.current = now;
       }
 
       if (blobRef.current) {
         blobRef.current.style.transform = `translate3d(${playerPos.current.x - playerSize / 2}px, ${playerPos.current.y - playerSize / 2}px, 0)`;
       }
 
-      // 2. ENEMY LOGIC
-      enemies.current.forEach(enemy => {
-        // Move at set rate
-        const ev = Math.sqrt(enemy.vx ** 2 + enemy.vy ** 2);
-        enemy.x += (enemy.vx / ev) * ENEMY_SPEED;
-        enemy.y += (enemy.vy / ev) * ENEMY_SPEED;
+      // 3. Projectile Physics
+      projectiles.current.forEach((p, idx) => {
+        p.x += p.vx;
+        p.y += p.vy;
+        
+        // Hit Detection
+        if (p.owner === 'enemy') {
+          const d = Math.sqrt((p.x - playerPos.current.x)**2 + (p.y - playerPos.current.y)**2);
+          if (d < playerSize / 2) {
+            setPlayerSize(s => Math.max(s - 15, 20));
+            projectiles.current.splice(idx, 1);
+          }
+        } else {
+          enemies.current.forEach(e => {
+            const d = Math.sqrt((p.x - e.x)**2 + (p.y - e.y)**2);
+            if (d < e.size / 2) {
+              e.size -= 20;
+              projectiles.current.splice(idx, 1);
+            }
+          });
+        }
+        // Cleanup offscreen
+        if (p.x < -100 || p.x > window.innerWidth + 100 || p.y < -100 || p.y > window.innerHeight + 100) {
+          projectiles.current.splice(idx, 1);
+        }
+      });
 
-        enemy.size += 0.04; 
+      // 4. Enemy AI & Projectiles
+      enemies.current.forEach(e => {
+        e.x += e.vx * ENEMY_SPEED;
+        e.y += e.vy * ENEMY_SPEED;
+        e.size += 0.04;
+        if (e.x < 0 || e.x > window.innerWidth) e.vx *= -1;
+        if (e.y < 0 || e.y > window.innerHeight) e.vy *= -1;
 
-        if (enemy.x < 0 || enemy.x > window.innerWidth) enemy.vx *= -1;
-        if (enemy.y < 0 || enemy.y > window.innerHeight) enemy.vy *= -1;
+        if (now - e.lastFire > FIRE_COOLDOWN) {
+          fireProjectile(e.x, e.y, e.vx * PROJECTILE_SPEED, e.vy * PROJECTILE_SPEED, '#00FFFF', 'enemy');
+          e.lastFire = now;
+        }
 
-        const distToPlayer = Math.sqrt(
-          Math.pow(enemy.x - playerPos.current.x, 2) + 
-          Math.pow(enemy.y - playerPos.current.y, 2)
-        );
-
-        // Collision Check
-        if (distToPlayer < (playerSize / 2 + enemy.size / 2) * 0.85) {
-          if (enemy.size > playerSize) {
-            setGameState('gameOver');
-            saveScore(score);
-          } else {
-            setPlayerSize(s => Math.min(s + enemy.size * 0.25, 500));
-            setScore(s => s + Math.floor(enemy.size));
-            enemies.current = enemies.current.filter(e => e.id !== enemy.id);
+        const dPlayer = Math.sqrt((e.x - playerPos.current.x)**2 + (e.y - playerPos.current.y)**2);
+        if (dPlayer < (playerSize / 2 + e.size / 2) * 0.85) {
+          if (e.size > playerSize) setGameState('enteringName');
+          else {
+            setPlayerSize(s => Math.min(s + e.size * 0.25, 500));
+            setScore(s => s + Math.floor(e.size));
+            enemies.current = enemies.current.filter(item => item.id !== e.id);
           }
         }
       });
 
       animationFrameId = requestAnimationFrame(update);
     };
-
     update();
     return () => cancelAnimationFrame(animationFrameId);
   }, [gameState, playerSize, score]);
 
-  const saveScore = (finalScore) => {
-    const currentHighs = JSON.parse(localStorage.getItem('blobHighScores') || '[]');
-    const newScores = [...currentHighs, { score: finalScore, date: new Date().toLocaleDateString() }]
+  const commitScore = () => {
+    const finalName = playerName.trim() || 'ANON!';
+    const newScores = [...highScores, { name: finalName.substring(0, 5), score, date: new Date().toLocaleDateString() }]
       .sort((a, b) => b.score - a.score)
-      .slice(0, 5);
+      .slice(0, 10);
     setHighScores(newScores);
-    localStorage.setItem('blobHighScores', JSON.stringify(newScores));
+    localStorage.setItem('globalBlobLeaderboard', JSON.stringify(newScores));
+    setGameState('gameOver');
   };
 
   useEffect(() => {
@@ -128,128 +162,97 @@ const BlobGame = ({ onClose }) => {
       const y = e.touches ? e.touches[0].clientY : e.clientY;
       targetPos.current = { x, y };
     };
-
-    const handleEat = () => {
-      setPlayerSize(s => Math.min(s + GROWTH_RATE, 500));
-      setScore(s => s + 10);
-    };
-
+    const handleEat = () => { setPlayerSize(s => Math.min(s + 0.5, 500)); setScore(s => s + 10); };
     window.addEventListener('mousemove', handleInput);
     window.addEventListener('touchmove', handleInput, { passive: false });
-    window.addEventListener('mousedown', handleInput);
     window.addEventListener('particleEaten', handleEat);
-    
     return () => {
       window.removeEventListener('mousemove', handleInput);
       window.removeEventListener('touchmove', handleInput);
-      window.removeEventListener('mousedown', handleInput);
       window.removeEventListener('particleEaten', handleEat);
     };
   }, []);
 
-  const handleSplit = (e) => {
-    if (playerSize < 50 || gameState !== 'playing') return;
-    if (e.target.closest('button')) return;
-
-    // 3/8ths Loss Logic
-    const lostSize = playerSize * 0.375;
-    setPlayerSize(prev => prev - lostSize);
-
-    // Spawn hostile at a safe distance (150px offset)
-    const angle = Math.random() * Math.PI * 2;
-    const spawnX = playerPos.current.x + Math.cos(angle) * 150;
-    const spawnY = playerPos.current.y + Math.sin(angle) * 150;
-
-    addEnemy(spawnX, spawnY, lostSize);
-
-    window.dispatchEvent(new CustomEvent('blobSplit', { 
-      detail: { x: playerPos.current.x, y: playerPos.current.y, count: 15 } 
-    }));
-  };
-
   return (
-    <div className="fixed inset-0 z-[100] overflow-hidden cursor-none touch-none" onClick={handleSplit}>
-      {/* HUD */}
+    <div className="fixed inset-0 z-[100] overflow-hidden cursor-none touch-none bg-black/20" onClick={() => {
+      if (playerSize >= 50 && gameState === 'playing') {
+        const lost = playerSize * 0.375;
+        setPlayerSize(s => s - lost);
+        const angle = Math.random() * Math.PI * 2;
+        addEnemy(playerPos.current.x + Math.cos(angle) * 150, playerPos.current.y + Math.sin(angle) * 150, lost);
+      }
+    }}>
       <div className="fixed top-12 left-12 z-[110] font-mono text-white pointer-events-none select-none">
-        <p className="text-[10px] opacity-30 uppercase tracking-[0.4em] mb-1">Total Mass</p>
-        <p className="text-6xl font-black text-[#E01880] tabular-nums">{score}</p>
+        <p className="text-[10px] opacity-30 uppercase tracking-[0.4em]">Mass Index</p>
+        <p className="text-6xl font-black text-[#E01880]">{score}</p>
       </div>
 
-      <button 
-        onClick={(e) => { e.stopPropagation(); onClose(); }}
-        className="fixed top-10 right-10 z-[120] p-4 bg-white/5 hover:bg-white/20 rounded-full text-white backdrop-blur-2xl border border-white/10"
-      >
-        <X size={24} />
-      </button>
+      <button onClick={onClose} className="fixed top-10 right-10 z-[120] p-4 bg-white/5 rounded-full text-white backdrop-blur-md"><X size={24} /></button>
 
-      {/* Player Blob */}
-      <div 
-        ref={blobRef}
-        className="fixed top-0 left-0 pointer-events-none will-change-transform"
-        style={{ 
-          width: playerSize, height: playerSize, 
-          background: 'radial-gradient(circle at 30% 30%, #E01880 0%, #8B00E8 100%)',
-          borderRadius: '50%',
-          boxShadow: '0 0 50px rgba(224, 24, 128, 0.5)',
-          animation: 'blobJiggle 2.5s infinite ease-in-out'
-        }}
-      />
-
-      {/* Enemies */}
-      {enemies.current.map(enemy => (
-        <div 
-          key={enemy.id}
-          className="fixed top-0 left-0 flex items-center justify-center border border-white/10 shadow-lg"
-          style={{
-            width: enemy.size, height: enemy.size,
-            backgroundColor: enemy.color,
-            borderRadius: '50%',
-            transform: `translate3d(${enemy.x - enemy.size/2}px, ${enemy.y - enemy.size/2}px, 0)`,
-            animation: 'blobJiggle 3s infinite ease-in-out reverse',
-            zIndex: 90
-          }}
-        >
-          <span className="text-white/40 font-black text-[12px] select-none italic">!</span>
-        </div>
+      {/* Render Projectiles */}
+      {projectiles.current.map(p => (
+        <div key={p.id} className="fixed top-0 left-0 rounded-full blur-[1px]" style={{
+          width: p.size, height: p.size, backgroundColor: p.color,
+          transform: `translate3d(${p.x}px, ${p.y}px, 0)`,
+          boxShadow: `0 0 15px ${p.color}`
+        }} />
       ))}
 
-      {/* GAME OVER */}
+      <div ref={blobRef} className="fixed top-0 left-0 pointer-events-none" style={{ 
+          width: playerSize, height: playerSize, background: 'radial-gradient(circle, #E01880, #8B00E8)',
+          borderRadius: '50%', boxShadow: '0 0 50px #E0188088', animation: 'blobJiggle 2.5s infinite ease-in-out'
+      }} />
+
+      {enemies.current.map(e => (
+        <div key={e.id} className="fixed top-0 left-0 flex items-center justify-center border border-white/20" style={{
+            width: e.size, height: e.size, backgroundColor: e.color, borderRadius: '50%',
+            transform: `translate3d(${e.x - e.size/2}px, ${e.y - e.size/2}px, 0)`, animation: 'blobJiggle 3s infinite reverse'
+        }}><span className="text-white/40 text-[10px] font-black">!</span></div>
+      ))}
+
       <AnimatePresence>
+        {gameState === 'enteringName' && (
+          <motion.div className="fixed inset-0 bg-black/95 z-[300] flex items-center justify-center p-6">
+            <div className="max-w-sm w-full text-center">
+              <h2 className="text-4xl font-black text-white italic mb-4 uppercase">New Record!</h2>
+              <p className="text-white/40 text-sm mb-8 tracking-widest">ENTER 5 CHAR SIGNATURE</p>
+              <input 
+                autoFocus maxLength={5} value={playerName} onChange={(e) => setPlayerName(e.target.value)}
+                className="w-full bg-transparent border-b-2 border-[#E01880] text-6xl text-center text-white font-mono uppercase focus:outline-none mb-10"
+                placeholder="#####"
+              />
+              <button onClick={commitScore} className="w-full py-4 bg-[#E01880] text-white font-black rounded-xl flex items-center justify-center gap-2">
+                <Send size={20} /> SUBMIT TO NEURAL NET
+              </button>
+            </div>
+          </motion.div>
+        )}
+
         {gameState === 'gameOver' && (
-          <motion.div 
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-            className="fixed inset-0 bg-black/95 backdrop-blur-3xl z-[200] flex items-center justify-center p-6"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <motion.div 
-              initial={{ scale: 0.8 }} animate={{ scale: 1 }}
-              className="max-w-sm w-full bg-[#111] border border-white/10 rounded-[3rem] p-12 text-center"
-            >
-              <h2 className="text-5xl font-black mb-1 italic text-white">RECLAIMED</h2>
-              <p className="text-[#E01880] text-sm font-bold uppercase tracking-widest mb-10">Mass: {score}</p>
-              
-              <button 
-                onClick={() => { 
-                    setGameState('playing'); 
-                    setScore(0); 
-                    setPlayerSize(60); 
-                    enemies.current = []; 
-                    lastAutoSpawnScore.current = 0;
-                }}
-                className="w-full py-5 bg-[#E01880] text-white rounded-2xl font-black text-lg hover:bg-white hover:text-black transition-all"
-              >
+          <motion.div className="fixed inset-0 bg-black/95 backdrop-blur-3xl z-[200] flex items-center justify-center p-6">
+            <div className="max-w-md w-full bg-[#111] border border-white/10 rounded-[3rem] p-12 text-center">
+              <h2 className="text-5xl font-black mb-1 italic text-white">RANKINGS</h2>
+              <div className="bg-white/5 rounded-3xl p-6 my-8 text-left font-mono">
+                {highScores.map((hs, i) => (
+                  <div key={i} className="flex justify-between py-2 border-b border-white/5 last:border-0 text-sm">
+                    <span className="text-white/40">{hs.name}</span>
+                    <span className="font-black text-[#E01880]">{hs.score}</span>
+                  </div>
+                ))}
+              </div>
+              <button onClick={() => window.location.reload()} className="w-full py-5 bg-[#E01880] text-white rounded-2xl font-black text-lg">
                 <RefreshCcw size={20} className="inline mr-2" /> REBOOT
               </button>
-            </motion.div>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
 
       <style>{`
         @keyframes blobJiggle {
-          0%, 100% { border-radius: 50% 50% 50% 50% / 50% 50% 50% 50%; scale: 1; }
-          33% { border-radius: 45% 55% 60% 40% / 40% 60% 45% 55%; scale: 1.04; }
-          66% { border-radius: 55% 45% 40% 60% / 60% 40% 55% 45%; scale: 0.96; }
+          0%, 100% { border-radius: 50%; scale: 1; }
+          33% { border-radius: 45% 55% 60% 40%; scale: 1.04; }
+          66% { border-radius: 55% 45% 40% 60%; scale: 0.96; }
         }
       `}</style>
     </div>
