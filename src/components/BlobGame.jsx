@@ -25,14 +25,20 @@ const BlobGame = ({ onClose }) => {
   const PLAYER_SPEED = 6; 
   const ENEMY_SPEED = 3.5; 
   const PROJECTILE_SPEED = 12;
-  const FIRE_COOLDOWN = 3000;
+  const FIRE_COOLDOWN = 800; // Reduced cooldown for better gameplay feel
 
-  // Anti-Grief Filter
-  const BANNED_WORDS = ['SLUR1', 'SLUR2', 'FUCK', 'SHIT', 'PISS', 'CUNT']; // Add standard list here
+  const BANNED_WORDS = ['SLUR1', 'SLUR2', 'FUCK', 'SHIT', 'PISS', 'CUNT'];
 
   useEffect(() => {
     fetchScores();
-  }, []);
+    
+    // ESCAPE KEY TO CLOSE
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
 
   const fetchScores = async () => {
     const { data, error } = await supabase
@@ -42,7 +48,6 @@ const BlobGame = ({ onClose }) => {
       .limit(10);
     
     if (!error && data) {
-      // Force exactly 10 slots
       const formatted = Array(10).fill(null).map((_, i) => 
         data[i] ? { name: data[i].player_name, score: data[i].score } : null
       );
@@ -54,7 +59,7 @@ const BlobGame = ({ onClose }) => {
     projectiles.current.push({
       id: Math.random(),
       x, y, vx, vy, color, owner, isLaser,
-      size: isLaser ? 4 : 8
+      size: isLaser ? 12 : 15 // Made projectiles larger as requested
     });
   };
 
@@ -62,7 +67,7 @@ const BlobGame = ({ onClose }) => {
     const difficulty = Math.min(score / 50000, 1.0);
     const minRange = 0.5 + (difficulty * 0.3);
     const maxRange = 1.5 + (difficulty * 0.5);
-    const size = isBoss ? playerSize * 1.2 : playerSize * (Math.random() * (maxRange - minRange) + minRange);
+    const size = isBoss ? playerSize * 1.5 : playerSize * (Math.random() * (maxRange - minRange) + minRange);
     
     let x, y;
     do {
@@ -132,18 +137,18 @@ const BlobGame = ({ onClose }) => {
         if (p.owner === 'enemy') {
           const d = Math.sqrt((p.x - playerPos.current.x)**2 + (p.y - playerPos.current.y)**2);
           if (d < playerSize / 2) {
-            setPlayerSize(s => p.isLaser ? s / 2 : Math.max(s - 15, 20));
+            setPlayerSize(s => Math.max(s - 15, 20));
             projectiles.current.splice(idx, 1);
           }
         } else {
-          enemies.current.forEach(e => {
+          enemies.current.forEach((e, eIdx) => {
             const d = Math.sqrt((p.x - e.x)**2 + (p.y - e.y)**2);
             if (d < e.size / 2) {
-              if (p.isLaser) {
-                const halfSize = e.size / 2;
-                e.size = halfSize;
-                addEnemy(e.x + 20, e.y + 20, halfSize);
-              } else { e.size -= 20; }
+              e.size -= 25;
+              if (e.size < 15) {
+                setScore(s => s + 500); // Bonus score for killing via shooting
+                enemies.current.splice(eIdx, 1);
+              }
               projectiles.current.splice(idx, 1);
             }
           });
@@ -164,18 +169,20 @@ const BlobGame = ({ onClose }) => {
         e.vy = Math.sin(e.targetAngle);
         e.x += e.vx * ENEMY_SPEED;
         e.y += e.vy * ENEMY_SPEED;
-        e.size += 0.02;
 
         if (e.x < 0 || e.x > window.innerWidth) e.targetAngle = Math.PI - e.targetAngle;
         if (e.y < 0 || e.y > window.innerHeight) e.targetAngle = -e.targetAngle;
 
-        if (now - e.lastFire > FIRE_COOLDOWN) {
+        // ENEMY & BOSS SHOOTING
+        if (now - e.lastFire > FIRE_COOLDOWN + 1500) {
           if (e.isBoss) {
+            // 6-STAR PATTERN
             for (let i = 0; i < 6; i++) {
               const angle = (Math.PI * 2 / 6) * i;
-              fireProjectile(e.x, e.y, Math.cos(angle) * PROJECTILE_SPEED, Math.sin(angle) * PROJECTILE_SPEED, '#FF0000', 'enemy', true);
+              fireProjectile(e.x, e.y, Math.cos(angle) * (PROJECTILE_SPEED * 0.7), Math.sin(angle) * (PROJECTILE_SPEED * 0.7), '#00FFFF', 'enemy');
             }
           } else {
+            // Standard enemy shoot
             fireProjectile(e.x, e.y, e.vx * PROJECTILE_SPEED, e.vy * PROJECTILE_SPEED, '#00FFFF', 'enemy');
           }
           e.lastFire = now;
@@ -183,10 +190,11 @@ const BlobGame = ({ onClose }) => {
 
         const dPlayer = Math.sqrt((e.x - playerPos.current.x)**2 + (e.y - playerPos.current.y)**2);
         if (dPlayer < (playerSize / 2 + e.size / 2) * 0.85) {
-          if (e.size > playerSize) setGameState('enteringName');
-          else {
-            setPlayerSize(s => Math.min(s + e.size * 0.25, 500));
-            setScore(s => s + Math.floor(e.size));
+          if (e.size > playerSize) {
+             setGameState('enteringName');
+          } else {
+            setPlayerSize(s => Math.min(s + e.size * 0.15, 500));
+            setScore(s => s + Math.floor(e.size)); // FIXED: Score increases by size of consumed particle
             enemies.current = enemies.current.filter(item => item.id !== e.id);
           }
         }
@@ -200,8 +208,6 @@ const BlobGame = ({ onClose }) => {
 
   const commitScore = async () => {
     const cleanName = playerName.trim().toUpperCase();
-    
-    // Safety check
     if (BANNED_WORDS.some(word => cleanName.includes(word))) {
       setErrorMsg('IDENTIFIED AS GRIEFING. ACCESS DENIED.');
       return;
@@ -229,10 +235,12 @@ const BlobGame = ({ onClose }) => {
     const x = e.touches ? e.touches[0].clientX : e.clientX;
     const y = e.touches ? e.touches[0].clientY : e.clientY;
     const now = Date.now();
+    
     if (now - lastPlayerFire.current > FIRE_COOLDOWN) {
       const dx = x - playerPos.current.x;
       const dy = y - playerPos.current.y;
       const mag = Math.sqrt(dx*dx + dy*dy);
+      // PLAYER SHOOTING GREEN
       fireProjectile(playerPos.current.x, playerPos.current.y, (dx / mag) * PROJECTILE_SPEED, (dy / mag) * PROJECTILE_SPEED, '#00FF00', 'player', true);
       lastPlayerFire.current = now;
     }
@@ -273,9 +281,9 @@ const BlobGame = ({ onClose }) => {
 
       {projectiles.current.map(p => (
         <div key={p.id} className="fixed top-0 left-0" style={{
-          width: p.isLaser ? 40 : p.size, height: p.size, backgroundColor: p.color,
-          transform: `translate3d(${p.x}px, ${p.y}px, 0) rotate(${Math.atan2(p.vy, p.vx)}rad)`,
-          boxShadow: `0 0 20px ${p.color}`, borderRadius: p.isLaser ? '4px' : '50%'
+          width: p.size, height: p.size, backgroundColor: p.color,
+          transform: `translate3d(${p.x}px, ${p.y}px, 0)`,
+          boxShadow: `0 0 20px ${p.color}`, borderRadius: '50%'
         }} />
       ))}
 
@@ -296,7 +304,6 @@ const BlobGame = ({ onClose }) => {
           <motion.div className="fixed inset-0 bg-black/95 z-[300] flex items-center justify-center p-6 italic">
             <div className="max-w-sm w-full text-center">
               <h2 className="text-5xl font-black text-white mb-2 uppercase skew-x-[-10deg]">Neural Entry</h2>
-              
               <AnimatePresence>
                 {errorMsg && (
                   <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
@@ -305,11 +312,9 @@ const BlobGame = ({ onClose }) => {
                   </motion.p>
                 )}
               </AnimatePresence>
-
               <input autoFocus maxLength={5} value={playerName} onChange={(e) => setPlayerName(e.target.value)}
                 className="w-full bg-white text-black text-6xl text-center font-black uppercase outline-none mb-6 skew-x-[-10deg] border-4 border-[#E01880]"
                 placeholder="#####" disabled={isSubmitting} />
-              
               <button onClick={commitScore} disabled={isSubmitting}
                 className="w-full py-4 bg-[#E01880] text-white font-black rounded-none skew-x-[-10deg] flex items-center justify-center gap-2 hover:bg-white hover:text-black transition-all">
                 {isSubmitting ? <Loader2 className="animate-spin" /> : 'UPLOAD DATA'}
