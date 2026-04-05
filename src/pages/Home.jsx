@@ -331,13 +331,13 @@ export default function Home() {
             </motion.div>
 
             {/* Nexus Component */}
-            <div className="relative mt-2 mb-[-30px] sm:my-[-65px] lg:my-[-90px] z-20">
+            <div className="relative mt-1 mb-[-15px] sm:my-[-65px] lg:my-[-90px] z-20">
                 <Nexus activeSection={activeSection} onSelect={handleSelect} />
             </div>
 
             {/* Footer Buttons */}
             <div className="flex flex-col items-center gap-4 w-full z-30">
-              <div className="flex gap-4 flex-wrap justify-center mt-4 sm:mt-[-15px] pb-0">
+              <div className="flex gap-4 flex-wrap justify-center mt-2 sm:mt-[-15px] pb-0">
                 <PillBtn href="https://www.linkedin.com/in/lancelotnk/" icon={Linkedin} label="LinkedIn" />
                 <PillBtn href="https://github.com/lancelot-nk" icon={Github} label="GitHub" />
                 <PillBtn href="mailto:lancelotsmnk@gmail.com" icon={Mail} label="Contact For Work" />

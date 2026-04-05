@@ -48,7 +48,8 @@ function PortraitLoader({ core, onComplete }) {
 }
 
 function getLayout(w) {
-  if (w < 480) return { size: 340, core: 75, radius: 105, hex: 75, fontSize: 10, isMobile: true,  lineCount: 5,  scaleFactor: 0.6, blur: 1 };
+  // Mobile: Reduced size to minimize empty safety area, keeping it tight to the hexagons
+  if (w < 480) return { size: 300, core: 70, radius: 95, hex: 70, fontSize: 10, isMobile: true,  lineCount: 5,  scaleFactor: 0.55, blur: 1 };
   if (w < 900) return { size: 550, core: 110, radius: 180, hex: 110, fontSize: 16, isMobile: false, lineCount: 10, scaleFactor: 0.8, blur: 2 };
   return               { size: 850, core: 175, radius: 255, hex: 155, fontSize: 24, isMobile: false, lineCount: 10, scaleFactor: 1,   blur: 2 };
 }
@@ -166,7 +167,7 @@ function SectionLines({ sectionIdx, cx, cy, radius, hex, hexH, lineCount, scaleF
   );
 
   const IN_DUR           = 0.5;
-  const OUT_DUR          = 0.38;
+  const OUT_DUR           = 0.38;
   const OUT_DRAW_DELAY    = IN_DUR + 0.15;
   const OUT_RETRACT_DELAY = 0;
   const IN_RETRACT_DELAY  = OUT_DUR + 0.12;
@@ -261,7 +262,9 @@ export default function Nexus({ activeSection, onSelect, isLocked }) {
   const cx        = size / 2;
   const cy        = size / 2;
   const brandPink = PINK;
-  const padding   = 18 * scaleFactor;
+  
+  // Minimal padding for mobile to allow the container to collapse closer to content
+  const padding   = (isMobile ? 8 : 18) * scaleFactor;
 
   const bounds = useMemo(() => ({
     minX: padding,
@@ -397,11 +400,11 @@ export default function Nexus({ activeSection, onSelect, isLocked }) {
           style={{
             width:     core,
             height:    core,
-            x:        '-50%',
-            y:        '-50%',
+            x:         '-50%',
+            y:         '-50%',
             background: 'radial-gradient(circle, rgba(224,24,128,0.60) 0%, rgba(224,24,128,0.20) 55%, transparent 75%)',
             filter:   'blur(14px)',
-            zIndex:   -1,
+            zIndex:    -1,
           }}
           animate={{
             scale:   portraitHovered ? 1.7 : 0.5,
