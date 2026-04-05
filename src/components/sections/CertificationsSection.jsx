@@ -1,7 +1,18 @@
 import { motion } from 'framer-motion';
 import { ExternalLink } from 'lucide-react';
 
-const PINK = '#E01880';
+// ── Image Imports ───────────────────────────────────────────────────────────
+import cert1 from '../../assets/cert1.jpg';
+import cert2 from '../../assets/cert2.png';
+import cert3 from '../../assets/cert3.jpeg';
+import cert4 from '../../assets/cert4.png';
+import cert5 from '../../assets/cert5.jpg';
+import cert6 from '../../assets/cert6.jpg';
+
+// ── Brand Colors ────────────────────────────────────────────────────────────
+const PINK   = '#B8004E'; // Consistent with Projects
+const DEEP   = '#0F001E';
+const BORDER = 'rgba(184,0,78,0.25)'; // Thicker/Higher Alpha for readability
 
 const CERTS = [
   { 
@@ -10,7 +21,7 @@ const CERTS = [
     date: '10/2026', 
     link: 'https://professional-education-gl.mit.edu/mit-online-data-science-program', 
     desc: 'Python, TensorFlow, Keras, Transformers, Hugging Face, LangChain, NLP, Generative AI, Deep Learning, AWS Cloud.', 
-    img: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=800&h=450&fit=crop&q=80' 
+    img: cert1 
   },
   { 
     title: 'Azure Data Fundamentals DP-900', 
@@ -18,7 +29,7 @@ const CERTS = [
     date: '10/2025', 
     link: 'https://learn.microsoft.com/en-us/credentials/certifications/azure-data-fundamentals/', 
     desc: 'Azure SQL, Cosmos DB, Synapse Analytics, Data Factory, Power BI, Blob Storage, ETL/ELT, Data Lake Gen2.', 
-    img: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&h=450&fit=crop&q=80' 
+    img: cert2 
   },
   { 
     title: 'Ethical Emerging Technologist', 
@@ -26,7 +37,7 @@ const CERTS = [
     date: '12/2021', 
     link: 'https://certnexus.com/certified-ethical-emerging-technologist-ceet/', 
     desc: 'Professional certification in ethical AI and emerging technology governance practices.', 
-    img: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=800&h=450&fit=crop&q=80' 
+    img: cert3 
   },
   { 
     title: 'Google Project Management', 
@@ -34,7 +45,7 @@ const CERTS = [
     date: '12/2021', 
     link: 'https://grow.google/certificates/project-management/', 
     desc: 'Comprehensive project management methodology, Agile, Scrum, and stakeholder engagement practices.', 
-    img: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&h=450&fit=crop&q=80' 
+    img: cert4 
   },
   { 
     title: 'Project Management Essentials', 
@@ -42,7 +53,7 @@ const CERTS = [
     date: '08/2021', 
     link: '#', 
     desc: 'Foundational project management principles, resource planning, and quality assurance frameworks.', 
-    img: 'https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=800&h=450&fit=crop&q=80' 
+    img: cert5 
   },
   { 
     title: 'NIH Research Ethics', 
@@ -50,7 +61,7 @@ const CERTS = [
     date: '05/2018', 
     link: 'https://oir.nih.gov/sourcebook/ethical-conduct/research-ethics', 
     desc: 'Research ethics certification for conducting IRB-approved human-centered and social policy research.', 
-    img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=450&fit=crop&q=80' 
+    img: cert6 
   },
 ];
 
@@ -59,7 +70,7 @@ export default function CertificationsSection() {
     <div style={{ 
       display: 'grid', 
       gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 300px), 1fr))', 
-      gap: '1rem' 
+      gap: '1.25rem' 
     }}>
       {CERTS.map((cert, i) => (
         <motion.a 
@@ -69,22 +80,23 @@ export default function CertificationsSection() {
           rel="noopener noreferrer"
           initial={{ opacity: 0, y: 15 }} 
           animate={{ opacity: 1, y: 0 }} 
-          transition={{ delay: i * 0.07 }}
-          whileHover={{ scale: 1.02 }}
+          transition={{ delay: i * 0.07, duration: 0.3 }}
+          whileHover={{ y: -5, scale: 1.02 }}
           style={{ 
             display: 'block', 
             borderRadius: '0.75rem', 
-            border: '1px solid rgba(224,24,128,0.12)', 
-            background: 'rgba(255,255,255,0.75)', 
+            border: `2px solid ${BORDER}`, // Thicker border
+            background: 'rgba(255,255,255,0.9)', 
             backdropFilter: 'blur(10px)', 
             overflow: 'hidden', 
             textDecoration: 'none', 
-            transition: 'border-color 0.3s' 
+            transition: 'all 0.3s ease' 
           }}
-          onMouseEnter={(/** @type {any} */ e) => e.currentTarget.style.borderColor = 'rgba(224,24,128,0.35)'}
-          onMouseLeave={(/** @type {any} */ e) => e.currentTarget.style.borderColor = 'rgba(224,24,128,0.12)'}
+          onMouseEnter={(e) => e.currentTarget.style.borderColor = PINK}
+          onMouseLeave={(e) => e.currentTarget.style.borderColor = BORDER}
         >
-          <div style={{ position: 'relative', paddingBottom: '56.25%' }}>
+          {/* Header Image Area */}
+          <div style={{ position: 'relative', paddingBottom: '50%', background: DEEP }}>
             <img 
               src={cert.img} 
               alt={cert.title} 
@@ -94,51 +106,53 @@ export default function CertificationsSection() {
                 width: '100%', 
                 height: '100%', 
                 objectFit: 'cover', 
-                opacity: 0.55 
+                opacity: 0.9 // High visibility
               }} 
             />
+            
+            {/* View Badge */}
             <div style={{ 
               position: 'absolute', 
-              inset: 0, 
-              background: 'linear-gradient(to bottom, transparent 40%, rgba(255,255,255,0.95) 100%)' 
-            }} />
-            <div style={{ 
-              position: 'absolute', 
-              top: 8, 
-              right: 8, 
+              top: 10, 
+              right: 10, 
               display: 'flex', 
               alignItems: 'center', 
               gap: 4, 
-              background: 'rgba(255,255,255,0.85)', 
-              borderRadius: 6, 
-              padding: '4px 8px' 
+              background: PINK, // Solid brand color for badge
+              borderRadius: 4, 
+              padding: '4px 10px',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
             }}>
-              <ExternalLink style={{ width: 10, height: 10, color: PINK }} />
+              <ExternalLink style={{ width: 10, height: 10, color: '#fff' }} />
               <span style={{ 
-                fontSize: '0.58rem', 
+                fontSize: '0.55rem', 
                 fontFamily: 'JetBrains Mono, monospace', 
-                color: PINK, 
+                color: '#fff', 
+                fontWeight: 800,
                 letterSpacing: '0.1em' 
               }}>VIEW</span>
             </div>
           </div>
-          <div style={{ padding: '0.85rem 1rem 1rem' }}>
-            <h3 style={{ margin: '0 0 4px', fontSize: '0.88rem', fontWeight: 600, color: '#2D0040' }}>
+
+          {/* Text Content */}
+          <div style={{ padding: '1.2rem' }}>
+            <h3 style={{ margin: '0 0 6px', fontSize: '0.9rem', fontWeight: 800, color: DEEP }}>
               {cert.title}
             </h3>
             <p style={{ 
-              margin: '0 0 6px', 
-              fontSize: '0.63rem', 
+              margin: '0 0 10px', 
+              fontSize: '0.65rem', 
               fontFamily: 'JetBrains Mono, monospace', 
-              color: PINK 
+              color: PINK,
+              fontWeight: 700 
             }}>
               {cert.issuer} · {cert.date}
             </p>
             <p style={{ 
               margin: 0, 
-              fontSize: '0.75rem', 
-              color: 'rgba(60,0,60,0.5)', 
-              lineHeight: 1.6 
+              fontSize: '0.78rem', 
+              color: 'rgba(15,0,30,0.7)', 
+              lineHeight: 1.55 
             }}>
               {cert.desc}
             </p>
