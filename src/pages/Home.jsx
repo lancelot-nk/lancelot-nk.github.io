@@ -292,20 +292,24 @@ export default function Home() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
-  // Optimized spacing for mobile to be tight but clearly separated
   const nexusSpacing = isMobile ? '-15px' : (window.innerWidth < 1024 ? '-70px' : '-90px');
 
   return (
-    <div className="min-h-screen relative overflow-x-hidden bg-white">
+    /* isolate prevents margin collapsing. min-h-[100dvh] handles mobile UI better */
+    <div className="relative min-h-[100dvh] flex flex-col isolate bg-white overflow-x-hidden">
       <style>{glitchStyles}</style>
 
-      {/* ── HARDWARE-ACCELERATED FIXED BACKGROUND (Fixes mobile jumping) ── */}
+      {/* ── BACKGROUND: Locked to Viewport ── */}
       <div 
-        className="fixed inset-0 z-0 bg-cover bg-center pointer-events-none" 
+        className="fixed inset-0 z-0 pointer-events-none" 
         style={{ 
           backgroundImage: `url(${bgAsset})`,
-          transform: 'translateZ(0)', // Force GPU layer
-          willChange: 'transform'
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          transform: 'translateZ(0)', 
+          willChange: 'transform',
+          height: '100dvh', // Explicitly lock to viewport
+          width: '100vw'
         }} 
       />
       
@@ -317,7 +321,7 @@ export default function Home() {
             key="main-content"
             initial={{ opacity: 1 }}
             exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.5 } }}
-            className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 pt-6 pb-10 sm:py-12 gap-0 sm:gap-4"
+            className="relative z-10 flex flex-col items-center justify-center min-h-[100dvh] px-4 pt-6 pb-10 sm:py-12 gap-0 sm:gap-4"
           >
             <motion.div
               className="text-center flex flex-col items-center w-full"
@@ -343,7 +347,6 @@ export default function Home() {
               <QuoteBox onGameUnlock={handleGameUnlock} />
             </motion.div>
 
-            {/* Nexus Component - Symmetric and Non-Overlapping */}
             <div className="relative z-20" style={{ marginTop: nexusSpacing, marginBottom: nexusSpacing }}>
                 <Nexus activeSection={activeSection} onSelect={handleSelect} />
             </div>
@@ -393,8 +396,9 @@ export default function Home() {
 
       {gameActive && <BlobGame onClose={() => setGameActive(false)} />}
 
+      {/* ── CONTENT AREA: Grows dynamically without glitching ── */}
       {!gameActive && (
-        <div ref={contentRef} className="relative z-10">
+        <div ref={contentRef} className="relative z-10 flex-grow pb-20">
           <ContentPanel activeSection={activeSection} />
         </div>
       )}
