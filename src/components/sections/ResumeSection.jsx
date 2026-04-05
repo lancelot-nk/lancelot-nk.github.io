@@ -653,65 +653,195 @@ const SKILL_GROUPS = [
   },
 ];
 
+// ── SKILL_RELATIONS — domain-separated clusters ────────────────────────────
+// Design rules:
+//   • Each key maps only to genuinely related terms within that domain cluster
+//   • "data" / "python" / "programming" keys are NARROW — they should NOT
+//     cascade into policy, grant, or soft-skill territory
+//   • Soft-skill keys (leadership, communication, etc.) map to behavioral &
+//     program-management content — NOT to technical tools
+//   • Cross-domain bleed is intentional only where real skill overlap exists
+//     (e.g. "analytics" touches both BI tools AND statistical skills)
 const SKILL_RELATIONS = {
-  crm:                      ['salesforce', 'hubspot', 'gainsight', 'zendesk', 'dynamics', 'netsuite'],
-  database:                 ['sql', 'nosql', 'cosmos db', 'bigquery', 'snowflake', 'dbt', 'mongodb', 'postgresql', 'mysql'],
-  cloud:                    ['azure', 'aws', 'databricks', 'blob storage', 'data lake', 'gcp', 'synapse', 'data factory'],
-  analytics:                ['tableau', 'power bi', 'excel', 'seaborn', 'matplotlib', 'qlik', 'thoughtspot', 'google analytics'],
-  ml:                       ['scikit-learn', 'tensorflow', 'keras', 'pytorch', 'machine learning', 'deep learning', 'neural networks'],
-  'project management':     ['jira', 'asana', 'monday.com', 'agile', 'scrum', 'microsoft project', 'zapier', 'program management'],
-  data:                     ['python', 'sql', 'pandas', 'numpy', 'tableau', 'power bi', 'dbt', 'spark', 'snowflake', 'bigquery', 'quantitative analytics'],
-  ai:                       ['tensorflow', 'keras', 'pytorch', 'langchain', 'hugging face', 'openai', 'gpt', 'transformers', 'nlp', 'computer vision', 'machine learning', 'deep learning'],
-  programming:              ['python', 'r', 'java', 'javascript', 'html', 'css', 'sql', 't-sql', 'stata', 'matlab'],
-  visualization:            ['tableau', 'power bi', 'seaborn', 'matplotlib', 'qlik', 'thoughtspot', 'arcgis', 'data storytelling'],
-  gis:                      ['arcgis', 'spatial analysis', 'nepa', 'geospatial'],
-  automation:               ['uipath', 'rpa', 'power automate', 'zapier', 'airflow', 'etl', 'elt'],
-  grant:                    ['grant writing', 'grant procurement', 'doee', 'prism', 'e-grants', 'npsp', 'rfp', 'fundraising'],
-  policy:                   ['nepa', 'nist', 'rmf', 'nih', 'irb', 'regulatory', 'compliance', 'regulatory compliance'],
-  federal:                  ['nist', 'rmf', 'fra', 'hra', 'nepa', 'federal', 'government'],
-  nlp:                      ['nlp', 'natural language processing', 'transformers', 'langchain', 'hugging face', 'sentiment analysis'],
-  security:                 ['nist', 'rmf', 'cybersecurity', 'data security', 'data privacy', 'certnexus'],
-  snap:                     ['snap', 'ebt', 'hra', 'curam', 'wms', 'pos', 'welfare'],
-  nonprofit:                ['salesforce npsp', 'volunteerhub', 'mailchimp', 'donor management', 'grant', 'fundraising', 'donor relations'],
-  etl:                      ['etl', 'elt', 'airflow', 'spark', 'dbt', 'data factory', 'ssis', 'pipeline'],
-  research:                 ['irb', 'nih', 'qualtrics', 'nvivo', 'spss', 'zotero', 'qualitative', 'literature review', 'critical thinking'],
-  design:                   ['adobe', 'figma', 'canva', 'autocad', 'davinci', 'premiere', 'after effects', 'motion graphics'],
-  language:                 ['english', 'spanish', 'french', 'hindi', 'akan', 'twi', 'ladakhi'],
-  leadership:               ['leadership', 'team management', 'student body president', 'stakeholder engagement', 'mentorship', 'organizational development', 'capacity building', 'workforce development', 'change management', 'program management', 'community engagement', 'volunteer', 'president', 'chair', 'director', 'elected', 'govern'],
-  management:               ['team management', 'program management', 'budget management', 'financial oversight', 'vendor management', 'change management', 'stakeholder engagement', 'organizational development', 'project management', 'director', 'manager', 'coordinator'],
-  communication:            ['communication', 'presentation skills', 'technical writing', 'public outreach', 'executive communication', 'negotiation', 'relationship building', 'networking', 'grant writing', 'speech', 'debate', 'newsletter', 'outreach'],
-  'customer service':       ['customer service', 'client relations', 'account management', 'gainsight', 'zendesk', 'hubspot', 'salesforce', 'conflict resolution', 'emotional intelligence', 'satisfaction', 'onboarding'],
-  'client relations':       ['client relations', 'account management', 'customer service', 'gainsight', 'zendesk', 'salesforce', 'hubspot'],
-  collaboration:            ['cross-functional collaboration', 'partnership development', 'community engagement', 'stakeholder engagement', 'inter-agency coordination', 'team management', 'mentorship'],
-  'critical thinking':      ['critical thinking', 'problem solving', 'decision making', 'root cause analysis', 'impact assessment', 'competitive intelligence', 'program evaluation', 'statistical modeling', 'research', 'analysis'],
-  'problem solving':        ['problem solving', 'critical thinking', 'root cause analysis', 'decision making', 'process reengineering', 'change management', 'anomaly detection'],
-  'strategic planning':     ['strategic planning', 'program management', 'stakeholder engagement', 'organizational development', 'capacity building', 'competitive intelligence', 'impact assessment'],
-  diversity:                ['diversity & inclusion', 'equity & access', 'cultural competency', 'emotional intelligence', 'community engagement', 'public outreach', 'intercultural', 'cross-cultural'],
-  inclusion:                ['diversity & inclusion', 'equity & access', 'cultural competency', 'community engagement'],
-  dei:                      ['diversity & inclusion', 'equity & access', 'cultural competency', 'emotional intelligence', 'intercultural'],
-  equity:                   ['equity & access', 'diversity & inclusion', 'community engagement', 'public outreach', 'irb', 'nih', 'food security', 'poverty'],
-  adaptability:             ['adaptability', 'resilience', 'change management', 'agile/scrum', 'cross-functional collaboration'],
-  'time management':        ['time management', 'prioritization', 'agile/scrum', 'project management', 'process reengineering'],
-  fundraising:              ['fundraising', 'donor relations', 'grant writing', 'grant procurement', 'nonprofit', 'salesforce npsp'],
-  volunteer:                ['community engagement', 'public outreach', 'leadership', 'workforce development', 'capacity building', 'nonprofit', 'food pantry', 'steward', 'teaching', 'volunteer'],
-  'workforce development':  ['workforce development', 'capacity building', 'organizational development', 'community engagement', 'change management', 'mentorship', 'teaching'],
-  budget:                   ['budget management', 'financial oversight', 'grant procurement', 'program management', 'quantitative analytics', 'budgetary', 'fiscal'],
-  operations:               ['process reengineering', 'change management', 'program management', 'vendor management', 'etl', 'automation', 'rpa', 'inventory', 'supply chain', 'logistics'],
-  compliance:               ['regulatory compliance', 'nist', 'rmf', 'nih', 'irb', 'nepa', 'compliance auditing', 'data governance', 'title ix', 'regulatory'],
-  stakeholder:              ['stakeholder engagement', 'partnership development', 'relationship building', 'executive communication', 'client relations', 'multi-stakeholder'],
-  agile:                    ['agile/scrum', 'jira', 'asana', 'monday.com', 'zapier', 'iterative', 'process reengineering'],
-  scrum:                    ['agile/scrum', 'jira', 'asana', 'monday.com'],
-  interpersonal:            ['communication', 'emotional intelligence', 'conflict resolution', 'cultural competency', 'relationship building', 'mentorship'],
-  presentation:             ['presentation skills', 'communication', 'executive communication', 'data storytelling', 'technical writing', 'speech', 'debate'],
-  writing:                  ['technical writing', 'grant writing', 'communication', 'public outreach', 'data storytelling', 'grant', 'publications', 'newsletter'],
-  negotiation:              ['negotiation', 'conflict resolution', 'stakeholder engagement', 'vendor management', 'partnership development'],
-  mentorship:               ['mentorship', 'leadership', 'workforce development', 'capacity building', 'community engagement', 'teaching'],
-  'emotional intelligence': ['emotional intelligence', 'conflict resolution', 'cultural competency', 'communication', 'adaptability'],
-  resilience:               ['resilience', 'adaptability', 'change management', 'critical thinking'],
-  networking:               ['networking', 'relationship building', 'partnership development', 'community engagement', 'fundraising'],
-  'food security':          ['food security', 'poverty', 'hunger', 'equity & access', 'community engagement', 'volunteer'],
-  'supply chain':           ['supply chain', 'inventory', 'operations', 'procurement', 'vendor management', 'logistics'],
-  inventory:                ['inventory', 'supply chain', 'operations', 'logistics', 'procurement'],
+
+  // ── Technical / data-science cluster (stays technical) ──────────────────
+  python:           ['pandas', 'numpy', 'seaborn', 'matplotlib', 'scikit-learn',
+                     'tensorflow', 'keras', 'pytorch', 'jupyter', 'spss', 'stata', 'r'],
+  r:                ['stata', 'spss', 'statistical modeling', 'regression analysis',
+                     'pandas', 'numpy', 'seaborn'],
+  sql:              ['t-sql', 'nosql', 'dbt', 'bigquery', 'snowflake', 'postgresql',
+                     'mysql', 'mongodb', 'cosmos db', 'data modeling'],
+  database:         ['sql', 'nosql', 'cosmos db', 'bigquery', 'snowflake', 'dbt',
+                     'mongodb', 'postgresql', 'mysql', 'data modeling', 'data profiling',
+                     'indexing', 'load balancing'],
+  programming:      ['python', 'r', 'java', 'javascript', 'html5/css3', 'sql',
+                     't-sql', 'stata', 'matlab', 'spss'],
+  cloud:            ['microsoft azure', 'aws (s3, ec2)', 'databricks', 'synapse analytics',
+                     'cosmos db', 'snowflake', 'bigquery', 'dbt', 'apache spark',
+                     'apache airflow', 'data lake gen2', 'blob storage', 'azure data factory',
+                     'serverless architecture'],
+  azure:            ['microsoft azure', 'synapse analytics', 'cosmos db', 'azure data factory',
+                     'blob storage', 'data lake gen2', 'etl/elt', 't-sql'],
+  aws:              ['aws (s3, ec2)', 'serverless architecture', 'iot specialization',
+                     'apache spark', 'databricks'],
+  etl:              ['etl/elt', 'apache airflow', 'apache spark', 'dbt', 'azure data factory',
+                     'uipath (rpa)', 'power automate', 'pipeline', 'data factory'],
+  automation:       ['uipath (rpa)', 'power automate', 'zapier', 'apache airflow',
+                     'etl/elt', 'process reengineering'],
+  rpa:              ['uipath (rpa)', 'power automate', 'zapier', 'automation',
+                     'process reengineering'],
+  ml:               ['scikit-learn', 'tensorflow', 'keras', 'pytorch', 'machine learning',
+                     'deep learning', 'neural networks', 'hyperparameter tuning',
+                     'classification algorithms', 'regression analysis',
+                     'recommender systems', 'reinforcement learning', 'federated learning'],
+  ai:               ['tensorflow', 'keras', 'pytorch', 'langchain', 'hugging face',
+                     'transformers', 'nlp', 'computer vision', 'machine learning',
+                     'deep learning', 'neural networks', 'lora/qlora', 'opencv',
+                     'generative ai', 'sentiment analysis'],
+  'machine learning': ['scikit-learn', 'tensorflow', 'keras', 'pytorch', 'deep learning',
+                        'neural networks', 'hyperparameter tuning', 'classification algorithms',
+                        'regression analysis', 'anomaly detection', 'recommender systems',
+                        'time series forecasting', 'dimensionality reduction'],
+  nlp:              ['nlp', 'transformers', 'langchain', 'hugging face', 'lora/qloa',
+                     'sentiment analysis', 'opencv', 'computer vision'],
+  'computer vision':['opencv', 'tensorflow', 'keras', 'pytorch', 'computer vision',
+                     'deep learning', 'neural networks'],
+  analytics:        ['tableau', 'power bi', 'thoughtspot', 'qlik sense',
+                     'excel (advanced/vba)', 'power query', 'google analytics',
+                     'seaborn', 'matplotlib', 'arcgis', 'data storytelling',
+                     'quantitative analytics', 'statistical modeling'],
+  visualization:    ['tableau', 'power bi', 'seaborn', 'matplotlib', 'thoughtspot',
+                     'qlik sense', 'arcgis', 'google analytics', 'data storytelling',
+                     'power query'],
+  'data science':   ['python', 'r', 'machine learning', 'deep learning', 'statistical modeling',
+                     'regression analysis', 'pandas', 'numpy', 'seaborn', 'scikit-learn',
+                     'tensorflow', 'keras', 'data storytelling', 'quantitative analytics',
+                     'anomaly detection', 'time series forecasting'],
+  'data engineering': ['sql', 'nosql', 'dbt', 'apache spark', 'apache airflow', 'etl/elt',
+                        'snowflake', 'bigquery', 'data modeling', 'data profiling',
+                        'data lineage tracking', 'azure data factory', 'databricks'],
+  'data governance':  ['data governance', 'data lineage tracking', 'data anonymization',
+                        'data profiling', 'compliance auditing', 'regulatory compliance',
+                        'nist/rmf frameworks'],
+  gis:              ['arcgis', 'geospatial', 'spatial analysis', 'nepa'],
+  api:              ['api development', 'postman', 'javascript', 'python',
+                     'serverless architecture', 'iot specialization'],
+  crm:              ['salesforce', 'hubspot', 'gainsight', 'zendesk', 'oracle netsuite'],
+  'project management tools': ['jira', 'asana', 'monday.com', 'microsoft project',
+                                'zapier', 'github (copilot, cli)'],
+  design:           ['adobe creative suite', 'figma', 'canva', 'autocad',
+                     'davinci resolve', 'premiere pro', 'after effects', 'motion graphics'],
+  web:              ['react', 'vite', 'next.js', 'wordpress', 'html5/css3',
+                     'javascript', 'api development'],
+
+  // ── Program / policy / nonprofit cluster (stays program-side) ─────────
+  grant:            ['grant writing', 'grant procurement', 'e-grants', 'prism',
+                     'doee', 'fundraising', 'donor relations', 'salesforce npsp',
+                     'impact assessment', 'program evaluation'],
+  'grant writing':  ['grant procurement', 'rfp', 'e-grants', 'prism', 'doee',
+                     'fundraising', 'technical writing', 'impact assessment'],
+  policy:           ['nepa', 'nist/rmf frameworks', 'nih ethics', 'irb research',
+                     'regulatory compliance', 'compliance auditing', 'federal',
+                     'program evaluation'],
+  compliance:       ['regulatory compliance', 'nist/rmf frameworks', 'nih ethics',
+                     'irb research', 'nepa', 'compliance auditing', 'data governance',
+                     'title ix'],
+  federal:          ['nist/rmf frameworks', 'nepa', 'regulatory compliance',
+                     'compliance auditing', 'federal contractor', 'fra'],
+  security:         ['nist/rmf frameworks', 'data governance', 'data anonymization',
+                     'certnexus', 'regulatory compliance'],
+  snap:             ['snap', 'ebt', 'hra', 'curam', 'wms', 'welfare',
+                     'regulatory compliance', 'program management'],
+  nonprofit:        ['salesforce npsp', 'volunteerhub', 'mailchimp', 'donor relations',
+                     'fundraising', 'grant writing', 'grant procurement',
+                     'community engagement', 'public outreach'],
+  research:         ['irb research', 'nih ethics', 'qualtrics', 'nvivo', 'spss',
+                     'zotero', 'qualitative research', 'statistical modeling',
+                     'literature review', 'impact assessment'],
+  hmis:             ['hmis (clarity)', 'wa saw', 'prism', 'program management',
+                     'regulatory compliance', 'data governance'],
+  'program management': ['stakeholder engagement', 'change management', 'agile/scrum',
+                          'jira', 'asana', 'monday.com', 'process reengineering',
+                          'impact assessment', 'program evaluation', 'compliance auditing'],
+  agile:            ['agile/scrum', 'jira', 'asana', 'monday.com', 'process reengineering',
+                     'change management'],
+  scrum:            ['agile/scrum', 'jira', 'asana', 'monday.com'],
+
+  // ── Soft skills / interpersonal cluster (stays behavioral) ─────────────
+  leadership:       ['leadership', 'team management', 'mentorship', 'stakeholder engagement',
+                     'organizational development', 'capacity building', 'workforce development',
+                     'change management', 'executive communication', 'strategic planning',
+                     'cross-functional collaboration', 'partnership development'],
+  management:       ['team management', 'program management', 'budget management',
+                     'financial oversight', 'vendor management', 'change management',
+                     'stakeholder engagement', 'organizational development'],
+  communication:    ['communication', 'presentation skills', 'technical writing',
+                     'public outreach', 'executive communication', 'negotiation',
+                     'relationship building', 'networking'],
+  'customer service': ['customer service', 'client relations', 'account management',
+                        'gainsight', 'zendesk', 'hubspot', 'conflict resolution',
+                        'emotional intelligence', 'onboarding'],
+  'client relations': ['client relations', 'account management', 'customer service',
+                        'gainsight', 'zendesk', 'salesforce', 'hubspot'],
+  collaboration:    ['cross-functional collaboration', 'partnership development',
+                     'community engagement', 'stakeholder engagement', 'team management',
+                     'mentorship'],
+  'critical thinking': ['critical thinking', 'problem solving', 'decision making',
+                         'root cause analysis', 'impact assessment', 'program evaluation',
+                         'competitive intelligence'],
+  'problem solving': ['problem solving', 'critical thinking', 'root cause analysis',
+                       'decision making', 'process reengineering', 'anomaly detection'],
+  'strategic planning': ['strategic planning', 'program management', 'organizational development',
+                          'capacity building', 'competitive intelligence', 'impact assessment'],
+  diversity:        ['diversity & inclusion', 'equity & access', 'cultural competency',
+                     'emotional intelligence', 'community engagement', 'public outreach'],
+  inclusion:        ['diversity & inclusion', 'equity & access', 'cultural competency',
+                     'community engagement'],
+  dei:              ['diversity & inclusion', 'equity & access', 'cultural competency',
+                     'emotional intelligence'],
+  equity:           ['equity & access', 'diversity & inclusion', 'community engagement',
+                     'public outreach', 'nih ethics', 'irb research'],
+  adaptability:     ['adaptability', 'resilience', 'change management', 'agile/scrum',
+                     'cross-functional collaboration'],
+  'time management': ['time management', 'prioritization', 'agile/scrum', 'process reengineering'],
+  fundraising:      ['fundraising', 'donor relations', 'grant writing', 'grant procurement',
+                     'nonprofit', 'salesforce npsp', 'partnership development'],
+  volunteer:        ['community engagement', 'public outreach', 'workforce development',
+                     'capacity building', 'nonprofit', 'leadership'],
+  'workforce development': ['workforce development', 'capacity building',
+                             'organizational development', 'community engagement',
+                             'change management', 'mentorship'],
+  budget:           ['budget management', 'financial oversight', 'grant procurement',
+                     'program management', 'financial modeling'],
+  operations:       ['process reengineering', 'change management', 'program management',
+                     'vendor management', 'inventory management', 'supply chain'],
+  stakeholder:      ['stakeholder engagement', 'partnership development',
+                     'relationship building', 'executive communication',
+                     'client relations'],
+  interpersonal:    ['communication', 'emotional intelligence', 'conflict resolution',
+                     'cultural competency', 'relationship building', 'mentorship'],
+  presentation:     ['presentation skills', 'executive communication',
+                     'data storytelling', 'technical writing'],
+  writing:          ['technical writing', 'grant writing', 'public outreach',
+                     'data storytelling', 'publications'],
+  negotiation:      ['negotiation', 'conflict resolution', 'stakeholder engagement',
+                     'vendor management', 'partnership development'],
+  mentorship:       ['mentorship', 'leadership', 'workforce development',
+                     'capacity building', 'community engagement'],
+  'emotional intelligence': ['emotional intelligence', 'conflict resolution',
+                              'cultural competency', 'communication', 'adaptability'],
+  resilience:       ['resilience', 'adaptability', 'change management'],
+  networking:       ['networking', 'relationship building', 'partnership development',
+                     'community engagement', 'fundraising'],
+  'food security':  ['community engagement', 'public outreach', 'equity & access',
+                     'volunteer', 'nonprofit'],
+  'supply chain':   ['inventory management', 'operations', 'vendor management', 'logistics'],
+  inventory:        ['inventory management', 'supply chain', 'operations', 'logistics'],
+
+  // ── Language / regional cluster ─────────────────────────────────────────
+  language:         ['english', 'french', 'hindi', 'akan-twi', 'ladakhi'],
+  multilingual:     ['english', 'french', 'hindi', 'akan-twi', 'ladakhi',
+                     'cultural competency', 'diversity & inclusion'],
 };
 
 const FILTER_OPTIONS = [
@@ -746,26 +876,43 @@ function getProjectTags(project) {
 // SEARCH HELPERS
 // ═══════════════════════════════════════════════════════════════════════════
 
+// Cluster-based search: tight domain separation, no cross-domain bleeding.
+// "python" stays in data/ML. "grant" stays in program/policy. etc.
 function relationalSearch(query) {
   if (!query.trim()) return null;
   const q = query.toLowerCase().trim();
   const matched = new Set();
 
+  // 1. Direct skill item match — item contains query OR query fully contains item
   SKILL_GROUPS.forEach(g =>
     g.items.forEach(item => {
-      if (item.toLowerCase().includes(q) || q.includes(item.toLowerCase()))
-        matched.add(item.toLowerCase());
+      const it = item.toLowerCase();
+      if (it.includes(q) || (q.length > 3 && q.includes(it))) matched.add(it);
     })
   );
 
+  // 2. Exact / prefix relation key match only (prevents "da" matching "data" AND "database" AND "design")
   Object.entries(SKILL_RELATIONS).forEach(([key, vals]) => {
-    if (key.includes(q) || q.includes(key)) vals.forEach(v => matched.add(v));
-    if (vals.some(v => v.includes(q) || q.includes(v))) {
-      matched.add(q);
+    if (key === q || key.startsWith(q + ' ') || q === key.split(' ')[0]) {
       vals.forEach(v => matched.add(v));
+      matched.add(key);
     }
   });
 
+  // 3. Reverse value lookup — only pull a cluster if the query matches a value specifically
+  //    Use exact or starts-with matching; skip values shorter than 4 chars to avoid noise
+  Object.entries(SKILL_RELATIONS).forEach(([key, vals]) => {
+    const hit = vals.find(v =>
+      v.length >= 4 && (v === q || v.startsWith(q) || (q.length >= 5 && q.startsWith(v)))
+    );
+    if (hit) {
+      vals.forEach(v => matched.add(v));
+      matched.add(key);
+      matched.add(hit);
+    }
+  });
+
+  // 4. Raw query always added so inline text content still highlights
   matched.add(q);
   return matched;
 }
@@ -854,7 +1001,7 @@ const cardBase = {
   border: `2px solid ${BORDER}`,
   background: 'rgba(255,255,255,0.93)',
   backdropFilter: 'blur(16px)',
-  padding: '1.45rem',
+  padding: 'clamp(0.9rem, 3vw, 1.45rem)',
   boxShadow: '0 4px 24px rgba(184,0,78,0.07), 0 1px 4px rgba(0,0,0,0.04)',
   transition: 'box-shadow 0.25s ease, border-color 0.25s ease, transform 0.25s ease',
 };
@@ -932,7 +1079,7 @@ function ExpCard({ exp, isHighlighted, matchSet }) {
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 6, marginBottom: 5 }}>
         <div>
-          <h4 style={{ margin: 0, fontSize: '0.97rem', fontWeight: 800, color: isHighlighted ? DEEP : MID, lineHeight: 1.3 }}>
+          <h4 style={{ margin: 0, fontSize: 'clamp(0.82rem, 2.5vw, 0.97rem)', fontWeight: 800, color: isHighlighted ? DEEP : MID, lineHeight: 1.3 }}>
             {highlightText(exp.role, matchSet)}
           </h4>
           <p style={{ margin: 0, fontSize: '0.8rem', fontFamily: 'JetBrains Mono, monospace', color: isHighlighted ? PINK : SOFT, fontWeight: 700 }}>
@@ -949,7 +1096,7 @@ function ExpCard({ exp, isHighlighted, matchSet }) {
       </div>
       <ul style={{ margin: '6px 0 0', paddingLeft: '1.15rem' }}>
         {exp.bullets.map((b, j) => (
-          <li key={j} style={{ fontSize: '0.84rem', color: hov ? MID : MUTED, lineHeight: 1.78, marginBottom: 3 }}>
+          <li key={j} style={{ fontSize: 'clamp(0.74rem, 2vw, 0.84rem)', color: hov ? MID : MUTED, lineHeight: 1.78, marginBottom: 3 }}>
             {highlightText(b, matchSet)}
           </li>
         ))}
@@ -1256,6 +1403,85 @@ function ProjectCard({ project, matchSet }) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
+// TECH STACK GROUPS — show first 3 groups, collapse rest behind "Show more"
+// Auto-expands when: a filter is active, or a search is active
+// ═══════════════════════════════════════════════════════════════════════════
+
+// How many groups are visible by default (uncollapsed)
+const SKILL_GROUPS_DEFAULT_VISIBLE = 3;
+
+function TechStackGroups({ matched, filter, activeSkillItems, activeSearchTerm, handleSkillClick, handleSkillClear }) {
+  // Auto-expand when filter or search is active so relevant skills are always shown
+  const shouldAutoExpand = filter !== 'main' || (matched !== null);
+  const [expanded, setExpanded] = useState(false);
+  const showAll = expanded || shouldAutoExpand;
+
+  // Build renderable groups: filter items when searching
+  const renderGroups = SKILL_GROUPS.map(group => {
+    const groupHighlighted = filter !== 'main' && group.tags.includes(filter);
+    const items = matched
+      ? group.items.filter(item => matched.has(item.toLowerCase()))
+      : group.items;
+    return { group, groupHighlighted, items };
+  }).filter(({ items }) => !(matched && items.length === 0));
+
+  const visibleGroups = showAll ? renderGroups : renderGroups.slice(0, SKILL_GROUPS_DEFAULT_VISIBLE);
+  const hiddenCount = renderGroups.length - SKILL_GROUPS_DEFAULT_VISIBLE;
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
+      {visibleGroups.map(({ group, groupHighlighted, items }) => (
+        <div key={group.label}>
+          <p style={{
+            margin: '0 0 7px', fontSize: '0.65rem', fontFamily: 'JetBrains Mono, monospace',
+            textTransform: 'uppercase', letterSpacing: '0.13em',
+            color: groupHighlighted ? VIOLET : 'rgba(74,16,64,0.55)',
+            fontWeight: groupHighlighted ? 800 : 600,
+          }}>
+            {group.label}
+          </p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+            {items.map(item => {
+              const isActive =
+                activeSkillItems.has(item.toLowerCase()) ||
+                item.toLowerCase() === activeSearchTerm ||
+                (groupHighlighted && filter !== 'main');
+              return (
+                <SkillPill
+                  key={item} item={item} active={isActive}
+                  onClick={handleSkillClick} onClear={handleSkillClear}
+                />
+              );
+            })}
+          </div>
+        </div>
+      ))}
+
+      {/* Show more / less button — only rendered in default (non-filtered, non-searched) state */}
+      {!shouldAutoExpand && hiddenCount > 0 && (
+        <button
+          onClick={() => setExpanded(v => !v)}
+          style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+            marginTop: '0.3rem', padding: '6px 14px', borderRadius: 999, width: '100%',
+            fontSize: '0.68rem', fontFamily: 'JetBrains Mono, monospace', fontWeight: 700,
+            cursor: 'pointer', letterSpacing: '0.12em', textTransform: 'uppercase',
+            border: `1px dashed rgba(184,0,78,0.3)`,
+            background: expanded ? 'rgba(184,0,78,0.05)' : 'transparent',
+            color: SOFT, transition: 'all 0.18s',
+          }}
+        >
+          {expanded
+            ? <><ChevronUp style={{ width: 12, height: 12 }} /> Show less</>
+            : <><ChevronDown style={{ width: 12, height: 12 }} /> Show {hiddenCount} more skill groups</>
+          }
+        </button>
+      )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
 // MAIN COMPONENT
 // ═══════════════════════════════════════════════════════════════════════════
 
@@ -1452,17 +1678,17 @@ export default function ResumeSection() {
 
       {/* ── Header card ──────────────────────────────────────────────────── */}
       <SectionCard style={{ textAlign: 'center' }}>
-        <h2 style={{ fontSize: 'clamp(1.5rem, 3.5vw, 2.2rem)', fontWeight: 900, color: DEEP, margin: '0 0 5px', letterSpacing: '-0.02em' }}>
+        <h2 style={{ fontSize: 'clamp(1.25rem, 5vw, 2.2rem)', fontWeight: 900, color: DEEP, margin: '0 0 5px', letterSpacing: '-0.02em' }}>
           Lancelot Naipier-Kane
         </h2>
-        <p style={{ margin: '0 0 6px', fontSize: '0.83rem', fontFamily: 'JetBrains Mono, monospace', color: PINK, fontWeight: 800 }}>
+        <p style={{ margin: '0 0 6px', fontSize: 'clamp(0.7rem, 2.5vw, 0.83rem)', fontFamily: 'JetBrains Mono, monospace', color: PINK, fontWeight: 800 }}>
           Program & Data Manager · {filterDef?.label}
         </p>
-        {/* #2 — Mobile-safe contact line: flex-wrap so each element breaks to its own line on small screens */}
+        {/* Mobile-safe contact line: flex-wrap so each element breaks cleanly */}
         <div style={{
           display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center',
-          gap: '4px 10px', margin: '0 0 13px', fontSize: '0.8rem', color: SOFT, fontWeight: 600,
-          lineHeight: 2,
+          gap: '4px 8px', margin: '0 0 13px', fontSize: 'clamp(0.68rem, 2vw, 0.8rem)',
+          color: SOFT, fontWeight: 600, lineHeight: 2,
         }}>
           <span>New York, NY</span>
           <span style={{ opacity: 0.35 }}>·</span>
@@ -1480,7 +1706,7 @@ export default function ResumeSection() {
             lancelot-nk.github.io
           </a>
         </div>
-        <p style={{ margin: 0, fontSize: '0.88rem', color: MUTED, lineHeight: 1.82, maxWidth: 730, marginLeft: 'auto', marginRight: 'auto', fontWeight: 500 }}>
+        <p style={{ margin: 0, fontSize: 'clamp(0.78rem, 2.2vw, 0.88rem)', color: MUTED, lineHeight: 1.82, maxWidth: 730, marginLeft: 'auto', marginRight: 'auto', fontWeight: 500 }}>
           Data science and analytics professional with a strong foundation in AI, machine learning, and algorithm-driven problem solving, supporting analysis and decision-making on budgets up to $7.6B. Experienced using Python, R, and data structuring techniques to develop technical solutions and translate analysis into practical business outcomes. MIT and Microsoft certified with a focus on delivering data-backed results and scalable insights across public sector, tech, and nonprofit domains.
         </p>
       </SectionCard>
@@ -1494,41 +1720,14 @@ export default function ResumeSection() {
         <p style={{ margin: '0 0 11px', fontSize: '0.72rem', fontFamily: 'JetBrains Mono, monospace', color: SOFT, fontWeight: 600 }}>
           Click any skill to search · Click again to clear
         </p>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
-          {SKILL_GROUPS.map(group => {
-            const groupHighlighted = filter !== 'main' && group.tags.includes(filter);
-            const items = matched
-              ? group.items.filter(item => matched.has(item.toLowerCase()))
-              : group.items;
-            if (matched && items.length === 0) return null;
-            return (
-              <div key={group.label}>
-                <p style={{
-                  margin: '0 0 7px', fontSize: '0.65rem', fontFamily: 'JetBrains Mono, monospace',
-                  textTransform: 'uppercase', letterSpacing: '0.13em',
-                  color: groupHighlighted ? VIOLET : 'rgba(74,16,64,0.55)',
-                  fontWeight: groupHighlighted ? 800 : 600,
-                }}>
-                  {group.label}
-                </p>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                  {items.map(item => {
-                    const isActive =
-                      activeSkillItems.has(item.toLowerCase()) ||
-                      item.toLowerCase() === activeSearchTerm ||
-                      (groupHighlighted && filter !== 'main');
-                    return (
-                      <SkillPill
-                        key={item} item={item} active={isActive}
-                        onClick={handleSkillClick} onClear={handleSkillClear}
-                      />
-                    );
-                  })}
-                </div>
-              </div>
-            );
-          })}
-        </div>
+        <TechStackGroups
+          matched={matched}
+          filter={filter}
+          activeSkillItems={activeSkillItems}
+          activeSearchTerm={activeSearchTerm}
+          handleSkillClick={handleSkillClick}
+          handleSkillClear={handleSkillClear}
+        />
       </SectionCard>
 
       {/* ── Education ────────────────────────────────────────────────────── */}
