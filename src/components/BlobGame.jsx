@@ -283,7 +283,7 @@ const BlobGame = ({ onClose }) => {
   // ─── Audio ───────────────────────────────────────────────────────────────────
   useEffect(() => {
     const audio = new Audio();
-    audio.src = '/src/assets/theme.mp3';
+    audio.src = '/theme.mp3';
     audio.loop = true;
     audio.volume = 0.55;
     audio.preload = 'auto';
