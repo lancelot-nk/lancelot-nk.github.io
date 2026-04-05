@@ -292,13 +292,22 @@ export default function Home() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
-  // Responsive logic with safety floor for mobile overlap
-  const nexusSpacing = isMobile ? '-22px' : (window.innerWidth < 1024 ? '-70px' : '-90px');
+  // Optimized spacing for mobile to be tight but clearly separated
+  const nexusSpacing = isMobile ? '-15px' : (window.innerWidth < 1024 ? '-70px' : '-90px');
 
   return (
     <div className="min-h-screen relative overflow-x-hidden bg-white">
       <style>{glitchStyles}</style>
-      <div className="fixed inset-0 z-0 bg-cover bg-center" style={{ backgroundImage: `url(${bgAsset})` }} />
+
+      {/* ── HARDWARE-ACCELERATED FIXED BACKGROUND (Fixes mobile jumping) ── */}
+      <div 
+        className="fixed inset-0 z-0 bg-cover bg-center pointer-events-none" 
+        style={{ 
+          backgroundImage: `url(${bgAsset})`,
+          transform: 'translateZ(0)', // Force GPU layer
+          willChange: 'transform'
+        }} 
+      />
       
       <ParticleField isGameMode={gameActive} />
 
@@ -334,7 +343,7 @@ export default function Home() {
               <QuoteBox onGameUnlock={handleGameUnlock} />
             </motion.div>
 
-            {/* Nexus Component - Balanced & Safety Protected */}
+            {/* Nexus Component - Symmetric and Non-Overlapping */}
             <div className="relative z-20" style={{ marginTop: nexusSpacing, marginBottom: nexusSpacing }}>
                 <Nexus activeSection={activeSection} onSelect={handleSelect} />
             </div>
