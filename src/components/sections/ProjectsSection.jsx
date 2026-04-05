@@ -3,7 +3,7 @@ import { ExternalLink, Code, Clock } from 'lucide-react';
 
 const PINK = '#E01880';
 
-const PROJECTS = [
+export const PROJECTS = [
   { 
     title: 'Python & Statistics Analysis', 
     desc: 'Data analysis over a restaurant industry dataset applying statistical methods, data cleaning, and Python visualization.', 
