@@ -12,7 +12,6 @@ const PINK   = '#E01880';
 const VIOLET = '#8B00E8';
 const BLUE   = '#0061FF'; 
 
-// Add this to your global CSS or a style tag in this file
 const glitchStyles = `
   @keyframes glitch-pill {
     0% { transform: translate(0); }
@@ -127,7 +126,6 @@ function PillBtn({ href, icon: Icon, label, onClick }) {
   );
 }
 
-// ── SECRET GAME BUTTON ────────────────────────────────────────────────────────
 function QuoteBox({ onGameUnlock }) {
   const [gameVisible,  setGameVisible]  = useState(false);
   const [holding,      setHolding]      = useState(false);
@@ -164,7 +162,7 @@ function QuoteBox({ onGameUnlock }) {
   }, []);
 
   return (
-    <div className="relative mt-4 mb-1 sm:mb-0 mx-auto max-w-[750px] pointer-events-auto">
+    <div className="relative mt-4 mb-0 mx-auto max-w-[750px] pointer-events-auto">
       <motion.div
         className="rounded-2xl border border-white/80 shadow-2xl cursor-default select-none relative z-40"
         style={{ background: 'rgba(255,255,255,0.70)', backdropFilter: 'blur(16px)' }}
@@ -237,17 +235,23 @@ function QuoteBox({ onGameUnlock }) {
   );
 }
 
-// ── MAIN HOME COMPONENT ───────────────────────────────────────────────────────
 export default function Home() {
   const [activeSection, setActiveSection] = useState(null);
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [gameActive, setGameActive] = useState(false);
   const [callHov, setCallHov] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   
   const contentRef    = useRef(null);
   const pendingSelect = useRef(null);
 
-  useEffect(() => { initScrollInterruptListeners(); }, []);
+  useEffect(() => { 
+    initScrollInterruptListeners();
+    const checkMobile = () => setIsMobile(window.innerWidth < 640);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
     const onScroll = () => setShowBackToTop(window.scrollY > 400);
@@ -269,9 +273,7 @@ export default function Home() {
   const handleSelect = useCallback((id) => {
     cancelScroll();
     clearTimeout(pendingSelect.current);
-
     if (activeSection === id) { setActiveSection(null); return; }
-
     if (activeSection !== null) {
       const SWITCH_ANIM_MS = 1100, BREATH_MS = 150, DRAW_IN_MS = 1400;
       setActiveSection(null);
@@ -290,6 +292,9 @@ export default function Home() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
+  // Symmetric spacing logic: Halved on mobile, generous on desktop
+  const nexusSpacing = isMobile ? '-35px' : (window.innerWidth < 1024 ? '-70px' : '-90px');
+
   return (
     <div className="min-h-screen relative overflow-x-hidden bg-white">
       <style>{glitchStyles}</style>
@@ -303,9 +308,8 @@ export default function Home() {
             key="main-content"
             initial={{ opacity: 1 }}
             exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.5 } }}
-            className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 pt-6 pb-12 sm:py-12 gap-6 sm:gap-4"
+            className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 pt-6 pb-8 sm:py-12 gap-0 sm:gap-4"
           >
-            {/* Header Section */}
             <motion.div
               className="text-center flex flex-col items-center w-full"
               initial={{ opacity: 0, y: -10 }}
@@ -330,21 +334,19 @@ export default function Home() {
               <QuoteBox onGameUnlock={handleGameUnlock} />
             </motion.div>
 
-            {/* Nexus Component */}
-            <div className="relative mt-1 mb-[-15px] sm:my-[-65px] lg:my-[-90px] z-20">
+            {/* Nexus Component - Symmetric Vertical Offset */}
+            <div className="relative z-20" style={{ marginTop: nexusSpacing, marginBottom: nexusSpacing }}>
                 <Nexus activeSection={activeSection} onSelect={handleSelect} />
             </div>
 
-            {/* Footer Buttons */}
             <div className="flex flex-col items-center gap-4 w-full z-30">
-              <div className="flex gap-4 flex-wrap justify-center mt-2 sm:mt-[-15px] pb-0">
+              <div className="flex gap-4 flex-wrap justify-center pb-0">
                 <PillBtn href="https://www.linkedin.com/in/lancelotnk/" icon={Linkedin} label="LinkedIn" />
                 <PillBtn href="https://github.com/lancelot-nk" icon={Github} label="GitHub" />
                 <PillBtn href="mailto:lancelotsmnk@gmail.com" icon={Mail} label="Contact For Work" />
                 <PillBtn onClick={() => handleSelect('resume')} icon={FileDown} label="Resume" />
               </div>
 
-              {/* Glitch Book A Call Button */}
               <motion.a
                 href="https://calendly.com/lancelotnk/30min"
                 target="_blank"
@@ -363,7 +365,6 @@ export default function Home() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
-                {/* Glitch Overlay Layers */}
                 {callHov && (
                   <>
                     <div style={{ position: 'absolute', inset: 0, background: PINK, opacity: 0.4, animation: 'glitch-pill 0.3s steps(1) infinite', mixBlendMode: 'screen', pointerEvents: 'none' }} />
@@ -381,19 +382,14 @@ export default function Home() {
         )}
       </AnimatePresence>
 
-      {/* Conditional Game Layer */}
-      {gameActive && (
-        <BlobGame onClose={() => setGameActive(false)} />
-      )}
+      {gameActive && <BlobGame onClose={() => setGameActive(false)} />}
 
-      {/* Content Panel Section */}
       {!gameActive && (
         <div ref={contentRef} className="relative z-10">
           <ContentPanel activeSection={activeSection} />
         </div>
       )}
 
-      {/* Back to Top Button */}
       <AnimatePresence>
         {showBackToTop && !gameActive && (
           <motion.button

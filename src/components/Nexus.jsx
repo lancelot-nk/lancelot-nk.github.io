@@ -48,8 +48,12 @@ function PortraitLoader({ core, onComplete }) {
 }
 
 function getLayout(w) {
-  // Mobile: Reduced size to minimize empty safety area, keeping it tight to the hexagons
-  if (w < 480) return { size: 300, core: 70, radius: 95, hex: 70, fontSize: 10, isMobile: true,  lineCount: 5,  scaleFactor: 0.55, blur: 1 };
+  /**
+   * Mobile: Restored larger spatial proportions. 
+   * Container 'size' is kept tight (350) to minimize parent layout impact,
+   * but 'radius' and 'hex' are scaled back up for that large, spread-out look.
+   */
+  if (w < 480) return { size: 350, core: 80, radius: 110, hex: 85, fontSize: 11, isMobile: true,  lineCount: 6,  scaleFactor: 0.7, blur: 1 };
   if (w < 900) return { size: 550, core: 110, radius: 180, hex: 110, fontSize: 16, isMobile: false, lineCount: 10, scaleFactor: 0.8, blur: 2 };
   return               { size: 850, core: 175, radius: 255, hex: 155, fontSize: 24, isMobile: false, lineCount: 10, scaleFactor: 1,   blur: 2 };
 }
@@ -263,8 +267,8 @@ export default function Nexus({ activeSection, onSelect, isLocked }) {
   const cy        = size / 2;
   const brandPink = PINK;
   
-  // Minimal padding for mobile to allow the container to collapse closer to content
-  const padding   = (isMobile ? 8 : 18) * scaleFactor;
+  // Minimal padding for mobile to keep space tight
+  const padding   = (isMobile ? 6 : 18) * scaleFactor;
 
   const bounds = useMemo(() => ({
     minX: padding,
@@ -372,7 +376,7 @@ export default function Nexus({ activeSection, onSelect, isLocked }) {
             onClick={() => !isLocked && onSelect(s.id)}
           >
             <div className="relative w-full h-full flex flex-col items-center justify-center gap-3 pointer-events-none">
-              <s.icon size={isMobile ? 22 : 34} style={{ color: hoveredId === s.id ? brandPink : 'white' }} />
+              <s.icon size={isMobile ? 26 : 34} style={{ color: hoveredId === s.id ? brandPink : 'white' }} />
               <span
                 className="font-mono uppercase font-black text-center whitespace-pre-line"
                 style={{ fontSize: `${fontSize}px`, color: hoveredId === s.id ? '#4A0000' : 'white', lineHeight: '1.1' }}
