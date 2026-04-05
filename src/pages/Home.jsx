@@ -289,7 +289,7 @@ export default function Home() {
             key="main-content"
             initial={{ opacity: 1 }}
             exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.5 } }}
-            className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 pt-6 pb-12 sm:py-12 gap-2 sm:gap-4"
+            className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 pt-6 pb-12 sm:py-12 gap-6 sm:gap-4"
           >
             {/* Header Section */}
             <motion.div
@@ -316,15 +316,15 @@ export default function Home() {
               <QuoteBox onGameUnlock={handleGameUnlock} />
             </motion.div>
 
-            {/* Nexus Component */}
-            <div className="relative pointer-events-none my-[-50px] sm:my-[-65px] lg:my-[-90px] z-20">
+            {/* Nexus Component - Adjusted margins for mobile to prevent overlap */}
+            <div className="relative pointer-events-none mt-2 mb-[-30px] sm:my-[-65px] lg:my-[-90px] z-20">
               <div className="pointer-events-auto">
                 <Nexus activeSection={activeSection} onSelect={handleSelect} />
               </div>
             </div>
 
-            {/* Footer Buttons */}
-            <div className="flex gap-4 flex-wrap justify-center mt-0 sm:mt-[-15px] pb-8 sm:pb-0 z-30">
+            {/* Footer Buttons - Adjusted top margin for mobile */}
+            <div className="flex gap-4 flex-wrap justify-center mt-4 sm:mt-[-15px] pb-8 sm:pb-0 z-30">
               <PillBtn href="https://www.linkedin.com/in/lancelotnk/" icon={Linkedin} label="LinkedIn" />
               <PillBtn href="https://github.com/lancelot-nk" icon={Github} label="GitHub" />
               <PillBtn href="mailto:lancelotsmnk@gmail.com" icon={Mail} label="Contact For Work" />

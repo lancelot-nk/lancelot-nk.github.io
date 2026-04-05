@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Loader2, Volume2, VolumeX } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
+import themeAudio from '../assets/theme.mp3';
 
 // ─── Mobile detection ─────────────────────────────────────────────────────────
 const isMobile = () => /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth < 768;
@@ -239,10 +240,10 @@ const BlobGame = ({ onClose }) => {
   // ─── Audio ───────────────────────────────────────────────────────────────────
   useEffect(() => {
     const audio = new Audio();
-    audio.src = '/src/assets/theme.mp3';
+    audio.src = themeAudio;
     audio.loop = true;
     audio.volume = 0.55;
-    audio.preload = 'none';
+    audio.preload = 'auto';
     audioRef.current = audio;
     return () => {
       if (audioRef.current) {
@@ -315,6 +316,8 @@ const BlobGame = ({ onClose }) => {
       score.current = Math.min(score.current + 15 + sizeBonus, MAX_SCORE);
       const mob = mobileRef.current;
       playerSize.current = Math.min(playerSize.current + (mob ? 0.4 : 0.8), mob ? MOB_MAX_PLAYER : 500);
+      setDisplayScore(score.current);
+      setDisplayPlayerSize(playerSize.current);
     };
 
     // Enemy absorbs a particle (dispatched by ParticleField with enemyId)
@@ -536,6 +539,9 @@ const BlobGame = ({ onClose }) => {
     screenRef.current = 'playing';
     setScreen('playing');
     gameStartTime.current = Date.now();
+    if (audioRef.current && !mutedRef.current) {
+      audioRef.current.play().catch(() => {});
+    }
   }, [resetGame]);
 
   const goToTitle = useCallback(() => {
@@ -767,6 +773,7 @@ const BlobGame = ({ onClose }) => {
           const delta = Math.abs(normalizeAngle(angle - arc.angle));
           if (delta <= arc.span * 0.5) {
             score.current = Math.min(score.current + (e.isBoss ? 1200 : 600), MAX_SCORE);
+            setDisplayScore(score.current);
             enemies.current.splice(j, 1);
           }
         }
@@ -816,7 +823,11 @@ const BlobGame = ({ onClose }) => {
             if (Math.hypot(p.x - e.x, p.y - e.y) < hitR + p.size / 2) {
               if (e.type === 'saturn') {
                 e.hits++;
-                if (e.hits >= 3) { score.current = Math.min(score.current + 3000, MAX_SCORE); enemies.current.splice(j, 1); }
+                if (e.hits >= 3) {
+                  score.current = Math.min(score.current + 3000, MAX_SCORE);
+                  setDisplayScore(score.current);
+                  enemies.current.splice(j, 1);
+                }
               } else if (e.type === 'slime') {
                 if (e.size > 28) {
                   const halfSize = e.size * 0.5;
@@ -834,12 +845,17 @@ const BlobGame = ({ onClose }) => {
                   enemies.current.splice(j, 1);
                 } else {
                   e.size *= 0.78;
-                  if (e.size < 14) { score.current = Math.min(score.current + 2000, MAX_SCORE); enemies.current.splice(j, 1); }
+                  if (e.size < 14) {
+                    score.current = Math.min(score.current + 2000, MAX_SCORE);
+                    setDisplayScore(score.current);
+                    enemies.current.splice(j, 1);
+                  }
                 }
               } else {
                 e.size *= 0.78;
                 if (e.size < 14) {
                   score.current = Math.min(score.current + (e.isBoss ? 1000 : 500), MAX_SCORE);
+                  setDisplayScore(score.current);
                   enemies.current.splice(j, 1);
                 }
               }
@@ -973,6 +989,8 @@ const BlobGame = ({ onClose }) => {
               const maxP = mob ? MOB_MAX_PLAYER : 500;
               playerSize.current = Math.min(Math.sqrt(playerSize.current ** 2 + e.size * e.size), maxP);
               score.current = Math.min(score.current + 2000, MAX_SCORE);
+              setDisplayScore(score.current);
+              setDisplayPlayerSize(playerSize.current);
               enemies.current.splice(i, 1);
               continue;
             }
@@ -984,6 +1002,8 @@ const BlobGame = ({ onClose }) => {
             const maxP = mob ? MOB_MAX_PLAYER : 500;
             playerSize.current = Math.min(Math.sqrt(playerSize.current ** 2 + e.size * e.size), maxP);
             score.current = Math.min(score.current + Math.floor(e.size * 1.5) + (e.isBoss ? 1000 : 500), MAX_SCORE);
+            setDisplayScore(score.current);
+            setDisplayPlayerSize(playerSize.current);
             enemies.current.splice(i, 1);
             continue;
           }
@@ -1143,6 +1163,10 @@ const BlobGame = ({ onClose }) => {
       const mag = Math.hypot(dx, dy);
       if (mag > 1) {
         fireProjectile(playerPos.current.x, playerPos.current.y, (dx / mag) * PROJECTILE_SPEED, (dy / mag) * PROJECTILE_SPEED, '#00FF88', 'player', playerSize.current);
+        if (audioRef.current && !mutedRef.current) {
+          if (!audioLoadedRef.current) { audioRef.current.load(); audioLoadedRef.current = true; }
+          audioRef.current.play().catch(() => {});
+        }
         if (bajaActiveRef.current) {
           for (let k = 0; k < 9; k++) {
             const angle = Math.random() * Math.PI * 2;
