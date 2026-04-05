@@ -26,6 +26,15 @@ const DESIGNS = [
 
 export default function DesignSection() {
   const [selectedImg, setSelectedImg] = useState(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Monitor screen size for mobile-specific styles
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Close on Escape key
   useEffect(() => {
@@ -118,34 +127,40 @@ export default function DesignSection() {
               position: 'fixed',
               inset: 0,
               zIndex: 9999,
-              background: 'rgba(15, 0, 30, 0.95)',
-              backdropFilter: 'blur(8px)',
+              background: 'rgba(15, 0, 30, 0.97)',
+              backdropFilter: 'blur(12px)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              padding: '2rem',
+              padding: isMobile ? '10px' : '2rem',
               cursor: 'zoom-out'
             }}
           >
+            {/* Optimized Mobile Close Button */}
             <motion.button
-              onClick={() => setSelectedImg(null)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedImg(null);
+              }}
               style={{
                 position: 'absolute',
-                top: '20px',
-                right: '20px',
+                top: isMobile ? '15px' : '20px',
+                right: isMobile ? '15px' : '20px',
                 background: PINK,
                 border: 'none',
                 borderRadius: '50%',
-                padding: '10px',
+                padding: isMobile ? '8px' : '10px',
                 color: 'white',
                 cursor: 'pointer',
                 display: 'flex',
-                boxShadow: '0 4px 15px rgba(0,0,0,0.3)'
+                boxShadow: '0 4px 15px rgba(0,0,0,0.4)',
+                zIndex: 10000,
+                touchAction: 'manipulation'
               }}
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
             >
-              <X size={24} strokeWidth={3} />
+              <X size={isMobile ? 20 : 24} strokeWidth={3} />
             </motion.button>
 
             <motion.img
@@ -153,12 +168,14 @@ export default function DesignSection() {
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
               style={{
-                maxWidth: '95%',
-                maxHeight: '95vh',
+                maxWidth: '100%',
+                maxHeight: isMobile ? '85vh' : '95vh',
                 borderRadius: '0.5rem',
                 boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
-                objectFit: 'contain'
+                objectFit: 'contain',
+                marginTop: isMobile ? '20px' : '0'
               }}
             />
           </motion.div>
