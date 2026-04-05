@@ -51,7 +51,7 @@ const CERTS = [
     title: 'Project Management Essentials', 
     issuer: 'Management & Strategy Institute', 
     date: '08/2021', 
-    link: '#', 
+    link: 'https://courses.msicertified.com/course/project-management-essentials-certification?ref=StoreYa&utm_source=stry&utm_medium=trafb&utm_term=&utm_campaign=storeya60&gad_source=1', 
     desc: 'Foundational project management principles, resource planning, and quality assurance frameworks.', 
     img: cert5 
   },
