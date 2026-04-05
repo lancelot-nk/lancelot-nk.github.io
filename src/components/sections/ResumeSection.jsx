@@ -1,20 +1,20 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Briefcase, GraduationCap, Award, Wrench, ExternalLink,
-  Search, ChevronDown, BookOpen, Star, Users, FlaskConical,
-  FileText, Globe
+  Search, ChevronDown, Star, FileText, Languages,
 } from 'lucide-react';
 
-// ── Brand Colors (darkened for legibility) ─────────────────────────────────
-const PINK   = '#C0005E';   // was #E01880
-const VIOLET = '#6A00C8';   // was #8B00E8
-const DEEP   = '#1A0030';   // deep text
-const MID    = '#4A0050';   // mid text
-const SOFT   = '#7A1060';   // soft accent text
-const BORDER = 'rgba(192,0,94,0.18)';
+// ── Brand Colors ────────────────────────────────────────────────────────────
+const PINK   = '#B8004E';
+const VIOLET = '#5800B8';
+const DEEP   = '#0F001E';
+const MID    = '#320040';
+const SOFT   = '#6A0A50';
+const MUTED  = '#4A1040';
+const BORDER = 'rgba(184,0,78,0.22)';
 
-// ── Download placeholders (update hrefs to real files when ready) ──────────
+// ── Download placeholders ────────────────────────────────────────────────────
 const DOWNLOAD_LINKS = [
   { label: 'Main Resume',              href: '/src/assets/resume1.pdf' },
   { label: 'Data Scientist + Analyst', href: '/src/assets/resume2.pdf' },
@@ -22,14 +22,14 @@ const DOWNLOAD_LINKS = [
   { label: 'Technology',               href: '/src/assets/resume4.pdf' },
 ];
 
-// ── Cross-section signal tokens (for requirement #7) ──────────────────────
-// These are emitted when filter/search fires, so sibling sections can react.
-// Sibling sections should listen for window event 'resume-filter-change'.
+// ── Cross-section event emitter ──────────────────────────────────────────────
 function emitFilterSignal(payload) {
   window.dispatchEvent(new CustomEvent('resume-filter-change', { detail: payload }));
 }
 
-// ── Data ──────────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════════════════════════════
 
 const ALL_EXPERIENCE = [
   {
@@ -109,13 +109,13 @@ const ALL_EXPERIENCE = [
     ],
   },
   {
-    role: 'Environmental Researcher, Oil Train Safety',
+    role: 'Environmental Researcher — Oil Train Safety',
     org: 'Federal Railroad Administration',
     location: 'Washington, DC',
     period: '04/2021 – 07/2021',
     tags: ['program', 'data'],
     bullets: [
-      'Completed research for the Hazardous Materials and Human Factors Division in accordance with regulatory principals and localized nuance, contributing to policy movements in urban transport.',
+      'Completed research for the Hazardous Materials and Human Factors Division in accordance with regulatory principals, attributing to policy movements in urban transport at multiple levels of scale.',
       'Produced reports and policy coverage material that informed agency-wide programming, significantly reducing localized safety risks in implementation.',
       'Applied GIS spatial analysis and NEPA environmental frameworks to assess infrastructure risk corridors.',
       'Tools: ArcGIS (Spatial Analysis), NEPA Frameworks, FRA Safety Standards, Tableau, Graphic Design, Adobe Acrobat.',
@@ -129,7 +129,7 @@ const ALL_EXPERIENCE = [
     tags: ['tech', 'data'],
     bullets: [
       'Maintained client satisfaction and onboarding stability through troubleshooting, data entry, and safety checks of hardware and software compatibility.',
-      'Leveraged technical experience and customer engagement techniques to increase lead generation and customer satisfaction by 30% each.',
+      'Leveraged technical experience and customer engagement to increase lead generation and customer satisfaction by 30% each.',
       'Supported integration of AI-powered fleet telematics dashboards and DriveCam API systems for enterprise B2B clients.',
       'Tools: Salesforce CRM, Gainsight (CSM), Zendesk (Ticketing), HubSpot, Jira (Bug Tracking), Lytx DriveCam API, Oracle NetSuite (ERP).',
     ],
@@ -155,7 +155,7 @@ const ALL_EXPERIENCE = [
     tags: ['program'],
     bullets: [
       'Derived textual and budgetary analysis for DOEE grant applications to promote green workforce development and transformation of Kingman Island greenspace.',
-      'Orchestrated a suite of wraparound programs and successfully designed a grant-funded meta-analysis for their integration and cross-participation, enhancing educational and workforce opportunities.',
+      'Orchestrated a suite of wraparound programs and successfully designed a grant-funded meta-analysis for their integration and cross-participation.',
       'Tools: Salesforce (NPSP), VolunteerHub, Excel (VBA/Budgetary Modeling), E-Grants (DOEE Portal), SMART (Participant Tracking), SurveyMonkey.',
     ],
   },
@@ -179,8 +179,8 @@ const ALL_EXPERIENCE = [
     tags: ['program'],
     bullets: [
       'Led campus sustainability initiatives as Green Fund Chair, allocating budget for campus environmental projects including renewable energy installations and waste-reduction programs.',
-      'Served as Student Body President, Roosevelt Institute Treasurer, and intercollegiate swimmer.',
-      'Coordinated policy research for green infrastructure proposals submitted to college administration.',
+      'Served as Student Body President (2017–2018), Roosevelt Institute Chapter Treasurer, and intercollegiate swimmer.',
+      'Coordinated policy research for green infrastructure proposals submitted to college administration and external stakeholders.',
     ],
   },
 ];
@@ -204,7 +204,7 @@ const EDUCATION = [
     school: 'Brunswick High School',
     degree: 'Standard Diploma',
     period: '2011–2015',
-    note: 'Brunswick, ME. Member of swim team.',
+    note: 'Brunswick, ME. ACT Score: 35 (Feb 2015) — 99th percentile nationally. Member of swim team.',
     tags: [],
   },
 ];
@@ -246,7 +246,7 @@ const CERTS = [
     tags: ['program'],
   },
   {
-    title: 'NIH Research Ethics (Human Subjects)',
+    title: 'NIH Research Ethics — Human Subjects',
     issuer: 'National Institutes of Health',
     date: '05/2018',
     link: 'https://oir.nih.gov/sourcebook/ethical-conduct/research-ethics',
@@ -287,19 +287,31 @@ const AWARDS_VOLUNTEER = [
     title: 'Kingman Island Volunteer Steward',
     org: 'Living Classrooms Foundation DC',
     period: '2019',
-    desc: 'Volunteer environmental stewardship on Kingman Island, Anacostia River ecosystem restoration and community programming.',
+    desc: 'Volunteer environmental stewardship on Kingman Island, Anacostia River ecosystem restoration and green workforce programming.',
     tags: ['program'],
   },
   {
-    title: 'Federal Contractor — Independent Award',
-    org: 'Federal Agencies (Multiple)',
+    title: 'Federal Contractor — Independent Award (Multiple Agencies)',
+    org: 'Federal Agencies',
     period: '2021–2022',
-    desc: 'Awarded multiple independent federal contracts across asset, cyber, monetary, and domestic research and management domains.',
+    desc: 'Awarded multiple independent federal contracts across asset management, cybersecurity, monetary, and domestic research and management domains.',
     tags: ['data', 'program', 'tech'],
+  },
+  {
+    title: 'ACT Score: 35 — 99th Percentile',
+    org: 'ACT / CollegeBoard',
+    period: 'Feb 2015',
+    desc: 'Scored 35/36 on the ACT college admissions examination, placing in the 99th percentile nationally.',
+    tags: [],
   },
 ];
 
-// Publications / Research / Grants
+const LANGUAGES = [
+  { lang: 'English', level: 'Native or Bilingual Proficiency', tags: [] },
+  { lang: 'Spanish', level: 'Professional Working Proficiency', tags: [] },
+  { lang: 'French',  level: 'Elementary Proficiency', tags: [] },
+];
+
 const PUBLICATIONS = [
   {
     title: 'IRB-Approved Study: Natural Gas Cremation & Spiritual Tradition — Sankat Mochan Water Foundation',
@@ -330,6 +342,22 @@ const PUBLICATIONS = [
     venue: 'New York City Human Resources Administration',
     period: '09/2024',
     desc: 'Authored ground-research and testing data reports informing enterprise infrastructure updates to the $7.6B NYC SNAP/EBT system, reducing workload by 40% and increasing accuracy by 25%.',
+    tags: ['data', 'program'],
+    type: 'research',
+  },
+  {
+    title: 'Private Grant Proposal — Solar Cooking Wraparound Services (FXB)',
+    venue: 'Solar Household Energy, Inc.',
+    period: '07/2020',
+    desc: 'Comprehensive private grant proposal covering R&D and multi-actor implementation projects for improved indoor air quality and sustainable energy access.',
+    tags: ['program'],
+    type: 'grant',
+  },
+  {
+    title: 'Lead & Public Health Literature Review',
+    venue: 'Goucher College / IRB',
+    period: '2018',
+    desc: 'Comprehensive literature review on lead exposure and public health implications, conducted in accordance with NIH principles and contributing to undergraduate policy research publications.',
     tags: ['data', 'program'],
     type: 'research',
   },
@@ -419,47 +447,47 @@ const SKILL_GROUPS = [
 ];
 
 const SKILL_RELATIONS = {
-  crm: ['salesforce', 'hubspot', 'gainsight', 'zendesk', 'dynamics', 'netsuite'],
-  database: ['sql', 'nosql', 'cosmos db', 'bigquery', 'snowflake', 'dbt', 'mongodb', 'postgresql', 'mysql'],
-  cloud: ['azure', 'aws', 'databricks', 'blob storage', 'data lake', 'gcp', 'synapse', 'data factory'],
-  analytics: ['tableau', 'power bi', 'excel', 'seaborn', 'matplotlib', 'qlik', 'thoughtspot', 'google analytics'],
-  ml: ['scikit-learn', 'tensorflow', 'keras', 'pytorch', 'machine learning', 'deep learning', 'neural networks'],
+  crm:                  ['salesforce', 'hubspot', 'gainsight', 'zendesk', 'dynamics', 'netsuite'],
+  database:             ['sql', 'nosql', 'cosmos db', 'bigquery', 'snowflake', 'dbt', 'mongodb', 'postgresql', 'mysql'],
+  cloud:                ['azure', 'aws', 'databricks', 'blob storage', 'data lake', 'gcp', 'synapse', 'data factory'],
+  analytics:            ['tableau', 'power bi', 'excel', 'seaborn', 'matplotlib', 'qlik', 'thoughtspot', 'google analytics'],
+  ml:                   ['scikit-learn', 'tensorflow', 'keras', 'pytorch', 'machine learning', 'deep learning', 'neural networks'],
   'project management': ['jira', 'asana', 'monday.com', 'agile', 'scrum', 'microsoft project', 'zapier'],
-  data: ['python', 'sql', 'pandas', 'numpy', 'tableau', 'power bi', 'dbt', 'spark', 'snowflake', 'bigquery'],
-  ai: ['tensorflow', 'keras', 'pytorch', 'langchain', 'hugging face', 'openai', 'gpt', 'transformers', 'nlp', 'computer vision'],
-  programming: ['python', 'r', 'java', 'javascript', 'html', 'css', 'sql', 't-sql', 'stata', 'matlab'],
-  visualization: ['tableau', 'power bi', 'seaborn', 'matplotlib', 'qlik', 'thoughtspot', 'arcgis'],
-  gis: ['arcgis', 'spatial analysis', 'nepa', 'geospatial'],
-  automation: ['uipath', 'rpa', 'power automate', 'zapier', 'airflow', 'etl', 'elt'],
-  grant: ['grant writing', 'grant procurement', 'doee', 'prism', 'e-grants', 'npsp'],
-  policy: ['nepa', 'nist', 'rmf', 'nih', 'irb', 'regulatory', 'compliance'],
-  federal: ['nist', 'rmf', 'fra', 'hra', 'nepa', 'federal', 'government'],
-  nlp: ['nlp', 'natural language processing', 'transformers', 'langchain', 'hugging face', 'sentiment analysis'],
-  security: ['nist', 'rmf', 'cybersecurity', 'data security', 'data privacy', 'certnexus'],
-  snap: ['snap', 'ebt', 'hra', 'curam', 'wms', 'pos', 'welfare'],
-  nonprofit: ['salesforce npsp', 'volunteerhub', 'mailchimp', 'donor management', 'grant'],
-  etl: ['etl', 'elt', 'airflow', 'spark', 'dbt', 'data factory', 'ssis', 'pipeline'],
+  data:                 ['python', 'sql', 'pandas', 'numpy', 'tableau', 'power bi', 'dbt', 'spark', 'snowflake', 'bigquery'],
+  ai:                   ['tensorflow', 'keras', 'pytorch', 'langchain', 'hugging face', 'openai', 'gpt', 'transformers', 'nlp', 'computer vision'],
+  programming:          ['python', 'r', 'java', 'javascript', 'html', 'css', 'sql', 't-sql', 'stata', 'matlab'],
+  visualization:        ['tableau', 'power bi', 'seaborn', 'matplotlib', 'qlik', 'thoughtspot', 'arcgis'],
+  gis:                  ['arcgis', 'spatial analysis', 'nepa', 'geospatial'],
+  automation:           ['uipath', 'rpa', 'power automate', 'zapier', 'airflow', 'etl', 'elt'],
+  grant:                ['grant writing', 'grant procurement', 'doee', 'prism', 'e-grants', 'npsp', 'rfp'],
+  policy:               ['nepa', 'nist', 'rmf', 'nih', 'irb', 'regulatory', 'compliance'],
+  federal:              ['nist', 'rmf', 'fra', 'hra', 'nepa', 'federal', 'government'],
+  nlp:                  ['nlp', 'natural language processing', 'transformers', 'langchain', 'hugging face', 'sentiment analysis'],
+  security:             ['nist', 'rmf', 'cybersecurity', 'data security', 'data privacy', 'certnexus'],
+  snap:                 ['snap', 'ebt', 'hra', 'curam', 'wms', 'pos', 'welfare'],
+  nonprofit:            ['salesforce npsp', 'volunteerhub', 'mailchimp', 'donor management', 'grant'],
+  etl:                  ['etl', 'elt', 'airflow', 'spark', 'dbt', 'data factory', 'ssis', 'pipeline'],
+  research:             ['irb', 'nih', 'qualtrics', 'nvivo', 'spss', 'zotero', 'qualitative', 'literature review'],
+  design:               ['adobe', 'figma', 'canva', 'autocad', 'davinci', 'premiere', 'after effects', 'motion graphics'],
+  language:             ['english', 'spanish', 'french'],
 };
 
 const FILTER_OPTIONS = [
   { value: 'main',    label: 'Main — Full Resume',        color: PINK },
-  { value: 'data',    label: 'Data Scientist + Analyst',  color: '#005FAD' },
-  { value: 'program', label: 'Program Manager',           color: '#0A6B0A' },
+  { value: 'data',    label: 'Data Scientist + Analyst',  color: '#004FA8' },
+  { value: 'program', label: 'Program Manager',           color: '#076607' },
   { value: 'tech',    label: 'Technology',                color: VIOLET },
 ];
 
-// ── Helpers ─────────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════════════════════════
 
-/**
- * Builds a set of lowercase matched terms from a search query,
- * checking skills, relations, and free-text in bullets/titles.
- */
 function relationalSearch(query) {
   if (!query.trim()) return null;
   const q = query.toLowerCase().trim();
   const matched = new Set();
 
-  // Direct skill match
   SKILL_GROUPS.forEach(g =>
     g.items.forEach(item => {
       if (item.toLowerCase().includes(q) || q.includes(item.toLowerCase()))
@@ -467,7 +495,6 @@ function relationalSearch(query) {
     })
   );
 
-  // Relational skill expansion
   Object.entries(SKILL_RELATIONS).forEach(([key, vals]) => {
     if (key.includes(q) || q.includes(key)) vals.forEach(v => matched.add(v));
     if (vals.some(v => v.includes(q) || q.includes(v))) {
@@ -476,129 +503,123 @@ function relationalSearch(query) {
     }
   });
 
-  // Always include the raw query so text matching works
   matched.add(q);
   return matched;
 }
 
-/**
- * Highlights occurrences of any term in `matchSet` within `text`.
- * Returns an array of React nodes.
- */
-function highlightText(text, matchSet, baseColor = MID) {
+function highlightText(text, matchSet) {
   if (!matchSet || matchSet.size === 0) return text;
   const terms = Array.from(matchSet).filter(t => t.length > 1);
-  if (terms.length === 0) return text;
-
-  // Build regex alternation sorted longest-first for greediness
+  if (!terms.length) return text;
   const pattern = terms
     .sort((a, b) => b.length - a.length)
     .map(t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
     .join('|');
   const regex = new RegExp(`(${pattern})`, 'gi');
   const parts = text.split(regex);
-
-  return parts.map((part, i) =>
+  let keyIdx = 0;
+  return parts.map(part =>
     regex.test(part)
-      ? (
-        <mark
-          key={i}
-          style={{
-            background: `${PINK}28`,
-            color: PINK,
-            fontWeight: 700,
-            borderRadius: 3,
-            padding: '0 2px',
-          }}
-        >
-          {part}
-        </mark>
-      )
+      ? <mark key={keyIdx++} style={{ background: `${PINK}2A`, color: PINK, fontWeight: 700, borderRadius: 3, padding: '0 2px' }}>{part}</mark>
       : part
   );
 }
 
-/**
- * Returns true if an experience entry matches the search query
- * (loosely — any term from matchSet found anywhere in text).
- */
+function textMatchesSet(text, matchSet) {
+  if (!matchSet) return true;
+  const blob = text.toLowerCase();
+  return Array.from(matchSet).some(t => t.length > 1 && blob.includes(t));
+}
+
 function expMatchesSearch(exp, matchSet) {
-  if (!matchSet) return true;
-  const blob = [
-    exp.role, exp.org, exp.location, exp.period,
-    ...exp.bullets,
-  ].join(' ').toLowerCase();
-  return Array.from(matchSet).some(t => t.length > 1 && blob.includes(t));
+  return textMatchesSet([exp.role, exp.org, exp.location, ...exp.bullets].join(' '), matchSet);
 }
-
-function certMatchesSearch(cert, matchSet) {
-  if (!matchSet) return true;
-  const blob = [cert.title, cert.issuer, cert.date].join(' ').toLowerCase();
-  return Array.from(matchSet).some(t => t.length > 1 && blob.includes(t));
+function certMatchesSearch(c, matchSet) {
+  return textMatchesSet([c.title, c.issuer, c.date].join(' '), matchSet);
 }
-
-function eduMatchesSearch(edu, matchSet) {
-  if (!matchSet) return true;
-  const blob = [edu.school, edu.degree, edu.note].join(' ').toLowerCase();
-  return Array.from(matchSet).some(t => t.length > 1 && blob.includes(t));
+function eduMatchesSearch(e, matchSet) {
+  return textMatchesSet([e.school, e.degree, e.note].join(' '), matchSet);
 }
-
 function awardMatchesSearch(a, matchSet) {
-  if (!matchSet) return true;
-  const blob = [a.title, a.org, a.desc].join(' ').toLowerCase();
-  return Array.from(matchSet).some(t => t.length > 1 && blob.includes(t));
+  return textMatchesSet([a.title, a.org, a.desc].join(' '), matchSet);
 }
-
 function pubMatchesSearch(p, matchSet) {
-  if (!matchSet) return true;
-  const blob = [p.title, p.venue, p.desc, p.type].join(' ').toLowerCase();
-  return Array.from(matchSet).some(t => t.length > 1 && blob.includes(t));
+  return textMatchesSet([p.title, p.venue, p.desc, p.type].join(' '), matchSet);
 }
 
-// ── Shared styles ─────────────────────────────────────────────────────────
-const cardStyle = {
-  borderRadius: '0.85rem',
-  border: `1px solid ${BORDER}`,
-  background: 'rgba(255,255,255,0.88)',
-  backdropFilter: 'blur(12px)',
-  padding: '1.2rem',
+// ═══════════════════════════════════════════════════════════════════════════
+// SHARED STYLES
+// ═══════════════════════════════════════════════════════════════════════════
+
+const cardBase = {
+  borderRadius: '1rem',
+  border: `2px solid ${BORDER}`,
+  background: 'rgba(255,255,255,0.93)',
+  backdropFilter: 'blur(16px)',
+  padding: '1.45rem',
+  boxShadow: '0 4px 24px rgba(184,0,78,0.07), 0 1px 4px rgba(0,0,0,0.04)',
+  transition: 'box-shadow 0.25s ease, border-color 0.25s ease, transform 0.25s ease',
 };
 
-const sHead = { display: 'flex', alignItems: 'center', gap: 8, marginBottom: '0.9rem' };
+const sHead = { display: 'flex', alignItems: 'center', gap: 9, marginBottom: '1.1rem' };
 const sTitle = {
-  fontSize: '0.62rem',
+  fontSize: '0.68rem',
   fontFamily: 'JetBrains Mono, monospace',
   textTransform: 'uppercase',
-  letterSpacing: '0.3em',
+  letterSpacing: '0.28em',
   color: PINK,
   margin: 0,
-  fontWeight: 700,
+  fontWeight: 800,
 };
 
-// ── Sub-components ─────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+// SUB-COMPONENTS — hooks always at top level, NEVER inside .map()
+// ═══════════════════════════════════════════════════════════════════════════
+
+/** Outer card wrapper with hover lift effect */
+function SectionCard({ children, style = {} }) {
+  const [hov, setHov] = useState(false);
+  return (
+    <div
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{
+        ...cardBase,
+        ...style,
+        ...(hov ? {
+          boxShadow: '0 14px 52px rgba(184,0,78,0.16), 0 3px 10px rgba(0,0,0,0.07)',
+          borderColor: 'rgba(184,0,78,0.42)',
+          transform: 'translateY(-2px)',
+        } : {}),
+      }}
+    >
+      {children}
+    </div>
+  );
+}
 
 function SkillPill({ item, active, onClick }) {
-  const [hovered, setHovered] = useState(false);
-  const isOn = active || hovered;
+  const [hov, setHov] = useState(false);
+  const on = active || hov;
   return (
     <span
       onClick={() => onClick(item)}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
       title={`Search "${item}"`}
       style={{
-        fontSize: '0.64rem',
+        fontSize: '0.74rem',
         fontFamily: 'JetBrains Mono, monospace',
-        padding: '3px 9px',
-        borderRadius: 4,
-        border: isOn ? `1px solid ${PINK}` : `1px solid rgba(192,0,94,0.2)`,
-        color: isOn ? '#fff' : SOFT,
-        background: isOn ? PINK : hovered ? 'rgba(192,0,94,0.1)' : 'rgba(192,0,94,0.04)',
-        transition: 'all 0.18s',
-        fontWeight: isOn ? 700 : 400,
+        padding: '4px 10px',
+        borderRadius: 5,
+        border: on ? `1.5px solid ${PINK}` : `1.5px solid rgba(184,0,78,0.22)`,
+        color: on ? '#fff' : MUTED,
+        background: on ? PINK : hov ? 'rgba(184,0,78,0.09)' : 'rgba(184,0,78,0.04)',
+        transition: 'all 0.15s',
+        fontWeight: on ? 700 : 500,
         cursor: 'pointer',
         userSelect: 'none',
-        transform: hovered ? 'scale(1.05)' : 'scale(1)',
+        transform: hov ? 'scale(1.07)' : 'scale(1)',
         display: 'inline-block',
       }}
     >
@@ -608,42 +629,41 @@ function SkillPill({ item, active, onClick }) {
 }
 
 function ExpCard({ exp, isHighlighted, matchSet }) {
-  const [hovered, setHovered] = useState(false);
-  const inverted = hovered;
-
+  const [hov, setHov] = useState(false);
   return (
     <div
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
       style={{
-        paddingLeft: '0.9rem',
-        paddingRight: '0.6rem',
-        paddingTop: '0.5rem',
-        paddingBottom: '0.5rem',
-        borderLeft: `3px solid ${isHighlighted || hovered ? PINK : 'rgba(192,0,94,0.18)'}`,
-        borderRadius: '0 8px 8px 0',
-        background: inverted ? `${PINK}12` : 'transparent',
-        transform: hovered ? 'scale(1.012)' : 'scale(1)',
-        transition: 'all 0.22s ease',
+        padding: '0.7rem 0.8rem 0.7rem 1.05rem',
+        borderLeft: `3px solid ${isHighlighted || hov ? PINK : 'rgba(184,0,78,0.2)'}`,
+        borderRadius: '0 10px 10px 0',
+        background: hov ? 'rgba(184,0,78,0.055)' : 'transparent',
+        transform: hov ? 'scale(1.013) translateX(3px)' : 'scale(1)',
+        transition: 'all 0.2s ease',
         cursor: 'default',
       }}
     >
-      <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 4, marginBottom: 4 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 6, marginBottom: 5 }}>
         <div>
-          <h4 style={{ margin: 0, fontSize: '0.87rem', fontWeight: 700, color: isHighlighted ? DEEP : MID }}>
-            {highlightText(exp.role, matchSet, MID)}
+          <h4 style={{ margin: 0, fontSize: '0.97rem', fontWeight: 800, color: isHighlighted ? DEEP : MID, lineHeight: 1.3 }}>
+            {highlightText(exp.role, matchSet)}
           </h4>
-          <p style={{ margin: 0, fontSize: '0.7rem', fontFamily: 'JetBrains Mono, monospace', color: isHighlighted ? PINK : SOFT }}>
+          <p style={{ margin: 0, fontSize: '0.8rem', fontFamily: 'JetBrains Mono, monospace', color: isHighlighted ? PINK : SOFT, fontWeight: 700 }}>
             {highlightText(exp.org, matchSet)} · {exp.location}
           </p>
         </div>
-        <span style={{ fontSize: '0.62rem', fontFamily: 'JetBrains Mono, monospace', color: 'rgba(80,0,50,0.45)', whiteSpace: 'nowrap' }}>
+        <span style={{
+          fontSize: '0.74rem', fontFamily: 'JetBrains Mono, monospace',
+          color: MID, fontWeight: 800, whiteSpace: 'nowrap', alignSelf: 'flex-start',
+          background: 'rgba(184,0,78,0.08)', padding: '3px 9px', borderRadius: 5,
+        }}>
           {exp.period}
         </span>
       </div>
-      <ul style={{ margin: '5px 0 0', paddingLeft: '1rem' }}>
+      <ul style={{ margin: '6px 0 0', paddingLeft: '1.15rem' }}>
         {exp.bullets.map((b, j) => (
-          <li key={j} style={{ fontSize: '0.76rem', color: inverted ? MID : 'rgba(50,0,40,0.6)', lineHeight: 1.7, marginBottom: 3 }}>
+          <li key={j} style={{ fontSize: '0.84rem', color: hov ? MID : MUTED, lineHeight: 1.78, marginBottom: 3 }}>
             {highlightText(b, matchSet)}
           </li>
         ))}
@@ -652,17 +672,165 @@ function ExpCard({ exp, isHighlighted, matchSet }) {
   );
 }
 
-// ── Main Component ─────────────────────────────────────────────────────────
+function CertCard({ cert, matchSet }) {
+  const [hov, setHov] = useState(false);
+  return (
+    <div
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{
+        padding: '0.85rem 1.05rem', borderRadius: 10,
+        border: `2px solid ${hov ? PINK : BORDER}`,
+        background: hov ? 'rgba(184,0,78,0.06)' : 'rgba(255,255,255,0.82)',
+        transform: hov ? 'scale(1.03)' : 'scale(1)',
+        transition: 'all 0.2s',
+        boxShadow: hov ? '0 6px 24px rgba(184,0,78,0.14)' : 'none',
+      }}
+    >
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 6 }}>
+        <p style={{ margin: 0, fontSize: '0.86rem', fontWeight: 700, color: DEEP, lineHeight: 1.4, flex: 1 }}>
+          {highlightText(cert.title, matchSet)}
+        </p>
+        <a href={cert.link} target="_blank" rel="noopener noreferrer" style={{ flexShrink: 0 }}>
+          <ExternalLink style={{ width: 13, height: 13, color: PINK, opacity: 0.8 }} />
+        </a>
+      </div>
+      <p style={{ margin: '5px 0 0', fontSize: '0.74rem', fontFamily: 'JetBrains Mono, monospace', color: SOFT, fontWeight: 700 }}>
+        {cert.issuer} · <span style={{ color: PINK, fontWeight: 800 }}>{cert.date}</span>
+      </p>
+    </div>
+  );
+}
+
+function EduCard({ edu, matchSet }) {
+  const [hov, setHov] = useState(false);
+  return (
+    <div
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{
+        paddingLeft: '1.05rem', paddingTop: '0.55rem', paddingBottom: '0.55rem',
+        borderLeft: `3px solid ${hov ? PINK : BORDER}`,
+        borderRadius: '0 10px 10px 0',
+        background: hov ? 'rgba(184,0,78,0.05)' : 'transparent',
+        transform: hov ? 'scale(1.01) translateX(3px)' : 'scale(1)',
+        transition: 'all 0.2s',
+      }}
+    >
+      <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 5, marginBottom: 4 }}>
+        <div>
+          <h4 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 800, color: DEEP }}>
+            {highlightText(edu.degree, matchSet)}
+          </h4>
+          <p style={{ margin: 0, fontSize: '0.8rem', fontFamily: 'JetBrains Mono, monospace', color: PINK, fontWeight: 700 }}>
+            {highlightText(edu.school, matchSet)}
+          </p>
+        </div>
+        <span style={{
+          fontSize: '0.74rem', fontFamily: 'JetBrains Mono, monospace',
+          color: MID, fontWeight: 800,
+          background: 'rgba(184,0,78,0.08)', padding: '3px 9px', borderRadius: 5,
+        }}>
+          {edu.period}
+        </span>
+      </div>
+      <p style={{ margin: 0, fontSize: '0.82rem', color: MUTED, lineHeight: 1.72 }}>
+        {highlightText(edu.note, matchSet)}
+      </p>
+    </div>
+  );
+}
+
+function AwardCard({ a, matchSet }) {
+  const [hov, setHov] = useState(false);
+  return (
+    <div
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{
+        padding: '0.85rem 1.05rem', borderRadius: 10,
+        border: `2px solid ${hov ? PINK : BORDER}`,
+        background: hov ? 'rgba(184,0,78,0.06)' : 'rgba(255,255,255,0.82)',
+        transform: hov ? 'scale(1.03)' : 'scale(1)',
+        transition: 'all 0.2s',
+        boxShadow: hov ? '0 6px 24px rgba(184,0,78,0.14)' : 'none',
+      }}
+    >
+      <p style={{ margin: 0, fontSize: '0.88rem', fontWeight: 800, color: DEEP }}>
+        {highlightText(a.title, matchSet)}
+      </p>
+      <p style={{ margin: '4px 0 6px', fontSize: '0.73rem', fontFamily: 'JetBrains Mono, monospace', fontWeight: 700 }}>
+        <span style={{ color: PINK }}>{a.org}</span>
+        <span style={{ color: MID, fontWeight: 800 }}> · {a.period}</span>
+      </p>
+      <p style={{ margin: 0, fontSize: '0.81rem', color: MUTED, lineHeight: 1.68 }}>
+        {highlightText(a.desc, matchSet)}
+      </p>
+    </div>
+  );
+}
+
+function PubCard({ pub, matchSet }) {
+  const [hov, setHov] = useState(false);
+  const typeColor = pub.type === 'grant' ? '#076607' : pub.type === 'policy' ? VIOLET : PINK;
+  return (
+    <div
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{
+        paddingLeft: '1.05rem', paddingTop: '0.55rem', paddingBottom: '0.55rem', paddingRight: '0.6rem',
+        borderLeft: `3px solid ${hov ? typeColor : BORDER}`,
+        borderRadius: '0 10px 10px 0',
+        background: hov ? `${typeColor}0D` : 'transparent',
+        transform: hov ? 'scale(1.01) translateX(3px)' : 'scale(1)',
+        transition: 'all 0.2s',
+      }}
+    >
+      <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 5, marginBottom: 4 }}>
+        <div style={{ flex: 1 }}>
+          <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 800, color: DEEP, lineHeight: 1.4 }}>
+            {highlightText(pub.title, matchSet)}
+          </h4>
+          <p style={{ margin: 0, fontSize: '0.75rem', fontFamily: 'JetBrains Mono, monospace', color: SOFT, fontWeight: 600 }}>
+            {pub.venue}
+          </p>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 5 }}>
+          <span style={{
+            fontSize: '0.74rem', fontFamily: 'JetBrains Mono, monospace',
+            color: MID, fontWeight: 800,
+            background: 'rgba(184,0,78,0.08)', padding: '3px 9px', borderRadius: 5,
+          }}>
+            {pub.period}
+          </span>
+          <span style={{
+            fontSize: '0.61rem', fontFamily: 'JetBrains Mono, monospace', textTransform: 'uppercase',
+            letterSpacing: '0.15em', padding: '2px 8px', borderRadius: 4,
+            border: `1.5px solid ${typeColor}77`, color: typeColor, background: `${typeColor}12`, fontWeight: 700,
+          }}>
+            {pub.type}
+          </span>
+        </div>
+      </div>
+      <p style={{ margin: 0, fontSize: '0.82rem', color: MUTED, lineHeight: 1.72 }}>
+        {highlightText(pub.desc, matchSet)}
+      </p>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// MAIN COMPONENT
+// ═══════════════════════════════════════════════════════════════════════════
 
 export default function ResumeSection() {
-  const [filter, setFilter] = useState('main');
-  const [search, setSearch]   = useState('');
-  const [dlOpen, setDlOpen]   = useState(false);
+  const [filter, setFilter]       = useState('main');
+  const [search, setSearch]       = useState('');
+  const [dlOpen, setDlOpen]       = useState(false);
 
   const filterDef = FILTER_OPTIONS.find(f => f.value === filter);
   const matched   = useMemo(() => relationalSearch(search), [search]);
 
-  // Emit cross-section signal whenever filter or search changes
   const handleFilterChange = useCallback((val) => {
     setFilter(val);
     emitFilterSignal({ filter: val, search });
@@ -678,7 +846,15 @@ export default function ResumeSection() {
     emitFilterSignal({ filter, search: item });
   }, [filter]);
 
-  // Filtering logic
+  // Close download dropdown on outside click
+  useEffect(() => {
+    if (!dlOpen) return;
+    const close = () => setDlOpen(false);
+    window.addEventListener('click', close);
+    return () => window.removeEventListener('click', close);
+  }, [dlOpen]);
+
+  // ── Filtered lists ──────────────────────────────────────────────────────
   const visibleExp = useMemo(() => {
     let list = filter === 'main' ? ALL_EXPERIENCE : ALL_EXPERIENCE.filter(e => e.tags.includes(filter));
     if (matched) list = list.filter(e => expMatchesSearch(e, matched));
@@ -709,6 +885,13 @@ export default function ResumeSection() {
     return list;
   }, [filter, matched]);
 
+  const visibleLangs = useMemo(() => {
+    if (!matched) return LANGUAGES;
+    return LANGUAGES.filter(l =>
+      textMatchesSet([l.lang, l.level].join(' '), matched)
+    );
+  }, [matched]);
+
   const activeSkillItems = useMemo(() => {
     if (!matched) return new Set();
     const s = new Set();
@@ -718,24 +901,27 @@ export default function ResumeSection() {
     return s;
   }, [matched]);
 
-  const hasResults = visibleExp.length + visibleCerts.length + visibleEdu.length + visibleAwards.length + visiblePubs.length > 0;
+  const hasResults =
+    visibleExp.length + visibleCerts.length + visibleEdu.length +
+    visibleAwards.length + visiblePubs.length > 0;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.3rem' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.45rem' }}>
 
-      {/* ── Controls bar ────────────────────────────────────────────────── */}
+      {/* ── Controls bar ─────────────────────────────────────────────────── */}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'center' }}>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
           {FILTER_OPTIONS.map(opt => (
             <button
               key={opt.value}
               onClick={() => handleFilterChange(opt.value)}
               style={{
-                padding: '6px 14px', borderRadius: 999, fontSize: '0.7rem', fontWeight: 700,
-                cursor: 'pointer', border: `1.5px solid ${opt.color}`,
-                background: filter === opt.value ? opt.color : 'rgba(255,255,255,0.7)',
+                padding: '7px 16px', borderRadius: 999, fontSize: '0.77rem', fontWeight: 800,
+                cursor: 'pointer', border: `2px solid ${opt.color}`,
+                background: filter === opt.value ? opt.color : 'rgba(255,255,255,0.88)',
                 color: filter === opt.value ? '#fff' : opt.color,
-                transition: 'all 0.2s', letterSpacing: '0.03em',
+                transition: 'all 0.18s', letterSpacing: '0.02em',
+                boxShadow: filter === opt.value ? `0 3px 14px ${opt.color}55` : 'none',
               }}
             >
               {opt.label.split(' — ')[0]}
@@ -744,17 +930,17 @@ export default function ResumeSection() {
         </div>
 
         {/* Download dropdown */}
-        <div style={{ position: 'relative', marginLeft: 'auto' }}>
+        <div style={{ position: 'relative', marginLeft: 'auto' }} onClick={e => e.stopPropagation()}>
           <button
-            onClick={() => setDlOpen(!dlOpen)}
+            onClick={() => setDlOpen(v => !v)}
             style={{
-              display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px',
-              borderRadius: 999, fontSize: '0.7rem', fontWeight: 700, cursor: 'pointer',
-              border: `1.5px solid ${BORDER}`, background: 'rgba(255,255,255,0.8)',
-              color: PINK, transition: 'all 0.2s',
+              display: 'flex', alignItems: 'center', gap: 7, padding: '7px 16px',
+              borderRadius: 999, fontSize: '0.77rem', fontWeight: 800, cursor: 'pointer',
+              border: `2px solid ${BORDER}`, background: 'rgba(255,255,255,0.92)',
+              color: PINK, transition: 'all 0.18s',
             }}
           >
-            Download Resume <ChevronDown style={{ width: 12, height: 12 }} />
+            Download Resume <ChevronDown style={{ width: 13, height: 13 }} />
           </button>
           <AnimatePresence>
             {dlOpen && (
@@ -762,16 +948,16 @@ export default function ResumeSection() {
                 initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}
                 style={{
                   position: 'absolute', right: 0, top: '110%',
-                  background: 'rgba(255,255,255,0.98)', border: `1px solid ${BORDER}`,
-                  borderRadius: 12, padding: '6px', zIndex: 50,
-                  boxShadow: '0 8px 28px rgba(192,0,94,0.14)', minWidth: 200,
+                  background: '#fff', border: `2px solid ${BORDER}`,
+                  borderRadius: 12, padding: '6px', zIndex: 9999,
+                  boxShadow: '0 12px 48px rgba(184,0,78,0.2)', minWidth: 215,
                 }}
               >
                 {DOWNLOAD_LINKS.map(d => (
                   <a
                     key={d.label} href={d.href} target="_blank" rel="noopener noreferrer"
-                    style={{ display: 'block', padding: '8px 12px', borderRadius: 8, fontSize: '0.75rem', color: DEEP, textDecoration: 'none', transition: 'background 0.15s' }}
-                    onMouseEnter={e => e.currentTarget.style.background = 'rgba(192,0,94,0.09)'}
+                    style={{ display: 'block', padding: '9px 14px', borderRadius: 8, fontSize: '0.82rem', color: DEEP, textDecoration: 'none', fontWeight: 600, transition: 'background 0.14s' }}
+                    onMouseEnter={e => e.currentTarget.style.background = 'rgba(184,0,78,0.09)'}
                     onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                   >
                     {d.label}
@@ -783,86 +969,91 @@ export default function ResumeSection() {
         </div>
       </div>
 
-      {/* ── Search bar ──────────────────────────────────────────────────── */}
+      {/* ── Search bar ───────────────────────────────────────────────────── */}
       <div style={{ position: 'relative' }}>
-        <Search style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', width: 14, height: 14, color: 'rgba(192,0,94,0.5)' }} />
+        <Search style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', width: 16, height: 16, color: 'rgba(184,0,78,0.55)' }} />
         <input
-          type="text" value={search} onChange={e => handleSearchChange(e.target.value)}
-          placeholder="Search skills, tools, domains, or roles (e.g. 'CRM', 'data', 'AI', 'grant')…"
+          type="text"
+          value={search}
+          onChange={e => handleSearchChange(e.target.value)}
+          placeholder="Search skills, tools, domains, or roles — e.g. 'CRM', 'AI', 'grant', 'SQL'…"
           style={{
-            width: '100%', padding: '10px 12px 10px 34px', borderRadius: 999,
-            border: `1.5px solid rgba(192,0,94,0.25)`, background: 'rgba(255,255,255,0.88)',
-            fontSize: '0.82rem', color: DEEP, outline: 'none',
-            fontFamily: 'Inter, sans-serif', boxSizing: 'border-box', backdropFilter: 'blur(8px)',
+            width: '100%', padding: '12px 14px 12px 42px', borderRadius: 999,
+            border: `2px solid rgba(184,0,78,0.3)`, background: 'rgba(255,255,255,0.94)',
+            fontSize: '0.9rem', color: DEEP, outline: 'none',
+            fontFamily: 'Inter, sans-serif', boxSizing: 'border-box',
+            fontWeight: 500,
           }}
         />
         {search && (
           <button
             onClick={() => handleSearchChange('')}
-            style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(192,0,94,0.45)', fontSize: '1.1rem' }}
+            style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(184,0,78,0.5)', fontSize: '1.25rem', lineHeight: 1 }}
           >
             ×
           </button>
         )}
       </div>
 
-      {/* Search result summary */}
+      {/* Search summary */}
       {matched && (
-        <p style={{ margin: '-0.5rem 0 0', fontSize: '0.68rem', fontFamily: 'JetBrains Mono, monospace', color: SOFT }}>
+        <p style={{ margin: '-0.65rem 0 0', fontSize: '0.75rem', fontFamily: 'JetBrains Mono, monospace', color: SOFT, fontWeight: 700 }}>
           {hasResults
-            ? `↳ Showing ${visibleExp.length} roles · ${visibleCerts.length} certs · ${visibleEdu.length} education · ${visibleAwards.length} awards · ${visiblePubs.length} publications matching "${search}"`
-            : `No matches for "${search}" — try a broader term.`
-          }
+            ? `↳ ${visibleExp.length} roles · ${visibleCerts.length} certs · ${visibleEdu.length} edu · ${visibleAwards.length} awards · ${visiblePubs.length} publications`
+            : `No matches for "${search}" — try a broader term.`}
         </p>
       )}
 
-      {/* ── Header card ─────────────────────────────────────────────────── */}
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ ...cardStyle, textAlign: 'center', borderColor: BORDER }}>
-        <h2 style={{ fontSize: 'clamp(1.3rem, 3vw, 1.9rem)', fontWeight: 900, color: DEEP, margin: '0 0 4px', letterSpacing: '-0.01em' }}>
+      {/* ── Header card ──────────────────────────────────────────────────── */}
+      <SectionCard style={{ textAlign: 'center' }}>
+        <h2 style={{ fontSize: 'clamp(1.5rem, 3.5vw, 2.2rem)', fontWeight: 900, color: DEEP, margin: '0 0 5px', letterSpacing: '-0.02em' }}>
           Lancelot Naipier-Kane
         </h2>
-        <p style={{ margin: '0 0 5px', fontSize: '0.74rem', fontFamily: 'JetBrains Mono, monospace', color: PINK, fontWeight: 700 }}>
+        <p style={{ margin: '0 0 6px', fontSize: '0.83rem', fontFamily: 'JetBrains Mono, monospace', color: PINK, fontWeight: 800 }}>
           Program & Data Manager · {filterDef?.label}
         </p>
-        <p style={{ margin: '0 0 10px', fontSize: '0.73rem', color: SOFT }}>
+        <p style={{ margin: '0 0 13px', fontSize: '0.8rem', color: SOFT, fontWeight: 600 }}>
           New York, NY &nbsp;·&nbsp; 1-(707)-991-1031 &nbsp;·&nbsp; lancelotsmnk@gmail.com &nbsp;·&nbsp;
-          <a href="https://linkedin.com/in/lancelotnk" target="_blank" rel="noopener noreferrer" style={{ color: PINK, textDecoration: 'none' }}>linkedin.com/in/lancelotnk</a>
+          <a href="https://linkedin.com/in/lancelotnk" target="_blank" rel="noopener noreferrer" style={{ color: PINK, textDecoration: 'none', fontWeight: 800 }}>
+            linkedin.com/in/lancelotnk
+          </a>
           &nbsp;·&nbsp;
-          <a href="https://lancelot-nk.github.io/" target="_blank" rel="noopener noreferrer" style={{ color: PINK, textDecoration: 'none' }}>lancelot-nk.github.io</a>
+          <a href="https://lancelot-nk.github.io/" target="_blank" rel="noopener noreferrer" style={{ color: PINK, textDecoration: 'none', fontWeight: 800 }}>
+            lancelot-nk.github.io
+          </a>
         </p>
-        <p style={{ margin: 0, fontSize: '0.8rem', color: 'rgba(30,0,40,0.65)', lineHeight: 1.75, maxWidth: 700, marginLeft: 'auto', marginRight: 'auto' }}>
+        <p style={{ margin: 0, fontSize: '0.88rem', color: MUTED, lineHeight: 1.82, maxWidth: 730, marginLeft: 'auto', marginRight: 'auto', fontWeight: 500 }}>
           Data science and analytics professional with a strong foundation in AI, machine learning, and algorithm-driven problem solving, supporting analysis and decision-making on budgets up to $7.6B. Experienced using Python, R, and data structuring techniques to develop technical solutions and translate analysis into practical business outcomes. MIT and Microsoft certified with a focus on delivering data-backed results and scalable insights across public sector, tech, and nonprofit domains.
         </p>
-      </motion.div>
+      </SectionCard>
 
       {/* ── Technical Stack ──────────────────────────────────────────────── */}
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.06 }} style={cardStyle}>
+      <SectionCard>
         <div style={sHead}>
-          <Wrench style={{ width: 13, height: 13, color: PINK }} />
+          <Wrench style={{ width: 15, height: 15, color: PINK }} />
           <h3 style={sTitle}>Technical Stack</h3>
         </div>
-        <p style={{ margin: '0 0 8px', fontSize: '0.64rem', fontFamily: 'JetBrains Mono, monospace', color: 'rgba(120,0,60,0.5)' }}>
-          Click any skill to search it · Hover to preview
+        <p style={{ margin: '0 0 11px', fontSize: '0.72rem', fontFamily: 'JetBrains Mono, monospace', color: SOFT, fontWeight: 600 }}>
+          Click any skill to search · Hover to preview
         </p>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.7rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
           {SKILL_GROUPS.map(group => {
             const groupHighlighted = filter !== 'main' && group.tags.includes(filter);
             const items = matched
               ? group.items.filter(item => matched.has(item.toLowerCase()))
               : group.items;
             if (matched && items.length === 0) return null;
-
             return (
               <div key={group.label}>
                 <p style={{
-                  margin: '0 0 5px', fontSize: '0.59rem', fontFamily: 'JetBrains Mono, monospace',
-                  textTransform: 'uppercase', letterSpacing: '0.12em',
-                  color: groupHighlighted ? VIOLET : 'rgba(100,0,50,0.45)',
-                  fontWeight: groupHighlighted ? 700 : 400,
+                  margin: '0 0 7px', fontSize: '0.65rem', fontFamily: 'JetBrains Mono, monospace',
+                  textTransform: 'uppercase', letterSpacing: '0.13em',
+                  color: groupHighlighted ? VIOLET : 'rgba(74,16,64,0.55)',
+                  fontWeight: groupHighlighted ? 800 : 600,
                 }}>
                   {group.label}
                 </p>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                   {items.map(item => (
                     <SkillPill
                       key={item}
@@ -876,16 +1067,37 @@ export default function ResumeSection() {
             );
           })}
         </div>
-      </motion.div>
+      </SectionCard>
 
-      {/* ── Work Experience ──────────────────────────────────────────────── */}
-      {visibleExp.length > 0 && (
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} style={cardStyle}>
+      {/* ── Languages ────────────────────────────────────────────────────── */}
+      {visibleLangs.length > 0 && (
+        <SectionCard>
           <div style={sHead}>
-            <Briefcase style={{ width: 13, height: 13, color: PINK }} />
+            <Languages style={{ width: 15, height: 15, color: PINK }} />
+            <h3 style={sTitle}>Languages</h3>
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.8rem' }}>
+            {visibleLangs.map(l => (
+              <div key={l.lang} style={{
+                padding: '0.65rem 1.1rem', borderRadius: 10,
+                border: `2px solid ${BORDER}`, background: 'rgba(255,255,255,0.75)',
+              }}>
+                <p style={{ margin: 0, fontSize: '0.92rem', fontWeight: 800, color: DEEP }}>{l.lang}</p>
+                <p style={{ margin: 0, fontSize: '0.74rem', fontFamily: 'JetBrains Mono, monospace', color: SOFT, fontWeight: 600 }}>{l.level}</p>
+              </div>
+            ))}
+          </div>
+        </SectionCard>
+      )}
+
+      {/* ── Work Experience ───────────────────────────────────────────────── */}
+      {visibleExp.length > 0 && (
+        <SectionCard>
+          <div style={sHead}>
+            <Briefcase style={{ width: 15, height: 15, color: PINK }} />
             <h3 style={sTitle}>Work Experience</h3>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
             {visibleExp.map((exp, i) => (
               <ExpCard
                 key={i}
@@ -895,197 +1107,73 @@ export default function ResumeSection() {
               />
             ))}
           </div>
-        </motion.div>
+        </SectionCard>
       )}
 
-      {/* ── Education ───────────────────────────────────────────────────── */}
+      {/* ── Education ────────────────────────────────────────────────────── */}
       {visibleEdu.length > 0 && (
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.13 }} style={cardStyle}>
+        <SectionCard>
           <div style={sHead}>
-            <GraduationCap style={{ width: 13, height: 13, color: PINK }} />
+            <GraduationCap style={{ width: 15, height: 15, color: PINK }} />
             <h3 style={sTitle}>Education</h3>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
-            {visibleEdu.map((edu, i) => {
-              const [hov, setHov] = useState(false);
-              return (
-                <div
-                  key={i}
-                  onMouseEnter={() => setHov(true)}
-                  onMouseLeave={() => setHov(false)}
-                  style={{
-                    paddingLeft: '0.9rem', paddingTop: '0.4rem', paddingBottom: '0.4rem',
-                    borderLeft: `3px solid ${hov ? PINK : BORDER}`,
-                    borderRadius: '0 8px 8px 0',
-                    background: hov ? `${PINK}0E` : 'transparent',
-                    transform: hov ? 'scale(1.01)' : 'scale(1)',
-                    transition: 'all 0.2s',
-                  }}
-                >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 4, marginBottom: 3 }}>
-                    <div>
-                      <h4 style={{ margin: 0, fontSize: '0.86rem', fontWeight: 700, color: DEEP }}>
-                        {highlightText(edu.degree, matched)}
-                      </h4>
-                      <p style={{ margin: 0, fontSize: '0.7rem', fontFamily: 'JetBrains Mono, monospace', color: PINK }}>
-                        {highlightText(edu.school, matched)}
-                      </p>
-                    </div>
-                    <span style={{ fontSize: '0.62rem', fontFamily: 'JetBrains Mono, monospace', color: 'rgba(80,0,50,0.45)' }}>
-                      {edu.period}
-                    </span>
-                  </div>
-                  <p style={{ margin: 0, fontSize: '0.74rem', color: 'rgba(40,0,35,0.58)', lineHeight: 1.65 }}>
-                    {highlightText(edu.note, matched)}
-                  </p>
-                </div>
-              );
-            })}
+            {visibleEdu.map((edu, i) => (
+              <EduCard key={i} edu={edu} matchSet={matched} />
+            ))}
           </div>
-        </motion.div>
+        </SectionCard>
       )}
 
       {/* ── Certifications ───────────────────────────────────────────────── */}
       {visibleCerts.length > 0 && (
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.16 }} style={cardStyle}>
+        <SectionCard>
           <div style={sHead}>
-            <Award style={{ width: 13, height: 13, color: PINK }} />
+            <Award style={{ width: 15, height: 15, color: PINK }} />
             <h3 style={sTitle}>Certifications</h3>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '0.65rem' }}>
-            {visibleCerts.map((cert, i) => {
-              const [hov, setHov] = useState(false);
-              return (
-                <div
-                  key={i}
-                  onMouseEnter={() => setHov(true)}
-                  onMouseLeave={() => setHov(false)}
-                  style={{
-                    padding: '0.7rem 0.85rem', borderRadius: 10,
-                    border: `1px solid ${hov ? PINK : BORDER}`,
-                    background: hov ? `${PINK}0D` : 'rgba(255,255,255,0.7)',
-                    transform: hov ? 'scale(1.025)' : 'scale(1)',
-                    transition: 'all 0.2s',
-                  }}
-                >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 6 }}>
-                    <p style={{ margin: 0, fontSize: '0.76rem', fontWeight: 700, color: DEEP, lineHeight: 1.4, flex: 1 }}>
-                      {highlightText(cert.title, matched)}
-                    </p>
-                    <a href={cert.link} target="_blank" rel="noopener noreferrer" style={{ flexShrink: 0 }}>
-                      <ExternalLink style={{ width: 11, height: 11, color: PINK, opacity: 0.7 }} />
-                    </a>
-                  </div>
-                  <p style={{ margin: '3px 0 0', fontSize: '0.65rem', fontFamily: 'JetBrains Mono, monospace', color: SOFT }}>
-                    {cert.issuer} · {cert.date}
-                  </p>
-                </div>
-              );
-            })}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(270px, 1fr))', gap: '0.8rem' }}>
+            {visibleCerts.map((cert, i) => (
+              <CertCard key={i} cert={cert} matchSet={matched} />
+            ))}
           </div>
-        </motion.div>
+        </SectionCard>
       )}
 
-      {/* ── Publications, Research & Grants ─────────────────────────────── */}
+      {/* ── Publications, Research & Grants ──────────────────────────────── */}
       {visiblePubs.length > 0 && (
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.19 }} style={cardStyle}>
+        <SectionCard>
           <div style={sHead}>
-            <FileText style={{ width: 13, height: 13, color: PINK }} />
+            <FileText style={{ width: 15, height: 15, color: PINK }} />
             <h3 style={sTitle}>Publications, Research & Grants</h3>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            {visiblePubs.map((pub, i) => {
-              const [hov, setHov] = useState(false);
-              const typeColor = pub.type === 'grant' ? '#0A6B0A' : pub.type === 'policy' ? VIOLET : PINK;
-              return (
-                <div
-                  key={i}
-                  onMouseEnter={() => setHov(true)}
-                  onMouseLeave={() => setHov(false)}
-                  style={{
-                    paddingLeft: '0.9rem', paddingTop: '0.4rem', paddingBottom: '0.4rem',
-                    borderLeft: `3px solid ${hov ? typeColor : BORDER}`,
-                    borderRadius: '0 8px 8px 0',
-                    background: hov ? `${typeColor}10` : 'transparent',
-                    transform: hov ? 'scale(1.01)' : 'scale(1)',
-                    transition: 'all 0.2s',
-                  }}
-                >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 4, marginBottom: 3 }}>
-                    <div style={{ flex: 1 }}>
-                      <h4 style={{ margin: 0, fontSize: '0.82rem', fontWeight: 700, color: DEEP, lineHeight: 1.4 }}>
-                        {highlightText(pub.title, matched)}
-                      </h4>
-                      <p style={{ margin: 0, fontSize: '0.67rem', fontFamily: 'JetBrains Mono, monospace', color: SOFT }}>
-                        {pub.venue}
-                      </p>
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 3 }}>
-                      <span style={{ fontSize: '0.6rem', fontFamily: 'JetBrains Mono, monospace', color: 'rgba(80,0,50,0.45)' }}>
-                        {pub.period}
-                      </span>
-                      <span style={{
-                        fontSize: '0.55rem', fontFamily: 'JetBrains Mono, monospace', textTransform: 'uppercase',
-                        letterSpacing: '0.15em', padding: '2px 6px', borderRadius: 4,
-                        border: `1px solid ${typeColor}55`, color: typeColor, background: `${typeColor}12`,
-                      }}>
-                        {pub.type}
-                      </span>
-                    </div>
-                  </div>
-                  <p style={{ margin: '4px 0 0', fontSize: '0.74rem', color: 'rgba(40,0,35,0.58)', lineHeight: 1.65 }}>
-                    {highlightText(pub.desc, matched)}
-                  </p>
-                </div>
-              );
-            })}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
+            {visiblePubs.map((pub, i) => (
+              <PubCard key={i} pub={pub} matchSet={matched} />
+            ))}
           </div>
-        </motion.div>
+        </SectionCard>
       )}
 
       {/* ── Awards & Volunteer ───────────────────────────────────────────── */}
       {visibleAwards.length > 0 && (
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.22 }} style={cardStyle}>
+        <SectionCard>
           <div style={sHead}>
-            <Star style={{ width: 13, height: 13, color: PINK }} />
+            <Star style={{ width: 15, height: 15, color: PINK }} />
             <h3 style={sTitle}>Awards, Leadership & Volunteer</h3>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '0.65rem' }}>
-            {visibleAwards.map((a, i) => {
-              const [hov, setHov] = useState(false);
-              return (
-                <div
-                  key={i}
-                  onMouseEnter={() => setHov(true)}
-                  onMouseLeave={() => setHov(false)}
-                  style={{
-                    padding: '0.7rem 0.85rem', borderRadius: 10,
-                    border: `1px solid ${hov ? PINK : BORDER}`,
-                    background: hov ? `${PINK}0D` : 'rgba(255,255,255,0.7)',
-                    transform: hov ? 'scale(1.025)' : 'scale(1)',
-                    transition: 'all 0.2s',
-                  }}
-                >
-                  <p style={{ margin: 0, fontSize: '0.78rem', fontWeight: 700, color: DEEP }}>
-                    {highlightText(a.title, matched)}
-                  </p>
-                  <p style={{ margin: '2px 0 4px', fontSize: '0.65rem', fontFamily: 'JetBrains Mono, monospace', color: PINK }}>
-                    {a.org} · {a.period}
-                  </p>
-                  <p style={{ margin: 0, fontSize: '0.73rem', color: 'rgba(40,0,35,0.55)', lineHeight: 1.6 }}>
-                    {highlightText(a.desc, matched)}
-                  </p>
-                </div>
-              );
-            })}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(255px, 1fr))', gap: '0.8rem' }}>
+            {visibleAwards.map((a, i) => (
+              <AwardCard key={i} a={a} matchSet={matched} />
+            ))}
           </div>
-        </motion.div>
+        </SectionCard>
       )}
 
-      {/* ── No results state ─────────────────────────────────────────────── */}
+      {/* ── No results ───────────────────────────────────────────────────── */}
       {matched && !hasResults && (
-        <div style={{ textAlign: 'center', padding: '2rem', color: SOFT, fontSize: '0.8rem', fontFamily: 'JetBrains Mono, monospace' }}>
-          No results for &quot;{search}&quot;. Try a broader term or clear the search.
+        <div style={{ textAlign: 'center', padding: '2.5rem', color: SOFT, fontSize: '0.88rem', fontFamily: 'JetBrains Mono, monospace', fontWeight: 700 }}>
+          No results for &quot;{search}&quot; — try a broader term or clear the search.
         </div>
       )}
 

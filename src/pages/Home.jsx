@@ -11,6 +11,33 @@ import bgAsset from '../assets/bg.jpg';
 const PINK   = '#E01880';
 const VIOLET = '#8B00E8';
 
+// ── PORTRAIT LOADER ANIMATION ────────────────────────────────────────────────
+function PortraitLoader({ onComplete }) {
+  return (
+    <motion.div 
+      className="absolute inset-0 z-[60] pointer-events-none flex items-center justify-center"
+      initial={{ opacity: 1 }}
+      animate={{ opacity: 0 }}
+      transition={{ delay: 2.2, duration: 0.8, ease: "easeInOut" }}
+      onAnimationComplete={onComplete}
+    >
+      <div className="relative w-[180px] h-[180px] sm:w-[240px] sm:h-[240px] lg:w-[300px] lg:h-[300px] rounded-full overflow-hidden bg-[#1A0010]">
+        <motion.svg
+          viewBox="0 0 100 100"
+          preserveAspectRatio="none"
+          className="absolute inset-0 w-full h-[120%]"
+          initial={{ y: "100%" }}
+          animate={{ y: "-20%" }}
+          transition={{ duration: 2, ease: "easeInOut" }}
+          style={{ fill: PINK }}
+        >
+          <path d="M0 10 C 20 0, 30 20, 50 10 C 70 0, 80 20, 100 10 L 100 100 L 0 100 Z" />
+        </motion.svg>
+      </div>
+    </motion.div>
+  );
+}
+
 function GlitchText({ text, className, style }) {
   const [hovered, setHovered] = useState(false);
   return (
@@ -45,8 +72,8 @@ function smoothScrollTo(targetY, duration = 900) {
   cancelScroll();
   userInterrupted = false;
   lastScrollY     = window.pageYOffset;
-  const startY    = window.pageYOffset;
-  const diff      = targetY - startY;
+  const startY     = window.pageYOffset;
+  const diff       = targetY - startY;
   let startTime   = null;
   const step = (ts) => {
     if (Math.abs(window.pageYOffset - lastScrollY) > 2 && userInterrupted) { cancelScroll(); return; }
@@ -229,6 +256,7 @@ export default function Home() {
   const [activeSection, setActiveSection] = useState(null);
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [gameActive, setGameActive] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
   
   const contentRef    = useRef(null);
   const pendingSelect = useRef(null);
@@ -253,6 +281,7 @@ export default function Home() {
   }, []);
 
   const handleSelect = useCallback((id) => {
+    if (!isLoaded) return;
     cancelScroll();
     clearTimeout(pendingSelect.current);
 
@@ -269,7 +298,7 @@ export default function Home() {
       setActiveSection(id);
       scrollToContent(1400 + 100, 800);
     }
-  }, [activeSection, scrollToContent]);
+  }, [activeSection, scrollToContent, isLoaded]);
 
   const handleGameUnlock = useCallback(() => {
     setGameActive(true);
@@ -317,9 +346,10 @@ export default function Home() {
             </motion.div>
 
             {/* Nexus Component - Adjusted margins for mobile to prevent overlap */}
-            <div className="relative pointer-events-none mt-2 mb-[-30px] sm:my-[-65px] lg:my-[-90px] z-20">
-              <div className="pointer-events-auto">
-                <Nexus activeSection={activeSection} onSelect={handleSelect} />
+            <div className="relative mt-2 mb-[-30px] sm:my-[-65px] lg:my-[-90px] z-20">
+              <PortraitLoader onComplete={() => setIsLoaded(true)} />
+              <div className={isLoaded ? "pointer-events-auto" : "pointer-events-none"}>
+                <Nexus activeSection={activeSection} onSelect={handleSelect} isLocked={!isLoaded} />
               </div>
             </div>
 
