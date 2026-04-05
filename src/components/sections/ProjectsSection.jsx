@@ -3,10 +3,10 @@ import { ExternalLink, Code, Clock } from 'lucide-react';
 
 // ── Image Imports ───────────────────────────────────────────────────────────
 // These must match the names of the files you drop into src/assets/
-import img1 from '../assets/project1.jpg';
-import img2 from '../assets/project2.jpg';
-import img3 from '../assets/project3.jpg';
-import img4 from '../assets/project4.jpg';
+import img1 from '../../assets/project1.jpg';
+import img2 from '../../assets/project2.jpg';
+import img3 from '../../assets/project3.jpg';
+import img4 from '../../assets/project4.jpg';
 
 // ── Brand Colors ────────────────────────────────────────────────────────────
 const PINK   = '#B8004E';
