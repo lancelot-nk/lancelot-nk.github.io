@@ -1,6 +1,13 @@
 import { motion } from 'framer-motion';
 import { ExternalLink, Code, Clock } from 'lucide-react';
 
+// ── Image Imports ───────────────────────────────────────────────────────────
+// These must match the names of the files you drop into src/assets/
+import img1 from '../assets/project1.jpg';
+import img2 from '../assets/project2.jpg';
+import img3 from '../assets/project3.jpg';
+import img4 from '../assets/project4.jpg';
+
 // ── Brand Colors ────────────────────────────────────────────────────────────
 const PINK   = '#B8004E';
 const VIOLET = '#5800B8';
@@ -10,37 +17,34 @@ const SOFT   = '#6A0A50';
 const MUTED  = '#4A1040';
 const BORDER = 'rgba(184,0,78,0.22)';
 
-// Helper to generate a snapshot of the URL
-const getSnapshot = (url) => `https://s.thum.io/get/width/800/crop/600/noanimate/${url}`;
-
 export const PROJECTS = [
   { 
     title: 'Python & Statistics Analysis', 
     desc: 'Data analysis over a restaurant industry dataset applying statistical methods, data cleaning, and Python visualization.', 
     tech: ['Python', 'Pandas', 'NumPy', 'Seaborn', 'Statistics'], 
-    link: 'https://github.com/lancelot-nk/lancelot-nk-github-io/blob/main/PythonAndStats_LancelotNK.ipynb', 
-    img: getSnapshot('https://github.com/lancelot-nk/lancelot-nk-github-io/blob/main/PythonAndStats_LancelotNK.ipynb')
+    link: '/PythonAndStats_LancelotNK.ipynb', 
+    img: img1 
   },
   { 
     title: 'ML Recommendation System', 
     desc: 'Machine learning model over an Amazon item dataset applying model tuning, Scikit-Learn pipelines, and evaluation metrics.', 
     tech: ['Python', 'Scikit-Learn', 'ML', 'Model Tuning', 'Jupyter'], 
-    link: 'https://github.com/lancelot-nk/lancelot-nk.github.io/blob/main/LancelotNaipierKaneRecommendationSystemsFullLearnerNotebookComplete%20(1).ipynb', 
-    img: getSnapshot('https://github.com/lancelot-nk/lancelot-nk.github.io/blob/main/LancelotNaipierKaneRecommendationSystemsFullLearnerNotebookComplete%20(1).ipynb')
+    link: '/LancelotNaipierKaneRecommendationSystemsFullLearnerNotebookComplete%20(1).ipynb', 
+    img: img2 
   },
   { 
     title: 'AI Music Recommendation', 
     desc: 'AI-driven hybrid SVD system for music recommendation over a large dataset, applying deep learning and collaborative filtering.', 
     tech: ['Python', 'AI', 'SVD', 'Deep Learning', 'NLP'], 
-    link: 'https://github.com/lancelot-nk/lancelot-nk.github.io/blob/main/LancelotNaipierKane_Music_Recommendation_System_Full_Code%20(2).ipynb', 
-    img: getSnapshot('https://github.com/lancelot-nk/lancelot-nk.github.io/blob/main/LancelotNaipierKane_Music_Recommendation_System_Full_Code%20(2).ipynb')
+    link: '/LancelotNaipierKane_Music_Recommendation_System_Full_Code%20(2).ipynb', 
+    img: img3 
   },
   { 
     title: 'Azure SQL & Cloud Integration', 
     desc: 'Hybrid BLOB storage architecture with Azure SQL and NoSQL over a Kaggle sales dataset, applying cloud ETL and data lake design.', 
     tech: ['Azure', 'SQL', 'NoSQL', 'Blob Storage', 'ETL'], 
-    link: 'https://github.com/lancelot-nk/lancelot-nk.github.io/blob/main/LancelotNaipierKaneAzureSqlNotebook.ipynb', 
-    img: getSnapshot('https://github.com/lancelot-nk/lancelot-nk.github.io/blob/main/LancelotNaipierKaneAzureSqlNotebook.ipynb')
+    link: '/LancelotNaipierKaneAzureSqlNotebook.ipynb', 
+    img: img4 
   },
 ];
 
@@ -56,7 +60,7 @@ function ProjectCard({ project, i, comingSoon }) {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      whileHover={!comingSoon ? { y: -8, scale: 1.02 } : {}}
+      whileHover={!comingSoon ? { y: -8, scale: 1.015 } : {}}
       transition={{ delay: i * 0.07, duration: 0.3, ease: "easeOut" }}
       style={{ 
         borderRadius: '0.75rem', 
@@ -79,7 +83,7 @@ function ProjectCard({ project, i, comingSoon }) {
               width: '100%', 
               height: '100%', 
               objectFit: 'cover', 
-              opacity: 0.95 // Increased opacity to remove the "washed out" look
+              opacity: 1 
             }} 
           />
         ) : (
@@ -87,8 +91,6 @@ function ProjectCard({ project, i, comingSoon }) {
             <Clock style={{ width: 40, height: 40, color: 'rgba(184,0,78,0.25)' }} />
           </div>
         )}
-        
-        {/* Removed the white gradient/gloss overlay entirely */}
 
         {!comingSoon && (
           <a 
@@ -106,7 +108,7 @@ function ProjectCard({ project, i, comingSoon }) {
               alignItems: 'center', 
               gap: 6, 
               textDecoration: 'none',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
               zIndex: 10
             }}
           >
@@ -117,7 +119,7 @@ function ProjectCard({ project, i, comingSoon }) {
               color: '#fff', 
               fontWeight: 800,
               letterSpacing: '0.1em' 
-            }}>VIEW CODE</span>
+            }}>VIEW DOC</span>
           </a>
         )}
       </div>
@@ -127,7 +129,7 @@ function ProjectCard({ project, i, comingSoon }) {
           <Code style={{ width: 14, height: 14, color: PINK, flexShrink: 0 }} />
           <h3 style={{ fontSize: '0.95rem', fontWeight: 800, color: DEEP, margin: 0 }}>{project.title}</h3>
         </div>
-        <p style={{ fontSize: '0.82rem', color: MID, lineHeight: 1.6, margin: '0 0 1rem', opacity: 0.8 }}>{project.desc}</p>
+        <p style={{ fontSize: '0.82rem', color: MID, lineHeight: 1.6, margin: '0 0 1rem', opacity: 0.85 }}>{project.desc}</p>
         
         {project.tech.length > 0 && (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
