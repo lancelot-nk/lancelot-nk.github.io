@@ -1,15 +1,28 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Linkedin, Github, Mail, ArrowUp, FileDown, Gamepad2 } from 'lucide-react';
+import { Linkedin, Github, Mail, ArrowUp, FileDown, Gamepad2, Calendar } from 'lucide-react';
 import ParticleField from '../components/ParticleField';
 import Nexus from '../components/Nexus';
 import ContentPanel from '../components/ContentPanel';
-import BlobGame from '../components/BlobGame'; // Ensure this file exists!
+import BlobGame from '../components/BlobGame'; 
 
 import bgAsset from '../assets/bg.jpg';
 
 const PINK   = '#E01880';
 const VIOLET = '#8B00E8';
+const BLUE   = '#0061FF'; 
+
+// Add this to your global CSS or a style tag in this file
+const glitchStyles = `
+  @keyframes glitch-pill {
+    0% { transform: translate(0); }
+    20% { transform: translate(-2px, 1px); }
+    40% { transform: translate(-2px, -1px); }
+    60% { transform: translate(2px, 1px); }
+    80% { transform: translate(2px, -1px); }
+    100% { transform: translate(0); }
+  }
+`;
 
 function GlitchText({ text, className, style }) {
   const [hovered, setHovered] = useState(false);
@@ -229,7 +242,7 @@ export default function Home() {
   const [activeSection, setActiveSection] = useState(null);
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [gameActive, setGameActive] = useState(false);
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [callHov, setCallHov] = useState(false);
   
   const contentRef    = useRef(null);
   const pendingSelect = useRef(null);
@@ -279,6 +292,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen relative overflow-x-hidden bg-white">
+      <style>{glitchStyles}</style>
       <div className="fixed inset-0 z-0 bg-cover bg-center" style={{ backgroundImage: `url(${bgAsset})` }} />
       
       <ParticleField isGameMode={gameActive} />
@@ -322,11 +336,46 @@ export default function Home() {
             </div>
 
             {/* Footer Buttons */}
-            <div className="flex gap-4 flex-wrap justify-center mt-4 sm:mt-[-15px] pb-8 sm:pb-0 z-30">
-              <PillBtn href="https://www.linkedin.com/in/lancelotnk/" icon={Linkedin} label="LinkedIn" />
-              <PillBtn href="https://github.com/lancelot-nk" icon={Github} label="GitHub" />
-              <PillBtn href="mailto:lancelotsmnk@gmail.com" icon={Mail} label="Contact For Work" />
-              <PillBtn onClick={() => handleSelect('resume')} icon={FileDown} label="Resume" />
+            <div className="flex flex-col items-center gap-4 w-full z-30">
+              <div className="flex gap-4 flex-wrap justify-center mt-4 sm:mt-[-15px] pb-0">
+                <PillBtn href="https://www.linkedin.com/in/lancelotnk/" icon={Linkedin} label="LinkedIn" />
+                <PillBtn href="https://github.com/lancelot-nk" icon={Github} label="GitHub" />
+                <PillBtn href="mailto:lancelotsmnk@gmail.com" icon={Mail} label="Contact For Work" />
+                <PillBtn onClick={() => handleSelect('resume')} icon={FileDown} label="Resume" />
+              </div>
+
+              {/* Glitch Book A Call Button */}
+              <motion.a
+                href="https://calendly.com/lancelotnk/30min"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full max-w-[530px] relative flex items-center justify-center gap-3 px-8 py-4 rounded-full border-2 text-[1rem] font-black no-underline transition-all duration-300 shadow-lg cursor-pointer overflow-hidden"
+                style={{
+                  background: callHov ? BLUE : 'rgba(255,255,255,0.95)',
+                  borderColor: BLUE,
+                  color: callHov ? '#fff' : BLUE,
+                  boxShadow: callHov ? '0 10px 30px rgba(0, 97, 255, 0.4)' : '0 4px 12px rgba(0,0,0,0.05)',
+                  fontFamily: 'var(--font-inter)',
+                  letterSpacing: '0.05em',
+                }}
+                onMouseEnter={() => setCallHov(true)}
+                onMouseLeave={() => setCallHov(false)}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                {/* Glitch Overlay Layers */}
+                {callHov && (
+                  <>
+                    <div style={{ position: 'absolute', inset: 0, background: PINK, opacity: 0.4, animation: 'glitch-pill 0.3s steps(1) infinite', mixBlendMode: 'screen', pointerEvents: 'none' }} />
+                    <div style={{ position: 'absolute', inset: 0, background: VIOLET, opacity: 0.4, animation: 'glitch-pill 0.3s steps(1) infinite 0.1s', mixBlendMode: 'screen', pointerEvents: 'none', transform: 'translateX(4px)' }} />
+                  </>
+                )}
+                
+                <span className="relative z-10 flex items-center gap-3">
+                  <Calendar size={20} strokeWidth={2.5} />
+                  BOOK A CALL
+                </span>
+              </motion.a>
             </div>
           </motion.div>
         )}
