@@ -21,10 +21,10 @@ const MUTED  = '#4A1040';
 const BORDER = 'rgba(184,0,78,0.22)';
 
 const DOWNLOAD_LINKS = [
-  { label: 'Main Resume',              href: '/src/assets/resume1.pdf' },
-  { label: 'Data Scientist + Analyst', href: '/src/assets/resume2.pdf' },
-  { label: 'Program Manager',          href: '/src/assets/resume3.pdf' },
-  { label: 'Technology',               href: '/src/assets/resume4.pdf' },
+  { label: 'Main Resume',              href: '/resume1.pdf' },
+  { label: 'Data Scientist + Analyst', href: '/resume2.pdf' },
+  { label: 'Program Manager',          href: '/resume3.pdf' },
+  { label: 'Technology',               href: '/resume4.pdf' },
 ];
 
 function emitFilterSignal(payload) {
