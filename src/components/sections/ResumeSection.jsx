@@ -653,195 +653,372 @@ const SKILL_GROUPS = [
   },
 ];
 
-// ── SKILL_RELATIONS — domain-separated clusters ────────────────────────────
-// Design rules:
-//   • Each key maps only to genuinely related terms within that domain cluster
-//   • "data" / "python" / "programming" keys are NARROW — they should NOT
-//     cascade into policy, grant, or soft-skill territory
-//   • Soft-skill keys (leadership, communication, etc.) map to behavioral &
-//     program-management content — NOT to technical tools
-//   • Cross-domain bleed is intentional only where real skill overlap exists
-//     (e.g. "analytics" touches both BI tools AND statistical skills)
+// ── SKILL_RELATIONS — semantic association graph ────────────────────────────
+//
+// Philosophy: one degree of conceptual association. Each key maps to things
+// a recruiter would naturally expect to see alongside it. Cross-domain
+// connections exist where real professional overlap exists (e.g. "data
+// analysis" connects to both technical tools AND the analytical judgment
+// used in program roles). The goal is generous but sensible — show the
+// best connected picture of skills, not random noise.
+//
+// Synonyms and near-synonyms are grouped under the same key so that
+// searching "coding" finds "programming", "leadership" finds "governance",
+// "reporting" finds "tableau", etc.
 const SKILL_RELATIONS = {
 
-  // ── Technical / data-science cluster (stays technical) ──────────────────
-  python:           ['pandas', 'numpy', 'seaborn', 'matplotlib', 'scikit-learn',
-                     'tensorflow', 'keras', 'pytorch', 'jupyter', 'spss', 'stata', 'r'],
-  r:                ['stata', 'spss', 'statistical modeling', 'regression analysis',
-                     'pandas', 'numpy', 'seaborn'],
-  sql:              ['t-sql', 'nosql', 'dbt', 'bigquery', 'snowflake', 'postgresql',
-                     'mysql', 'mongodb', 'cosmos db', 'data modeling'],
-  database:         ['sql', 'nosql', 'cosmos db', 'bigquery', 'snowflake', 'dbt',
-                     'mongodb', 'postgresql', 'mysql', 'data modeling', 'data profiling',
-                     'indexing', 'load balancing'],
-  programming:      ['python', 'r', 'java', 'javascript', 'html5/css3', 'sql',
-                     't-sql', 'stata', 'matlab', 'spss'],
-  cloud:            ['microsoft azure', 'aws (s3, ec2)', 'databricks', 'synapse analytics',
-                     'cosmos db', 'snowflake', 'bigquery', 'dbt', 'apache spark',
-                     'apache airflow', 'data lake gen2', 'blob storage', 'azure data factory',
-                     'serverless architecture'],
-  azure:            ['microsoft azure', 'synapse analytics', 'cosmos db', 'azure data factory',
-                     'blob storage', 'data lake gen2', 'etl/elt', 't-sql'],
-  aws:              ['aws (s3, ec2)', 'serverless architecture', 'iot specialization',
-                     'apache spark', 'databricks'],
-  etl:              ['etl/elt', 'apache airflow', 'apache spark', 'dbt', 'azure data factory',
-                     'uipath (rpa)', 'power automate', 'pipeline', 'data factory'],
-  automation:       ['uipath (rpa)', 'power automate', 'zapier', 'apache airflow',
-                     'etl/elt', 'process reengineering'],
-  rpa:              ['uipath (rpa)', 'power automate', 'zapier', 'automation',
-                     'process reengineering'],
-  ml:               ['scikit-learn', 'tensorflow', 'keras', 'pytorch', 'machine learning',
-                     'deep learning', 'neural networks', 'hyperparameter tuning',
-                     'classification algorithms', 'regression analysis',
-                     'recommender systems', 'reinforcement learning', 'federated learning'],
-  ai:               ['tensorflow', 'keras', 'pytorch', 'langchain', 'hugging face',
-                     'transformers', 'nlp', 'computer vision', 'machine learning',
-                     'deep learning', 'neural networks', 'lora/qlora', 'opencv',
-                     'generative ai', 'sentiment analysis'],
-  'machine learning': ['scikit-learn', 'tensorflow', 'keras', 'pytorch', 'deep learning',
-                        'neural networks', 'hyperparameter tuning', 'classification algorithms',
-                        'regression analysis', 'anomaly detection', 'recommender systems',
-                        'time series forecasting', 'dimensionality reduction'],
-  nlp:              ['nlp', 'transformers', 'langchain', 'hugging face', 'lora/qloa',
-                     'sentiment analysis', 'opencv', 'computer vision'],
-  'computer vision':['opencv', 'tensorflow', 'keras', 'pytorch', 'computer vision',
-                     'deep learning', 'neural networks'],
-  analytics:        ['tableau', 'power bi', 'thoughtspot', 'qlik sense',
-                     'excel (advanced/vba)', 'power query', 'google analytics',
-                     'seaborn', 'matplotlib', 'arcgis', 'data storytelling',
-                     'quantitative analytics', 'statistical modeling'],
-  visualization:    ['tableau', 'power bi', 'seaborn', 'matplotlib', 'thoughtspot',
-                     'qlik sense', 'arcgis', 'google analytics', 'data storytelling',
-                     'power query'],
-  'data science':   ['python', 'r', 'machine learning', 'deep learning', 'statistical modeling',
-                     'regression analysis', 'pandas', 'numpy', 'seaborn', 'scikit-learn',
-                     'tensorflow', 'keras', 'data storytelling', 'quantitative analytics',
-                     'anomaly detection', 'time series forecasting'],
-  'data engineering': ['sql', 'nosql', 'dbt', 'apache spark', 'apache airflow', 'etl/elt',
-                        'snowflake', 'bigquery', 'data modeling', 'data profiling',
-                        'data lineage tracking', 'azure data factory', 'databricks'],
-  'data governance':  ['data governance', 'data lineage tracking', 'data anonymization',
-                        'data profiling', 'compliance auditing', 'regulatory compliance',
-                        'nist/rmf frameworks'],
-  gis:              ['arcgis', 'geospatial', 'spatial analysis', 'nepa'],
-  api:              ['api development', 'postman', 'javascript', 'python',
-                     'serverless architecture', 'iot specialization'],
-  crm:              ['salesforce', 'hubspot', 'gainsight', 'zendesk', 'oracle netsuite'],
-  'project management tools': ['jira', 'asana', 'monday.com', 'microsoft project',
-                                'zapier', 'github (copilot, cli)'],
-  design:           ['adobe creative suite', 'figma', 'canva', 'autocad',
-                     'davinci resolve', 'premiere pro', 'after effects', 'motion graphics'],
-  web:              ['react', 'vite', 'next.js', 'wordpress', 'html5/css3',
-                     'javascript', 'api development'],
+  // ── Python / technical computing ─────────────────────────────────────────
+  // Python = computation, data manipulation, ML libraries, scripting
+  python:             ['pandas', 'numpy', 'seaborn', 'matplotlib', 'scikit-learn',
+                       'tensorflow', 'keras', 'pytorch', 'spss', 'stata', 'r',
+                       'machine learning', 'data science', 'statistical modeling',
+                       'quantitative analytics', 'jupyter', 'api development'],
+  coding:             ['python', 'r', 'java', 'javascript', 'sql', 't-sql',
+                       'html5/css3', 'stata', 'matlab', 'spss'],
+  programming:        ['python', 'r', 'java', 'javascript', 'html5/css3', 'sql',
+                       't-sql', 'stata', 'matlab', 'spss', 'api development'],
+  scripting:          ['python', 'javascript', 'sql', 't-sql', 'power automate',
+                       'zapier', 'uipath (rpa)', 'apache airflow'],
 
-  // ── Program / policy / nonprofit cluster (stays program-side) ─────────
-  grant:            ['grant writing', 'grant procurement', 'e-grants', 'prism',
-                     'doee', 'fundraising', 'donor relations', 'salesforce npsp',
-                     'impact assessment', 'program evaluation'],
-  'grant writing':  ['grant procurement', 'rfp', 'e-grants', 'prism', 'doee',
-                     'fundraising', 'technical writing', 'impact assessment'],
-  policy:           ['nepa', 'nist/rmf frameworks', 'nih ethics', 'irb research',
-                     'regulatory compliance', 'compliance auditing', 'federal',
-                     'program evaluation'],
-  compliance:       ['regulatory compliance', 'nist/rmf frameworks', 'nih ethics',
-                     'irb research', 'nepa', 'compliance auditing', 'data governance',
-                     'title ix'],
-  federal:          ['nist/rmf frameworks', 'nepa', 'regulatory compliance',
-                     'compliance auditing', 'federal contractor', 'fra'],
-  security:         ['nist/rmf frameworks', 'data governance', 'data anonymization',
-                     'certnexus', 'regulatory compliance'],
-  snap:             ['snap', 'ebt', 'hra', 'curam', 'wms', 'welfare',
-                     'regulatory compliance', 'program management'],
-  nonprofit:        ['salesforce npsp', 'volunteerhub', 'mailchimp', 'donor relations',
-                     'fundraising', 'grant writing', 'grant procurement',
-                     'community engagement', 'public outreach'],
-  research:         ['irb research', 'nih ethics', 'qualtrics', 'nvivo', 'spss',
-                     'zotero', 'qualitative research', 'statistical modeling',
-                     'literature review', 'impact assessment'],
-  hmis:             ['hmis (clarity)', 'wa saw', 'prism', 'program management',
-                     'regulatory compliance', 'data governance'],
+  // ── Data / analytics broad cluster ───────────────────────────────────────
+  // "data" and synonyms → tools + analytical skills + reporting
+  data:               ['python', 'r', 'sql', 'pandas', 'numpy', 'tableau', 'power bi',
+                       'excel (advanced/vba)', 'dbt', 'snowflake', 'bigquery',
+                       'quantitative analytics', 'statistical modeling', 'data storytelling',
+                       'data modeling', 'data governance', 'data warehousing'],
+  'data analysis':    ['python', 'r', 'sql', 'pandas', 'numpy', 'seaborn', 'matplotlib',
+                       'tableau', 'power bi', 'excel (advanced/vba)', 'spss', 'stata',
+                       'quantitative analytics', 'statistical modeling', 'regression analysis'],
+  'data science':     ['python', 'r', 'machine learning', 'deep learning',
+                       'statistical modeling', 'regression analysis', 'pandas', 'numpy',
+                       'seaborn', 'scikit-learn', 'tensorflow', 'keras',
+                       'data storytelling', 'quantitative analytics',
+                       'anomaly detection', 'time series forecasting'],
+  analytics:          ['tableau', 'power bi', 'thoughtspot', 'qlik sense',
+                       'excel (advanced/vba)', 'power query', 'google analytics',
+                       'seaborn', 'matplotlib', 'arcgis', 'data storytelling',
+                       'quantitative analytics', 'statistical modeling',
+                       'python', 'r', 'sql'],
+  reporting:          ['tableau', 'power bi', 'excel (advanced/vba)', 'google analytics',
+                       'data storytelling', 'quantitative analytics', 'qlik sense',
+                       'thoughtspot', 'power query', 'technical writing'],
+  visualization:      ['tableau', 'power bi', 'seaborn', 'matplotlib', 'thoughtspot',
+                       'qlik sense', 'arcgis', 'google analytics', 'data storytelling',
+                       'power query'],
+  statistics:         ['python', 'r', 'spss', 'stata', 'matlab', 'statistical modeling',
+                       'regression analysis', 'quantitative analytics', 'seaborn',
+                       'pandas', 'numpy', 'scikit-learn'],
+  quantitative:       ['python', 'r', 'sql', 'spss', 'stata', 'statistical modeling',
+                       'quantitative analytics', 'regression analysis', 'excel (advanced/vba)',
+                       'pandas', 'numpy'],
+
+  // ── ML / AI cluster ───────────────────────────────────────────────────────
+  ml:                 ['scikit-learn', 'tensorflow', 'keras', 'pytorch', 'machine learning',
+                       'deep learning', 'neural networks', 'hyperparameter tuning',
+                       'classification algorithms', 'regression analysis', 'python',
+                       'recommender systems', 'reinforcement learning', 'anomaly detection',
+                       'time series forecasting', 'dimensionality reduction'],
+  ai:                 ['tensorflow', 'keras', 'pytorch', 'langchain', 'hugging face',
+                       'transformers', 'nlp', 'computer vision', 'machine learning',
+                       'deep learning', 'neural networks', 'lora/qlora', 'opencv',
+                       'sentiment analysis', 'python', 'scikit-learn'],
+  'machine learning': ['scikit-learn', 'tensorflow', 'keras', 'pytorch', 'deep learning',
+                       'neural networks', 'hyperparameter tuning', 'classification algorithms',
+                       'regression analysis', 'anomaly detection', 'recommender systems',
+                       'time series forecasting', 'dimensionality reduction', 'python'],
+  'deep learning':    ['tensorflow', 'keras', 'pytorch', 'neural networks', 'opencv',
+                       'computer vision', 'nlp', 'transformers', 'lora/qlora', 'python'],
+  nlp:                ['nlp', 'transformers', 'langchain', 'hugging face', 'lora/qlora',
+                       'sentiment analysis', 'computer vision', 'python', 'tensorflow'],
+  'computer vision':  ['opencv', 'tensorflow', 'keras', 'pytorch', 'deep learning',
+                       'neural networks', 'python'],
+  generative:         ['langchain', 'hugging face', 'transformers', 'lora/qlora',
+                       'tensorflow', 'keras', 'pytorch', 'nlp', 'python'],
+
+  // ── Cloud / infrastructure cluster ───────────────────────────────────────
+  cloud:              ['microsoft azure', 'aws (s3, ec2)', 'databricks', 'synapse analytics',
+                       'cosmos db', 'snowflake', 'bigquery', 'dbt', 'apache spark',
+                       'apache airflow', 'data lake gen2', 'blob storage',
+                       'azure data factory', 'serverless architecture', 'etl/elt'],
+  azure:              ['microsoft azure', 'synapse analytics', 'cosmos db',
+                       'azure data factory', 'blob storage', 'data lake gen2',
+                       'etl/elt', 't-sql', 'databricks', 'power bi'],
+  aws:                ['aws (s3, ec2)', 'serverless architecture', 'iot specialization',
+                       'apache spark', 'databricks'],
+  infrastructure:     ['microsoft azure', 'aws (s3, ec2)', 'databricks', 'apache spark',
+                       'apache airflow', 'snowflake', 'bigquery', 'data lake gen2',
+                       'blob storage', 'serverless architecture', 'sql', 'nosql'],
+  etl:                ['etl/elt', 'apache airflow', 'apache spark', 'dbt',
+                       'azure data factory', 'uipath (rpa)', 'power automate',
+                       'snowflake', 'bigquery', 'databricks'],
+  pipeline:           ['etl/elt', 'apache airflow', 'apache spark', 'dbt',
+                       'azure data factory', 'databricks', 'sql', 'python'],
+
+  // ── Database cluster ─────────────────────────────────────────────────────
+  sql:                ['t-sql', 'nosql', 'dbt', 'bigquery', 'snowflake', 'postgresql',
+                       'mysql', 'mongodb', 'cosmos db', 'data modeling',
+                       'data profiling', 'python'],
+  database:           ['sql', 'nosql', 'cosmos db', 'bigquery', 'snowflake', 'dbt',
+                       'mongodb', 'postgresql', 'mysql', 'data modeling',
+                       'data profiling', 'indexing', 'load balancing'],
+  'data engineering': ['sql', 'nosql', 'dbt', 'apache spark', 'apache airflow', 'etl/elt',
+                       'snowflake', 'bigquery', 'data modeling', 'data profiling',
+                       'data lineage tracking', 'azure data factory', 'databricks', 'python'],
+  'data governance':  ['data governance', 'data lineage tracking', 'data anonymization',
+                       'data profiling', 'compliance auditing', 'regulatory compliance',
+                       'nist/rmf frameworks', 'data modeling'],
+
+  // ── Automation / workflow cluster ─────────────────────────────────────────
+  automation:         ['uipath (rpa)', 'power automate', 'zapier', 'apache airflow',
+                       'etl/elt', 'process reengineering', 'microsoft project',
+                       'github (copilot, cli)'],
+  rpa:                ['uipath (rpa)', 'power automate', 'zapier', 'process reengineering',
+                       'apache airflow', 'etl/elt'],
+  workflow:           ['uipath (rpa)', 'power automate', 'zapier', 'asana', 'monday.com',
+                       'jira', 'microsoft project', 'process reengineering',
+                       'change management', 'agile/scrum'],
+
+  // ── CRM / platforms cluster ───────────────────────────────────────────────
+  crm:                ['salesforce', 'hubspot', 'gainsight', 'zendesk', 'oracle netsuite',
+                       'mailchimp', 'cvent', 'eventbrite'],
+  salesforce:         ['salesforce', 'hubspot', 'gainsight', 'zendesk', 'oracle netsuite',
+                       'mailchimp', 'salesforce npsp', 'crm', 'client relations'],
+  'project management tools': ['jira', 'asana', 'monday.com', 'microsoft project',
+                                'zapier', 'github (copilot, cli)', 'power automate'],
+
+  // ── API / web / dev tools cluster ────────────────────────────────────────
+  api:                ['api development', 'postman', 'javascript', 'python', 'react',
+                       'serverless architecture', 'iot specialization', 'github (copilot, cli)'],
+  web:                ['react', 'vite', 'next.js', 'wordpress', 'html5/css3',
+                       'javascript', 'api development', 'figma'],
+  development:        ['python', 'javascript', 'react', 'vite', 'next.js', 'sql',
+                       'api development', 'github (copilot, cli)', 'html5/css3'],
+
+  // ── Design / media cluster ────────────────────────────────────────────────
+  design:             ['adobe creative suite', 'figma', 'canva', 'autocad',
+                       'davinci resolve', 'premiere pro', 'after effects', 'motion graphics'],
+  media:              ['davinci resolve', 'premiere pro', 'after effects', 'motion graphics',
+                       'adobe creative suite', 'audacity', 'elevenlabs', 'canva'],
+  creative:           ['adobe creative suite', 'figma', 'canva', 'davinci resolve',
+                       'premiere pro', 'after effects', 'motion graphics', 'wordpress'],
+
+  // ── GIS / spatial cluster ─────────────────────────────────────────────────
+  gis:                ['arcgis', 'geospatial', 'spatial analysis', 'nepa',
+                       'tableau', 'data storytelling'],
+  spatial:            ['arcgis', 'geospatial', 'nepa', 'gis'],
+  mapping:            ['arcgis', 'geospatial', 'spatial analysis', 'tableau'],
+
+  // ── Grant / funding cluster ───────────────────────────────────────────────
+  grant:              ['grant writing', 'grant procurement', 'e-grants', 'prism',
+                       'doee', 'fundraising', 'donor relations', 'salesforce npsp',
+                       'impact assessment', 'program evaluation', 'technical writing',
+                       'budget management', 'rfp'],
+  'grant writing':    ['grant procurement', 'rfp', 'e-grants', 'prism', 'doee',
+                       'fundraising', 'technical writing', 'impact assessment',
+                       'community engagement', 'budget management'],
+  funding:            ['grant writing', 'grant procurement', 'fundraising', 'donor relations',
+                       'budget management', 'financial oversight', 'salesforce npsp'],
+  fundraising:        ['fundraising', 'donor relations', 'grant writing', 'grant procurement',
+                       'salesforce npsp', 'partnership development', 'community engagement',
+                       'mailchimp', 'public outreach'],
+
+  // ── Policy / compliance / regulatory cluster ──────────────────────────────
+  policy:             ['nepa', 'nist/rmf frameworks', 'nih ethics', 'irb research',
+                       'regulatory compliance', 'compliance auditing',
+                       'program evaluation', 'impact assessment', 'technical writing',
+                       'stakeholder engagement'],
+  compliance:         ['regulatory compliance', 'nist/rmf frameworks', 'nih ethics',
+                       'irb research', 'nepa', 'compliance auditing', 'data governance',
+                       'title ix', 'program evaluation'],
+  regulatory:         ['regulatory compliance', 'nist/rmf frameworks', 'nepa',
+                       'compliance auditing', 'nih ethics', 'irb research'],
+  federal:            ['nist/rmf frameworks', 'nepa', 'regulatory compliance',
+                       'compliance auditing', 'program management',
+                       'stakeholder engagement', 'technical writing'],
+  government:         ['regulatory compliance', 'nist/rmf frameworks', 'nepa',
+                       'program management', 'stakeholder engagement',
+                       'compliance auditing', 'grant writing', 'grant procurement',
+                       'impact assessment', 'leadership'],
+  security:           ['nist/rmf frameworks', 'data governance', 'data anonymization',
+                       'regulatory compliance', 'compliance auditing'],
+
+  // ── Program / project management cluster ─────────────────────────────────
+  // "program management" connects to tools, governance, AND leadership behaviors
   'program management': ['stakeholder engagement', 'change management', 'agile/scrum',
                           'jira', 'asana', 'monday.com', 'process reengineering',
-                          'impact assessment', 'program evaluation', 'compliance auditing'],
-  agile:            ['agile/scrum', 'jira', 'asana', 'monday.com', 'process reengineering',
-                     'change management'],
-  scrum:            ['agile/scrum', 'jira', 'asana', 'monday.com'],
+                          'impact assessment', 'program evaluation', 'compliance auditing',
+                          'budget management', 'cross-functional collaboration',
+                          'organizational development', 'grant writing'],
+  'project management': ['jira', 'asana', 'monday.com', 'microsoft project', 'agile/scrum',
+                          'change management', 'stakeholder engagement', 'process reengineering',
+                          'budget management', 'cross-functional collaboration'],
+  agile:              ['agile/scrum', 'jira', 'asana', 'monday.com', 'process reengineering',
+                       'change management', 'cross-functional collaboration'],
+  scrum:              ['agile/scrum', 'jira', 'asana', 'monday.com'],
+  planning:           ['strategic planning', 'program management', 'stakeholder engagement',
+                       'budget management', 'organizational development', 'impact assessment',
+                       'microsoft project', 'asana', 'monday.com'],
 
-  // ── Soft skills / interpersonal cluster (stays behavioral) ─────────────
-  leadership:       ['leadership', 'team management', 'mentorship', 'stakeholder engagement',
-                     'organizational development', 'capacity building', 'workforce development',
-                     'change management', 'executive communication', 'strategic planning',
-                     'cross-functional collaboration', 'partnership development'],
-  management:       ['team management', 'program management', 'budget management',
-                     'financial oversight', 'vendor management', 'change management',
-                     'stakeholder engagement', 'organizational development'],
-  communication:    ['communication', 'presentation skills', 'technical writing',
-                     'public outreach', 'executive communication', 'negotiation',
-                     'relationship building', 'networking'],
-  'customer service': ['customer service', 'client relations', 'account management',
-                        'gainsight', 'zendesk', 'hubspot', 'conflict resolution',
-                        'emotional intelligence', 'onboarding'],
+  // ── Research / qualitative cluster ────────────────────────────────────────
+  research:           ['irb research', 'nih ethics', 'qualtrics', 'nvivo', 'spss',
+                       'zotero', 'statistical modeling', 'literature review',
+                       'impact assessment', 'program evaluation', 'qualitative research',
+                       'python', 'r', 'stata'],
+  qualitative:        ['nvivo', 'qualtrics', 'irb research', 'nih ethics', 'zotero',
+                       'spss', 'impact assessment', 'program evaluation', 'community engagement'],
+  'public health':    ['nih ethics', 'irb research', 'spss', 'stata', 'r',
+                       'impact assessment', 'program evaluation', 'community engagement',
+                       'regulatory compliance', 'statistical modeling'],
+
+  // ── Social services / HMIS / welfare cluster ─────────────────────────────
+  snap:               ['hmis (clarity)', 'wa saw', 'prism', 'regulatory compliance',
+                       'program management', 'impact assessment', 'community engagement'],
+  hmis:               ['hmis (clarity)', 'wa saw', 'prism', 'program management',
+                       'regulatory compliance', 'data governance', 'community engagement'],
+  'social services':  ['hmis (clarity)', 'wa saw', 'prism', 'community engagement',
+                       'program management', 'grant writing', 'impact assessment',
+                       'equity & access', 'workforce development'],
+
+  // ── Nonprofit / community cluster ─────────────────────────────────────────
+  nonprofit:          ['salesforce npsp', 'volunteerhub', 'mailchimp', 'donor relations',
+                       'fundraising', 'grant writing', 'grant procurement',
+                       'community engagement', 'public outreach', 'impact assessment',
+                       'program evaluation'],
+  community:          ['community engagement', 'public outreach', 'partnership development',
+                       'stakeholder engagement', 'equity & access', 'workforce development',
+                       'capacity building', 'nonprofit', 'grant writing'],
+  outreach:           ['public outreach', 'community engagement', 'mailchimp', 'cvent',
+                       'eventbrite', 'salesforce', 'marketing automation',
+                       'communication', 'partnership development'],
+
+  // ── Leadership / management / governance cluster ──────────────────────────
+  // "leadership" intentionally touches government/institutional contexts
+  leadership:         ['leadership', 'team management', 'mentorship', 'stakeholder engagement',
+                       'organizational development', 'capacity building', 'workforce development',
+                       'change management', 'executive communication', 'strategic planning',
+                       'cross-functional collaboration', 'partnership development',
+                       'program management', 'budget management', 'governance',
+                       'decision making', 'community engagement'],
+  governance:         ['leadership', 'organizational development', 'stakeholder engagement',
+                       'strategic planning', 'regulatory compliance', 'compliance auditing',
+                       'program management', 'nist/rmf frameworks', 'data governance',
+                       'budget management'],
+  management:         ['team management', 'program management', 'budget management',
+                       'financial oversight', 'vendor management', 'change management',
+                       'stakeholder engagement', 'organizational development',
+                       'cross-functional collaboration', 'process reengineering'],
+  executive:          ['executive communication', 'strategic planning', 'leadership',
+                       'stakeholder engagement', 'organizational development',
+                       'budget management', 'decision making', 'presentation skills'],
+  director:           ['leadership', 'executive communication', 'strategic planning',
+                       'program management', 'budget management', 'stakeholder engagement',
+                       'organizational development', 'team management'],
+  president:          ['leadership', 'stakeholder engagement', 'organizational development',
+                       'strategic planning', 'budget management', 'governance',
+                       'community engagement', 'public outreach'],
+
+  // ── Communication / presentation cluster ──────────────────────────────────
+  communication:      ['communication', 'presentation skills', 'technical writing',
+                       'public outreach', 'executive communication', 'negotiation',
+                       'relationship building', 'networking', 'grant writing',
+                       'data storytelling'],
+  presentation:       ['presentation skills', 'executive communication', 'data storytelling',
+                       'technical writing', 'communication', 'canva', 'figma',
+                       'adobe creative suite'],
+  writing:            ['technical writing', 'grant writing', 'public outreach',
+                       'data storytelling', 'communication', 'mailchimp', 'wordpress'],
+  storytelling:       ['data storytelling', 'presentation skills', 'technical writing',
+                       'tableau', 'power bi', 'canva', 'communication'],
+
+  // ── Stakeholder / client / relationship cluster ───────────────────────────
+  stakeholder:        ['stakeholder engagement', 'partnership development',
+                       'relationship building', 'executive communication',
+                       'client relations', 'community engagement', 'negotiation',
+                       'cross-functional collaboration'],
   'client relations': ['client relations', 'account management', 'customer service',
-                        'gainsight', 'zendesk', 'salesforce', 'hubspot'],
-  collaboration:    ['cross-functional collaboration', 'partnership development',
-                     'community engagement', 'stakeholder engagement', 'team management',
-                     'mentorship'],
+                       'gainsight', 'zendesk', 'salesforce', 'hubspot',
+                       'relationship building', 'conflict resolution'],
+  'customer service': ['customer service', 'client relations', 'account management',
+                       'gainsight', 'zendesk', 'hubspot', 'conflict resolution',
+                       'emotional intelligence', 'onboarding', 'relationship building'],
+  partnership:        ['partnership development', 'stakeholder engagement',
+                       'relationship building', 'community engagement',
+                       'cross-functional collaboration', 'negotiation', 'networking'],
+
+  // ── Soft skills / interpersonal cluster ───────────────────────────────────
   'critical thinking': ['critical thinking', 'problem solving', 'decision making',
                          'root cause analysis', 'impact assessment', 'program evaluation',
-                         'competitive intelligence'],
-  'problem solving': ['problem solving', 'critical thinking', 'root cause analysis',
-                       'decision making', 'process reengineering', 'anomaly detection'],
+                         'competitive intelligence', 'statistical modeling'],
+  'problem solving':  ['problem solving', 'critical thinking', 'root cause analysis',
+                       'decision making', 'process reengineering', 'anomaly detection',
+                       'change management'],
   'strategic planning': ['strategic planning', 'program management', 'organizational development',
-                          'capacity building', 'competitive intelligence', 'impact assessment'],
-  diversity:        ['diversity & inclusion', 'equity & access', 'cultural competency',
-                     'emotional intelligence', 'community engagement', 'public outreach'],
-  inclusion:        ['diversity & inclusion', 'equity & access', 'cultural competency',
-                     'community engagement'],
-  dei:              ['diversity & inclusion', 'equity & access', 'cultural competency',
-                     'emotional intelligence'],
-  equity:           ['equity & access', 'diversity & inclusion', 'community engagement',
-                     'public outreach', 'nih ethics', 'irb research'],
-  adaptability:     ['adaptability', 'resilience', 'change management', 'agile/scrum',
-                     'cross-functional collaboration'],
-  'time management': ['time management', 'prioritization', 'agile/scrum', 'process reengineering'],
-  fundraising:      ['fundraising', 'donor relations', 'grant writing', 'grant procurement',
-                     'nonprofit', 'salesforce npsp', 'partnership development'],
-  volunteer:        ['community engagement', 'public outreach', 'workforce development',
-                     'capacity building', 'nonprofit', 'leadership'],
+                          'capacity building', 'competitive intelligence', 'impact assessment',
+                          'decision making', 'leadership'],
+  collaboration:      ['cross-functional collaboration', 'partnership development',
+                       'community engagement', 'stakeholder engagement', 'team management',
+                       'mentorship', 'conflict resolution'],
+  diversity:          ['diversity & inclusion', 'equity & access', 'cultural competency',
+                       'emotional intelligence', 'community engagement', 'public outreach'],
+  inclusion:          ['diversity & inclusion', 'equity & access', 'cultural competency',
+                       'community engagement', 'workforce development'],
+  dei:                ['diversity & inclusion', 'equity & access', 'cultural competency',
+                       'emotional intelligence', 'community engagement'],
+  equity:             ['equity & access', 'diversity & inclusion', 'community engagement',
+                       'public outreach', 'nih ethics', 'irb research',
+                       'workforce development', 'capacity building'],
+  intercultural:      ['cultural competency', 'diversity & inclusion', 'equity & access',
+                       'community engagement', 'emotional intelligence'],
+  mentorship:         ['mentorship', 'leadership', 'workforce development',
+                       'capacity building', 'community engagement', 'team management'],
   'workforce development': ['workforce development', 'capacity building',
                              'organizational development', 'community engagement',
-                             'change management', 'mentorship'],
-  budget:           ['budget management', 'financial oversight', 'grant procurement',
-                     'program management', 'financial modeling'],
-  operations:       ['process reengineering', 'change management', 'program management',
-                     'vendor management', 'inventory management', 'supply chain'],
-  stakeholder:      ['stakeholder engagement', 'partnership development',
-                     'relationship building', 'executive communication',
-                     'client relations'],
-  interpersonal:    ['communication', 'emotional intelligence', 'conflict resolution',
-                     'cultural competency', 'relationship building', 'mentorship'],
-  presentation:     ['presentation skills', 'executive communication',
-                     'data storytelling', 'technical writing'],
-  writing:          ['technical writing', 'grant writing', 'public outreach',
-                     'data storytelling', 'publications'],
-  negotiation:      ['negotiation', 'conflict resolution', 'stakeholder engagement',
-                     'vendor management', 'partnership development'],
-  mentorship:       ['mentorship', 'leadership', 'workforce development',
-                     'capacity building', 'community engagement'],
+                             'change management', 'mentorship', 'program management'],
+  adaptability:       ['adaptability', 'resilience', 'change management', 'agile/scrum',
+                       'cross-functional collaboration'],
+  resilience:         ['resilience', 'adaptability', 'change management', 'critical thinking'],
   'emotional intelligence': ['emotional intelligence', 'conflict resolution',
                               'cultural competency', 'communication', 'adaptability'],
-  resilience:       ['resilience', 'adaptability', 'change management'],
-  networking:       ['networking', 'relationship building', 'partnership development',
-                     'community engagement', 'fundraising'],
-  'food security':  ['community engagement', 'public outreach', 'equity & access',
-                     'volunteer', 'nonprofit'],
-  'supply chain':   ['inventory management', 'operations', 'vendor management', 'logistics'],
-  inventory:        ['inventory management', 'supply chain', 'operations', 'logistics'],
+  interpersonal:      ['communication', 'emotional intelligence', 'conflict resolution',
+                       'cultural competency', 'relationship building', 'mentorship'],
+  negotiation:        ['negotiation', 'conflict resolution', 'stakeholder engagement',
+                       'vendor management', 'partnership development', 'executive communication'],
+  networking:         ['networking', 'relationship building', 'partnership development',
+                       'community engagement', 'fundraising', 'public outreach'],
 
-  // ── Language / regional cluster ─────────────────────────────────────────
-  language:         ['english', 'french', 'hindi', 'akan-twi', 'ladakhi'],
-  multilingual:     ['english', 'french', 'hindi', 'akan-twi', 'ladakhi',
-                     'cultural competency', 'diversity & inclusion'],
+  // ── Budget / finance / operations cluster ─────────────────────────────────
+  budget:             ['budget management', 'financial oversight', 'grant procurement',
+                       'program management', 'financial modeling', 'vendor management',
+                       'excel (advanced/vba)', 'quantitative analytics'],
+  finance:            ['budget management', 'financial oversight', 'financial modeling',
+                       'quantitative analytics', 'excel (advanced/vba)', 'grant procurement'],
+  operations:         ['process reengineering', 'change management', 'program management',
+                       'vendor management', 'etl/elt', 'automation', 'uipath (rpa)',
+                       'inventory management', 'supply chain', 'agile/scrum'],
+  'supply chain':     ['inventory management', 'operations', 'vendor management',
+                       'logistics', 'process reengineering'],
+  inventory:          ['inventory management', 'supply chain', 'operations', 'logistics'],
+  logistics:          ['supply chain', 'inventory management', 'operations',
+                       'vendor management', 'process reengineering'],
+
+  // ── Events / engagement cluster ───────────────────────────────────────────
+  events:             ['cvent', 'eventbrite', 'partiful', 'mailchimp', 'salesforce',
+                       'community engagement', 'public outreach', 'partnership development',
+                       'asana', 'monday.com'],
+  marketing:          ['mailchimp', 'google analytics', 'salesforce', 'hubspot',
+                       'canva', 'adobe creative suite', 'public outreach',
+                       'community engagement'],
+
+  // ── Time management / prioritization cluster ──────────────────────────────
+  'time management':  ['time management', 'prioritization', 'agile/scrum',
+                       'process reengineering', 'microsoft project', 'asana'],
+
+  // ── Language / multilingual cluster ───────────────────────────────────────
+  language:           ['english', 'french', 'hindi', 'akan-twi', 'ladakhi',
+                       'cultural competency'],
+  multilingual:       ['english', 'french', 'hindi', 'akan-twi', 'ladakhi',
+                       'cultural competency', 'diversity & inclusion',
+                       'community engagement'],
 };
 
 const FILTER_OPTIONS = [
@@ -864,7 +1041,7 @@ const PROJECT_TECH_TAG_MAP = {
 };
 
 function getProjectTags(project) {
-  const tags = new Set(['tech']); // all projects are at minimum tech-tagged
+  const tags = new Set(['tech']);
   project.tech.forEach(t => {
     const mapped = PROJECT_TECH_TAG_MAP[t.toLowerCase()];
     if (mapped) mapped.forEach(tag => tags.add(tag));
@@ -876,43 +1053,58 @@ function getProjectTags(project) {
 // SEARCH HELPERS
 // ═══════════════════════════════════════════════════════════════════════════
 
-// Cluster-based search: tight domain separation, no cross-domain bleeding.
-// "python" stays in data/ML. "grant" stays in program/policy. etc.
+// Semantic graph search — one degree of association.
+//
+// Algorithm:
+//  1. Skill item match: any item whose label contains the query (or vice-versa
+//     for longer queries) gets added directly.
+//  2. Key match: if the query matches or closely contains any relation key,
+//     expand that entire cluster. Uses substring matching so "lead" hits
+//     "leadership", "manage" hits "management", etc.
+//  3. Value match: if the query appears as a value in any cluster, pull the
+//     whole cluster so the query's synonyms/neighbors surface.
+//  4. The raw query string is always included so prose text still highlights.
+//
+// The "no absurd bleed" guard: we only do value-match expansion for values
+// with length ≥ 5, preventing single-letter or trivially short tokens from
+// opening huge unrelated clusters.
 function relationalSearch(query) {
   if (!query.trim()) return null;
   const q = query.toLowerCase().trim();
   const matched = new Set();
 
-  // 1. Direct skill item match — item contains query OR query fully contains item
+  // 1. Direct skill item match (item label contains query substring, or query
+  //    is long enough to fully contain a short item label)
   SKILL_GROUPS.forEach(g =>
     g.items.forEach(item => {
       const it = item.toLowerCase();
-      if (it.includes(q) || (q.length > 3 && q.includes(it))) matched.add(it);
+      if (it.includes(q) || (q.length >= 5 && q.includes(it))) matched.add(it);
     })
   );
 
-  // 2. Exact / prefix relation key match only (prevents "da" matching "data" AND "database" AND "design")
+  // 2. Key match — substring so "lead" expands "leadership", "data" expands
+  //    "data science", "data analysis", "data engineering" etc.
   Object.entries(SKILL_RELATIONS).forEach(([key, vals]) => {
-    if (key === q || key.startsWith(q + ' ') || q === key.split(' ')[0]) {
+    if (key.includes(q) || q.includes(key)) {
       vals.forEach(v => matched.add(v));
       matched.add(key);
     }
   });
 
-  // 3. Reverse value lookup — only pull a cluster if the query matches a value specifically
-  //    Use exact or starts-with matching; skip values shorter than 4 chars to avoid noise
+  // 3. Value match — if the query matches a value, pull that cluster.
+  //    Guard: value must be ≥ 5 chars to avoid 'sql' accidentally opening
+  //    completely unrelated clusters via a 3-letter coincidence.
   Object.entries(SKILL_RELATIONS).forEach(([key, vals]) => {
-    const hit = vals.find(v =>
-      v.length >= 4 && (v === q || v.startsWith(q) || (q.length >= 5 && q.startsWith(v)))
-    );
-    if (hit) {
-      vals.forEach(v => matched.add(v));
-      matched.add(key);
-      matched.add(hit);
-    }
+    vals.forEach(v => {
+      if (v.length >= 5 && (v.includes(q) || (q.length >= 5 && q.includes(v)))) {
+        vals.forEach(vv => matched.add(vv));
+        matched.add(key);
+        matched.add(v);
+      }
+    });
   });
 
-  // 4. Raw query always added so inline text content still highlights
+  // 4. Always include the raw query for prose text highlighting
   matched.add(q);
   return matched;
 }
