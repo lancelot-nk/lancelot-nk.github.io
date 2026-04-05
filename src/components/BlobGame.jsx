@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Loader2, Volume2, VolumeX } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
-import themeAudio from '../assets/theme.mp3';
 
 // ─── Mobile detection ─────────────────────────────────────────────────────────
 const isMobile = () => /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth < 768;
@@ -44,6 +43,12 @@ const MAX_SCORE = 999999999;
 const MOB_MAX_PLAYER = 160;
 const MOB_MAX_ENEMY  = 120;
 const MOB_MAX_BOSS   = 100;
+
+// ─── Baja Blast constants ─────────────────────────────────────────────────────
+const BAJA_POWERUP_DURATION = 20;
+const BAJA_FIRST_SPAWN_SEC = 480;
+const BAJA_RESPAWN_SEC = 180;
+const BAJA_RESPAWN_CHANCE = 0.5;
 
 // ─── Spawn difficulty scaling ─────────────────────────────────────────────────
 function getSpawnSizeRange(score) {
@@ -135,6 +140,44 @@ function drawCornCob(ctx, cx, cy, size) {
   ctx.quadraticCurveTo(12 * s, -24 * s, 6 * s, -30 * s);
   ctx.quadraticCurveTo(0, -22 * s, 0, -15 * s);
   ctx.fill();
+  ctx.restore();
+}
+
+// ─── Baja Blast can canvas draw ───────────────────────────────────────────────
+function drawBajaCan(ctx, cx, cy, size) {
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.rotate(Math.sin(phaseRef.current * 0.8) * 0.08);
+  ctx.fillStyle = '#0BD9C5';
+  ctx.strokeStyle = '#00786E';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  if (ctx.roundRect) {
+    ctx.roundRect(-size * 0.32, -size * 0.6, size * 0.64, size * 1.05, size * 0.14);
+  } else {
+    const w = size * 0.64;
+    const h = size * 1.05;
+    const r = size * 0.14;
+    ctx.moveTo(-w / 2 + r, -h / 2);
+    ctx.lineTo(w / 2 - r, -h / 2);
+    ctx.quadraticCurveTo(w / 2, -h / 2, w / 2, -h / 2 + r);
+    ctx.lineTo(w / 2, h / 2 - r);
+    ctx.quadraticCurveTo(w / 2, h / 2, w / 2 - r, h / 2);
+    ctx.lineTo(-w / 2 + r, h / 2);
+    ctx.quadraticCurveTo(-w / 2, h / 2, -w / 2, h / 2 - r);
+    ctx.lineTo(-w / 2, -h / 2 + r);
+    ctx.quadraticCurveTo(-w / 2, -h / 2, -w / 2 + r, -h / 2);
+  }
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = '#3CE48F';
+  ctx.fillRect(-size * 0.24, -size * 0.16, size * 0.48, size * 0.28);
+  ctx.fillStyle = '#FFF';
+  ctx.font = `800 ${Math.max(8, size * 0.18)}px 'Courier New', monospace`;
+  ctx.fillText('BAJA', -ctx.measureText('BAJA').width / 2, 6);
+  ctx.fillStyle = '#36FFD7';
+  ctx.font = `600 ${Math.max(6, size * 0.12)}px 'Courier New', monospace`;
+  ctx.fillText('BLAST', -ctx.measureText('BLAST').width / 2, size * 0.28);
   ctx.restore();
 }
 
@@ -240,7 +283,7 @@ const BlobGame = ({ onClose }) => {
   // ─── Audio ───────────────────────────────────────────────────────────────────
   useEffect(() => {
     const audio = new Audio();
-    audio.src = themeAudio;
+    audio.src = '/src/assets/theme.mp3';
     audio.loop = true;
     audio.volume = 0.55;
     audio.preload = 'auto';
@@ -1281,7 +1324,7 @@ const BlobGame = ({ onClose }) => {
               {immuneActive && displayCornTime > 0 && (() => {
                 const isFlash = displayCornTime <= 2;
                 return (
-                  <div style={{ display: 'grid', placeItems: 'center', width: 46, height: 46, borderRadius: '50%', background: `conic-gradient(rgba(255,215,0,0.95) 0deg ${Math.round(displayCornTime / BAJA_POWERUP_DURATION * 360)}deg, rgba(255,255,255,0.08) ${Math.round(displayCornTime / BAJA_POWERUP_DURATION * 360)}deg 360deg)`, border: `2px solid rgba(255,215,0,${isFlash ? 0.9 : 0.5})`, boxShadow: isFlash ? '0 0 18px rgba(255,215,0,0.4)' : '0 0 10px rgba(255,215,0,0.18)', transform: isFlash ? 'scale(1.08)' : 'none', transition: 'transform 0.12s ease' }}>
+                  <div style={{ display: 'grid', placeItems: 'center', width: 46, height: 46, borderRadius: '50%', background: `conic-gradient(rgba(255,215,0,0.95) 0deg ${Math.round(displayCornTime / 15 * 360)}deg, rgba(255,255,255,0.08) ${Math.round(displayCornTime / 15 * 360)}deg 360deg)`, border: `2px solid rgba(255,215,0,${isFlash ? 0.9 : 0.5})`, boxShadow: isFlash ? '0 0 18px rgba(255,215,0,0.4)' : '0 0 10px rgba(255,215,0,0.18)', transform: isFlash ? 'scale(1.08)' : 'none', transition: 'transform 0.12s ease' }}>
                     <div style={{ display: 'grid', placeItems: 'center', width: 34, height: 34, borderRadius: '50%', background: 'rgba(0,0,0,0.25)', color: '#FFF', fontSize: '0.75rem', fontWeight: 700, textAlign: 'center' }}>
                       <span style={{ lineHeight: 1 }}>{displayCornTime}</span>
                       <span style={{ fontSize: '0.55rem', opacity: 0.75 }}>CORN</span>
