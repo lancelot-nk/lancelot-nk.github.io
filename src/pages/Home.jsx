@@ -295,20 +295,19 @@ export default function Home() {
   const nexusSpacing = isMobile ? '-15px' : (window.innerWidth < 1024 ? '-70px' : '-90px');
 
   return (
-    /* isolate prevents margin collapsing. min-h-[100dvh] handles mobile UI better */
     <div className="relative min-h-[100dvh] flex flex-col isolate bg-white overflow-x-hidden">
       <style>{glitchStyles}</style>
 
-      {/* ── BACKGROUND: Locked to Viewport ── */}
+      {/* ── BACKGROUND: Locked to Viewport with 110dvh overscan to prevent gaps ── */}
       <div 
         className="fixed inset-0 z-0 pointer-events-none" 
         style={{ 
           backgroundImage: `url(${bgAsset})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          transform: 'translateZ(0)', 
+          transform: 'translateZ(0)', // Force GPU acceleration
           willChange: 'transform',
-          height: '100dvh', // Explicitly lock to viewport
+          height: '110dvh', // Slightly larger than viewport to prevent address bar glitches
           width: '100vw'
         }} 
       />
@@ -396,10 +395,11 @@ export default function Home() {
 
       {gameActive && <BlobGame onClose={() => setGameActive(false)} />}
 
-      {/* ── CONTENT AREA: Grows dynamically without glitching ── */}
       {!gameActive && (
         <div ref={contentRef} className="relative z-10 flex-grow pb-20">
           <ContentPanel activeSection={activeSection} />
+          {/* Spacer to prevent content from cutting off at the very bottom */}
+          <div className="h-20 w-full pointer-events-none" />
         </div>
       )}
 
