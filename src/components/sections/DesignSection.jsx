@@ -1,45 +1,59 @@
 import { motion } from 'framer-motion';
 
-const PINK = '#E01880';
+// ── Image Imports ───────────────────────────────────────────────────────────
+import gfx1 from '../../assets/gfx1.png';
+import gfx2 from '../../assets/gfx2.png';
+import gfx3 from '../../assets/gfx3.png';
+import gfx4 from '../../assets/gfx4.png';
+import gfx5 from '../../assets/gfx5.png';
+import gfx6 from '../../assets/gfx6.png';
+
+// ── Brand Colors ────────────────────────────────────────────────────────────
+const PINK   = '#B8004E'; 
+const DEEP   = '#0F001E';
+const BORDER = 'rgba(184,0,78,0.25)'; 
 
 const DESIGNS = [
-  { title: 'Photo & Video Editing', desc: 'Fully capable photo and video editor. Adobe suite, Premiere, After Effects, DaVinci Resolve, and more.', img: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=800&h=450&fit=crop&q=80' },
-  { title: 'Outreach Campaign Materials', desc: 'Creation of material for various outreach campaigns and community projects across multiple organizations.', img: 'https://images.unsplash.com/photo-1542744094-3a31f272c490?w=800&h=450&fit=crop&q=80' },
-  { title: 'Business Branding & UI', desc: 'Creation of business branding, UI/UX elements, identity systems, and web design.', img: 'https://images.unsplash.com/photo-1558655146-d09347e92766?w=800&h=450&fit=crop&q=80' },
-  { title: 'Fundraising Publications', desc: 'Creation of publications and visual materials for fundraising, grant applications, and donor engagement.', img: 'https://images.unsplash.com/photo-1524234107056-1c1f48f64ab8?w=800&h=450&fit=crop&q=80' },
-  { title: 'Formal Publication Design', desc: 'Creation of high level design pages for formal publication, reports, and government deliverables.', img: 'https://images.unsplash.com/photo-1586717791821-3f44a563fa4c?w=800&h=450&fit=crop&q=80' },
-  { title: 'Full Digital Mastery', desc: 'Mastery of all available digital design tools: Adobe CC, Figma, Canva, AutoCAD, and motion graphics pipelines.', img: 'https://images.unsplash.com/photo-1609921212029-bb5a28e60960?w=800&h=450&fit=crop&q=80' },
+  { title: 'Photo & Video Editing', desc: 'Fully capable photo and video editor. Adobe suite, Premiere, After Effects, DaVinci Resolve, and more.', img: gfx1 },
+  { title: 'Outreach Campaign Materials', desc: 'Creation of material for various outreach campaigns and community projects across multiple organizations.', img: gfx2 },
+  { title: 'Business Branding & UI', desc: 'Creation of business branding, UI/UX elements, identity systems, and web design.', img: gfx3 },
+  { title: 'Fundraising Publications', desc: 'Creation of publications and visual materials for fundraising, grant applications, and donor engagement.', img: gfx4 },
+  { title: 'Formal Publication Design', desc: 'Creation of high level design pages for formal publication, reports, and government deliverables.', img: gfx5 },
+  { title: 'Full Digital Mastery', desc: 'Mastery of all available digital design tools: Adobe CC, Figma, Canva, AutoCAD, and motion graphics pipelines.', img: gfx6 },
 ];
 
 export default function DesignSection() {
   return (
     <div>
-      <p style={{ textAlign: 'center', color: 'rgba(100,0,60,0.45)', fontSize: '0.8rem', marginBottom: '1.5rem' }}>
+      <p style={{ textAlign: 'center', color: PINK, fontSize: '0.82rem', marginBottom: '1.5rem', fontWeight: 700, opacity: 0.8 }}>
         12+ years of graphic and web design across all digital platforms
       </p>
       <div style={{ 
         display: 'grid', 
         gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 300px), 1fr))', 
-        gap: '1rem' 
+        gap: '1.25rem' 
       }}>
         {DESIGNS.map((d, i) => (
           <motion.div 
             key={d.title} 
             initial={{ opacity: 0, scale: 0.97 }} 
             animate={{ opacity: 1, scale: 1 }} 
-            transition={{ delay: i * 0.07 }}
+            transition={{ delay: i * 0.07, duration: 0.3 }}
+            whileHover={{ y: -5, scale: 1.02 }}
             style={{ 
               borderRadius: '0.75rem', 
-              border: '1px solid rgba(224,24,128,0.12)', 
-              background: 'rgba(255,255,255,0.75)', 
+              border: `2px solid ${BORDER}`, 
+              background: 'rgba(255,255,255,0.92)', 
               backdropFilter: 'blur(10px)', 
               overflow: 'hidden', 
-              transition: 'border-color 0.3s' 
+              transition: 'all 0.3s ease',
+              boxShadow: '0 4px 15px rgba(15,0,30,0.05)'
             }}
-            onMouseEnter={(/** @type {any} */ e) => e.currentTarget.style.borderColor = 'rgba(224,24,128,0.35)'}
-            onMouseLeave={(/** @type {any} */ e) => e.currentTarget.style.borderColor = 'rgba(224,24,128,0.12)'}
+            onMouseEnter={(e) => e.currentTarget.style.borderColor = PINK}
+            onMouseLeave={(e) => e.currentTarget.style.borderColor = BORDER}
           >
-            <div style={{ position: 'relative', paddingBottom: '56.25%' }}>
+            {/* Image Header */}
+            <div style={{ position: 'relative', paddingBottom: '56.25%', background: DEEP }}>
               <img 
                 src={d.img} 
                 alt={d.title} 
@@ -50,23 +64,25 @@ export default function DesignSection() {
                   width: '100%', 
                   height: '100%', 
                   objectFit: 'cover', 
-                  opacity: 0.6 
+                  opacity: 0.95 
                 }} 
               />
               <div style={{ 
                 position: 'absolute', 
                 inset: 0, 
-                background: 'linear-gradient(to bottom, transparent 50%, rgba(255,255,255,0.95) 100%)' 
+                background: 'linear-gradient(to bottom, transparent 60%, rgba(255,255,255,0.1) 100%)' 
               }} />
             </div>
-            <div style={{ padding: '0.9rem 1rem 1rem' }}>
-              <h3 style={{ margin: '0 0 5px', fontSize: '0.88rem', fontWeight: 600, color: '#2D0040' }}>
+
+            {/* Content Area */}
+            <div style={{ padding: '1.25rem' }}>
+              <h3 style={{ margin: '0 0 6px', fontSize: '0.92rem', fontWeight: 800, color: DEEP }}>
                 {d.title}
               </h3>
               <p style={{ 
                 margin: 0, 
-                fontSize: '0.75rem', 
-                color: 'rgba(60,0,60,0.5)', 
+                fontSize: '0.78rem', 
+                color: 'rgba(15,0,30,0.7)', 
                 lineHeight: 1.6 
               }}>
                 {d.desc}
