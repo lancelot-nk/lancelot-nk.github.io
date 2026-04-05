@@ -1263,6 +1263,7 @@ export default function ResumeSection() {
   const [filter, setFilter] = useState('main');
   const [search, setSearch] = useState('');
   const [dlOpen, setDlOpen] = useState(false);
+  const [showAllExperience, setShowAllExperience] = useState(false);
 
   const filterDef = FILTER_OPTIONS.find(f => f.value === filter);
   const matched   = useMemo(() => relationalSearch(search), [search]);
@@ -1546,7 +1547,7 @@ export default function ResumeSection() {
         </SectionCard>
       )}
 
-      {/* ── Work Experience ───────────────────────────────────────────────── */}
+{/* ── Work Experience ───────────────────────────────────────────────── */}
       {visibleExp.length > 0 && (
         <SectionCard>
           <div style={sHead}>
@@ -1554,14 +1555,40 @@ export default function ResumeSection() {
             <h3 style={sTitle}>Work Experience</h3>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
-            {visibleExp.map((exp, i) => (
-              <ExpCard
-                key={i} exp={exp}
-                isHighlighted={filter !== 'main' && exp.tags.includes(filter)}
-                matchSet={matched}
-              />
-            ))}
+            {visibleExp.map((exp, i) => {
+              // Collapse logic: hide items after Line Chef (index 11) 
+              // only if on 'main' filter, not searching, and toggle is off.
+              const isHidden = filter === 'main' && !showAllExperience && i > 11 && !search;
+              if (isHidden) return null;
+
+              return (
+                <ExpCard
+                  key={i} 
+                  exp={exp}
+                  isHighlighted={filter !== 'main' && exp.tags.includes(filter)}
+                  matchSet={matched}
+                />
+              );
+            })}
           </div>
+
+          {/* Toggle Button: Only shows in 'main' view if list is long and not searching */}
+          {filter === 'main' && visibleExp.length > 12 && !search && (
+            <button
+              onClick={() => setShowAllExperience(!showAllExperience)}
+              style={{
+                marginTop: '1.5rem', width: '100%', padding: '0.7rem',
+                background: 'rgba(184,0,78,0.03)', border: `1px dashed ${BORDER}`,
+                borderRadius: '8px', color: PINK, cursor: 'pointer',
+                fontFamily: 'JetBrains Mono, monospace', fontSize: '0.72rem',
+                fontWeight: 800, display: 'flex', alignItems: 'center',
+                justifyContent: 'center', gap: '8px', transition: 'all 0.2s'
+              }}
+            >
+              {showAllExperience ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+              {showAllExperience ? 'SHOW RECENT ONLY' : `SHOW ${visibleExp.length - 12} EARLIER ROLES`}
+            </button>
+          )}
         </SectionCard>
       )}
 
@@ -1577,7 +1604,7 @@ export default function ResumeSection() {
           </div>
         </SectionCard>
       )}
-
+      
       {/* ── Awards, Leadership & Volunteer ───────────────────────────────── */}
       {visibleAwards.length > 0 && (
         <SectionCard>
