@@ -292,8 +292,8 @@ export default function Home() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
-  // Symmetric spacing logic: Halved on mobile, generous on desktop
-  const nexusSpacing = isMobile ? '-35px' : (window.innerWidth < 1024 ? '-70px' : '-90px');
+  // Responsive logic with safety floor for mobile overlap
+  const nexusSpacing = isMobile ? '-22px' : (window.innerWidth < 1024 ? '-70px' : '-90px');
 
   return (
     <div className="min-h-screen relative overflow-x-hidden bg-white">
@@ -308,7 +308,7 @@ export default function Home() {
             key="main-content"
             initial={{ opacity: 1 }}
             exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.5 } }}
-            className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 pt-6 pb-8 sm:py-12 gap-0 sm:gap-4"
+            className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 pt-6 pb-10 sm:py-12 gap-0 sm:gap-4"
           >
             <motion.div
               className="text-center flex flex-col items-center w-full"
@@ -334,7 +334,7 @@ export default function Home() {
               <QuoteBox onGameUnlock={handleGameUnlock} />
             </motion.div>
 
-            {/* Nexus Component - Symmetric Vertical Offset */}
+            {/* Nexus Component - Balanced & Safety Protected */}
             <div className="relative z-20" style={{ marginTop: nexusSpacing, marginBottom: nexusSpacing }}>
                 <Nexus activeSection={activeSection} onSelect={handleSelect} />
             </div>
