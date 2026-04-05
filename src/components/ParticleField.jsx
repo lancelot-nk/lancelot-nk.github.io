@@ -10,9 +10,14 @@ const ParticleField = ({ isGameMode }) => {
     const ctx = canvas.getContext('2d');
     let animationFrameId;
 
-    // Game-responsive constants
-    const baseCount = isGameMode ? 320 : 90;
-    const connectionDistance = isGameMode ? 80 : 150;
+    const getMobile = () => /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth < 768;
+    const isMob = getMobile();
+
+    // Reduce particle count heavily on mobile for performance
+    const baseCount = isGameMode
+      ? (isMob ? 80 : 320)
+      : (isMob ? 40 : 90);
+    const connectionDistance = isGameMode ? (isMob ? 50 : 80) : 150;
 
     const resize = () => {
       canvas.width = window.innerWidth;
@@ -23,62 +28,57 @@ const ParticleField = ({ isGameMode }) => {
       constructor(x, y, isSpawned = false) {
         this.reset(x, y);
         if (isSpawned) {
-          // Rapid scatter effect when blob splits
           this.vx = (Math.random() - 0.5) * 12;
           this.vy = (Math.random() - 0.5) * 12;
         }
       }
 
       reset(x, y) {
-        // If no x/y provided, randomize within canvas
         this.x = x ?? Math.random() * canvas.width;
         this.y = y ?? Math.random() * canvas.height;
-        
-        const speedMult = isGameMode ? 1.2 : 0.4;
+
+        const speedMult = isGameMode ? (isMob ? 0.9 : 1.2) : 0.4;
         this.vx = (Math.random() - 0.5) * speedMult;
         this.vy = (Math.random() - 0.5) * speedMult;
-        
-        this.radius = Math.random() * 3 + (isGameMode ? 2 : 4); 
-        this.density = (Math.random() * 15) + 5; 
+
+        this.radius = Math.random() * 3 + (isGameMode ? (isMob ? 1.5 : 2) : 4);
+        this.density = (Math.random() * 15) + 5;
         this.opacity = Math.random() * 0.5 + 0.2;
       }
 
-      // Smooth edge respawn to keep particle count static
       respawnAtEdge() {
         const edge = Math.floor(Math.random() * 4);
-        if (edge === 0) { this.x = Math.random() * canvas.width; this.y = -20; } // Top
-        else if (edge === 1) { this.x = canvas.width + 20; this.y = Math.random() * canvas.height; } // Right
-        else if (edge === 2) { this.x = Math.random() * canvas.width; this.y = canvas.height + 20; } // Bottom
-        else { this.x = -20; this.y = Math.random() * canvas.height; } // Left
-        
-        const speed = isGameMode ? 1.5 : 0.5;
+        if (edge === 0)      { this.x = Math.random() * canvas.width;  this.y = -20; }
+        else if (edge === 1) { this.x = canvas.width + 20;              this.y = Math.random() * canvas.height; }
+        else if (edge === 2) { this.x = Math.random() * canvas.width;  this.y = canvas.height + 20; }
+        else                 { this.x = -20;                            this.y = Math.random() * canvas.height; }
+
+        const speed = isGameMode ? (isMob ? 1.0 : 1.5) : 0.5;
         this.vx = (Math.random() - 0.5) * speed;
         this.vy = (Math.random() - 0.5) * speed;
       }
 
       update() {
+        // ── Player absorption ────────────────────────────────────────────────
         if (mouse.current.x !== null) {
-          let dx = mouse.current.x - this.x;
-          let dy = mouse.current.y - this.y;
-          let distance = Math.sqrt(dx * dx + dy * dy);
-          
-          // ABSORPTION LOGIC (Game Mode Only)
-          // Matches the logic in BlobGame.jsx
+          const dx = mouse.current.x - this.x;
+          const dy = mouse.current.y - this.y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+
+          // Absorption zone — matches BlobGame player radius feel
           if (isGameMode && distance < 45) {
-            window.dispatchEvent(new CustomEvent('particleCollected')); 
-            this.respawnAtEdge(); 
+            window.dispatchEvent(new CustomEvent('particleCollected'));
+            this.respawnAtEdge();
             return;
           }
 
           if (distance < mouse.current.radius) {
             const force = (mouse.current.radius - distance) / mouse.current.radius;
-            
             if (isGameMode) {
-              // GRAVITATIONAL PULL: Sucked into the blob
-              this.x += (dx / distance) * force * 5;
-              this.y += (dy / distance) * force * 5;
+              // Gravitational pull toward player blob
+              this.x += (dx / distance) * force * (isMob ? 3.5 : 5);
+              this.y += (dy / distance) * force * (isMob ? 3.5 : 5);
             } else {
-              // ORIGINAL SOFT PUSH: Normal site behavior
               const directionX = (dx / distance) * force * this.density * 0.4;
               const directionY = (dy / distance) * force * this.density * 0.4;
               this.x -= directionX;
@@ -87,12 +87,46 @@ const ParticleField = ({ isGameMode }) => {
           }
         }
 
+        // ── Enemy absorption ─────────────────────────────────────────────────
+        // EnemyPositions are broadcast each frame from BlobGame via a shared ref
+        // We read from window.__blobEnemies which BlobGame writes every loop tick
+        if (isGameMode) {
+          const enemies = window.__blobEnemies;
+          if (enemies && enemies.length > 0) {
+            // Only check a subset each frame for performance (every 3rd particle vs all enemies)
+            const pullRadius = 90;
+            const eatRadius = 38;
+            for (let ei = 0; ei < enemies.length; ei++) {
+              const e = enemies[ei];
+              if (!e || e.type === 'saturn') continue; // saturn doesn't eat particles
+              const dx = e.x - this.x;
+              const dy = e.y - this.y;
+              const dist = Math.sqrt(dx * dx + dy * dy);
+
+              if (dist < eatRadius) {
+                // Enemy eats this particle — dispatch so BlobGame can grow the enemy
+                window.dispatchEvent(new CustomEvent('enemyParticleCollected', {
+                  detail: { enemyId: e.id }
+                }));
+                this.respawnAtEdge();
+                return;
+              }
+
+              if (dist < pullRadius && dist > 0) {
+                const force = (pullRadius - dist) / pullRadius;
+                this.x += (dx / dist) * force * (isMob ? 2.5 : 4);
+                this.y += (dy / dist) * force * (isMob ? 2.5 : 4);
+              }
+            }
+          }
+        }
+
         this.x += this.vx;
         this.y += this.vy;
 
-        // Bounce logic (Keep them on screen unless eaten)
-        if (this.x < -30 || this.x > canvas.width + 30) this.vx *= -1;
-        if (this.y < -30 || this.y > canvas.height + 30) this.vy *= -1;
+        // Bounce to stay on screen
+        if (this.x < -30 || this.x > canvas.width + 30)  this.vx *= -1;
+        if (this.y < -30 || this.y > canvas.height + 30)  this.vy *= -1;
       }
 
       draw() {
@@ -119,9 +153,9 @@ const ParticleField = ({ isGameMode }) => {
       for (let i = 0; i < count; i++) {
         particles.current.push(new Particle(x, y, true));
       }
-      // Safety cap: keep performance snappy even with multiple splits
-      if (particles.current.length > 500) {
-        particles.current.splice(0, particles.current.length - 500);
+      const cap = isMob ? 200 : 500;
+      if (particles.current.length > cap) {
+        particles.current.splice(0, particles.current.length - cap);
       }
     };
 
@@ -132,8 +166,10 @@ const ParticleField = ({ isGameMode }) => {
         p.update();
         p.draw();
 
-        // Optimized connections: 
-        const skip = isGameMode ? 4 : 1; 
+        // Skip connections on mobile in game mode entirely for perf
+        if (isMob && isGameMode) return;
+
+        const skip = isGameMode ? 4 : 1;
         if (i % skip === 0) {
           for (let j = i + 1; j < particles.current.length; j += skip) {
             const p2 = particles.current[j];
@@ -156,6 +192,7 @@ const ParticleField = ({ isGameMode }) => {
       animationFrameId = requestAnimationFrame(animate);
     };
 
+    // ── Input tracking ────────────────────────────────────────────────────────
     const handleMouseMove = (e) => {
       mouse.current.x = e.clientX;
       mouse.current.y = e.clientY;
@@ -166,9 +203,24 @@ const ParticleField = ({ isGameMode }) => {
       mouse.current.y = null;
     };
 
+    // Track touch position so mobile player blob also pulls/eats particles
+    const handleTouchMove = (e) => {
+      if (e.touches && e.touches[0]) {
+        mouse.current.x = e.touches[0].clientX;
+        mouse.current.y = e.touches[0].clientY;
+      }
+    };
+
+    const handleTouchEnd = () => {
+      // Don't null out on touchend — player blob stays at last position
+      // so particles keep getting pulled. Only null on true leave.
+    };
+
     window.addEventListener('resize', resize);
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('mouseleave', handleMouseLeave);
+    window.addEventListener('touchmove', handleTouchMove, { passive: true });
+    window.addEventListener('touchend', handleTouchEnd);
     window.addEventListener('blobSplit', handleSplit);
 
     init();
@@ -178,8 +230,12 @@ const ParticleField = ({ isGameMode }) => {
       window.removeEventListener('resize', resize);
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseleave', handleMouseLeave);
+      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('touchend', handleTouchEnd);
       window.removeEventListener('blobSplit', handleSplit);
       cancelAnimationFrame(animationFrameId);
+      // Clean up shared enemy position array when unmounting
+      if (!isGameMode) window.__blobEnemies = null;
     };
   }, [isGameMode]);
 
@@ -187,9 +243,12 @@ const ParticleField = ({ isGameMode }) => {
     <canvas
       ref={canvasRef}
       className="fixed inset-0 pointer-events-none z-[2]"
-      style={{ 
+      style={{
         opacity: isGameMode ? 1 : 0.8,
-        transition: 'opacity 0.5s ease-in-out' 
+        transition: 'opacity 0.5s ease-in-out',
+        // Use normal blend in game mode so anime mode difference blend on BlobGame canvas
+        // doesn't compound with this layer unexpectedly
+        mixBlendMode: 'normal',
       }}
     />
   );
