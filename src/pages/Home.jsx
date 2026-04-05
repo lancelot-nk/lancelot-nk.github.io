@@ -11,33 +11,6 @@ import bgAsset from '../assets/bg.jpg';
 const PINK   = '#E01880';
 const VIOLET = '#8B00E8';
 
-// ── PORTRAIT LOADER ANIMATION ────────────────────────────────────────────────
-function PortraitLoader({ onComplete }) {
-  return (
-    <motion.div 
-      className="absolute inset-0 z-[60] pointer-events-none flex items-center justify-center"
-      initial={{ opacity: 1 }}
-      animate={{ opacity: 0 }}
-      transition={{ delay: 2.2, duration: 0.8, ease: "easeInOut" }}
-      onAnimationComplete={onComplete}
-    >
-      <div className="relative w-[180px] h-[180px] sm:w-[240px] sm:h-[240px] lg:w-[300px] lg:h-[300px] rounded-full overflow-hidden bg-[#1A0010]">
-        <motion.svg
-          viewBox="0 0 100 100"
-          preserveAspectRatio="none"
-          className="absolute inset-0 w-full h-[120%]"
-          initial={{ y: "100%" }}
-          animate={{ y: "-20%" }}
-          transition={{ duration: 2, ease: "easeInOut" }}
-          style={{ fill: PINK }}
-        >
-          <path d="M0 10 C 20 0, 30 20, 50 10 C 70 0, 80 20, 100 10 L 100 100 L 0 100 Z" />
-        </motion.svg>
-      </div>
-    </motion.div>
-  );
-}
-
 function GlitchText({ text, className, style }) {
   const [hovered, setHovered] = useState(false);
   return (
@@ -281,7 +254,6 @@ export default function Home() {
   }, []);
 
   const handleSelect = useCallback((id) => {
-    if (!isLoaded) return;
     cancelScroll();
     clearTimeout(pendingSelect.current);
 
@@ -298,7 +270,7 @@ export default function Home() {
       setActiveSection(id);
       scrollToContent(1400 + 100, 800);
     }
-  }, [activeSection, scrollToContent, isLoaded]);
+  }, [activeSection, scrollToContent]);
 
   const handleGameUnlock = useCallback(() => {
     setGameActive(true);
@@ -309,7 +281,6 @@ export default function Home() {
     <div className="min-h-screen relative overflow-x-hidden bg-white">
       <div className="fixed inset-0 z-0 bg-cover bg-center" style={{ backgroundImage: `url(${bgAsset})` }} />
       
-      {/* Updated ParticleField with Game Mode prop */}
       <ParticleField isGameMode={gameActive} />
 
       <AnimatePresence>
@@ -345,15 +316,12 @@ export default function Home() {
               <QuoteBox onGameUnlock={handleGameUnlock} />
             </motion.div>
 
-            {/* Nexus Component - Adjusted margins for mobile to prevent overlap */}
+            {/* Nexus Component */}
             <div className="relative mt-2 mb-[-30px] sm:my-[-65px] lg:my-[-90px] z-20">
-              <PortraitLoader onComplete={() => setIsLoaded(true)} />
-              <div className={isLoaded ? "pointer-events-auto" : "pointer-events-none"}>
-                <Nexus activeSection={activeSection} onSelect={handleSelect} isLocked={!isLoaded} />
-              </div>
+                <Nexus activeSection={activeSection} onSelect={handleSelect} />
             </div>
 
-            {/* Footer Buttons - Adjusted top margin for mobile */}
+            {/* Footer Buttons */}
             <div className="flex gap-4 flex-wrap justify-center mt-4 sm:mt-[-15px] pb-8 sm:pb-0 z-30">
               <PillBtn href="https://www.linkedin.com/in/lancelotnk/" icon={Linkedin} label="LinkedIn" />
               <PillBtn href="https://github.com/lancelot-nk" icon={Github} label="GitHub" />

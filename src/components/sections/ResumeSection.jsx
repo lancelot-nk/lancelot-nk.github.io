@@ -172,15 +172,112 @@ const ALL_EXPERIENCE = [
     ],
   },
   {
-    role: 'Green Policy Intern & Green Fund Chair',
+    role: 'Line Chef & Operations Lead',
+    org: 'Food and Beverage Service Industry',
+    location: 'United States',
+    period: '05/2015 – 08/2018',
+    tags: ['program', 'operations'],
+    bullets: [
+      'Optimized order quality and consumer experience through iterative feedback loops, improving overall service efficiency by 25%.',
+      'Managed inventory procurement and supply chain logistics with a focus on precision, ensuring operational continuity for high-volume business cycles.',
+      'Tools: Qualitative Feedback Analysis, Quantitative Analytics, Inventory Management Systems, Point of Sale (POS) Operations.',
+    ],
+  },
+  {
+    role: 'Goucher Green Fund Chair',
     org: 'Goucher College',
     location: 'Baltimore, MD',
-    period: '2015 – 2019',
+    period: '05/2017 – 05/2018',
+    tags: ['program', 'data'],
+    bullets: [
+      'Reformed and reinstituted a strategic grant mechanism to fund student-led sustainability initiatives, modeling the framework after federal government grant systems.',
+      'Facilitated multi-level stakeholder reviews to designate funding for 10+ ecological programs, including Green Gardens and urban agriculture projects.',
+      'Tools: Strategic Planning, Qualitative Analysis, Grant Writing Frameworks, Project Lifecycle Management.',
+    ],
+  },
+  {
+    role: 'Student Body President',
+    org: 'Goucher College Student Government',
+    location: 'Baltimore, MD',
+    period: '04/2017 – 04/2018',
+    tags: ['program', 'data'],
+    bullets: [
+      'Increased campus food security by 167% through the implementation of a weekly meal-plan system leveraging non-full-use pricing models.',
+      'Architected revolving loan funds and software-based energy metering for college facilities to drive institutional sustainability and infrastructure improvements.',
+      'Established analytical committees to audit Title IX compliance, student event coordination, and facilities management.',
+      'Tools: Quantitative Analytics, Policy Analysis, Institutional Budgeting, Energy Metering Software, Stakeholder Management.',
+    ],
+  },
+  {
+    role: 'Student Senator',
+    org: 'Goucher College Student Government',
+    location: 'Baltimore, MD',
+    period: '01/2016 – 04/2017',
     tags: ['program'],
     bullets: [
-      'Led campus sustainability initiatives as Green Fund Chair, allocating budget for campus environmental projects including renewable energy installations and waste-reduction programs.',
-      'Served as Student Body President (2017–2018), Roosevelt Institute Chapter Treasurer, and intercollegiate swimmer.',
-      'Coordinated policy research for green infrastructure proposals submitted to college administration and external stakeholders.',
+      'Collaborated within the Facilities and Environment Committee to identify and resolve campus-wide infrastructure issues, improving sustainability policies by 20%.',
+      'Engaged multiple on-campus agencies to coordinate cross-departmental efforts in environmental policy reform.',
+      'Tools: Qualitative Analysis, Quantitative Analytics, Inter-Agency Coordination, Legislative Drafting.',
+    ],
+  },
+  {
+    role: 'Treasurer | College Chapter',
+    org: 'Roosevelt Institute',
+    location: 'Baltimore, MD',
+    period: '01/2017 – 01/2018',
+    tags: ['data', 'operations'],
+    bullets: [
+      'Conducted a Financialization analysis of institutional interest-rate-swaps post-2008 crash to assess college economic stability.',
+      'Coordinated the funding and fiscal operations for chapter activities, resulting in a 30% boost in organizational outreach.',
+      'Tools: Financial Modeling, Quantitative Analytics, Risk Assessment, Event Planning, Budgetary Oversight.',
+    ],
+  },
+  {
+    role: 'Event Coordinator | College Chapter',
+    org: 'Roosevelt Institute',
+    location: 'Baltimore, MD',
+    period: '09/2016 – 01/2017',
+    tags: ['operations'],
+    bullets: [
+      'Tailored atmospheric logistics and activities for large-scale informational events, increasing organizational attendance by 25%.',
+      'Managed funding requests and cleared complex logistics with the club council to ensure event scalability.',
+      'Tools: Strategic Planning, Logistic Management, Qualitative Analysis, Resource Allocation.',
+    ],
+  },
+  {
+    role: 'Grassroots Organizer',
+    org: 'KOFA Public Affairs',
+    location: 'Washington DC-Baltimore Area',
+    period: '09/2016 – 01/2017',
+    tags: ['data', 'program'],
+    bullets: [
+      'Generated broad-based support for community-centered movements, achieving the highest engagement yield during multiple campaign intervals.',
+      'Iterated on campaign goals based on direct community feedback and data gathered through canvassing efforts.',
+      'Tools: NGP VAN, MiniVAN, PhoneBurner, Salesforce CRM, TargetSmart, Google Workspace.',
+    ],
+  },
+  {
+    role: 'Environmental Network Intern',
+    org: 'Global Green USA',
+    location: 'Washington DC-Baltimore Area',
+    period: '12/2015 – 02/2016',
+    tags: ['program'],
+    bullets: [
+      'Strategized direct correspondence with nonprofits and DC Council members to strengthen regional environmental advocacy and network cohesion.',
+      'Authored engagement-driven publications and newsletters while documenting multi-agency functions for executive briefing.',
+      'Tools: Action Network, Mailchimp, GovTrack, WordPress (CMS), Excel, Google Workspace.',
+    ],
+  },
+  {
+    role: 'AFS Recipient | Ghana',
+    org: 'AFS Intercultural Programs USA',
+    location: 'Ghana',
+    period: '01/2014 – 08/2014',
+    tags: ['data', 'program'],
+    bullets: [
+      'Executed community outreach and qualitative research within intercultural programs, increasing engagement by 15% for local initiatives.',
+      'Produced content to support fundraising efforts and academic publications regarding regional development.',
+      'Tools: Qualitative Research, Quantitative Analytics, Intercultural Communication, Content Strategy.',
     ],
   },
 ];
@@ -308,8 +405,10 @@ const AWARDS_VOLUNTEER = [
 
 const LANGUAGES = [
   { lang: 'English', level: 'Native or Bilingual Proficiency', tags: [] },
-  { lang: 'Spanish', level: 'Professional Working Proficiency', tags: [] },
-  { lang: 'French',  level: 'Elementary Proficiency', tags: [] },
+  { lang: 'Hindi', level: 'Limited Working Proficiency', tags: [] },
+  { lang: 'French',  level: 'Limited Working Proficiency', tags: [] },
+  { lang: 'Akan-Twi',  level: 'Elementary Proficiency', tags: [] },
+  { lang: 'Ladakhi',  level: 'Elementary Proficiency', tags: [] },
 ];
 
 const PUBLICATIONS = [

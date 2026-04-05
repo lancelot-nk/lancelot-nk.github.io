@@ -4,14 +4,48 @@ import { Code, FileText, BarChart3, Palette, BookOpen, Award } from 'lucide-reac
 
 import profilePic from '../assets/profile.jpg';
 
+const PINK = '#E01880';
+
 export const SECTIONS = [
-  { id: 'projects',       label: 'Projects',     icon: Code },
-  { id: 'resume',         label: 'Resume',        icon: FileText },
+  { id: 'projects',       label: 'Projects',      icon: Code },
+  { id: 'resume',         label: 'Resume',         icon: FileText },
   { id: 'dashboards',     label: 'Dash\nBoards',  icon: BarChart3 },
-  { id: 'design',         label: 'Design',        icon: Palette },
+  { id: 'design',         label: 'Design',         icon: Palette },
   { id: 'publications',   label: 'Pub &\nGrants', icon: BookOpen },
-  { id: 'certifications', label: 'Certs',         icon: Award },
+  { id: 'certifications', label: 'Certs',          icon: Award },
 ];
+
+// ── PORTRAIT LOADER ANIMATION ────────────────────────────────────────────────
+function PortraitLoader({ core, onComplete }) {
+  return (
+    <motion.div 
+      className="absolute top-1/2 left-1/2 z-[110] pointer-events-none overflow-hidden rounded-full"
+      style={{ 
+        width: core, 
+        height: core, 
+        x: '-50%', 
+        y: '-50%',
+        background: '#1A0010' 
+      }}
+      initial={{ opacity: 1 }}
+      animate={{ opacity: 0 }}
+      transition={{ delay: 2.2, duration: 0.8, ease: "easeInOut" }}
+      onAnimationComplete={onComplete}
+    >
+      <motion.svg
+        viewBox="0 0 100 100"
+        preserveAspectRatio="none"
+        className="absolute inset-0 w-full h-[120%]"
+        initial={{ y: "100%" }}
+        animate={{ y: "-20%" }}
+        transition={{ duration: 2, ease: "easeInOut" }}
+        style={{ fill: PINK }}
+      >
+        <path d="M0 10 C 20 0, 30 20, 50 10 C 70 0, 80 20, 100 10 L 100 100 L 0 100 Z" />
+      </motion.svg>
+    </motion.div>
+  );
+}
 
 function getLayout(w) {
   if (w < 480) return { size: 340, core: 75, radius: 105, hex: 75, fontSize: 10, isMobile: true,  lineCount: 5,  scaleFactor: 0.6, blur: 1 };
@@ -131,8 +165,8 @@ function SectionLines({ sectionIdx, cx, cy, radius, hex, hexH, lineCount, scaleF
     [activationSeed]
   );
 
-  const IN_DUR            = 0.5;
-  const OUT_DUR           = 0.38;
+  const IN_DUR           = 0.5;
+  const OUT_DUR          = 0.38;
   const OUT_DRAW_DELAY    = IN_DUR + 0.15;
   const OUT_RETRACT_DELAY = 0;
   const IN_RETRACT_DELAY  = OUT_DUR + 0.12;
@@ -151,7 +185,7 @@ function SectionLines({ sectionIdx, cx, cy, radius, hex, hexH, lineCount, scaleF
           animate={{ pathLength: isLeaving ? 0 : 1 }}
           transition={{
             duration: isLeaving ? OUT_DUR : IN_DUR,
-            delay:    isLeaving ? IN_RETRACT_DELAY : 0,
+            delay:     isLeaving ? IN_RETRACT_DELAY : 0,
             ease: 'easeOut',
           }}
         />
@@ -168,7 +202,7 @@ function SectionLines({ sectionIdx, cx, cy, radius, hex, hexH, lineCount, scaleF
           animate={{ pathLength: isLeaving ? 0 : 1 }}
           transition={{
             duration: isLeaving ? OUT_DUR : 0.75,
-            delay:    isLeaving ? OUT_RETRACT_DELAY : OUT_DRAW_DELAY,
+            delay:     isLeaving ? OUT_RETRACT_DELAY : OUT_DRAW_DELAY,
             ease: 'easeOut',
           }}
         />
@@ -177,13 +211,15 @@ function SectionLines({ sectionIdx, cx, cy, radius, hex, hexH, lineCount, scaleF
   );
 }
 
-export default function Nexus({ activeSection, onSelect }) {
+export default function Nexus({ activeSection, onSelect, isLocked }) {
   const [layout, setLayout]               = useState(() => getLayout(typeof window !== 'undefined' ? window.innerWidth : 1000));
   const [hoveredId, setHoveredId]         = useState(null);
   const [mountedSections,  setMountedSections]  = useState(new Set());
   const [leavingSections,  setLeavingSections]  = useState(new Set());
   const [activationSeeds,  setActivationSeeds]  = useState({});
   const [portraitHovered,  setPortraitHovered]  = useState(false);
+  const [animationDone, setAnimationDone] = useState(false);
+  
   const prevActiveRef = useRef(null);
   const exitTimers    = useRef({});
 
@@ -224,7 +260,7 @@ export default function Nexus({ activeSection, onSelect }) {
   const hexH      = Math.round(hex * 1.15);
   const cx        = size / 2;
   const cy        = size / 2;
-  const brandPink = '#E01880';
+  const brandPink = PINK;
   const padding   = 18 * scaleFactor;
 
   const bounds = useMemo(() => ({
@@ -243,6 +279,8 @@ export default function Nexus({ activeSection, onSelect }) {
       points: `${hx},${hy-hexH/2} ${hx+hex/2},${hy-hexH/4} ${hx+hex/2},${hy+hexH/4} ${hx},${hy+hexH/2} ${hx-hex/2},${hy+hexH/4} ${hx-hex/2},${hy-hexH/4}`,
     };
   }), [cx, cy, radius, hex, hexH]);
+
+  const canHover = !isLocked && animationDone;
 
   return (
     <div className="relative flex-shrink-0" style={{ width: size, height: size }}>
@@ -326,9 +364,9 @@ export default function Nexus({ activeSection, onSelect }) {
             key={`btn-${s.id}`}
             className="absolute z-[20] bg-none border-none cursor-pointer p-0"
             style={{ left: hx - hex / 2, top: hy - hexH / 2, width: hex, height: hexH }}
-            onMouseEnter={() => setHoveredId(s.id)}
+            onMouseEnter={() => canHover && setHoveredId(s.id)}
             onMouseLeave={() => setHoveredId(null)}
-            onClick={() => onSelect(s.id)}
+            onClick={() => !isLocked && onSelect(s.id)}
           >
             <div className="relative w-full h-full flex flex-col items-center justify-center gap-3 pointer-events-none">
               <s.icon size={isMobile ? 22 : 34} style={{ color: hoveredId === s.id ? brandPink : 'white' }} />
@@ -343,19 +381,22 @@ export default function Nexus({ activeSection, onSelect }) {
         );
       })}
 
+      {/* ── PORTRAIT LOADER (FRONTMOST) — z-[110] ── */}
+      {!animationDone && <PortraitLoader core={core} onComplete={() => setAnimationDone(true)} />}
+
       {/* ── PORTRAIT — z-[100] ── */}
       <div
         className="absolute top-1/2 left-1/2 z-[100]"
         style={{ width: core, height: core, transform: 'translate(-50%, -50%)' }}
-        onMouseEnter={() => setPortraitHovered(true)}
+        onMouseEnter={() => canHover && setPortraitHovered(true)}
         onMouseLeave={() => setPortraitHovered(false)}
       >
-        {/* Glow bloom — radial pink, scales to 1.7× with portrait on hover */}
+        {/* Glow bloom */}
         <motion.div
           className="absolute top-1/2 left-1/2 rounded-full pointer-events-none"
           style={{
-            width:    core,
-            height:   core,
+            width:     core,
+            height:    core,
             x:        '-50%',
             y:        '-50%',
             background: 'radial-gradient(circle, rgba(224,24,128,0.60) 0%, rgba(224,24,128,0.20) 55%, transparent 75%)',
@@ -369,7 +410,7 @@ export default function Nexus({ activeSection, onSelect }) {
           transition={{ duration: 0.35, ease: 'easeOut' }}
         />
 
-        {/* Portrait — wrapped in <a> to open LinkedIn on click */}
+        {/* Portrait */}
         <motion.a
           href="https://www.linkedin.com/in/lancelotnk/"
           target="_blank"
