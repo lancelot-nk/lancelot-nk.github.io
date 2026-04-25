@@ -45,41 +45,64 @@ function GlitchText({ text, className, style }) {
 }
 
 // ── SCROLL SYSTEM ─────────────────────────────────────────────────────────────
-let scrollRaf       = null;
-let userInterrupted = false;
-let lastScrollY     = 0;
+// Design goals:
+//  • Halt IMMEDIATELY (<100ms) when user touches scroll wheel or touch scroll
+//  • No jitter or bounce — cancelAnimationFrame stops the RAF loop cleanly
+//  • Slightly slower default (1100ms) for a more refined feel
+//  • Listeners added PER-SCROLL and removed on cancel, not global persistent
+
+let scrollRaf = null;
 
 function cancelScroll() {
   if (scrollRaf) { cancelAnimationFrame(scrollRaf); scrollRaf = null; }
 }
 
-function smoothScrollTo(targetY, duration = 900) {
+function smoothScrollTo(targetY, duration = 1100) {
   cancelScroll();
-  userInterrupted = false;
-  lastScrollY     = window.pageYOffset;
-  const startY     = window.pageYOffset;
-  const diff       = targetY - startY;
-  let startTime   = null;
+  const startY = window.pageYOffset;
+  const diff   = targetY - startY;
+  if (Math.abs(diff) < 1) return;
+
+  let startTime = null;
+  let cancelled = false;
+
+  // Interrupt handlers — attached once per scroll, removed on first trigger
+  const abort = () => {
+    if (cancelled) return;
+    cancelled = true;
+    cancelScroll();
+    cleanup();
+  };
+  const cleanup = () => {
+    window.removeEventListener('wheel',     abort, { passive: true });
+    window.removeEventListener('touchmove', abort, { passive: true });
+    window.removeEventListener('mousedown', abort);
+  };
+
+  // Register BEFORE scheduling first frame so any immediate scroll cancels it
+  window.addEventListener('wheel',     abort, { passive: true });
+  window.addEventListener('touchmove', abort, { passive: true });
+  window.addEventListener('mousedown', abort);
+
   const step = (ts) => {
-    if (Math.abs(window.pageYOffset - lastScrollY) > 2 && userInterrupted) { cancelScroll(); return; }
-    lastScrollY = window.pageYOffset;
+    if (cancelled) return;
     if (!startTime) startTime = ts;
-    const p = Math.min((ts - startTime) / duration, 1);
-    const e = p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
-    window.scrollTo(0, startY + diff * e);
-    if (p < 1) { scrollRaf = requestAnimationFrame(step); } else { scrollRaf = null; }
+    const raw = Math.min((ts - startTime) / duration, 1);
+    // Smooth cubic-bezier easing (ease-in-out-cubic)
+    const ease = raw < 0.5 ? 4 * raw * raw * raw : 1 - Math.pow(-2 * raw + 2, 3) / 2;
+    window.scrollTo(0, startY + diff * ease);
+    if (raw < 1) {
+      scrollRaf = requestAnimationFrame(step);
+    } else {
+      scrollRaf = null;
+      cleanup();
+    }
   };
   scrollRaf = requestAnimationFrame(step);
 }
 
-function initScrollInterruptListeners() {
-  const onUserScroll = () => { userInterrupted = true; };
-  window.addEventListener('wheel',     onUserScroll, { passive: true });
-  window.addEventListener('touchmove', onUserScroll, { passive: true });
-  window.addEventListener('keydown', (e) => {
-    if (['ArrowUp','ArrowDown','PageUp','PageDown','Home','End',' '].includes(e.key)) userInterrupted = true;
-  });
-}
+// No-op — interrupt listeners are now per-scroll, not global
+function initScrollInterruptListeners() {}
 
 function CertBadge({ label, color, onSelect }) {
   const [hov, setHov] = useState(false);

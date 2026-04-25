@@ -75,7 +75,6 @@ export default function ContentPanel({ activeSection }) {
             zIndex: 20,
             // GPU-composite this layer once, don't repaint on scroll
             willChange: 'opacity, transform',
-            contain: 'layout style',
           }}
         >
           {/* Section Header */}
