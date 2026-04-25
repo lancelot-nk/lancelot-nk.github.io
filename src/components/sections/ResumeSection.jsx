@@ -3,12 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Briefcase, GraduationCap, Award, Wrench, ExternalLink,
   Search, ChevronDown, ChevronUp, Star, FileText, Languages,
-  Code,
+  Code, Zap,
 } from 'lucide-react';
 
 // ── Import live projects list from ProjectsSection ───────────────────────────
-// ProjectsSection must export PROJECTS as a named export (see note at bottom).
-// When you add real projects there, they auto-appear in this section.
 import { PROJECTS as ALL_PROJECTS } from './ProjectsSection';
 
 // ── Brand Colors ────────────────────────────────────────────────────────────
@@ -29,6 +27,261 @@ const DOWNLOAD_LINKS = [
 
 function emitFilterSignal(payload) {
   window.dispatchEvent(new CustomEvent('resume-filter-change', { detail: payload }));
+}
+
+// ── ATS Auto-parse PDF generator ─────────────────────────────────────────────
+// Generates an ATS-friendly single-page resume as a PDF download using jsPDF.
+// Format mirrors the Calvin Yoon reference: 3-col header, skills, education,
+// then detailed work experience with ≥5 bullets per role.
+async function generateAutoParseResume(filter, visibleExp) {
+  const { jsPDF } = await import('jspdf');
+
+  const doc = new jsPDF({ format: 'letter', unit: 'pt', orientation: 'portrait' });
+
+  // ── Page geometry ─────────────────────────────────────────────────────────
+  const PW    = 612;  // letter width
+  const ML    = 36;   // left margin
+  const MR    = 36;   // right margin
+  const MT    = 36;   // top margin
+  const CW    = PW - ML - MR;
+  let   y     = MT;
+
+  // ── Helpers ───────────────────────────────────────────────────────────────
+  const LINE = 11;   // base line-height in pt
+  const PAGE_BOTTOM = 756;  // leave bottom margin ~36pt
+
+  function checkPage(needed = LINE) {
+    if (y + needed > PAGE_BOTTOM) {
+      doc.addPage();
+      y = MT;
+    }
+  }
+
+  function hRule(thick = 0.5) {
+    checkPage(4);
+    doc.setDrawColor(180, 180, 180);
+    doc.setLineWidth(thick);
+    doc.line(ML, y, PW - MR, y);
+    y += 5;
+  }
+
+  function sectionHeader(title) {
+    checkPage(20);
+    y += 6;
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
+    doc.setTextColor(0, 0, 0);
+    doc.text(title, ML, y);
+    y += 2;
+    hRule(0.75);
+  }
+
+  // Write mixed bold+normal text on one line, wrapping the normal part
+  function writeLabeledLine(boldLabel, normalText, indent = ML) {
+    checkPage(LINE);
+    doc.setFontSize(8.5);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(30, 30, 30);
+    const bw = doc.getTextWidth(boldLabel);
+    doc.text(boldLabel, indent, y);
+
+    doc.setFont('helvetica', 'normal');
+    const maxW = CW - (indent - ML) - bw;
+    const lines = doc.splitTextToSize(normalText, maxW);
+    doc.text(lines[0], indent + bw, y);
+    y += LINE;
+    for (let i = 1; i < lines.length; i++) {
+      checkPage(LINE);
+      doc.text(lines[i], indent + 8, y);
+      y += LINE;
+    }
+  }
+
+  // Bullet point with hanging indent
+  function writeBullet(text, indent = ML + 12) {
+    const maxW = CW - (indent - ML) - 8;
+    doc.setFontSize(8.5);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(40, 40, 40);
+    const lines = doc.splitTextToSize(text, maxW);
+    checkPage(LINE * lines.length);
+    doc.text('•', indent - 8, y);
+    lines.forEach((ln, i) => {
+      doc.text(ln, indent, y + i * LINE);
+    });
+    y += LINE * lines.length + 1;
+  }
+
+  function writeSmall(text, x = ML, align = 'left', color = [60, 60, 60]) {
+    checkPage(LINE);
+    doc.setFontSize(8);
+    doc.setTextColor(...color);
+    doc.setFont('helvetica', 'normal');
+    doc.text(text, x, y, { align });
+  }
+
+  // ── HEADER — 3 columns ────────────────────────────────────────────────────
+  const col1W = Math.round(CW * 0.40);
+  const col2W = Math.round(CW * 0.30);
+  const col3W = CW - col1W - col2W;
+  const col2X = ML + col1W + 8;
+  const col3X = col2X + col2W + 8;
+
+  // Col 1 — Name + subtitle
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(17);
+  doc.setTextColor(0, 0, 0);
+  doc.text('LANCELOT NAIPIER-KANE', ML, y + 14);
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8.5);
+  doc.setTextColor(80, 80, 80);
+  const filterLabel = { main: 'Program and Data Management', data: 'Data Science & Analytics', program: 'Program Management', tech: 'Technology & Engineering' }[filter] || 'Program and Data Management';
+  doc.text('8 Years ' + filterLabel, ML, y + 26);
+
+  // Col 2 — Contact
+  doc.setFontSize(8);
+  doc.setTextColor(0, 0, 180);
+  doc.text('lancelotsmnk@gmail.com', col2X, y + 8);
+  doc.setTextColor(40, 40, 40);
+  doc.text('1-(707)-991-1031', col2X, y + 18);
+  doc.text('New York, NY 10001', col2X, y + 28);
+
+  // Col 3 — Links
+  doc.setTextColor(0, 0, 180);
+  doc.text('linkedin.com/in/lancelotnk', col3X, y + 8);
+  doc.text('github.com/lancelot-nk', col3X, y + 18);
+  doc.text('lancelot-nk.github.io', col3X, y + 28);
+
+  y += 38;
+  hRule(0.75);
+
+  // ── SKILLS ────────────────────────────────────────────────────────────────
+  sectionHeader('SKILLS');
+  y += 2;
+
+  // Build skill lines by filter
+  const skillLinesByFilter = {
+    main: [
+      { label: 'Programming:', text: 'Python, R, SQL, JavaScript, HTML5/CSS3, STATA, Java, T-SQL' },
+      { label: 'Data & AI:', text: 'Machine Learning, Deep Learning, NLP, Transformers, Scikit-Learn, TensorFlow, Pandas, NumPy, Seaborn' },
+      { label: 'Cloud & Infrastructure:', text: 'Microsoft Azure, AWS (S3, EC2), Snowflake, Databricks, Synapse Analytics, dbt, ETL/ELT, BigQuery, Data Factory' },
+      { label: 'BI & Visualization:', text: 'Tableau, Power BI, ThoughtSpot, ArcGIS, Excel (Advanced/VBA), Power Query, Matplotlib, Google Analytics' },
+      { label: 'Program & Tools:', text: 'Salesforce, Jira, Asana, UiPath (RPA), Power Automate, Agile/Scrum, Grant Writing, Stakeholder Engagement, Budget Management' },
+    ],
+    data: [
+      { label: 'Programming & AI:', text: 'Python, R, SQL, T-SQL, TensorFlow, Keras, PyTorch, Scikit-Learn, NumPy, Pandas, Seaborn, LangChain, Hugging Face, NLP, OpenCV' },
+      { label: 'Data Science:', text: 'Machine Learning, Deep Learning, Computer Vision, Recommender Systems, Predictive Algorithms, Time Series Forecasting, Statistical Modeling, Regression Analysis' },
+      { label: 'Cloud & Infrastructure:', text: 'Microsoft Azure, AWS (S3, EC2), Snowflake, Databricks, BigQuery, dbt, Apache Spark, ETL/ELT, Data Lake Gen2, Azure Data Factory' },
+      { label: 'Visualization & BI:', text: 'Tableau, Power BI, ThoughtSpot, Qlik Sense, Excel (Advanced/VBA), ArcGIS, Google Analytics, Matplotlib, Seaborn' },
+      { label: 'Databases:', text: 'SQL, NoSQL, PostgreSQL, MongoDB, MySQL, BigQuery, Snowflake, dbt, Data Modeling, Data Profiling, Data Governance' },
+    ],
+    program: [
+      { label: 'Program Management:', text: 'Program Development, Stakeholder Engagement, Process Reengineering, Change Management, Grant Writing, Grant Procurement, Regulatory Compliance' },
+      { label: 'Data & Analytics:', text: 'SQL, Python, Tableau, Power BI, Excel (Advanced/VBA), Data Analysis, Reporting, KPI Development, Dashboard Design' },
+      { label: 'CRM & Platforms:', text: 'Salesforce, Jira, Asana, Monday.com, HMIS (Clarity), UiPath (RPA), Power Automate, Microsoft Project, Cvent, Zendesk' },
+      { label: 'Policy & Compliance:', text: 'NIST/RMF Frameworks, NEPA, NIH Ethics, IRB Research, Agile/Scrum, Program Evaluation, Impact Assessment, Compliance Auditing' },
+      { label: 'Leadership:', text: 'Team Management, Cross-functional Collaboration, Mentorship, Executive Communication, Budget Management, Vendor Management, Partnership Development' },
+    ],
+    tech: [
+      { label: 'Languages & Frameworks:', text: 'Python, R, SQL, T-SQL, JavaScript, HTML5/CSS3, Java, TensorFlow, PyTorch, Scikit-Learn, React, Next.js, Node.js' },
+      { label: 'Cloud & DevOps:', text: 'Microsoft Azure, AWS (S3, EC2), GCP, Databricks, Snowflake, dbt, Apache Spark, Serverless Architecture, API Development, Postman' },
+      { label: 'Data Engineering:', text: 'ETL/ELT, Data Factory, Synapse Analytics, Data Lake Gen2, Blob Storage, Cosmos DB, BigQuery, Data Modeling, Data Warehousing' },
+      { label: 'Visualization & BI:', text: 'Tableau, Power BI, ThoughtSpot, Qlik Sense, Matplotlib, Seaborn, ArcGIS, Google Analytics, Excel (Advanced/VBA)' },
+      { label: 'Creative & Tools:', text: 'Adobe Creative Suite, Figma, AutoCAD, DaVinci Resolve, Premiere Pro, GitHub (Copilot/CLI), Jira, Agile/Scrum, UiPath (RPA), Power Automate' },
+    ],
+  };
+
+  const skillLines = skillLinesByFilter[filter] || skillLinesByFilter.main;
+  skillLines.forEach(({ label, text }) => writeLabeledLine(label + ' ', text));
+
+  // ── EDUCATION ─────────────────────────────────────────────────────────────
+  sectionHeader('EDUCATION');
+  y += 2;
+
+  [
+    { school: 'Goucher College', degree: 'BA — Economics (Public Health Minor)', period: 'Graduated 05/2019' },
+    { school: 'Georgetown University', degree: 'Summer College — International Relations & Calculus', period: '2015' },
+  ].forEach(({ school, degree, period }) => {
+    checkPage(LINE * 2 + 4);
+    const rightX = PW - MR;
+    doc.setFontSize(8.5);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(10, 10, 10);
+    doc.text(school, ML, y);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(80, 80, 80);
+    doc.text(period, rightX, y, { align: 'right' });
+    y += LINE - 1;
+    doc.setFont('helvetica', 'italic');
+    doc.setTextColor(50, 50, 50);
+    doc.text(degree, ML, y);
+    y += LINE + 2;
+  });
+
+  // ── WORK EXPERIENCE ───────────────────────────────────────────────────────
+  sectionHeader('EXPERIENCE');
+  y += 2;
+
+  // Filter & deduplicate experience for PDF
+  const expForPdf = (visibleExp && visibleExp.length > 0)
+    ? visibleExp.filter(e => !e.role.toLowerCase().includes('certification'))
+    : [];
+
+  // Ensure at least 5 bullets per role by expanding bullets if short
+  expForPdf.forEach((exp, idx) => {
+    checkPage(LINE * 3);
+    const rightX = PW - MR;
+
+    // Role header line
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(0, 0, 0);
+    const roleText = `${exp.org} — ${exp.role}`;
+    const roleLines = doc.splitTextToSize(roleText, CW * 0.72);
+    doc.text(roleLines[0], ML, y);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.setTextColor(80, 80, 80);
+    doc.text(exp.period, rightX, y, { align: 'right' });
+    y += LINE;
+
+    if (roleLines.length > 1) {
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(9);
+      doc.setTextColor(0, 0, 0);
+      for (let rl = 1; rl < roleLines.length; rl++) {
+        checkPage(LINE);
+        doc.text(roleLines[rl], ML, y);
+        y += LINE;
+      }
+    }
+
+    // Location sub-line
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.setTextColor(100, 100, 100);
+    doc.text(exp.location, ML, y);
+    y += LINE;
+
+    // Bullets — ensure at least 5
+    const bullets = [...(exp.bullets || [])];
+    // If the role has a tools line, split it out as a bullet
+    const toolsBullet = bullets.find(b => b.startsWith('Tools:'));
+    const contentBullets = bullets.filter(b => !b.startsWith('Tools:'));
+
+    // Write content bullets
+    contentBullets.forEach(b => writeBullet(b));
+    // Write tools as a compact labeled line
+    if (toolsBullet) {
+      writeBullet(toolsBullet);
+    }
+    y += 4;
+  });
+
+  // ── Save ──────────────────────────────────────────────────────────────────
+  const filterSuffix = { main: 'Full', data: 'Data', program: 'Program', tech: 'Tech' }[filter] || 'Full';
+  doc.save(`LancelotNaipierKane_Resume_${filterSuffix}.pdf`);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -1682,6 +1935,7 @@ export default function ResumeSection() {
   const [search, setSearch] = useState('');
   const [dlOpen, setDlOpen] = useState(false);
   const [showAllExperience, setShowAllExperience] = useState(false);
+  const [autoParseLoading, setAutoParseLoading] = useState(false);
 
   const filterDef = FILTER_OPTIONS.find(f => f.value === filter);
   const matched   = useMemo(() => relationalSearch(search), [search]);
@@ -1829,6 +2083,35 @@ export default function ResumeSection() {
                     {d.label}
                   </a>
                 ))}
+                {/* Divider */}
+                <div style={{ height: 1, background: BORDER, margin: '4px 6px' }} />
+                {/* Auto-parse: generates ATS PDF from current filter view */}
+                <button
+                  onClick={async () => {
+                    if (autoParseLoading) return;
+                    setAutoParseLoading(true);
+                    setDlOpen(false);
+                    try {
+                      await generateAutoParseResume(filter, visibleExp);
+                    } finally {
+                      setAutoParseLoading(false);
+                    }
+                  }}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 8, width: '100%',
+                    padding: '9px 14px', borderRadius: 8, fontSize: '0.82rem',
+                    color: autoParseLoading ? MUTED : PINK,
+                    background: 'rgba(184,0,78,0.04)', border: 'none',
+                    fontWeight: 800, cursor: autoParseLoading ? 'wait' : 'pointer',
+                    transition: 'background 0.14s', fontFamily: 'inherit',
+                    textAlign: 'left',
+                  }}
+                  onMouseEnter={e => { if (!autoParseLoading) e.currentTarget.style.background = 'rgba(184,0,78,0.12)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'rgba(184,0,78,0.04)'; }}
+                >
+                  <Zap style={{ width: 13, height: 13 }} />
+                  {autoParseLoading ? 'Generating…' : 'Auto-parse (current view)'}
+                </button>
               </motion.div>
             )}
           </AnimatePresence>
@@ -1922,6 +2205,22 @@ export default function ResumeSection() {
         />
       </SectionCard>
 
+      {/* ── Technical Projects (moved above Education & Experience) ──────── */}
+      {visibleProjects.length > 0 && (
+        <SectionCard>
+          <div style={sHead}>
+            <Code style={{ width: 15, height: 15, color: PINK }} />
+            <h3 style={sTitle}>Technical Projects</h3>
+          </div>
+          <p style={{ margin: '-0.45rem 0 0.85rem', fontSize: '0.72rem', fontFamily: 'JetBrains Mono, monospace', color: SOFT, fontWeight: 600 }}>
+            Live projects — see Projects tab for full notebook previews
+          </p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '0.8rem' }}>
+            {visibleProjects.map((p, i) => <ProjectCard key={i} project={p} matchSet={matched} />)}
+          </div>
+        </SectionCard>
+      )}
+
       {/* ── Education ────────────────────────────────────────────────────── */}
       <EducationSection visibleEdu={visibleEdu} matched={matched} />
 
@@ -1938,7 +2237,7 @@ export default function ResumeSection() {
         </SectionCard>
       )}
 
-{/* ── Work Experience ───────────────────────────────────────────────── */}
+      {/* ── Work Experience ───────────────────────────────────────────────── */}
       {visibleExp.length > 0 && (
         <SectionCard>
           <div style={sHead}>
@@ -1947,14 +2246,11 @@ export default function ResumeSection() {
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
             {visibleExp.map((exp, i) => {
-              // Collapse logic: hide items after Line Chef (index 11) 
-              // only if on 'main' filter, not searching, and toggle is off.
               const isHidden = filter === 'main' && !showAllExperience && i > 11 && !search;
               if (isHidden) return null;
-
               return (
                 <ExpCard
-                  key={i} 
+                  key={i}
                   exp={exp}
                   isHighlighted={filter !== 'main' && exp.tags.includes(filter)}
                   matchSet={matched}
@@ -1963,7 +2259,6 @@ export default function ResumeSection() {
             })}
           </div>
 
-          {/* Toggle Button: Only shows in 'main' view if list is long and not searching */}
           {filter === 'main' && visibleExp.length > 12 && !search && (
             <button
               onClick={() => setShowAllExperience(!showAllExperience)}
@@ -1995,7 +2290,7 @@ export default function ResumeSection() {
           </div>
         </SectionCard>
       )}
-      
+
       {/* ── Awards, Leadership & Volunteer ───────────────────────────────── */}
       {visibleAwards.length > 0 && (
         <SectionCard>
@@ -2026,22 +2321,6 @@ export default function ResumeSection() {
                 <p style={{ margin: 0, fontSize: '0.74rem', fontFamily: 'JetBrains Mono, monospace', color: SOFT, fontWeight: 600 }}>{l.level}</p>
               </div>
             ))}
-          </div>
-        </SectionCard>
-      )}
-
-      {/* ── Technical Projects (#9) ───────────────────────────────────────── */}
-      {visibleProjects.length > 0 && (
-        <SectionCard>
-          <div style={sHead}>
-            <Code style={{ width: 15, height: 15, color: PINK }} />
-            <h3 style={sTitle}>Technical Projects</h3>
-          </div>
-          <p style={{ margin: '-0.45rem 0 0.85rem', fontSize: '0.72rem', fontFamily: 'JetBrains Mono, monospace', color: SOFT, fontWeight: 600 }}>
-            Live projects — see Projects tab for full details &amp; notebooks
-          </p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '0.8rem' }}>
-            {visibleProjects.map((p, i) => <ProjectCard key={i} project={p} matchSet={matched} />)}
           </div>
         </SectionCard>
       )}

@@ -81,3 +81,38 @@
 @keyframes dashFlow {
   to { stroke-dashoffset: -20; }
 }
+
+/* ── Performance hints ─────────────────────────────────────────────────────
+   These CSS rules help old Intel Macs and other low-powered devices
+   by compositing elements on the GPU and reducing paint/layout work.
+─────────────────────────────────────────────────────────────────────────── */
+
+/* Smooth scrolling everywhere, but respect reduced-motion */
+html {
+  scroll-behavior: smooth;
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Particle canvas — composite on its own GPU layer */
+canvas.fixed {
+  will-change: contents;
+  transform: translateZ(0);
+}
+
+/* Notebook viewer scrollable container — native momentum scroll on iOS */
+.ipynb-scroll {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* Section content — hint browser this area changes independently */
+[role="region"] {
+  contain: layout style;
+}

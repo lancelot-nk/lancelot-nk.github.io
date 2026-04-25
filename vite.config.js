@@ -4,44 +4,63 @@ import path from 'path'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  // Base path for deployment (Standard for Vercel/Netlify)
   base: '/',
-  
-  // Keep the terminal clean from warnings, focusing only on critical errors
   logLevel: 'error',
 
-  plugins: [
-    react(),
-  ],
+  plugins: [react()],
 
   resolve: {
     alias: {
-      // Maps '@' to the 'src' directory for cleaner imports
       "@": path.resolve(__dirname, "./src"),
     },
   },
 
   server: {
-    // Ensuring HMR (Hot Module Replacement) works smoothly with Framer Motion
-    watch: {
-      usePolling: true,
-    },
+    watch: { usePolling: true },
     port: 3000,
     host: true,
   },
 
   build: {
-    // Optimization for production rollouts
     outDir: 'dist',
     sourcemap: false,
-    chunkSizeWarningLimit: 1000,
+    chunkSizeWarningLimit: 1200,
+    // Improve CSS delivery
+    cssCodeSplit: true,
     rollupOptions: {
       output: {
-        manualChunks: {
-          // Separates heavy animation/icon libraries for faster initial loads
-          vendor: ['react', 'react-dom', 'framer-motion', 'lucide-react'],
+        // Granular manual chunks so each section loads only what it needs
+        manualChunks(id) {
+          // Core React — always loaded first
+          if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom/')) {
+            return 'react-core';
+          }
+          // Animation library — loaded after react
+          if (id.includes('node_modules/framer-motion')) {
+            return 'framer-motion';
+          }
+          // Markdown rendering — only needed for project previews
+          if (id.includes('node_modules/react-markdown') || id.includes('node_modules/remark') || id.includes('node_modules/rehype') || id.includes('node_modules/micromark') || id.includes('node_modules/mdast') || id.includes('node_modules/hast') || id.includes('node_modules/unified')) {
+            return 'markdown';
+          }
+          // PDF generation — only loaded on demand
+          if (id.includes('node_modules/jspdf')) {
+            return 'pdf-gen';
+          }
+          // Radix UI components
+          if (id.includes('node_modules/@radix-ui')) {
+            return 'radix-ui';
+          }
+          // All other node_modules
+          if (id.includes('node_modules')) {
+            return 'vendor';
+          }
         },
+        // Deterministic file names for long-term caching
+        chunkFileNames: 'assets/js/[name]-[hash].js',
+        entryFileNames: 'assets/js/[name]-[hash].js',
+        assetFileNames: 'assets/[ext]/[name]-[hash].[ext]',
       },
     },
-  }
+  },
 })

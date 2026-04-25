@@ -13,11 +13,16 @@ const ParticleField = ({ isGameMode }) => {
     const getMobile = () => /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth < 768;
     const isMob = getMobile();
 
+    // Detect low-end/old devices: old Intel Macs typically have ≤8 cores and dpr=2
+    // Reduce load significantly for these devices
+    const cores = navigator.hardwareConcurrency || 4;
+    const isLowEnd = !isGameMode && (cores <= 4 || (isMob && cores <= 6));
+
     // Reduce particle count heavily on mobile for performance
     const baseCount = isGameMode
       ? (isMob ? 80 : 320)
-      : (isMob ? 40 : 90);
-    const connectionDistance = isGameMode ? (isMob ? 50 : 80) : 150;
+      : (isLowEnd ? 25 : (isMob ? 40 : 75));
+    const connectionDistance = isGameMode ? (isMob ? 50 : 80) : (isLowEnd ? 90 : 130);
 
     const resize = () => {
       canvas.width = window.innerWidth;
@@ -168,8 +173,10 @@ const ParticleField = ({ isGameMode }) => {
 
         // Skip connections on mobile in game mode entirely for perf
         if (isMob && isGameMode) return;
+        // Skip line rendering on low-end devices entirely
+        if (isLowEnd) return;
 
-        const skip = isGameMode ? 4 : 1;
+        const skip = isGameMode ? 4 : 2;
         if (i % skip === 0) {
           for (let j = i + 1; j < particles.current.length; j += skip) {
             const p2 = particles.current[j];
