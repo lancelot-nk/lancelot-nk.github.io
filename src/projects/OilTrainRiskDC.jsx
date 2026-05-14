@@ -293,8 +293,8 @@ const REGULATIONS = [
   },
 ];
 
-const RISK_COLORS = { CRITICAL: "#e53e3e", HIGH: "#dd6b20", MODERATE: "#d69e2e", LOW: "#38a169" };
-const RISK_BG = { CRITICAL: "rgba(229,62,62,0.12)", HIGH: "rgba(221,107,32,0.12)", MODERATE: "rgba(214,158,46,0.12)", LOW: "rgba(56,161,105,0.12)" };
+const RISK_COLORS = { CRITICAL: "#e53e3e", HIGH: "#dd6b20", MODERATE: "#ea580c", LOW: "#38a169" };
+const RISK_BG = { CRITICAL: "rgba(229,62,62,0.12)", HIGH: "rgba(221,107,32,0.12)", MODERATE: "rgba(234,88,12,0.08)", LOW: "rgba(56,161,105,0.12)" };
 const STATUS_COLORS = { "ACTIVE": "#e53e3e", "ACTIVE — PHASE-IN": "#dd6b20", "IMPLEMENTED": "#38a169" };
 // ─────────────────────────────────────────────────
 // POPULATION DENSITY ZONES (US Census ACS 2022 5-yr, persons/sq mi)
@@ -400,26 +400,37 @@ function DCMapSVG({ selectedCorridor, selectedZone, onSelectCorridor, onSelectZo
   ];
 
   return (
-    <svg viewBox={(() => { const vbW = W/zoom, vbH = H/zoom; const vbX = (W-vbW)/2, vbY = (H-vbH)/2; return `${vbX} ${vbY} ${vbW} ${vbH}`; })()} width="100%" style={{ background: "#f0f4f0", borderRadius: 10, cursor: "pointer", maxHeight: 520 }}>
+    <div style={{ position: "relative", borderRadius: 10, overflow: "hidden" }}>
+      <img
+        src="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=-77.14,38.79,-76.90,39.02&bboxSR=4326&imageSR=4326&size=780,520&format=png&f=image"
+        alt=""
+        style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "fill", borderRadius: 10, pointerEvents: "none", zIndex: 0 }}
+      />
+      <svg viewBox={(() => { const vbW = W/zoom, vbH = H/zoom; const vbX = (W-vbW)/2, vbY = (H-vbH)/2; return `${vbX} ${vbY} ${vbW} ${vbH}`; })()} width="100%" style={{ background: "transparent", borderRadius: 10, cursor: "pointer", maxHeight: 520, position: "relative", zIndex: 1 }}>
+      <defs>
+        <filter id="textShadow" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow dx="0" dy="0" stdDeviation="1.5" floodColor="#000000" floodOpacity="0.8"/>
+        </filter>
+      </defs>
       {/* DC boundary rough polygon */}
       <polygon
         points={[
           [38.995, -77.041],[38.996, -76.909],[38.891, -76.910],
           [38.791, -77.038],[38.841, -77.117],[38.993, -77.119]
         ].map(project).map(([x,y])=>`${x},${y}`).join(" ")}
-        fill="#f0fdf4" stroke="#c7d2d7" strokeWidth="1.5"
+        fill="none" stroke="#ffffff" strokeWidth="2" opacity="0.6" pointerEvents="none"
       />
       {/* Water bodies */}
       <polyline
         points={[[38.958,-77.120],[38.935,-77.082],[38.910,-77.063],[38.892,-77.040],[38.878,-77.034],[38.855,-77.030],[38.825,-77.007]].map(project).map(([x,y])=>`${x},${y}`).join(" ")}
-        fill="none" stroke="#3b82f6" strokeWidth="14" strokeLinecap="round" opacity="0.7"
+        fill="none" stroke="#1d4ed8" strokeWidth="14" strokeLinecap="round" opacity="0.7" pointerEvents="none"
       />
-      <text x="12" y="22" fill="#3b82f6" fontSize="11" fontFamily="monospace" opacity="0.9">Potomac River</text>
+      <text x="12" y="22" fill="#ffffff" stroke="#000000" strokeWidth="0.3" fontSize="12" fontFamily="monospace" opacity="0.9" pointerEvents="none">Potomac River</text>
       <polyline
         points={[[38.920,-76.962],[38.900,-76.975],[38.878,-76.990],[38.862,-77.003]].map(project).map(([x,y])=>`${x},${y}`).join(" ")}
-        fill="none" stroke="#7dd3fc" strokeWidth="8" strokeLinecap="round" opacity="0.6"
+        fill="none" stroke="#60a5fa" strokeWidth="8" strokeLinecap="round" opacity="0.6" pointerEvents="none"
       />
-      <text x={project([38.868,-76.975])[0]-30} y={project([38.868,-76.975])[1]+14} fill="#2563eb" fontSize="9" fontFamily="monospace">Anacostia R.</text>
+      <text x={project([38.868,-76.975])[0]-30} y={project([38.868,-76.975])[1]+14} fill="#ffffff" stroke="#000000" strokeWidth="0.3" fontSize="9" fontFamily="monospace" pointerEvents="none">Anacostia R.</text>
 
       {/* Population density overlay */}
       {showPopDensity && POP_DENSITY_ZONES.map(pd => {
@@ -428,7 +439,7 @@ function DCMapSVG({ selectedCorridor, selectedZone, onSelectCorridor, onSelectZo
         const opacity = Math.min(0.32, pd.density / 55000 + 0.07);
         return (
           <g key={pd.name}>
-            <circle cx={cx} cy={cy} r={r} fill="#f97316" opacity={opacity} stroke="#f97316" strokeWidth="0.5" />
+            <circle cx={cx} cy={cy} r={r} fill="#f97316" opacity={opacity} stroke="#f97316" strokeWidth="0.5" pointerEvents="none" />
           </g>
         );
       })}
@@ -439,8 +450,8 @@ function DCMapSVG({ selectedCorridor, selectedZone, onSelectCorridor, onSelectZo
         const r = mileToSVGPx(w.spillRadiusMiles);
         return (
           <g key={w.id}>
-            <polyline points={w.coords.map(project).map(([x,y])=>`${x},${y}`).join(" ")} fill="none" stroke={w.color} strokeWidth="4" opacity="0.6" strokeLinecap="round" />
-            <circle cx={cx} cy={cy} r={r} fill={w.color} opacity="0.13" stroke={w.color} strokeWidth="1.5" strokeDasharray="5,4" />
+            <polyline points={w.coords.map(project).map(([x,y])=>`${x},${y}`).join(" ")} fill="none" stroke={w.color} strokeWidth="4" opacity="0.6" strokeLinecap="round" pointerEvents="none" />
+            <circle cx={cx} cy={cy} r={r} fill={w.color} opacity="0.13" stroke={w.color} strokeWidth="1.5" strokeDasharray="5,4" pointerEvents="none" />
           </g>
         );
       })}
@@ -453,7 +464,7 @@ function DCMapSVG({ selectedCorridor, selectedZone, onSelectCorridor, onSelectZo
         const color = zone.color;
         return (
           <g key={zone.id} onClick={() => onSelectZone(isSelected ? null : zone.id)} style={{ cursor: "pointer" }}>
-            <circle cx={cx} cy={cy} r={r} fill={color} opacity={isSelected ? 0.30 : 0.13} stroke={color} strokeWidth={isSelected ? 2 : 1} strokeDasharray="4,3" />
+            <circle cx={cx} cy={cy} r={r} fill={color} opacity={isSelected ? 0.30 : 0.13} stroke={color} strokeWidth={isSelected ? 2 : 1} strokeDasharray="4,3" pointerEvents="all" />
             {isSelected && <circle cx={cx} cy={cy} r={r+4} fill="none" stroke={color} strokeWidth="1.5" opacity="0.5" />}
           </g>
         );
@@ -466,6 +477,7 @@ function DCMapSVG({ selectedCorridor, selectedZone, onSelectCorridor, onSelectZo
         const strokeW = isSelected ? 5 : 3;
         return (
           <g key={corridor.id} onClick={() => onSelectCorridor(isSelected ? null : corridor.id)} style={{ cursor: "pointer" }}>
+            <polyline points={toPolyline(corridor.coords)} fill="none" stroke="transparent" strokeWidth="16" style={{ cursor: "pointer" }} />
             <polyline points={toPolyline(corridor.coords)} fill="none" stroke={color} strokeWidth={strokeW + 3} opacity="0.2" strokeLinecap="round" strokeLinejoin="round" />
             <polyline points={toPolyline(corridor.coords)} fill="none" stroke={color} strokeWidth={strokeW} opacity={isSelected ? 1 : 0.75} strokeLinecap="round" strokeLinejoin="round" strokeDasharray={corridor.riskLevel === "MODERATE" ? "8,4" : "none"} />
             {isSelected && <polyline points={toPolyline(corridor.coords)} fill="none" stroke="#fff" strokeWidth="1" opacity="0.4" strokeLinecap="round" strokeLinejoin="round" strokeDasharray="3,6" />}
@@ -477,7 +489,7 @@ function DCMapSVG({ selectedCorridor, selectedZone, onSelectCorridor, onSelectZo
       {INCIDENTS_HISTORY.filter(i => i.lat >= LAT_MIN && i.lat <= LAT_MAX && i.lng >= LNG_MIN && i.lng <= LNG_MAX).map(inc => {
         const [x, y] = project([inc.lat, inc.lng]);
         return (
-          <g key={inc.id}>
+          <g key={inc.id} pointerEvents="none">
             <circle cx={x} cy={y} r="6" fill="#e53e3e" opacity="0.85" />
             <circle cx={x} cy={y} r="10" fill="none" stroke="#e53e3e" strokeWidth="1" opacity="0.5" />
             <text x={x} y={y+4} textAnchor="middle" fontSize="8" fill="white">!</text>
@@ -489,9 +501,9 @@ function DCMapSVG({ selectedCorridor, selectedZone, onSelectCorridor, onSelectZo
       {dcLandmarks.map((lm, i) => {
         const [x, y] = project([lm.lat, lm.lng]);
         return (
-          <g key={i}>
-            <text x={x} y={y} textAnchor="middle" fontSize="9" fill="#374151" opacity="0.7">{lm.symbol}</text>
-            <text x={x} y={y + 11} textAnchor="middle" fontSize="7" fill="#6b7280" opacity="0.8">{lm.name}</text>
+          <g key={i} pointerEvents="none">
+            <text x={x} y={y} textAnchor="middle" fontSize="9" fill="#ffffff" opacity="0.9" filter="url(#textShadow)">{lm.symbol}</text>
+            <text x={x} y={y + 11} textAnchor="middle" fontSize="7" fill="#ffffff" opacity="0.9" filter="url(#textShadow)">{lm.name}</text>
           </g>
         );
       })}
@@ -509,31 +521,30 @@ function DCMapSVG({ selectedCorridor, selectedZone, onSelectCorridor, onSelectZo
 
       {/* Legend */}
       <g transform="translate(14, 380)">
-        <rect x="-6" y="-10" width="190" height="112" rx="6" fill="#ffffff" opacity="0.97" stroke="#e5e7eb" strokeWidth="1"/>
-        <text x="0" y="2" fontSize="9" fill="#6b7280" fontFamily="monospace" fontWeight="bold">RISK LEGEND</text>
+        <rect x="-6" y="-10" width="190" height="112" rx="6" fill="#ffffff" opacity="1" stroke="#d1d5db" strokeWidth="1"/>
+        <text x="0" y="2" fontSize="9" fill="#111827" fontFamily="monospace" fontWeight="bold">RISK LEGEND</text>
         {[["CRITICAL","#e53e3e"],["HIGH","#dd6b20"],["MODERATE","#d69e2e"],["LOW","#38a169"]].map(([label,color],i)=>(
           <g key={label} transform={`translate(0,${16+i*16})`}>
             <rect width="20" height="6" y="-5" rx="2" fill={color} opacity="0.85"/>
-            <text x="26" y="1" fontSize="9" fill="#374151" fontFamily="monospace">{label}</text>
+            <text x="26" y="1" fontSize="9" fill="#111827" fontFamily="monospace">{label}</text>
           </g>
         ))}
         <g transform="translate(0,84)">
           <circle r="4" cx="4" cy="-2" fill="#e53e3e" opacity="0.85"/>
-          <text x="14" y="2" fontSize="9" fill="#374151" fontFamily="monospace">INCIDENT SITE</text>
+          <text x="14" y="2" fontSize="9" fill="#111827" fontFamily="monospace">INCIDENT SITE</text>
         </g>
       </g>
 
       {/* North arrow */}
       <g transform={`translate(${W-28}, 20)`}>
-        <text x="0" y="10" textAnchor="middle" fontSize="11" fill="#6b7280">↑</text>
-        <text x="0" y="22" textAnchor="middle" fontSize="8" fill="#6b7280">N</text>
+        <text x="0" y="10" textAnchor="middle" fontSize="11" fill="#374151">↑</text>
+        <text x="0" y="22" textAnchor="middle" fontSize="8" fill="#374151">N</text>
       </g>
     </svg>
+    </div>
   );
 }
 
-// ─────────────────────────────────────────────────
-// TAB 1: MAP VIEW
 // ─────────────────────────────────────────────────
 
 function Tab1Map() {
@@ -548,14 +559,14 @@ function Tab1Map() {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
       <div style={{ background: "#f9fafb", border: "1px solid #e5e7eb", borderRadius: 8, padding: "12px 18px" }}>
-        <p style={{ margin: 0, color: "#6b7280", fontSize: 13, lineHeight: 1.6 }}>
-          <span style={{ color: "#e2b96a", fontWeight: 700 }}>Washington DC hosts the CSX main freight corridor</span> — a two-mile stretch carrying 8,000+ hazmat rail cars annually through the federal core, adjacent to the U.S. Capitol, federal buildings, and across the Potomac River. Click corridors or risk zones to explore. Data sourced from CSX, DDOT DC SRP, NCPC, NBC4 I-Team, FRA, and PHMSA.
+        <p style={{ margin: 0, color: "#374151", fontSize: 13, lineHeight: 1.6 }}>
+          <span style={{ color: "#d97706", fontWeight: 700 }}>Washington DC hosts the CSX main freight corridor</span> — a two-mile stretch carrying 8,000+ hazmat rail cars annually through the federal core, adjacent to the U.S. Capitol, federal buildings, and across the Potomac River. Click corridors or risk zones to explore. Data sourced from CSX, DDOT DC SRP, NCPC, NBC4 I-Team, FRA, and PHMSA.
         </p>
       </div>
 
       {/* Layer toggles + zoom controls */}
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
-        <span style={{ fontSize: 11, color: "#6b7280", fontFamily: "monospace" }}>MAP LAYERS:</span>
+        <span style={{ fontSize: 11, color: "#374151", fontFamily: "monospace" }}>MAP LAYERS:</span>
         <button
           onClick={() => setShowPopDensity(v => !v)}
           style={{ padding: "4px 12px", borderRadius: 20, border: `1px solid ${showPopDensity ? "#f97316" : "#e5e7eb"}`, background: showPopDensity ? "rgba(249,115,22,0.1)" : "#f9fafb", color: showPopDensity ? "#ea580c" : "#6b7280", fontSize: 11, cursor: "pointer" }}>
@@ -567,11 +578,11 @@ function Tab1Map() {
           {showWaterways ? "● " : "○ "}Waterway Risk Zones
         </button>
         <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 6 }}>
-          <span style={{ fontSize: 11, color: "#6b7280", fontFamily: "monospace" }}>ZOOM:</span>
+          <span style={{ fontSize: 11, color: "#374151", fontFamily: "monospace" }}>ZOOM:</span>
           <button onClick={() => setZoom(z => Math.min(3, +(z + 0.25).toFixed(2)))} style={{ width: 26, height: 26, borderRadius: 6, border: "1px solid #e5e7eb", background: "#f9fafb", color: "#374151", fontSize: 16, cursor: "pointer", lineHeight: 1 }}>+</button>
           <span style={{ fontSize: 11, color: "#374151", fontFamily: "monospace", minWidth: 36, textAlign: "center" }}>{zoom.toFixed(1)}×</span>
           <button onClick={() => setZoom(z => Math.max(0.5, +(z - 0.25).toFixed(2)))} style={{ width: 26, height: 26, borderRadius: 6, border: "1px solid #e5e7eb", background: "#f9fafb", color: "#374151", fontSize: 18, cursor: "pointer", lineHeight: 1 }}>−</button>
-          <button onClick={() => setZoom(1)} style={{ width: 26, height: 26, borderRadius: 6, border: "1px solid #e5e7eb", background: "#f9fafb", color: "#6b7280", fontSize: 10, cursor: "pointer" }}>⊡</button>
+          <button onClick={() => setZoom(1)} style={{ width: 26, height: 26, borderRadius: 6, border: "1px solid #e5e7eb", background: "#f9fafb", color: "#374151", fontSize: 10, cursor: "pointer" }}>⊡</button>
         </div>
       </div>
 
@@ -586,7 +597,7 @@ function Tab1Map() {
           showWaterways={showWaterways}
         />
         <div style={{ width: 220, display: "flex", flexDirection: "column", gap: 10, maxHeight: 520, overflowY: "auto" }}>
-          <div style={{ color: "#6b7280", fontSize: 11, fontFamily: "monospace", letterSpacing: 1, borderBottom: "1px solid #2d4a6b", paddingBottom: 6 }}>CORRIDORS</div>
+          <div style={{ color: "#374151", fontSize: 11, fontFamily: "monospace", letterSpacing: 1, borderBottom: "1px solid #d1d5db", paddingBottom: 6 }}>CORRIDORS</div>
           {RAIL_CORRIDORS.map(c => (
             <button key={c.id}
               onClick={() => setSelectedCorridor(selectedCorridor === c.id ? null : c.id)}
@@ -599,11 +610,11 @@ function Tab1Map() {
                 <span style={{ fontSize: 11, color: "#111827", fontWeight: 600, lineHeight: 1.3 }}>{c.name}</span>
                 <span style={{ fontSize: 9, color: RISK_COLORS[c.riskLevel], fontWeight: 700, fontFamily: "monospace", background: RISK_BG[c.riskLevel], padding: "1px 5px", borderRadius: 3 }}>{c.riskLevel}</span>
               </div>
-              <div style={{ fontSize: 10, color: "#9ca3af" }}>{c.operator}</div>
+              <div style={{ fontSize: 10, color: "#4b5563" }}>{c.operator}</div>
             </button>
           ))}
 
-          <div style={{ color: "#6b7280", fontSize: 11, fontFamily: "monospace", letterSpacing: 1, borderBottom: "1px solid #2d4a6b", paddingBottom: 6, marginTop: 6 }}>RISK ZONES</div>
+          <div style={{ color: "#374151", fontSize: 11, fontFamily: "monospace", letterSpacing: 1, borderBottom: "1px solid #d1d5db", paddingBottom: 6, marginTop: 6 }}>RISK ZONES</div>
           {RISK_ZONES.map(z => (
             <button key={z.id}
               onClick={() => setSelectedZone(selectedZone === z.id ? null : z.id)}
@@ -616,7 +627,7 @@ function Tab1Map() {
                 <span style={{ fontSize: 11, color: "#111827", lineHeight: 1.3 }}>{z.name}</span>
                 <span style={{ fontSize: 10, color: z.color, fontFamily: "monospace", fontWeight: 700 }}>{z.riskScore}</span>
               </div>
-              <div style={{ fontSize: 9, color: "#9ca3af", marginTop: 2 }}>Pop. {z.population.toLocaleString()} · EJ Score: {z.envJusticeScore}/100</div>
+              <div style={{ fontSize: 9, color: "#4b5563", marginTop: 2 }}>Pop. {z.population.toLocaleString()} · EJ Score: {z.envJusticeScore}/100</div>
             </button>
           ))}
         </div>
@@ -628,11 +639,11 @@ function Tab1Map() {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12, flexWrap: "wrap", gap: 8 }}>
             <div>
               <h3 style={{ margin: 0, color: "#111827", fontSize: 16, fontWeight: 700 }}>{corridor.name}</h3>
-              <div style={{ color: "#6b7280", fontSize: 12, marginTop: 3 }}>{corridor.subdivision}</div>
+              <div style={{ color: "#374151", fontSize: 12, marginTop: 3 }}>{corridor.subdivision}</div>
             </div>
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
               <span style={{ background: RISK_COLORS[corridor.riskLevel], color: "white", padding: "3px 10px", borderRadius: 20, fontSize: 11, fontWeight: 700 }}>{corridor.riskLevel} RISK</span>
-              <span style={{ background: "rgba(40,60,90,0.8)", color: "#6b7280", padding: "3px 10px", borderRadius: 20, fontSize: 11, border: "1px solid #e5e7eb" }}>Score: {corridor.riskScore}/100</span>
+              <span style={{ background: "#f3f4f6", color: "#374151", padding: "3px 10px", borderRadius: 20, fontSize: 11, border: "1px solid #e5e7eb" }}>Score: {corridor.riskScore}/100</span>
             </div>
           </div>
           <p style={{ color: "#374151", fontSize: 13, lineHeight: 1.6, margin: "0 0 14px" }}>{corridor.description}</p>
@@ -646,32 +657,32 @@ function Tab1Map() {
               ["Evacuation Radius", `${corridor.evacuationRadiusMiles} mile`],
             ].map(([k, v]) => (
               <div key={k} style={{ background: "#f3f4f6", borderRadius: 6, padding: "8px 12px" }}>
-                <div style={{ fontSize: 10, color: "#9ca3af", marginBottom: 3, fontFamily: "monospace" }}>{k}</div>
+                <div style={{ fontSize: 10, color: "#4b5563", marginBottom: 3, fontFamily: "monospace" }}>{k}</div>
                 <div style={{ fontSize: 13, color: "#111827", fontWeight: 600 }}>{v}</div>
               </div>
             ))}
           </div>
           <div style={{ marginBottom: 12 }}>
-            <div style={{ fontSize: 11, color: "#6b7280", marginBottom: 6, fontFamily: "monospace" }}>PRIMARY CARGO TYPES</div>
+            <div style={{ fontSize: 11, color: "#374151", marginBottom: 6, fontFamily: "monospace" }}>PRIMARY CARGO TYPES</div>
             <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
               {corridor.primaryCargo.map(c => (
-                <span key={c} style={{ background: "rgba(229,62,62,0.15)", color: "#f7a5a5", padding: "2px 8px", borderRadius: 12, fontSize: 11, border: "1px solid rgba(229,62,62,0.3)" }}>{c}</span>
+                <span key={c} style={{ background: "rgba(229,62,62,0.15)", color: "#dc2626", padding: "2px 8px", borderRadius: 12, fontSize: 11, border: "1px solid rgba(229,62,62,0.3)" }}>{c}</span>
               ))}
             </div>
           </div>
           {corridor.blastZoneIncludes.length > 0 && (
             <div style={{ marginBottom: 12 }}>
-              <div style={{ fontSize: 11, color: "#6b7280", marginBottom: 6, fontFamily: "monospace" }}>WITHIN BLAST/EVACUATION ZONE</div>
+              <div style={{ fontSize: 11, color: "#374151", marginBottom: 6, fontFamily: "monospace" }}>WITHIN BLAST/EVACUATION ZONE</div>
               <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                 {corridor.blastZoneIncludes.map(b => (
-                  <span key={b} style={{ background: "rgba(214,158,46,0.15)", color: "#f6d860", padding: "2px 8px", borderRadius: 12, fontSize: 11, border: "1px solid rgba(214,158,46,0.3)" }}>{b}</span>
+                  <span key={b} style={{ background: "rgba(214,158,46,0.15)", color: "#92400e", padding: "2px 8px", borderRadius: 12, fontSize: 11, border: "1px solid rgba(214,158,46,0.3)" }}>{b}</span>
                 ))}
               </div>
             </div>
           )}
           {corridor.waterBodyProximity.length > 0 && (
             <div>
-              <div style={{ fontSize: 11, color: "#6b7280", marginBottom: 6, fontFamily: "monospace" }}>WATER BODY RISK</div>
+              <div style={{ fontSize: 11, color: "#374151", marginBottom: 6, fontFamily: "monospace" }}>WATER BODY RISK</div>
               <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                 {corridor.waterBodyProximity.map(w => (
                   <span key={w} style={{ background: "rgba(37,99,235,0.1)", color: "#059669", padding: "2px 8px", borderRadius: 12, fontSize: 11, border: "1px solid #2d6a9a" }}>💧 {w}</span>
@@ -688,31 +699,31 @@ function Tab1Map() {
             <h3 style={{ margin: 0, color: "#111827", fontSize: 16, fontWeight: 700 }}>{zone.name}</h3>
             <div style={{ display: "flex", gap: 8 }}>
               <span style={{ background: zone.color, color: "white", padding: "3px 10px", borderRadius: 20, fontSize: 11, fontWeight: 700 }}>Risk Score: {zone.riskScore}/100</span>
-              <span style={{ background: zone.envJusticeScore > 70 ? "rgba(229,62,62,0.3)" : "rgba(214,158,46,0.3)", color: zone.envJusticeScore > 70 ? "#f7a5a5" : "#f6d860", padding: "3px 10px", borderRadius: 20, fontSize: 11, fontWeight: 700 }}>EJ Index: {zone.envJusticeScore}/100</span>
+              <span style={{ background: zone.envJusticeScore > 70 ? "rgba(229,62,62,0.3)" : "rgba(214,158,46,0.3)", color: zone.envJusticeScore > 70 ? "#dc2626" : "#92400e", padding: "3px 10px", borderRadius: 20, fontSize: 11, fontWeight: 700 }}>EJ Index: {zone.envJusticeScore}/100</span>
             </div>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 14 }}>
             <div>
-              <div style={{ fontSize: 11, color: "#6b7280", marginBottom: 6, fontFamily: "monospace" }}>KEY LOCATIONS AT RISK</div>
+              <div style={{ fontSize: 11, color: "#374151", marginBottom: 6, fontFamily: "monospace" }}>KEY LOCATIONS AT RISK</div>
               {zone.landmarks.map(l => <div key={l} style={{ color: "#111827", fontSize: 12, marginBottom: 3 }}>• {l}</div>)}
             </div>
             <div>
-              <div style={{ fontSize: 11, color: "#6b7280", marginBottom: 6, fontFamily: "monospace" }}>VULNERABILITY FACTORS</div>
-              {zone.vulnerabilities.map(v => <div key={v} style={{ color: "#f7c48a", fontSize: 12, marginBottom: 3 }}>⚠ {v}</div>)}
+              <div style={{ fontSize: 11, color: "#374151", marginBottom: 6, fontFamily: "monospace" }}>VULNERABILITY FACTORS</div>
+              {zone.vulnerabilities.map(v => <div key={v} style={{ color: "#c2410c", fontSize: 12, marginBottom: 3 }}>⚠ {v}</div>)}
             </div>
           </div>
           <div style={{ display: "flex", gap: 12 }}>
             <div style={{ background: "#f3f4f6", borderRadius: 6, padding: "8px 14px", flex: 1 }}>
-              <div style={{ fontSize: 10, color: "#9ca3af", fontFamily: "monospace" }}>POPULATION EXPOSED</div>
+              <div style={{ fontSize: 10, color: "#4b5563", fontFamily: "monospace" }}>POPULATION EXPOSED</div>
               <div style={{ fontSize: 20, color: "#111827", fontWeight: 700, marginTop: 2 }}>{zone.population.toLocaleString()}</div>
             </div>
             <div style={{ background: "#f3f4f6", borderRadius: 6, padding: "8px 14px", flex: 1 }}>
-              <div style={{ fontSize: 10, color: "#9ca3af", fontFamily: "monospace" }}>EVACUATION RADIUS</div>
+              <div style={{ fontSize: 10, color: "#4b5563", fontFamily: "monospace" }}>EVACUATION RADIUS</div>
               <div style={{ fontSize: 20, color: "#111827", fontWeight: 700, marginTop: 2 }}>{zone.radiusMiles} mi</div>
             </div>
             <div style={{ background: "#f3f4f6", borderRadius: 6, padding: "8px 14px", flex: 1 }}>
-              <div style={{ fontSize: 10, color: "#9ca3af", fontFamily: "monospace" }}>ENV. JUSTICE INDEX</div>
-              <div style={{ fontSize: 20, color: zone.envJusticeScore > 70 ? "#f7a5a5" : "#111827", fontWeight: 700, marginTop: 2 }}>{zone.envJusticeScore}/100</div>
+              <div style={{ fontSize: 10, color: "#4b5563", fontFamily: "monospace" }}>ENV. JUSTICE INDEX</div>
+              <div style={{ fontSize: 20, color: zone.envJusticeScore > 70 ? "#dc2626" : "#111827", fontWeight: 700, marginTop: 2 }}>{zone.envJusticeScore}/100</div>
             </div>
           </div>
         </div>
@@ -720,21 +731,21 @@ function Tab1Map() {
 
       {/* Incident feed */}
       <div>
-        <div style={{ color: "#6b7280", fontSize: 11, fontFamily: "monospace", letterSpacing: 1, marginBottom: 10 }}>REGIONAL INCIDENT RECORD (REAL DATA)</div>
+        <div style={{ color: "#374151", fontSize: 11, fontFamily: "monospace", letterSpacing: 1, marginBottom: 10 }}>REGIONAL INCIDENT RECORD (REAL DATA)</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           {INCIDENTS_HISTORY.map(inc => (
             <div key={inc.id} style={{ background: "#f9fafb", border: "1px solid #e5e7eb", borderRadius: 8, padding: "12px 16px", display: "flex", gap: 14, alignItems: "flex-start" }}>
-              <div style={{ background: "rgba(229,62,62,0.2)", color: "#f7a5a5", padding: "4px 10px", borderRadius: 6, fontSize: 12, fontWeight: 700, fontFamily: "monospace", minWidth: 44, textAlign: "center" }}>{inc.year}</div>
+              <div style={{ background: "rgba(229,62,62,0.12)", color: "#dc2626", padding: "4px 10px", borderRadius: 6, fontSize: 12, fontWeight: 700, fontFamily: "monospace", minWidth: 44, textAlign: "center" }}>{inc.year}</div>
               <div style={{ flex: 1 }}>
                 <div style={{ display: "flex", gap: 8, marginBottom: 4, flexWrap: "wrap" }}>
                   <span style={{ color: "#111827", fontWeight: 600, fontSize: 13 }}>{inc.location}</span>
-                  <span style={{ color: "#6b7280", fontSize: 12 }}>— {inc.type}</span>
-                  <span style={{ background: "rgba(214,158,46,0.15)", color: "#f6d860", padding: "1px 8px", borderRadius: 10, fontSize: 11 }}>{inc.cargo}</span>
-                  <span style={{ color: "#9ca3af", fontSize: 11 }}>Op: {inc.operator}</span>
+                  <span style={{ color: "#374151", fontSize: 12 }}>— {inc.type}</span>
+                  <span style={{ background: "rgba(214,158,46,0.15)", color: "#92400e", padding: "1px 8px", borderRadius: 10, fontSize: 11 }}>{inc.cargo}</span>
+                  <span style={{ color: "#4b5563", fontSize: 11 }}>Op: {inc.operator}</span>
                 </div>
-                <div style={{ color: "#6b7280", fontSize: 12, lineHeight: 1.5 }}>{inc.notes}</div>
-                {inc.gallonsSpilled > 0 && <div style={{ color: "#f7a5a5", fontSize: 12, marginTop: 3 }}>⚠ {inc.gallonsSpilled.toLocaleString()} gallons spilled</div>}
-                {inc.deaths > 0 && <div style={{ color: "#fc8181", fontSize: 12, fontWeight: 700, marginTop: 3 }}>⚑ {inc.deaths} fatalities · {inc.injuries} injuries</div>}
+                <div style={{ color: "#374151", fontSize: 12, lineHeight: 1.5 }}>{inc.notes}</div>
+                {inc.gallonsSpilled > 0 && <div style={{ color: "#dc2626", fontSize: 12, marginTop: 3 }}>⚠ {inc.gallonsSpilled.toLocaleString()} gallons spilled</div>}
+                {inc.deaths > 0 && <div style={{ color: "#dc2626", fontSize: 12, fontWeight: 700, marginTop: 3 }}>⚑ {inc.deaths} fatalities · {inc.injuries} injuries</div>}
               </div>
             </div>
           ))}
@@ -750,7 +761,7 @@ function Tab1Map() {
               <div key={w.id} style={{ background: "rgba(37,99,235,0.04)", border: `1px solid ${w.color}40`, borderRadius: 8, padding: "12px 16px" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6, flexWrap: "wrap", gap: 6 }}>
                   <span style={{ color: w.color, fontWeight: 700, fontSize: 13 }}>💧 {w.name}</span>
-                  <span style={{ fontSize: 11, color: "#6b7280", fontFamily: "monospace" }}>{w.type}</span>
+                  <span style={{ fontSize: 11, color: "#374151", fontFamily: "monospace" }}>{w.type}</span>
                 </div>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: 8, marginBottom: 8 }}>
                   {[
@@ -762,13 +773,13 @@ function Tab1Map() {
                     ["Spill Travel Time", w.flowTime],
                   ].map(([k,v]) => (
                     <div key={k} style={{ background: "#f9fafb", borderRadius: 4, padding: "6px 10px" }}>
-                      <div style={{ fontSize: 9, color: "#9ca3af", fontFamily: "monospace", marginBottom: 2 }}>{k}</div>
+                      <div style={{ fontSize: 9, color: "#4b5563", fontFamily: "monospace", marginBottom: 2 }}>{k}</div>
                       <div style={{ fontSize: 12, color: "#374151" }}>{v}</div>
                     </div>
                   ))}
                 </div>
                 <div>
-                  <div style={{ fontSize: 10, color: "#6b7280", fontFamily: "monospace", marginBottom: 4 }}>SPECIES / ECOSYSTEMS AT RISK</div>
+                  <div style={{ fontSize: 10, color: "#374151", fontFamily: "monospace", marginBottom: 4 }}>SPECIES / ECOSYSTEMS AT RISK</div>
                   <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                     {w.species.map(s => (
                       <span key={s} style={{ background: "rgba(16,185,129,0.08)", color: "#059669", padding: "2px 8px", borderRadius: 10, fontSize: 11, border: "1px solid rgba(16,185,129,0.2)" }}>🌿 {s}</span>
@@ -795,7 +806,7 @@ function Tab1Map() {
                   </div>
                   <span style={{ fontSize: 11, color: "#f97316", fontFamily: "monospace", fontWeight: 700 }}>{pd.density.toLocaleString()}/mi²</span>
                 </div>
-                <div style={{ fontSize: 11, color: "#6b7280" }}>{pd.label}</div>
+                <div style={{ fontSize: 11, color: "#374151" }}>{pd.label}</div>
               </div>
             ))}
           </div>
@@ -819,13 +830,13 @@ function Tab2Regulations() {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
       <div style={{ background: "#f9fafb", border: "1px solid #e5e7eb", borderRadius: 8, padding: "12px 18px" }}>
-        <p style={{ margin: 0, color: "#6b7280", fontSize: 13, lineHeight: 1.6 }}>
+        <p style={{ margin: 0, color: "#374151", fontSize: 13, lineHeight: 1.6 }}>
           Federal and transportation regulations governing crude-by-rail through Washington DC. Each regulation is mapped to applicable corridor(s) and includes compliance status, known gaps, and key requirements. Real data from PHMSA, FRA, TSA, and US Code.
         </p>
       </div>
 
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
-        <span style={{ color: "#6b7280", fontSize: 11, fontFamily: "monospace" }}>FILTER BY CORRIDOR:</span>
+        <span style={{ color: "#374151", fontSize: 11, fontFamily: "monospace" }}>FILTER BY CORRIDOR:</span>
         {[["all","All Corridors"], ...RAIL_CORRIDORS.map(c=>[c.id, c.name.split(" ").slice(0,3).join(" ")])].map(([id,label]) => (
           <button key={id}
             onClick={() => setFilterCorridor(id)}
@@ -852,17 +863,17 @@ function Tab2Regulations() {
               }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8, gap: 8, flexWrap: "wrap" }}>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 11, color: "#9ca3af", fontFamily: "monospace", marginBottom: 3 }}>{reg.code}</div>
+                  <div style={{ fontSize: 11, color: "#4b5563", fontFamily: "monospace", marginBottom: 3 }}>{reg.code}</div>
                   <div style={{ fontSize: 14, color: "#111827", fontWeight: 700, lineHeight: 1.3 }}>{reg.title}</div>
-                  <div style={{ fontSize: 11, color: "#6b7280", marginTop: 2 }}>Agency: {reg.agency}</div>
+                  <div style={{ fontSize: 11, color: "#374151", marginTop: 2 }}>Agency: {reg.agency}</div>
                 </div>
                 <span style={{ background: statusColor + "25", color: statusColor, padding: "3px 10px", borderRadius: 12, fontSize: 10, fontWeight: 700, fontFamily: "monospace", border: `1px solid ${statusColor}50`, whiteSpace: "nowrap" }}>{reg.status}</span>
               </div>
               <p style={{ margin: "0 0 10px", color: "#374151", fontSize: 12, lineHeight: 1.6 }}>{reg.description}</p>
 
               {isSelected && (
-                <div style={{ marginTop: 12, borderTop: "1px solid #2d4a6b", paddingTop: 12 }}>
-                  <div style={{ fontSize: 11, color: "#6b7280", marginBottom: 8, fontFamily: "monospace" }}>KEY REQUIREMENTS</div>
+                <div style={{ marginTop: 12, borderTop: "1px solid #d1d5db", paddingTop: 12 }}>
+                  <div style={{ fontSize: 11, color: "#374151", marginBottom: 8, fontFamily: "monospace" }}>KEY REQUIREMENTS</div>
                   {reg.keyRequirements.map((req, i) => (
                     <div key={i} style={{ display: "flex", gap: 8, marginBottom: 6, alignItems: "flex-start" }}>
                       <span style={{ color: "#38a169", fontSize: 12, marginTop: 1 }}>✓</span>
@@ -871,10 +882,10 @@ function Tab2Regulations() {
                   ))}
                   <div style={{ marginTop: 12, background: "rgba(221,107,32,0.1)", border: "1px solid rgba(221,107,32,0.3)", borderRadius: 6, padding: "10px 14px" }}>
                     <div style={{ fontSize: 10, color: "#dd6b20", fontFamily: "monospace", marginBottom: 4 }}>⚠ COMPLIANCE GAP / NOTE</div>
-                    <div style={{ color: "#f7c48a", fontSize: 12, lineHeight: 1.5 }}>{reg.complianceGap}</div>
+                    <div style={{ color: "#c2410c", fontSize: 12, lineHeight: 1.5 }}>{reg.complianceGap}</div>
                   </div>
                   <div style={{ marginTop: 10 }}>
-                    <div style={{ fontSize: 10, color: "#9ca3af", fontFamily: "monospace", marginBottom: 6 }}>APPLICABLE CORRIDORS</div>
+                    <div style={{ fontSize: 10, color: "#4b5563", fontFamily: "monospace", marginBottom: 6 }}>APPLICABLE CORRIDORS</div>
                     <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                       {reg.applicableCorridors.map(cid => {
                         const c = RAIL_CORRIDORS.find(c => c.id === cid);
@@ -894,14 +905,14 @@ function Tab2Regulations() {
 
       {/* Regulatory gap matrix */}
       <div style={{ background: "#f9fafb", border: "1px solid #e5e7eb", borderRadius: 10, padding: "18px 22px" }}>
-        <div style={{ color: "#6b7280", fontSize: 12, fontFamily: "monospace", letterSpacing: 1, marginBottom: 14 }}>CORRIDOR × REGULATION COMPLIANCE MATRIX</div>
+        <div style={{ color: "#374151", fontSize: 12, fontFamily: "monospace", letterSpacing: 1, marginBottom: 14 }}>CORRIDOR × REGULATION COMPLIANCE MATRIX</div>
         <div style={{ overflowX: "auto" }}>
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11 }}>
             <thead>
               <tr>
-                <th style={{ padding: "8px 12px", textAlign: "left", color: "#6b7280", fontFamily: "monospace", borderBottom: "1px solid #2d4a6b", fontWeight: 600 }}>Corridor</th>
+                <th style={{ padding: "8px 12px", textAlign: "left", color: "#374151", fontFamily: "monospace", borderBottom: "1px solid #d1d5db", fontWeight: 600 }}>Corridor</th>
                 {REGULATIONS.map(r => (
-                  <th key={r.id} style={{ padding: "8px 10px", textAlign: "center", color: "#6b7280", fontFamily: "monospace", borderBottom: "1px solid #2d4a6b", fontWeight: 600, fontSize: 10 }}>
+                  <th key={r.id} style={{ padding: "8px 10px", textAlign: "center", color: "#374151", fontFamily: "monospace", borderBottom: "1px solid #d1d5db", fontWeight: 600, fontSize: 10 }}>
                     {r.code.split(" ")[0]}<br/>{r.code.split(" ")[1] || ""}
                   </th>
                 ))}
@@ -909,7 +920,7 @@ function Tab2Regulations() {
             </thead>
             <tbody>
               {RAIL_CORRIDORS.map(corridor => (
-                <tr key={corridor.id} style={{ borderBottom: "1px solid #1a2d45" }}>
+                <tr key={corridor.id} style={{ borderBottom: "1px solid #d1d5db" }}>
                   <td style={{ padding: "8px 12px", color: "#111827" }}>
                     <div style={{ fontWeight: 600 }}>{corridor.name.split("/")[0].trim()}</div>
                     <div style={{ fontSize: 10, color: RISK_COLORS[corridor.riskLevel] }}>{corridor.riskLevel}</div>
@@ -919,7 +930,7 @@ function Tab2Regulations() {
                     return (
                       <td key={reg.id} style={{ padding: "8px 10px", textAlign: "center" }}>
                         {applies
-                          ? <span style={{ color: reg.status === "IMPLEMENTED" ? "#38a169" : reg.status === "ACTIVE — PHASE-IN" ? "#dd6b20" : "#e2b96a", fontSize: 14 }}>
+                          ? <span style={{ color: reg.status === "IMPLEMENTED" ? "#38a169" : reg.status === "ACTIVE — PHASE-IN" ? "#dd6b20" : "#d97706", fontSize: 14 }}>
                               {reg.status === "IMPLEMENTED" ? "✓" : reg.status === "ACTIVE — PHASE-IN" ? "◑" : "●"}
                             </span>
                           : <span style={{ color: "#e5e7eb" }}>—</span>
@@ -934,7 +945,7 @@ function Tab2Regulations() {
         </div>
         <div style={{ display: "flex", gap: 16, marginTop: 12, flexWrap: "wrap" }}>
           {[["✓ Green","IMPLEMENTED (PTC)"],["● Yellow","ACTIVE regulation"],["◑ Orange","PHASE-IN / transitional"],["— Gray","Not applicable"]].map(([sym,label]) => (
-            <div key={label} style={{ fontSize: 10, color: "#9ca3af", fontFamily: "monospace" }}>{sym} = {label}</div>
+            <div key={label} style={{ fontSize: 10, color: "#4b5563", fontFamily: "monospace" }}>{sym} = {label}</div>
           ))}
         </div>
       </div>
@@ -973,7 +984,7 @@ function Tab3Report() {
           ["Key Incidents on Record", INCIDENTS_HISTORY.length, "", "#a78bfa"],
         ].map(([label, val, unit, color]) => (
           <div key={label} style={{ background: "#f9fafb", border: `1px solid ${color}30`, borderRadius: 8, padding: "12px 14px" }}>
-            <div style={{ fontSize: 10, color: "#9ca3af", fontFamily: "monospace", marginBottom: 4 }}>{label}</div>
+            <div style={{ fontSize: 10, color: "#4b5563", fontFamily: "monospace", marginBottom: 4 }}>{label}</div>
             <div style={{ fontSize: 22, color: color, fontWeight: 700 }}>{val}</div>
           </div>
         ))}
@@ -992,27 +1003,27 @@ function Tab3Report() {
               alignItems: "center", color: openSection === sec.id ? "#059669" : "#111827", fontSize: 14, fontWeight: 600, textAlign: "left"
             }}>
             {sec.label}
-            <span style={{ fontSize: 12, color: "#9ca3af" }}>{openSection === sec.id ? "▲" : "▼"}</span>
+            <span style={{ fontSize: 12, color: "#4b5563" }}>{openSection === sec.id ? "▲" : "▼"}</span>
           </button>
 
           {openSection === sec.id && (
-            <div style={{ background: "#ffffff", border: "1px solid #4a8abf", borderTop: "none", borderRadius: "0 0 8px 8px", padding: "18px 22px" }}>
+            <div style={{ background: "#ffffff", border: "1px solid #d1d5db", borderTop: "none", borderRadius: "0 0 8px 8px", padding: "18px 22px" }}>
               {sec.id === "exec" && (
                 <div style={{ color: "#374151", fontSize: 13, lineHeight: 1.8 }}>
-                  <p>Washington DC is traversed by one of the most hazardous freight rail corridors in North America. The CSX Transportation mainline crosses the Potomac River at Long Bridge, passes within blocks of the U.S. Capitol, and threads through the Virginia Avenue Tunnel before connecting to Union Station — carrying an estimated <strong style={{ color: "#e2b96a" }}>8,000+ hazmat rail cars annually</strong> through the federal core and residential neighborhoods.</p>
-                  <p>A 2007 National Capital Planning Commission study identified three remediation options (costing $4.3–5.3 billion each) but none have been funded. CSX voluntarily stopped transporting chlorine, ammonia, and certain explosives through DC after 2004, but petroleum products including Bakken crude oil, molten sulfur, ammonium nitrate, and styrene monomer continue to transit the corridor. A hypothetical derailment at the Long Bridge crossing or the Virginia Avenue Tunnel could trigger a <strong style={{ color: "#f7a5a5" }}>mile-wide evacuation zone</strong> encompassing the Capitol, 10 Metro stations, the Washington Monument, and Air & Space Museum.</p>
+                  <p>Washington DC is traversed by one of the most hazardous freight rail corridors in North America. The CSX Transportation mainline crosses the Potomac River at Long Bridge, passes within blocks of the U.S. Capitol, and threads through the Virginia Avenue Tunnel before connecting to Union Station — carrying an estimated <strong style={{ color: "#d97706" }}>8,000+ hazmat rail cars annually</strong> through the federal core and residential neighborhoods.</p>
+                  <p>A 2007 National Capital Planning Commission study identified three remediation options (costing $4.3–5.3 billion each) but none have been funded. CSX voluntarily stopped transporting chlorine, ammonia, and certain explosives through DC after 2004, but petroleum products including Bakken crude oil, molten sulfur, ammonium nitrate, and styrene monomer continue to transit the corridor. A hypothetical derailment at the Long Bridge crossing or the Virginia Avenue Tunnel could trigger a <strong style={{ color: "#dc2626" }}>mile-wide evacuation zone</strong> encompassing the Capitol, 10 Metro stations, the Washington Monument, and Air & Space Museum.</p>
                   <p>Federal regulations (HM-251, 49 CFR 172.820, FAST Act) have materially improved tank car standards and required routing analyses, but compliance gaps remain — particularly around legacy DOT-111 tank cars still in transitional service, non-public routing data, and first responder manifest access (as demonstrated in the 2014 Lynchburg incident by the same operator on the same corridor type).</p>
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginTop: 16 }}>
                     <div style={{ background: "rgba(229,62,62,0.1)", border: "1px solid rgba(229,62,62,0.3)", borderRadius: 8, padding: "12px 16px" }}>
-                      <div style={{ color: "#f7a5a5", fontSize: 12, fontWeight: 700, marginBottom: 6 }}>CRITICAL FINDINGS</div>
+                      <div style={{ color: "#dc2626", fontSize: 12, fontWeight: 700, marginBottom: 6 }}>CRITICAL FINDINGS</div>
                       {["8,000+ hazmat cars/yr through federal core","Mile-wide blast zone covers Capitol & 10 Metro stations","Anacostia River corridor: EJ Index 88/100 — majority low-income","No public routing data; confidential per 49 CFR 172.820","Legacy DOT-111 tank cars in transitional service through 2031","NCPC $5.3B bypass tunnel unfunded since 2007","First responder manifest gaps documented in similar incidents"].map(f => (
-                        <div key={f} style={{ color: "#f7c48a", fontSize: 12, marginBottom: 4 }}>⚑ {f}</div>
+                        <div key={f} style={{ color: "#c2410c", fontSize: 12, marginBottom: 4 }}>⚑ {f}</div>
                       ))}
                     </div>
                     <div style={{ background: "rgba(56,161,105,0.1)", border: "1px solid rgba(56,161,105,0.3)", borderRadius: 8, padding: "12px 16px" }}>
-                      <div style={{ color: "#68d391", fontSize: 12, fontWeight: 700, marginBottom: 6 }}>COMPLIANCE ACHIEVEMENTS</div>
+                      <div style={{ color: "#059669", fontSize: 12, fontWeight: 700, marginBottom: 6 }}>COMPLIANCE ACHIEVEMENTS</div>
                       {["PTC fully installed on all 4 DC-area corridors","DOT-117 tank cars transitioning for crude oil service","50 mph HHFT speed cap uniformly applied","SERC notification required for 1M+ gallon Bakken shipments","CSX voluntarily stopped Cl₂/NH₃/explosives through DC since 2004","AskRail app deployed for first responders","27-factor routing analysis required under 49 CFR 172.820"].map(f => (
-                        <div key={f} style={{ color: "#9ae6b4", fontSize: 12, marginBottom: 4 }}>✓ {f}</div>
+                        <div key={f} style={{ color: "#059669", fontSize: 12, marginBottom: 4 }}>✓ {f}</div>
                       ))}
                     </div>
                   </div>
@@ -1026,24 +1037,24 @@ function Tab3Report() {
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, flexWrap: "wrap", gap: 8 }}>
                         <div>
                           <span style={{ color: "#111827", fontWeight: 700, fontSize: 14 }}>{c.name}</span>
-                          <span style={{ color: "#6b7280", fontSize: 12, marginLeft: 10 }}>{c.operator}</span>
+                          <span style={{ color: "#374151", fontSize: 12, marginLeft: 10 }}>{c.operator}</span>
                         </div>
                         <div style={{ display: "flex", gap: 8 }}>
                           <span style={{ background: RISK_COLORS[c.riskLevel], color: "white", padding: "2px 10px", borderRadius: 12, fontSize: 11, fontWeight: 700 }}>{c.riskLevel}</span>
-                          <span style={{ background: "rgba(0,0,0,0.3)", color: "#6b7280", padding: "2px 10px", borderRadius: 12, fontSize: 11 }}>Score {c.riskScore}/100</span>
+                          <span style={{ background: "rgba(0,0,0,0.3)", color: "#374151", padding: "2px 10px", borderRadius: 12, fontSize: 11 }}>Score {c.riskScore}/100</span>
                         </div>
                       </div>
                       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10, marginBottom: 10 }}>
                         <div style={{ background: "#f3f4f6", borderRadius: 6, padding: "8px 12px" }}>
-                          <div style={{ fontSize: 10, color: "#9ca3af", fontFamily: "monospace" }}>HAZMAT CARS/YR</div>
+                          <div style={{ fontSize: 10, color: "#4b5563", fontFamily: "monospace" }}>HAZMAT CARS/YR</div>
                           <div style={{ fontSize: 18, color: "#111827", fontWeight: 700 }}>{c.annualHazmatCars.toLocaleString()}</div>
                         </div>
                         <div style={{ background: "#f3f4f6", borderRadius: 6, padding: "8px 12px" }}>
-                          <div style={{ fontSize: 10, color: "#9ca3af", fontFamily: "monospace" }}>POP. EXPOSED</div>
+                          <div style={{ fontSize: 10, color: "#4b5563", fontFamily: "monospace" }}>POP. EXPOSED</div>
                           <div style={{ fontSize: 18, color: "#111827", fontWeight: 700 }}>{c.populationExposed.toLocaleString()}</div>
                         </div>
                         <div style={{ background: "#f3f4f6", borderRadius: 6, padding: "8px 12px" }}>
-                          <div style={{ fontSize: 10, color: "#9ca3af", fontFamily: "monospace" }}>SPEED LIMIT</div>
+                          <div style={{ fontSize: 10, color: "#4b5563", fontFamily: "monospace" }}>SPEED LIMIT</div>
                           <div style={{ fontSize: 18, color: "#111827", fontWeight: 700 }}>{c.speedLimitMph} mph</div>
                         </div>
                       </div>
@@ -1052,7 +1063,7 @@ function Tab3Report() {
                         <div style={{ marginTop: 10 }}>
                           <div style={{ fontSize: 11, color: "#dd6b20", fontFamily: "monospace", marginBottom: 6 }}>INCIDENT HISTORY ON THIS OPERATOR</div>
                           {c.incidents.map((inc, i) => (
-                            <div key={i} style={{ color: "#f7c48a", fontSize: 12, marginBottom: 3 }}>⚠ {inc.year} — {inc.location} ({inc.type}) — {inc.severity}</div>
+                            <div key={i} style={{ color: "#c2410c", fontSize: 12, marginBottom: 3 }}>⚠ {inc.year} — {inc.location} ({inc.type}) — {inc.severity}</div>
                           ))}
                         </div>
                       )}
@@ -1065,24 +1076,24 @@ function Tab3Report() {
                 <div style={{ color: "#374151", fontSize: 13, lineHeight: 1.8 }}>
                   <p>Environmental justice analysis examines how risk is distributed across DC's communities. The EPA EJ Index and CDC Environmental Justice scores consistently show that the highest-exposure rail corridors run through or adjacent to DC's most economically disadvantaged and minority-majority neighborhoods.</p>
                   <div style={{ background: "rgba(229,62,62,0.08)", border: "1px solid rgba(229,62,62,0.2)", borderRadius: 8, padding: "14px 18px", margin: "14px 0" }}>
-                    <div style={{ color: "#f7a5a5", fontWeight: 700, fontSize: 13, marginBottom: 10 }}>HIGH ENVIRONMENTAL JUSTICE CONCERN ZONES</div>
+                    <div style={{ color: "#dc2626", fontWeight: 700, fontSize: 13, marginBottom: 10 }}>HIGH ENVIRONMENTAL JUSTICE CONCERN ZONES</div>
                     {RISK_ZONES.filter(z=>z.envJusticeScore>70).map(z => (
                       <div key={z.id} style={{ marginBottom: 10, borderBottom: "1px solid rgba(229,62,62,0.15)", paddingBottom: 10 }}>
                         <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
                           <span style={{ color: "#111827", fontWeight: 600 }}>{z.name}</span>
-                          <span style={{ color: "#f7a5a5", fontWeight: 700 }}>EJ Score: {z.envJusticeScore}/100</span>
+                          <span style={{ color: "#dc2626", fontWeight: 700 }}>EJ Score: {z.envJusticeScore}/100</span>
                         </div>
                         <div style={{ background: "#f3f4f6", borderRadius: 4, height: 8, marginBottom: 6 }}>
                           <div style={{ background: "#e53e3e", height: "100%", width: `${z.envJusticeScore}%`, borderRadius: 4, transition: "width 0.4s" }}/>
                         </div>
-                        <div style={{ fontSize: 12, color: "#6b7280" }}>Pop: {z.population.toLocaleString()} · Risk Score: {z.riskScore}/100</div>
+                        <div style={{ fontSize: 12, color: "#374151" }}>Pop: {z.population.toLocaleString()} · Risk Score: {z.riskScore}/100</div>
                       </div>
                     ))}
                   </div>
                   <p>The Anacostia corridor carries the highest compounded risk: an EJ score of 88/100 combined with a spill risk score of 87/100, meaning both environmental harm and population vulnerability are simultaneously maximized. Benning Yard scores 94/100 on EJ index — the highest of any identified zone — due to its position adjacent to low-income residential neighborhoods in Ward 7 and 8, which are majority African American and have some of DC's lowest income and highest asthma rates.</p>
                   <p>The Georgetown/NW Potomac zone, by contrast, scores only 22/100 on EJ despite moderate risk to the C&O Canal ecosystem — illustrating that high economic status areas can carry environmental risk without proportional community vulnerability burden.</p>
                   <div style={{ background: "rgba(56,161,105,0.08)", border: "1px solid rgba(56,161,105,0.2)", borderRadius: 8, padding: "14px 18px", marginTop: 14 }}>
-                    <div style={{ color: "#68d391", fontWeight: 700, fontSize: 13, marginBottom: 8 }}>POLICY IMPLICATION</div>
+                    <div style={{ color: "#059669", fontWeight: 700, fontSize: 13, marginBottom: 8 }}>POLICY IMPLICATION</div>
                     <p style={{ margin: 0 }}>Under Executive Order 12898 (Federal Actions to Address Environmental Justice) and DOT's Environmental Justice Order 5610.2(a), routing decisions for hazardous materials must consider disproportionate impacts on low-income and minority communities. Current DC corridor routing has never been subject to a formal EJ review under these orders, per available public record.</p>
                   </div>
                 </div>
@@ -1120,7 +1131,7 @@ function Tab3Report() {
                         <span style={{ background: RISK_BG[w.risk], color: RISK_COLORS[w.risk], padding: "2px 10px", borderRadius: 10, fontSize: 11, fontWeight: 700 }}>{w.risk}</span>
                       </div>
                       <p style={{ margin: "0 0 8px" }}>{w.description}</p>
-                      <div style={{ fontSize: 12, color: "#5a8aaa" }}>⏱ {w.travelTime}</div>
+                      <div style={{ fontSize: 12, color: "#1d4ed8" }}>⏱ {w.travelTime}</div>
                       <div style={{ fontSize: 12, color: "#dd6b20", marginTop: 4 }}>⚠ {w.vol}</div>
                     </div>
                   ))}
@@ -1217,17 +1228,17 @@ export default function OilTrainRiskDC() {
       `}</style>
 
       {/* Header */}
-      <div className="header-pad" style={{ background: "#ffffff", borderBottom: "1px solid #2d4a6b", padding: "24px 32px" }}>
+      <div className="header-pad" style={{ background: "#ffffff", borderBottom: "1px solid #d1d5db", padding: "24px 32px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 12 }}>
           <div>
             <div style={{ fontSize: 10, color: "#059669", fontFamily: "monospace", letterSpacing: 2, marginBottom: 6 }}>ENVIRONMENTAL RISK INTELLIGENCE · WASHINGTON DC</div>
             <h1 style={{ margin: 0, fontSize: "clamp(18px, 4vw, 28px)", color: "#111827", fontWeight: 700, fontFamily: "'IBM Plex Sans', sans-serif", lineHeight: 1.2 }}>
               Oil Train Environmental Risk Map
             </h1>
-            <div style={{ color: "#6b7280", fontSize: 13, marginTop: 6 }}>Crude-by-Rail Routes · Population Exposure · Regulatory Compliance · Washington, DC</div>
+            <div style={{ color: "#374151", fontSize: 13, marginTop: 6 }}>Crude-by-Rail Routes · Population Exposure · Regulatory Compliance · Washington, DC</div>
           </div>
           <div style={{ textAlign: "right" }}>
-            <div style={{ fontSize: 10, color: "#9ca3af", fontFamily: "monospace" }}>COMPILED BY</div>
+            <div style={{ fontSize: 10, color: "#4b5563", fontFamily: "monospace" }}>COMPILED BY</div>
             <div style={{ color: "#059669", fontWeight: 700, fontSize: 13 }}>Lancelot Napier-Kane</div>
             <div style={{ fontSize: 10, color: "#059669", marginTop: 3 }}>REAL + SAMPLE DATA · SEE FOOTER</div>
           </div>
@@ -1236,12 +1247,12 @@ export default function OilTrainRiskDC() {
         {/* Alert banner */}
         <div style={{ marginTop: 16, background: "rgba(229,62,62,0.1)", border: "1px solid rgba(229,62,62,0.35)", borderRadius: 8, padding: "10px 16px", display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
           <span style={{ color: "#e53e3e", fontSize: 13, fontWeight: 700 }}>⚑ ACTIVE RISK:</span>
-          <span style={{ color: "#f7c48a", fontSize: 12 }}>CSX main corridor carries 8,000+ hazmat cars/yr through the federal core. Hypothetical blast zone covers U.S. Capitol, Washington Monument, 10 Metro stations. NCPC bypass recommendation unfunded since 2007.</span>
+          <span style={{ color: "#c2410c", fontSize: 12 }}>CSX main corridor carries 8,000+ hazmat cars/yr through the federal core. Hypothetical blast zone covers U.S. Capitol, Washington Monument, 10 Metro stations. NCPC bypass recommendation unfunded since 2007.</span>
         </div>
       </div>
 
       {/* Tabs */}
-      <div style={{ borderBottom: "1px solid #2d4a6b", background: "#ffffff", padding: "0 24px", overflowX: "auto" }}>
+      <div style={{ borderBottom: "1px solid #d1d5db", background: "#ffffff", padding: "0 24px", overflowX: "auto" }}>
         <div style={{ display: "flex", gap: 0, minWidth: 500 }}>
           {tabs.map((tab, i) => (
             <button key={i}
@@ -1249,7 +1260,7 @@ export default function OilTrainRiskDC() {
               style={{
                 background: activeTab === i ? "rgba(5,150,105,0.08)" : "transparent",
                 border: "none",
-                borderBottom: activeTab === i ? "2px solid #4a8abf" : "2px solid transparent",
+                borderBottom: activeTab === i ? "2px solid #059669" : "2px solid transparent",
                 color: activeTab === i ? "#059669" : "#9ca3af",
                 padding: "14px 20px", cursor: "pointer",
                 textAlign: "left", transition: "all 0.2s", whiteSpace: "nowrap"
@@ -1269,13 +1280,13 @@ export default function OilTrainRiskDC() {
       </div>
 
       {/* Footer */}
-      <div style={{ borderTop: "1px solid #1a2d45", padding: "16px 28px", background: "#f9fafb" }}>
-        <div style={{ fontSize: 10, color: "#9ca3af", lineHeight: 1.8, fontFamily: "monospace" }}>
-          <span style={{ color: "#9ca3af", fontWeight: 700 }}>DATA SOURCES: </span>
+      <div style={{ borderTop: "1px solid #d1d5db", padding: "16px 28px", background: "#f9fafb" }}>
+        <div style={{ fontSize: 10, color: "#4b5563", lineHeight: 1.8, fontFamily: "monospace" }}>
+          <span style={{ color: "#4b5563", fontWeight: 700 }}>DATA SOURCES: </span>
           Real data — CSX Transportation (hazmat materials/DC corridor, 2004 rerouting), DDOT DC Surface Rail Plan (FY2015), National Capital Planning Commission Freight Rail Study (2007), NBC4 I-Team investigation (2016), FRA/PHMSA HM-251 Final Rule (49 CFR 174.310, May 2015), FAST Act §7304-7306 (2015), 49 CFR 172.820 (routing), 49 CFR Part 130 (oil spill response), 49 CFR 1580.3 (TSA HTUA), FRA PTC regulations (49 U.S.C. 20157), Frontier Group hazmat rail report (2024), BNSF/NS incident records.
           <span style={{ color: "#dd6b20", marginLeft: 8 }}>⚠ Sample/modeled data: </span>
           Population exposure radii, EJ index scoring, incident blast zone projections, and annual hazmat car estimates are derived/modeled from the above sources and should not be used for operational emergency planning.
-          <span style={{ color: "#9ca3af", marginLeft: 8 }}>· Compiled by Lancelot Napier-Kane</span>
+          <span style={{ color: "#4b5563", marginLeft: 8 }}>· Compiled by Lancelot Napier-Kane</span>
         </div>
       </div>
     </div>

@@ -29,6 +29,24 @@ const BORDER = 'rgba(184,0,78,0.22)';
 
 export const PROJECTS = [
   {
+    title: 'Mock NYC HRA SNAP System',
+    desc: 'Simulated NYC Human Resources Administration intake & case management — SNAP eligibility determination, pipeline kanban, and compliance analytics.',
+    tech: ['React', 'Tailwind', 'Social Policy', 'Government Systems', 'Data Simulation'],
+    link: '/mock_hra.jsx',
+    type: 'jsx',
+    component: LazyMockHRA,
+    img: img7,
+  },
+  {
+    title: 'DC Oil Train Environmental Risk',
+    desc: 'Government-grade risk analysis of crude-by-rail corridors through DC — interactive SVG map, waterway impact zones, population density, and regulatory compliance matrix.',
+    tech: ['React', 'SVG Maps', 'Environmental Policy', 'Rail Safety', 'Government Analysis'],
+    link: '/oil_train_risk_dc.jsx',
+    type: 'jsx',
+    component: LazyOilTrainRisk,
+    img: img8,
+  },
+  {
     title: 'Python & Statistics Analysis',
     desc: 'Data analysis over a restaurant industry dataset applying statistical methods, data cleaning, and Python visualization.',
     tech: ['Python', 'Pandas', 'NumPy', 'Seaborn', 'Statistics'],
@@ -57,15 +75,6 @@ export const PROJECTS = [
     img: img4,
   },
   {
-    title: 'Prime Field Functions',
-    desc: 'Interactive explorer for ζ-weighted functions over ordered prime pairs — scatter plot and |F| heatmap views, complex plane analysis.',
-    tech: ['React', 'Recharts', 'Complex Analysis', 'Number Theory', 'Visualization'],
-    link: '/prime_fields.jsx',
-    type: 'jsx',
-    component: LazyPrimeFields,
-    img: img5,
-  },
-  {
     title: 'Interest Rate Swap Report',
     desc: 'Data-driven analysis of university interest rate swap losses post-2008 — LIBOR collapse, tuition impacts, and institutional timelines.',
     tech: ['React', 'Recharts', 'Finance', 'Data Analysis', 'Policy Research'],
@@ -75,22 +84,13 @@ export const PROJECTS = [
     img: img6,
   },
   {
-    title: 'Mock NYC HRA SNAP System',
-    desc: 'Simulated NYC Human Resources Administration intake & case management — SNAP eligibility determination, pipeline kanban, and compliance analytics.',
-    tech: ['React', 'Tailwind', 'Social Policy', 'Government Systems', 'Data Simulation'],
-    link: '/mock_hra.jsx',
+    title: 'Prime Field Functions',
+    desc: 'Interactive explorer for ζ-weighted functions over ordered prime pairs — scatter plot and |F| heatmap views, complex plane analysis.',
+    tech: ['React', 'Recharts', 'Complex Analysis', 'Number Theory', 'Visualization'],
+    link: '/prime_fields.jsx',
     type: 'jsx',
-    component: LazyMockHRA,
-    img: img7,
-  },
-  {
-    title: 'DC Oil Train Environmental Risk',
-    desc: 'Government-grade risk analysis of crude-by-rail corridors through DC — interactive SVG map, waterway impact zones, population density, and regulatory compliance matrix.',
-    tech: ['React', 'SVG Maps', 'Environmental Policy', 'Rail Safety', 'Government Analysis'],
-    link: '/oil_train_risk_dc.jsx',
-    type: 'jsx',
-    component: LazyOilTrainRisk,
-    img: img8,
+    component: LazyPrimeFields,
+    img: img5,
   },
 ];
 
