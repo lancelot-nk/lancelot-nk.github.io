@@ -407,18 +407,34 @@ function DCMapSVG({ selectedCorridor, selectedZone, onSelectCorridor, onSelectZo
     { name: "Navy Yard", lat: 38.876, lng: -77.001, symbol: "⚓" },
   ];
 
+  // Compute viewBox dimensions from zoom
+  const vbW = W / zoom, vbH = H / zoom;
+  const vbX = (W - vbW) / 2, vbY = (H - vbH) / 2;
+
+  // Quantize zoom to 0.25 steps so we only fetch a new tile at meaningful zoom changes
+  const qZoom = Math.round(zoom * 4) / 4;
+  const lonRange = LNG_MAX - LNG_MIN; // 0.24
+  const latRange = LAT_MAX - LAT_MIN; // 0.23
+  // Geographic bbox for the visible viewport at this zoom level
+  const bboxMinLon = (LNG_MIN + ((qZoom - 1) / (2 * qZoom)) * lonRange).toFixed(6);
+  const bboxMaxLon = (LNG_MIN + ((qZoom + 1) / (2 * qZoom)) * lonRange).toFixed(6);
+  const bboxMaxLat = (LAT_MAX - ((qZoom - 1) / (2 * qZoom)) * latRange).toFixed(6);
+  const bboxMinLat = (LAT_MAX - ((qZoom + 1) / (2 * qZoom)) * latRange).toFixed(6);
+  // Request at 2× pixel density for sharpness
+  const basemapUrl = `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=${bboxMinLon},${bboxMinLat},${bboxMaxLon},${bboxMaxLat}&bboxSR=4326&imageSR=4326&size=${W * 2},${H * 2}&format=png&f=image`;
+
   return (
     <div ref={mapRef} style={{ borderRadius: 10, overflow: "hidden", position: "relative" }}>
-      <svg viewBox={(() => { const vbW = W/zoom, vbH = H/zoom; const vbX = (W-vbW)/2, vbY = (H-vbH)/2; return `${vbX} ${vbY} ${vbW} ${vbH}`; })()} width="100%" style={{ background: "#1a1a2e", borderRadius: 10, cursor: "pointer", maxHeight: 520, display: "block" }}>
+      <svg viewBox={`${vbX} ${vbY} ${vbW} ${vbH}`} width="100%" style={{ background: "#1a1a2e", borderRadius: 10, cursor: "pointer", maxHeight: 520, display: "block" }}>
       <defs>
         <filter id="textShadow" x="-20%" y="-20%" width="140%" height="140%">
           <feDropShadow dx="0" dy="0" stdDeviation="1.5" floodColor="#000000" floodOpacity="0.8"/>
         </filter>
       </defs>
-      {/* ArcGIS satellite basemap — rendered at full SVG coords so it zooms with viewBox */}
+      {/* ArcGIS satellite basemap — positioned in viewBox coords so it fills the visible area exactly at each zoom */}
       <image
-        href="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=-77.14,38.79,-76.90,39.02&bboxSR=4326&imageSR=4326&size=780,520&format=png&f=image"
-        x="0" y="0" width={W} height={H} preserveAspectRatio="none"
+        href={basemapUrl}
+        x={vbX} y={vbY} width={vbW} height={vbH} preserveAspectRatio="none"
         style={{ pointerEvents: "none" }}
       />
       {/* DC boundary rough polygon */}

@@ -671,6 +671,32 @@ const ORGANIZERS = [
   "Public Library System"
 ];
 
+const NYC_ZIPCODES = [
+  // Manhattan
+  { zip: '10001', name: 'Chelsea', borough: 'Manhattan', x: 262, y: 210 },
+  { zip: '10002', name: 'Lower East Side', borough: 'Manhattan', x: 270, y: 255 },
+  { zip: '10012', name: 'SoHo', borough: 'Manhattan', x: 265, y: 270 },
+  { zip: '10036', name: 'Midtown', borough: 'Manhattan', x: 260, y: 195 },
+  { zip: '10027', name: 'Harlem', borough: 'Manhattan', x: 258, y: 175 },
+  // Brooklyn
+  { zip: '11201', name: 'Brooklyn Heights', borough: 'Brooklyn', x: 295, y: 285 },
+  { zip: '11215', name: 'Park Slope', borough: 'Brooklyn', x: 308, y: 310 },
+  { zip: '11237', name: 'Bushwick', borough: 'Brooklyn', x: 345, y: 298 },
+  { zip: '11220', name: 'Bay Ridge', borough: 'Brooklyn', x: 300, y: 355 },
+  // Queens
+  { zip: '11354', name: 'Flushing', borough: 'Queens', x: 390, y: 205 },
+  { zip: '11375', name: 'Forest Hills', borough: 'Queens', x: 365, y: 250 },
+  { zip: '11101', name: 'Long Island City', borough: 'Queens', x: 330, y: 230 },
+  { zip: '11106', name: 'Astoria', borough: 'Queens', x: 330, y: 200 },
+  // Bronx
+  { zip: '10453', name: 'Morris Heights', borough: 'Bronx', x: 283, y: 118 },
+  { zip: '10456', name: 'Mott Haven', borough: 'Bronx', x: 298, y: 128 },
+  { zip: '10462', name: 'Westchester Sq', borough: 'Bronx', x: 322, y: 115 },
+  // Staten Island
+  { zip: '10301', name: 'St. George', borough: 'Staten Island', x: 165, y: 390 },
+  { zip: '10314', name: 'Travis', borough: 'Staten Island', x: 175, y: 415 },
+];
+
 const generateEvents = () => {
   const events = [];
   const startDate = new Date(2024, 0, 1);
@@ -715,6 +741,14 @@ const generateEvents = () => {
       verified: Math.random() > 0.2
     });
   }
+  
+  // Assign zip codes after borough is set
+  events.forEach(event => {
+    const matchingZips = NYC_ZIPCODES.filter(z => z.borough === event.borough);
+    const zipEntry = matchingZips[Math.floor(Math.random() * matchingZips.length)];
+    event.zip = zipEntry?.zip || '10001';
+    event.zipName = zipEntry?.name || 'Unknown';
+  });
   
   return events.sort((a, b) => new Date(b.date) - new Date(a.date));
 };
@@ -778,6 +812,17 @@ const getCategoryDistribution = () => {
   });
 };
 
+const getZipcodeStats = () => {
+  return NYC_ZIPCODES.map(zz => {
+    const zipEvents = SAMPLE_EVENTS.filter(e => e.zip === zz.zip && e.status === 'Completed');
+    return {
+      ...zz,
+      events: zipEvents.length,
+      attendance: zipEvents.reduce((s, e) => s + e.attendance, 0),
+    };
+  }).sort((a, b) => b.events - a.events);
+};
+
 const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
 
 export default function NYCEventsTracker() {
@@ -793,6 +838,7 @@ export default function NYCEventsTracker() {
   
   // Map state
   const [hoveredBorough, setHoveredBorough] = useState(null);
+  const [hoveredZip, setHoveredZip] = useState(null);
 
   const handleRefresh = () => {
     setLoading(true);
@@ -823,6 +869,7 @@ export default function NYCEventsTracker() {
   const platformData = getPlatformStats();
   const boroughData = getBoroughStats();
   const categoryData = getCategoryDistribution();
+  const zipcodeData = getZipcodeStats();
 
   return (
     <div className="nyc-root">
@@ -1329,19 +1376,27 @@ export default function NYCEventsTracker() {
             <div className="nyc-grid nyc-grid-2" style={{ marginBottom: 24 }}>
               <div className="nyc-card">
                 <div className="nyc-card-header">
-                  <div className="nyc-card-title">Borough Heatmap</div>
+                  <div className="nyc-card-title">Zipcode Event Density</div>
                 </div>
                 <div className="nyc-card-body">
                   <div className="nyc-map-container">
                     <svg className="nyc-map-svg" viewBox="0 0 600 500">
+                      {/* ArcGIS satellite background */}
+                      <image
+                        href="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=-74.26,40.47,-73.70,40.92&bboxSR=4326&imageSR=4326&size=600,500&format=png&f=image"
+                        x="0" y="0" width="600" height="500"
+                        preserveAspectRatio="none"
+                        style={{ pointerEvents: 'none' }}
+                      />
                       {/* Simplified NYC Borough Map */}
                       {/* Manhattan */}
                       <path 
                         className="nyc-borough"
                         d="M 250 150 L 270 140 L 275 200 L 290 250 L 285 320 L 270 350 L 260 340 L 255 280 L 245 220 Z"
                         fill={hoveredBorough === 'Manhattan' ? 'var(--yellow)' : 'var(--surface-3)'}
-                        opacity={boroughData.find(b => b.name === 'Manhattan')?.events ? 
-                          (boroughData.find(b => b.name === 'Manhattan').events / Math.max(...boroughData.map(b => b.events))) * 0.8 + 0.2 : 0.3}
+                        opacity={(boroughData.find(b => b.name === 'Manhattan')?.events ? 
+                          (boroughData.find(b => b.name === 'Manhattan').events / Math.max(...boroughData.map(b => b.events))) * 0.8 + 0.2 : 0.3) * 0.55}
+                        stroke="#ffffff" strokeWidth={1}
                         onMouseEnter={() => setHoveredBorough('Manhattan')}
                         onMouseLeave={() => setHoveredBorough(null)}
                       >
@@ -1353,8 +1408,9 @@ export default function NYCEventsTracker() {
                         className="nyc-borough"
                         d="M 290 250 L 310 260 L 350 290 L 370 330 L 360 370 L 320 380 L 285 360 L 270 350 Z"
                         fill={hoveredBorough === 'Brooklyn' ? 'var(--yellow)' : 'var(--surface-3)'}
-                        opacity={boroughData.find(b => b.name === 'Brooklyn')?.events ? 
-                          (boroughData.find(b => b.name === 'Brooklyn').events / Math.max(...boroughData.map(b => b.events))) * 0.8 + 0.2 : 0.3}
+                        opacity={(boroughData.find(b => b.name === 'Brooklyn')?.events ? 
+                          (boroughData.find(b => b.name === 'Brooklyn').events / Math.max(...boroughData.map(b => b.events))) * 0.8 + 0.2 : 0.3) * 0.55}
+                        stroke="#ffffff" strokeWidth={1}
                         onMouseEnter={() => setHoveredBorough('Brooklyn')}
                         onMouseLeave={() => setHoveredBorough(null)}
                       >
@@ -1366,8 +1422,9 @@ export default function NYCEventsTracker() {
                         className="nyc-borough"
                         d="M 310 180 L 370 200 L 410 240 L 420 280 L 390 300 L 350 290 L 310 260 L 290 250 L 275 200 Z"
                         fill={hoveredBorough === 'Queens' ? 'var(--yellow)' : 'var(--surface-3)'}
-                        opacity={boroughData.find(b => b.name === 'Queens')?.events ? 
-                          (boroughData.find(b => b.name === 'Queens').events / Math.max(...boroughData.map(b => b.events))) * 0.8 + 0.2 : 0.3}
+                        opacity={(boroughData.find(b => b.name === 'Queens')?.events ? 
+                          (boroughData.find(b => b.name === 'Queens').events / Math.max(...boroughData.map(b => b.events))) * 0.8 + 0.2 : 0.3) * 0.55}
+                        stroke="#ffffff" strokeWidth={1}
                         onMouseEnter={() => setHoveredBorough('Queens')}
                         onMouseLeave={() => setHoveredBorough(null)}
                       >
@@ -1379,8 +1436,9 @@ export default function NYCEventsTracker() {
                         className="nyc-borough"
                         d="M 250 100 L 300 90 L 340 110 L 350 150 L 310 180 L 270 140 Z"
                         fill={hoveredBorough === 'Bronx' ? 'var(--yellow)' : 'var(--surface-3)'}
-                        opacity={boroughData.find(b => b.name === 'Bronx')?.events ? 
-                          (boroughData.find(b => b.name === 'Bronx').events / Math.max(...boroughData.map(b => b.events))) * 0.8 + 0.2 : 0.3}
+                        opacity={(boroughData.find(b => b.name === 'Bronx')?.events ? 
+                          (boroughData.find(b => b.name === 'Bronx').events / Math.max(...boroughData.map(b => b.events))) * 0.8 + 0.2 : 0.3) * 0.55}
+                        stroke="#ffffff" strokeWidth={1}
                         onMouseEnter={() => setHoveredBorough('Bronx')}
                         onMouseLeave={() => setHoveredBorough(null)}
                       >
@@ -1392,8 +1450,9 @@ export default function NYCEventsTracker() {
                         className="nyc-borough"
                         d="M 150 370 L 200 360 L 220 390 L 210 430 L 170 440 L 140 420 Z"
                         fill={hoveredBorough === 'Staten Island' ? 'var(--yellow)' : 'var(--surface-3)'}
-                        opacity={boroughData.find(b => b.name === 'Staten Island')?.events ? 
-                          (boroughData.find(b => b.name === 'Staten Island').events / Math.max(...boroughData.map(b => b.events))) * 0.8 + 0.2 : 0.3}
+                        opacity={(boroughData.find(b => b.name === 'Staten Island')?.events ? 
+                          (boroughData.find(b => b.name === 'Staten Island').events / Math.max(...boroughData.map(b => b.events))) * 0.8 + 0.2 : 0.3) * 0.55}
+                        stroke="#ffffff" strokeWidth={1}
                         onMouseEnter={() => setHoveredBorough('Staten Island')}
                         onMouseLeave={() => setHoveredBorough(null)}
                       >
@@ -1406,19 +1465,45 @@ export default function NYCEventsTracker() {
                       <text x="360" y="230" fontSize="12" fill="var(--text)" textAnchor="middle" pointerEvents="none">Queens</text>
                       <text x="295" y="130" fontSize="12" fill="var(--text)" textAnchor="middle" pointerEvents="none">Bronx</text>
                       <text x="180" y="400" fontSize="12" fill="var(--text)" textAnchor="middle" pointerEvents="none">Staten Is.</text>
+
+                      {/* Zipcode markers */}
+                      {zipcodeData.map(zz => {
+                        const maxEvents = Math.max(...zipcodeData.map(z => z.events), 1);
+                        const intensity = zz.events / maxEvents;
+                        const r = 6 + intensity * 8;
+                        const color = hoveredZip === zz.zip ? '#ffffff' : 
+                          intensity > 0.7 ? '#f7df1e' : intensity > 0.4 ? '#fbbf24' : '#10b981';
+                        return (
+                          <g key={zz.zip}
+                            onMouseEnter={() => setHoveredZip(zz.zip)}
+                            onMouseLeave={() => setHoveredZip(null)}
+                            style={{ cursor: 'pointer' }}
+                          >
+                            <circle cx={zz.x} cy={zz.y} r={r + 4} fill={color} opacity={0.25} />
+                            <circle cx={zz.x} cy={zz.y} r={r} fill={color} opacity={0.85} stroke="#000" strokeWidth={1}/>
+                            <title>{zz.zip} {zz.name}: {zz.events} events, {zz.attendance.toLocaleString()} attendance</title>
+                            {hoveredZip === zz.zip && (
+                              <text x={zz.x} y={zz.y - r - 4} fontSize="9" fill="#ffffff" textAnchor="middle" fontWeight="bold" pointerEvents="none">{zz.zip}</text>
+                            )}
+                          </g>
+                        );
+                      })}
                     </svg>
                     
                     <div className="nyc-map-legend">
-                      <div className="nyc-legend-title">Event Density</div>
-                      {boroughData.sort((a, b) => b.events - a.events).map((borough, idx) => (
-                        <div key={idx} className="nyc-legend-item">
-                          <div className="nyc-legend-color" style={{ 
-                            background: COLORS[idx % COLORS.length],
-                            opacity: borough.events / Math.max(...boroughData.map(b => b.events))
-                          }} />
-                          <span>{borough.name}: {borough.events}</span>
-                        </div>
-                      ))}
+                      <div className="nyc-legend-title">Zipcode Markers</div>
+                      <div className="nyc-legend-item">
+                        <div className="nyc-legend-color" style={{ background: '#f7df1e' }} />
+                        <span>High density (&gt;70%)</span>
+                      </div>
+                      <div className="nyc-legend-item">
+                        <div className="nyc-legend-color" style={{ background: '#fbbf24' }} />
+                        <span>Medium (40–70%)</span>
+                      </div>
+                      <div className="nyc-legend-item">
+                        <div className="nyc-legend-color" style={{ background: '#10b981' }} />
+                        <span>Low (&lt;40%)</span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1426,43 +1511,25 @@ export default function NYCEventsTracker() {
 
               <div className="nyc-card">
                 <div className="nyc-card-header">
-                  <div className="nyc-card-title">Borough Performance Metrics</div>
+                  <div className="nyc-card-title">Top Zipcodes by Attendance</div>
                 </div>
                 <div className="nyc-card-body">
-                  {boroughData.sort((a, b) => b.attendance - a.attendance).map((borough, idx) => (
-                    <div key={idx} style={{ marginBottom: '24px' }}>
-                      <div style={{ 
-                        display: 'flex', 
-                        justifyContent: 'space-between',
-                        marginBottom: '8px',
-                        alignItems: 'center'
-                      }}>
-                        <span style={{ fontSize: '14px', fontWeight: '600' }}>{borough.name}</span>
-                        <span style={{ 
-                          fontSize: '18px', 
-                          fontWeight: '700',
-                          fontFamily: 'var(--mono)',
-                          color: COLORS[idx % COLORS.length]
-                        }}>
-                          {borough.attendance.toLocaleString()}
+                  {zipcodeData.slice(0, 10).map((zz, idx) => (
+                    <div key={idx} style={{ marginBottom: 16 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, alignItems: 'center' }}>
+                        <span style={{ fontSize: 13, fontWeight: 600 }}>
+                          <span style={{ fontFamily: 'var(--mono)', color: 'var(--yellow)', marginRight: 8 }}>{zz.zip}</span>
+                          {zz.name}
+                        </span>
+                        <span style={{ fontSize: 15, fontWeight: 700, fontFamily: 'var(--mono)', color: COLORS[idx % COLORS.length] }}>
+                          {zz.attendance.toLocaleString()}
                         </span>
                       </div>
                       <div className="nyc-progress">
-                        <div 
-                          className="nyc-progress-fill"
-                          style={{ 
-                            width: `${(borough.attendance / Math.max(...boroughData.map(b => b.attendance))) * 100}%`,
-                            background: COLORS[idx % COLORS.length]
-                          }}
-                        />
+                        <div className="nyc-progress-fill" style={{ width: `${(zz.attendance / (zipcodeData[0]?.attendance || 1)) * 100}%`, background: COLORS[idx % COLORS.length] }} />
                       </div>
-                      <div style={{ 
-                        fontSize: '11px', 
-                        color: 'var(--text-dim)',
-                        marginTop: '4px',
-                        fontFamily: 'var(--mono)'
-                      }}>
-                        {borough.events} events • Avg: {borough.avgAttendance} attendees
+                      <div style={{ fontSize: 11, color: 'var(--text-dim)', marginTop: 3, fontFamily: 'var(--mono)' }}>
+                        {zz.events} events • {zz.borough}
                       </div>
                     </div>
                   ))}

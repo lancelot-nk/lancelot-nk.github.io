@@ -1,4 +1,4 @@
-import { useState, lazy, Suspense } from 'react';
+import { useState, useRef, useEffect, lazy, Suspense } from 'react';
 import { ChevronDown, ChevronUp, Code, Clock, ExternalLink } from 'lucide-react';
 import JsxViewer from '../JsxViewer';
 
@@ -130,8 +130,11 @@ function NotebookFallback() {
   );
 }
 
-function ProjectTile({ project, i }) {
+function ProjectTile({ project, i, resetToken }) {
   const [open, setOpen] = useState(false);
+
+  // Close (and unload) when parent signals that section is no longer visible
+  useEffect(() => { if (resetToken > 0) setOpen(false); }, [resetToken]);
 
   return (
     // ps-tile-wrap: 70% centered on desktop, full-width on mobile
@@ -256,6 +259,20 @@ function ComingSoonTile({ i }) {
 }
 
 export default function ProjectsSection() {
+  const outerRef = useRef(null);
+  const [resetToken, setResetToken] = useState(0);
+
+  // When the section scrolls out of view, close & unload all project previews
+  useEffect(() => {
+    const el = outerRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (!entry.isIntersecting) setResetToken(t => t + 1); },
+      { threshold: 0 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
   return (
     <>
       {/* ── Responsive layout styles ─────────────────────────────────── */}
@@ -366,8 +383,8 @@ export default function ProjectsSection() {
         }
       `}</style>
 
-      <div className="ps-outer" style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-        {PROJECTS.map((p, i) => <ProjectTile key={p.title} project={p} i={i} />)}
+      <div ref={outerRef} className="ps-outer" style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+        {PROJECTS.map((p, i) => <ProjectTile key={p.title} project={p} i={i} resetToken={resetToken} />)}
 
         <div style={{
           height: 1,
