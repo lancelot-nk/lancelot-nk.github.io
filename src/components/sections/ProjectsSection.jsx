@@ -271,9 +271,9 @@ export default function ProjectsSection() {
         }
         .ps-preview-wrap::-webkit-scrollbar-thumb:hover { filter: brightness(1.08); }
 
-        /* Desktop: 20% taller preview container */
+        /* Desktop: 20% taller preview container (expanded by 20%) */
         @media (min-width: 641px) {
-          .ps-preview-wrap { max-height: 86vh; }
+          .ps-preview-wrap { max-height: min(100vh, calc(86vh * 1.2)); }
         }
 
         /* Mobile: scale preview content down so it fits without horizontal scroll */
