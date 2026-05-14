@@ -10,6 +10,7 @@ const LazyMockHRA          = lazy(() => import('../../projects/MockHRA'));
 const LazyOilTrainRisk     = lazy(() => import('../../projects/OilTrainRiskDC'));
 const LazyNYCEvents        = lazy(() => import('../../projects/NYCEventsSimulation'));
 const LazySolarDonor       = lazy(() => import('../../projects/SolarDonorIntelligence'));
+const LazyFinOpsDash       = lazy(() => import('../../projects/FinOpsDashboard'));
 
 // ── Image Imports ────────────────────────────────────────────────────────────
 import img1 from '../../assets/project1.jpg';
@@ -22,6 +23,7 @@ import img7 from '../../assets/project_mock_hra.jpg';
 import img8 from '../../assets/project_oil_train.jpg';
 import img9  from '../../assets/project_nyc_events.jpg';
 import img10 from '../../assets/project_solar_donor.jpg';
+import img11 from '../../assets/project_finops.jpg';
 
 // ── Brand Colors ─────────────────────────────────────────────────────────────
 const PINK   = '#B8004E';
@@ -40,6 +42,15 @@ export const PROJECTS = [
     type: 'jsx',
     component: LazyMockHRA,
     img: img7,
+  },
+  {
+    title: 'FinOps Cloud Cost Dashboard',
+    desc: 'Multi-cloud FinOps console — billing centers with monthly spend analysis, anomaly detection, risk audit, allocation maps, and rolling forecast charts across AWS, Azure, and GCP.',
+    tech: ['React', 'FinOps', 'AWS', 'Azure', 'GCP', 'NIST CSF', 'Cloud Governance'],
+    link: '/finops_dashboard.jsx',
+    type: 'jsx',
+    component: LazyFinOpsDash,
+    img: img11,
   },
   {
     title: 'DC Oil Train Environmental Risk',
