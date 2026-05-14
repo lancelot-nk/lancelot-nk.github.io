@@ -7,6 +7,7 @@ const IpynbViewer          = lazy(() => import('../IpynbViewer'));
 const LazyPrimeFields      = lazy(() => import('../../projects/PrimeFields'));
 const LazyInterestSwap     = lazy(() => import('../../projects/InterestSwapReport'));
 const LazyMockHRA          = lazy(() => import('../../projects/MockHRA'));
+const LazyOilTrainRisk     = lazy(() => import('../../projects/OilTrainRiskDC'));
 
 // ── Image Imports ────────────────────────────────────────────────────────────
 import img1 from '../../assets/project1.jpg';
@@ -16,6 +17,7 @@ import img4 from '../../assets/project4.jpg';
 import img5 from '../../assets/project_prime_fields.png';
 import img6 from '../../assets/project_interest_swap.jpg';
 import img7 from '../../assets/project_mock_hra.jpg';
+import img8 from '../../assets/project_oil_train.jpg';
 
 // ── Brand Colors ─────────────────────────────────────────────────────────────
 const PINK   = '#B8004E';
@@ -80,6 +82,15 @@ export const PROJECTS = [
     type: 'jsx',
     component: LazyMockHRA,
     img: img7,
+  },
+  {
+    title: 'DC Oil Train Environmental Risk',
+    desc: 'Government-grade risk analysis of crude-by-rail corridors through DC — interactive SVG map, waterway impact zones, population density, and regulatory compliance matrix.',
+    tech: ['React', 'SVG Maps', 'Environmental Policy', 'Rail Safety', 'Government Analysis'],
+    link: '/oil_train_risk_dc.jsx',
+    type: 'jsx',
+    component: LazyOilTrainRisk,
+    img: img8,
   },
 ];
 
