@@ -7,22 +7,22 @@ const STYLES = `
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --bg: #0a0a0f;
-    --surface: #141420;
-    --surface-2: #1a1a2e;
-    --surface-3: #252538;
-    --yellow: #f7df1e;
-    --yellow-dim: rgba(247,223,30,0.15);
-    --green: #10b981;
-    --green-dim: rgba(16,185,129,0.15);
-    --red: #ef4444;
-    --red-dim: rgba(239,68,68,0.15);
-    --blue: #3b82f6;
-    --text: #e5e7eb;
-    --text-muted: #9ca3af;
-    --text-dim: #6b7280;
-    --border: #1f2937;
-    --border-bright: #374151;
+    --bg: #f1f5f9;
+    --surface: #ffffff;
+    --surface-2: #f8fafc;
+    --surface-3: #e2e8f0;
+    --yellow: #2563eb;
+    --yellow-dim: rgba(37,99,235,0.10);
+    --green: #059669;
+    --green-dim: rgba(5,150,105,0.10);
+    --red: #dc2626;
+    --red-dim: rgba(220,38,38,0.10);
+    --blue: #2563eb;
+    --text: #0f172a;
+    --text-muted: #334155;
+    --text-dim: #64748b;
+    --border: #e2e8f0;
+    --border-bright: #cbd5e1;
     --mono: 'JetBrains Mono', monospace;
     --sans: 'Inter', sans-serif;
   }
@@ -60,7 +60,7 @@ const STYLES = `
     align-items: center;
     justify-content: center;
     font-weight: 700;
-    color: var(--bg);
+    color: #ffffff;
     font-size: 18px;
   }
 
@@ -587,22 +587,22 @@ const STYLES = `
 
   /* SQL Viewer */
   .nyc-sql-viewer {
-    background: #1a1a2e;
+    background: #0f172a;
     border: 1px solid var(--border);
     border-radius: 8px;
     padding: 20px;
     font-family: var(--mono);
     font-size: 13px;
-    color: var(--text);
+    color: #e2e8f0;
     overflow-x: auto;
     margin-top: 16px;
   }
 
-  .nyc-sql-keyword { color: #ff79c6; }
-  .nyc-sql-table { color: #8be9fd; }
-  .nyc-sql-field { color: #50fa7b; }
-  .nyc-sql-string { color: #f1fa8c; }
-  .nyc-sql-comment { color: var(--text-dim); font-style: italic; }
+  .nyc-sql-keyword { color: #a78bfa; }
+  .nyc-sql-table { color: #38bdf8; }
+  .nyc-sql-field { color: #34d399; }
+  .nyc-sql-string { color: #fbbf24; }
+  .nyc-sql-comment { color: #64748b; font-style: italic; }
 
   /* Footer */
   .nyc-footer {
@@ -1067,8 +1067,8 @@ export default function NYCEventsTracker() {
                       <svg viewBox={`0 0 ${W} ${H}`} width="100%">
                         <defs>
                           <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#f7df1e" stopOpacity={0.3}/>
-                            <stop offset="95%" stopColor="#f7df1e" stopOpacity={0}/>
+                            <stop offset="5%" stopColor="#2563eb" stopOpacity={0.3}/>
+                            <stop offset="95%" stopColor="#2563eb" stopOpacity={0}/>
                           </linearGradient>
                         </defs>
                         {Array.from({ length: gridLines + 1 }, (_, i) => {
@@ -1082,10 +1082,10 @@ export default function NYCEventsTracker() {
                           );
                         })}
                         <path d={areaPath} fill="url(#areaGrad)"/>
-                        <polyline points={linePoints} fill="none" stroke="#f7df1e" strokeWidth={2}/>
+                        <polyline points={linePoints} fill="none" stroke="#2563eb" strokeWidth={2}/>
                         {monthlyData.map((d, i) => (
                           <g key={i}>
-                            <circle cx={toX(i)} cy={toY(d.events)} r={3} fill="#f7df1e"/>
+                            <circle cx={toX(i)} cy={toY(d.events)} r={3} fill="#2563eb"/>
                             <text x={toX(i)} y={H - 8} textAnchor="middle" fontSize={10} fill="#6b7280">{d.month}</text>
                             <title>{d.month}: {d.events} events</title>
                           </g>
@@ -1176,9 +1176,9 @@ export default function NYCEventsTracker() {
                           const y = pad.top + i * gap + (gap - barH) / 2;
                           return (
                             <g key={i}>
-                              <rect x={pad.left} y={y} width={barW} height={barH} fill="#f7df1e" rx={3}/>
+                              <rect x={pad.left} y={y} width={barW} height={barH} fill="#2563eb" rx={3}/>
                               <text x={pad.left - 8} y={y + barH / 2 + 4} textAnchor="end" fontSize={10} fill="#6b7280">{d.name}</text>
-                              <text x={pad.left + barW + 5} y={y + barH / 2 + 4} textAnchor="start" fontSize={9} fill="#f7df1e">{d.events}</text>
+                              <text x={pad.left + barW + 5} y={y + barH / 2 + 4} textAnchor="start" fontSize={9} fill="#2563eb">{d.events}</text>
                               <title>{d.name}: {d.events} events</title>
                             </g>
                           );
@@ -1472,7 +1472,7 @@ export default function NYCEventsTracker() {
                         const intensity = zz.events / maxEvents;
                         const r = 6 + intensity * 8;
                         const color = hoveredZip === zz.zip ? '#ffffff' : 
-                          intensity > 0.7 ? '#f7df1e' : intensity > 0.4 ? '#fbbf24' : '#10b981';
+                          intensity > 0.7 ? '#dc2626' : intensity > 0.4 ? '#f97316' : '#059669';
                         return (
                           <g key={zz.zip}
                             onMouseEnter={() => setHoveredZip(zz.zip)}
@@ -1493,11 +1493,11 @@ export default function NYCEventsTracker() {
                     <div className="nyc-map-legend">
                       <div className="nyc-legend-title">Zipcode Markers</div>
                       <div className="nyc-legend-item">
-                        <div className="nyc-legend-color" style={{ background: '#f7df1e' }} />
+                        <div className="nyc-legend-color" style={{ background: '#dc2626' }} />
                         <span>High density (&gt;70%)</span>
                       </div>
                       <div className="nyc-legend-item">
-                        <div className="nyc-legend-color" style={{ background: '#fbbf24' }} />
+                        <div className="nyc-legend-color" style={{ background: '#f97316' }} />
                         <span>Medium (40–70%)</span>
                       </div>
                       <div className="nyc-legend-item">
