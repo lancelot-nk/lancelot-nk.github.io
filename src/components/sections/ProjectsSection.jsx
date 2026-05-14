@@ -11,6 +11,7 @@ const LazyOilTrainRisk     = lazy(() => import('../../projects/OilTrainRiskDC'))
 const LazyNYCEvents        = lazy(() => import('../../projects/NYCEventsSimulation'));
 const LazySolarDonor       = lazy(() => import('../../projects/SolarDonorIntelligence'));
 const LazyFinOpsDash       = lazy(() => import('../../projects/FinOpsDashboard'));
+const LazyHomelessSvc      = lazy(() => import('../../projects/HomelessServicesDashboard'));
 
 // ── Image Imports ────────────────────────────────────────────────────────────
 import img1 from '../../assets/project1.jpg';
@@ -24,6 +25,7 @@ import img8 from '../../assets/project_oil_train.jpg';
 import img9  from '../../assets/project_nyc_events.jpg';
 import img10 from '../../assets/project_solar_donor.jpg';
 import img11 from '../../assets/project_finops.jpg';
+import img12 from '../../assets/project_homeless_services.jpg';
 
 // ── Brand Colors ─────────────────────────────────────────────────────────────
 const PINK   = '#B8004E';
@@ -53,13 +55,13 @@ export const PROJECTS = [
     img: img11,
   },
   {
-    title: 'DC Oil Train Environmental Risk',
-    desc: 'Government-grade risk analysis of crude-by-rail corridors through DC — interactive SVG map, waterway impact zones, population density, and regulatory compliance matrix.',
-    tech: ['React', 'SVG Maps', 'Environmental Policy', 'Rail Safety', 'Government Analysis'],
-    link: '/oil_train_risk_dc.jsx',
+    title: 'Homeless Services Case Management',
+    desc: 'Simulated HMIS-style backend for homeless services — client intake, shelter bed tracking, case management pipeline, outcome reporting, and compliance analytics modeled on real municipal systems.',
+    tech: ['React', 'HMIS', 'Social Services', 'Case Management', 'Government Systems'],
+    link: '/homeless_services_dashboard.jsx',
     type: 'jsx',
-    component: LazyOilTrainRisk,
-    img: img8,
+    component: LazyHomelessSvc,
+    img: img12,
   },
   {
     title: 'NYC Events Management System',
@@ -69,6 +71,15 @@ export const PROJECTS = [
     type: 'jsx',
     component: LazyNYCEvents,
     img: img9,
+  },
+  {
+    title: 'DC Oil Train Environmental Risk',
+    desc: 'Government-grade risk analysis of crude-by-rail corridors through DC — interactive SVG map, waterway impact zones, population density, and regulatory compliance matrix.',
+    tech: ['React', 'SVG Maps', 'Environmental Policy', 'Rail Safety', 'Government Analysis'],
+    link: '/oil_train_risk_dc.jsx',
+    type: 'jsx',
+    component: LazyOilTrainRisk,
+    img: img8,
   },
   {
     title: 'Solar Donor Intelligence',
