@@ -8,6 +8,8 @@ const LazyPrimeFields      = lazy(() => import('../../projects/PrimeFields'));
 const LazyInterestSwap     = lazy(() => import('../../projects/InterestSwapReport'));
 const LazyMockHRA          = lazy(() => import('../../projects/MockHRA'));
 const LazyOilTrainRisk     = lazy(() => import('../../projects/OilTrainRiskDC'));
+const LazyNYCEvents        = lazy(() => import('../../projects/NYCEventsSimulation'));
+const LazySolarDonor       = lazy(() => import('../../projects/SolarDonorIntelligence'));
 
 // ── Image Imports ────────────────────────────────────────────────────────────
 import img1 from '../../assets/project1.jpg';
@@ -18,6 +20,8 @@ import img5 from '../../assets/project_prime_fields.png';
 import img6 from '../../assets/project_interest_swap.jpg';
 import img7 from '../../assets/project_mock_hra.jpg';
 import img8 from '../../assets/project_oil_train.jpg';
+import img9  from '../../assets/project_nyc_events.jpg';
+import img10 from '../../assets/project_solar_donor.jpg';
 
 // ── Brand Colors ─────────────────────────────────────────────────────────────
 const PINK   = '#B8004E';
@@ -45,6 +49,24 @@ export const PROJECTS = [
     type: 'jsx',
     component: LazyOilTrainRisk,
     img: img8,
+  },
+  {
+    title: 'NYC Events Management System',
+    desc: 'Citywide event tracking and analytics platform — filterable event calendar, Cvent/Eventbrite/Partiful platform comparisons, borough heatmap, SQL schema architecture, and AI-style outcome assertions.',
+    tech: ['React', 'SVG Charts', 'Cvent', 'Eventbrite', 'SQL', 'Event Analytics'],
+    link: '/nyc_events_simulation.jsx',
+    type: 'jsx',
+    component: LazyNYCEvents,
+    img: img9,
+  },
+  {
+    title: 'Solar Donor Intelligence',
+    desc: 'Donor intelligence and prospect research platform for solar/clean energy — verified donor profiles, clout scoring, interest distribution analysis, and geographic targeting.',
+    tech: ['React', 'Donor Analytics', 'Clean Energy', 'CRM Intelligence', 'Prospect Research'],
+    link: '/solar_donor_intelligence.jsx',
+    type: 'jsx',
+    component: LazySolarDonor,
+    img: img10,
   },
   {
     title: 'Python & Statistics Analysis',
