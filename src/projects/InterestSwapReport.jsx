@@ -223,7 +223,7 @@ ${petInst || "[Institution]"}${petState ? `, ${petState}` : ""}`
       <div style={{ background: C.bg, color: C.text, fontFamily: F.body, minHeight: "100vh", width: "100%" }}>
 
         {/* ╔══════ HEADER ══════╗ */}
-        <div style={{ background: C.surface, borderBottom: `1px solid ${C.border}`, padding: "44px 52px 36px" }} className="sr-header">
+        <div style={{ background: C.surface, borderBottom: `1px solid ${C.border}`, padding: "44px 156px 36px" }} className="sr-header">
           <div style={eyebrow}>Policy & Financial Analysis · Interest Rate Derivatives · Post-2008</div>
           <h1 style={{ fontFamily: F.head, fontSize: "clamp(26px,3.8vw,50px)", fontWeight: 900, lineHeight: 1.06, color: C.text, maxWidth: "90%", marginBottom: 20 }}>
             The Financialization of Higher Education:<br />
@@ -251,7 +251,7 @@ ${petInst || "[Institution]"}${petState ? `, ${petState}` : ""}`
         </div>
 
         {/* ╔══════ TAB BAR ══════╗ */}
-        <div style={{ display: "flex", background: C.surface, borderBottom: `1px solid ${C.border}`, padding: "0 52px", overflowX: "auto" }} className="sr-tabbar">
+        <div style={{ display: "flex", background: C.surface, borderBottom: `1px solid ${C.border}`, padding: "0 156px", overflowX: "auto" }} className="sr-tabbar">
           {[
             { id: "report",   label: "I. Research Report" },
             { id: "strategy", label: "II. Strategy & Petition" },
@@ -264,7 +264,7 @@ ${petInst || "[Institution]"}${petState ? `, ${petState}` : ""}`
 
         {/* ╔══════ TAB: REPORT ══════╗ */}
         {tab === "report" && (
-          <div style={{ padding: "52px 52px 80px" }} className="sr-content">
+          <div style={{ padding: "52px 156px 80px" }} className="sr-content">
 
             {/* HOW SWAPS WORK */}
             <div style={{ marginBottom: 64 }}>
@@ -423,7 +423,7 @@ ${petInst || "[Institution]"}${petState ? `, ${petState}` : ""}`
 
         {/* ╔══════ TAB: STRATEGY ══════╗ */}
         {tab === "strategy" && (
-          <div style={{ padding: "52px 52px 80px" }} className="sr-content">
+          <div style={{ padding: "52px 156px 80px" }} className="sr-content">
 
             {/* POLICY RECS */}
             <div style={{ marginBottom: 64 }}>
@@ -561,7 +561,7 @@ ${petInst || "[Institution]"}${petState ? `, ${petState}` : ""}`
         )}
 
         {/* ╔══════ FOOTER ══════╗ */}
-        <div style={{ background: C.surface, borderTop: `1px solid ${C.border}`, padding: "28px 52px", fontSize: 11, color: C.dim, lineHeight: 1.8, fontFamily: F.mono }} className="sr-footer">
+        <div style={{ background: C.surface, borderTop: `1px solid ${C.border}`, padding: "28px 156px", fontSize: 11, color: C.dim, lineHeight: 1.8, fontFamily: F.mono }} className="sr-footer">
           <div><span style={{ color: C.muted }}>Analysis & Interface Design:</span> Lancelot Naipier-Kane</div>
           <div style={{ marginTop: 6 }}><span style={{ color: C.muted }}>Real Data Sources:</span> Roosevelt Institute (2016), "The Financialization of Higher Education"; Time / Fortune (September 2016); Cornell Daily Sun (September 2016); The Hechinger Report; Action Center on Race and the Economy; NCES Digest of Education Statistics (average tuition 2000–2024); Federal Reserve / College Board (average student debt 2000–2024); FRB LIBOR historical rate data.</div>
           <div style={{ marginTop: 6 }}><span style={{ color: C.muted }}>Estimated Data:</span> Swap loss figures for Columbia, UPenn, UC Berkeley, Univ. of Pittsburgh, Ohio State, Wayne State, and CUNY are estimated using Roosevelt Institute published methodology applied to comparable institutional debt profiles. Clearly noted in all tooltips. Confirmed figures: Harvard ($1.25B), Cornell ($280M+), Michigan State ($130.2M), Univ. of Michigan ($86M+).</div>

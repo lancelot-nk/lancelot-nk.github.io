@@ -6,6 +6,7 @@ import JsxViewer from '../JsxViewer';
 const IpynbViewer          = lazy(() => import('../IpynbViewer'));
 const LazyPrimeFields      = lazy(() => import('../../projects/PrimeFields'));
 const LazyInterestSwap     = lazy(() => import('../../projects/InterestSwapReport'));
+const LazyMockHRA          = lazy(() => import('../../projects/MockHRA'));
 
 // ── Image Imports ────────────────────────────────────────────────────────────
 import img1 from '../../assets/project1.jpg';
@@ -14,6 +15,7 @@ import img3 from '../../assets/project3.jpg';
 import img4 from '../../assets/project4.jpg';
 import img5 from '../../assets/project_prime_fields.png';
 import img6 from '../../assets/project_interest_swap.jpg';
+import img7 from '../../assets/project_mock_hra.jpg';
 
 // ── Brand Colors ─────────────────────────────────────────────────────────────
 const PINK   = '#B8004E';
@@ -69,6 +71,15 @@ export const PROJECTS = [
     type: 'jsx',
     component: LazyInterestSwap,
     img: img6,
+  },
+  {
+    title: 'Mock NYC HRA SNAP System',
+    desc: 'Simulated NYC Human Resources Administration intake & case management — SNAP eligibility determination, pipeline kanban, and compliance analytics.',
+    tech: ['React', 'Tailwind', 'Social Policy', 'Government Systems', 'Data Simulation'],
+    link: '/mock_hra.jsx',
+    type: 'jsx',
+    component: LazyMockHRA,
+    img: img7,
   },
 ];
 
