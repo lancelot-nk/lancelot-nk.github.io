@@ -56,41 +56,41 @@ const TIMELINE = [
   { year: 2000, label: "Borrowing Boom Begins", sev: "neutral",
     body: "Universities begin issuing variable-rate bonds at scale to fund capital expansions — luxury dormitories, recreation centers, athletic stadiums. Wall Street banks introduce interest rate swap products promising stable, lower-cost borrowing. Schools with small investment committees enter negotiations against sophisticated bank analysts." },
   { year: 2005, label: "Swap Deals Peak", sev: "warn",
-    body: "Banks aggressively market interest rate swaps across higher education. A later Roosevelt Institute survey found 58% of sampled institutions hold swaps. Contract terms extend up to 30 years — longer than those issued to any other sector. The 'inherently unfair' information asymmetry between schools and banks is already embedded in every contract." },
-  { year: 2006, label: "LIBOR Manipulation Begins", sev: "danger",
-    body: "16 of the world's largest banks begin colluding to manipulate LIBOR — the London Interbank Offered Rate — which determines the variable-rate payments banks owe universities under swap agreements. A change of just one one-hundredth of a percent means tens of billions in bank profits. Global regulators in the U.S., U.K., Europe, Japan, and Canada would later launch investigations." },
-  { year: 2008, label: "Financial Crisis — The Trap Springs", sev: "crisis",
-    body: "Lehman Brothers collapses September 15. The Federal Reserve cuts rates to near-zero. LIBOR plunges from 5.25% to below 0.5%. Swap deals invert overnight: banks stop paying meaningful variable rates while universities must continue paying 4.5–5.5% fixed. Harvard's President Larry Summers, former Secretary of the Treasury, terminates the university's swaps — paying $1.25 billion in termination fees alone." },
-  { year: 2009, label: "The Trap Closes", sev: "crisis",
-    body: "LIBOR sits near 0.24%. Universities still pay 4.5–5.5% fixed. The spread means schools effectively pay up to 50× what their bank counterparties pay them. Termination fees — calculated on the net present value of all remaining future payments — make exiting prohibitively expensive. Tuition increases begin accelerating as institutions pass costs to students." },
+    body: "Financial institutions marketed interest rate swaps broadly across higher education. A later Roosevelt Institute survey found 58% of sampled institutions held swaps. Contract terms extended up to 30 years — longer than those issued to any other sector. A notable information asymmetry existed between university finance committees and bank counterparties with dedicated derivatives expertise." },
+  { year: 2006, label: "LIBOR Manipulation Investigation Period", sev: "danger",
+    body: "Beginning around this period, 16 of the world's largest banks were later found by global regulators to have manipulated LIBOR — the London Interbank Offered Rate — which determined the variable-rate payments owed to universities under swap agreements. A change of just one one-hundredth of a percent in LIBOR represented tens of billions in aggregate payment differences. Investigations were ultimately launched by regulatory authorities in the U.S., U.K., Europe, Japan, and Canada." },
+  { year: 2008, label: "Financial Crisis — Rate Environment Inverts", sev: "crisis",
+    body: "Lehman Brothers collapses September 15. The Federal Reserve cuts rates to near-zero. LIBOR declines from 5.25% to below 0.5%. Swap agreements invert: bank variable payments to universities approach zero while universities continue paying fixed rates of 4.5–5.5%. Harvard terminates its swap portfolio, incurring $1.25 billion in termination fees. Early exit costs at other institutions similarly constrain options." },
+  { year: 2009, label: "Sustained Rate Divergence", sev: "crisis",
+    body: "LIBOR holds near 0.24%. Universities continue paying 4.5–5.5% fixed. The spread results in net payment obligations up to 50× what counterparty banks remit. Termination fees — calculated on the net present value of all remaining future payments — represent substantial exit barriers. Institutions begin reflecting increased debt service costs in tuition adjustments." },
   { year: 2012, label: "Debt Burden Deepens", sev: "danger",
     body: "Per-student debt interest payments rose 45% at public colleges, 23% at private institutions, and 76% at community colleges between 2003 and 2012. Only 25% of all interest payments went to instruction-related construction. The rest funded amenities arms races and absorbed financial instrument losses. Average student debt reaches $29,400." },
   { year: 2014, label: "Rutgers' Century Bond", sev: "warn",
-    body: "Rutgers, still hemorrhaging from four long-term swap contracts, issues a 100-year 'century bond' (maturing in 2119) to generate funds to exit the agreements — a stark illustration of how deeply schools were trapped. Credit rating downgrades at cash-strapped institutions made future borrowing even more costly." },
-  { year: 2016, label: "Roosevelt Institute: 'Rigged'", sev: "action",
-    body: "The Roosevelt Institute publishes landmark research on higher education financialization. Nineteen schools studied. Total documented losses: $2.7 billion — enough to pay tuition for 108,000 students. Cornell alone: $280M+. LIBOR manipulation confirmed by global regulators. Calls for transparency, debt renegotiation, and structural reform intensify nationwide." },
+    body: "Rutgers, managing obligations from four long-term swap contracts, issues a 100-year 'century bond' (maturing in 2119) to generate liquidity to exit the agreements — illustrating the cost constraints associated with long-duration swap termination. Credit rating adjustments at institutions with elevated debt service made future borrowing more expensive." },
+  { year: 2016, label: "Roosevelt Institute: Financialization Report", sev: "action",
+    body: "The Roosevelt Institute publishes landmark research on higher education financialization. Nineteen schools studied. Total documented losses: $2.7 billion — equivalent to tuition for approximately 108,000 students. Cornell alone: $280M+. LIBOR manipulation findings confirmed by global regulators. Research prompts discussion of transparency standards, debt renegotiation frameworks, and structural reform." },
   { year: 2021, label: "LIBOR Discontinued", sev: "neutral",
-    body: "LIBOR is officially phased out globally, replaced by SOFR (Secured Overnight Financing Rate). Remaining swap contracts must transition. The lasting reckoning: an entire generation of students paid higher tuition — partly — to subsidize bank profits on deliberately manipulated financial contracts built on fabricated benchmark rates." },
+    body: "LIBOR is officially phased out globally, replaced by SOFR (Secured Overnight Financing Rate). Remaining swap contracts transition to the new benchmark. This period coincides with broader reflection on the long-term institutional and student costs associated with the interest rate environment following the 2008 financial crisis, and with ongoing benchmark rate governance reform." },
 ];
 
 const POLICY_RECS = [
   { id: 1, title: "Mandatory Public Swap Disclosure", audience: "Administrators & Boards",
-    body: "Require all public institutions to annually disclose outstanding swap notional values, net payments, termination fee exposure, and counterparty bank identities in accessible public formats. Students and state legislators cannot make informed decisions about institutions whose financial risks are hidden in footnotes.",
+    body: "Require all public institutions to annually disclose outstanding swap notional values, net payments, termination fee exposure, and counterparty bank identities in accessible public formats. Without standardized public disclosure, students and state legislators lack the information necessary to evaluate an institution's full financial position.",
     status: "Partially implemented in select states. No federal disclosure standard exists." },
   { id: 2, title: "Trustee Conflict of Interest Recusal", audience: "Governing Boards",
-    body: "Any board member receiving compensation from a financial institution doing business with their university must recuse from all related financial decisions and publicly disclose those relationships. Documented conflicts of interest — as in the UC system — allowed predatory deal structures to proceed unchallenged.",
+    body: "Any board member receiving compensation from a financial institution doing business with their university should recuse from all related financial decisions and publicly disclose those relationships. Documented conflicts of interest, as noted in research on the UC system, raise questions about the independence of financial agreement oversight.",
     status: "Voluntary at most institutions. Legislation pending in several states." },
   { id: 3, title: "Renegotiation Under Misrepresentation", audience: "Legal Departments",
-    body: "Swaps were marketed as risk protection instruments, not speculative 30-year bets. Misrepresentation in sales may constitute legal grounds for renegotiation or restitution. Detroit reduced swap-related bank payments from $230 million to $85 million by exposing invalidity. Universities should pursue equivalent legal strategies.",
+    body: "Swaps were marketed as interest rate risk management instruments; however, the realized payment dynamics in a sustained low-rate environment differed materially from projected outcomes at signing. Misrepresentation in sales may constitute legal grounds for renegotiation or restitution. Detroit reduced swap-related bank payments from $230 million to $85 million by establishing invalidity. This precedent may be applicable to affected universities.",
     status: "Legal basis exists on case-by-case basis. Detroit precedent directly applicable." },
   { id: 4, title: "Tuition Impact Line-Item Reporting", audience: "State Legislatures",
-    body: "Mandate that institutions annually quantify and disclose what portion of tuition increases is attributable to financial instrument costs and debt service obligations. Students deserve to understand the direct connection between Wall Street deals and their tuition bills.",
+    body: "Mandate that institutions annually quantify and disclose what portion of tuition increases is attributable to financial instrument costs and debt service obligations. Students and families benefit from transparency regarding the relationship between institutional financing decisions and tuition levels.",
     status: "No state has fully implemented this reporting requirement." },
   { id: 5, title: "Public Bond Underwriting Alternatives", audience: "Federal & State Policymakers",
-    body: "Enable consortiums of universities, cities, and states to access public bond underwriting outside private banking channels — reducing dependence on financial institutions that profit from information asymmetry and predatory contract structures.",
+    body: "Enable consortiums of universities, cities, and states to access public bond underwriting outside private banking channels — reducing reliance on private financial intermediaries and the structural cost premiums associated with complex derivative instruments.",
     status: "Limited pilots exist at state level. No federal framework." },
-  { id: 6, title: "Targeted Student Debt Relief for LIBOR Victims", audience: "Federal Government",
-    body: "Institutions with documented losses from illegal LIBOR manipulation should be eligible for targeted student debt relief proportional to confirmed overcharges passed to students. Restitution should reach those who ultimately bore the costs: students.",
+  { id: 6, title: "Targeted Student Debt Relief for LIBOR-Affected Institutions", audience: "Federal Government",
+    body: "Institutions with documented losses attributable to LIBOR manipulation during the relevant period should be eligible for targeted student debt relief proportional to confirmed overcharges passed to students. Restitution mechanisms should account for those who ultimately bore the cost differential.",
     status: "No existing federal mechanism. Requires direct federal advocacy and legislation." },
 ];
 
@@ -162,11 +162,11 @@ To University Leadership, Board of Trustees, and State Legislative Representativ
 
 My name is ${petName || "[Your Name]"}, ${petRole ? `a ${petRole}` : "[your title/role]"} at ${petInst || "[your institution]"}, ${petState || "[your state]"}.
 
-I am writing to urge immediate action on the predatory interest rate swap agreements that have extracted an estimated $2.7 billion from American universities — losses systematically passed on to students as higher tuition, reduced scholarships, and diminished academic resources.
+I am writing to request action on the interest rate swap agreements that resulted in an estimated $2.7 billion in documented institutional losses across American universities — costs that were partially reflected in tuition increases, reduced scholarships, and constrained academic resources.
 
-As documented by the Roosevelt Institute's landmark 2016 research, institutions across the country were deliberately misled by Wall Street banks about the nature of these instruments. Swaps were marketed as interest rate risk protection, not as 30-year speculative bets with exorbitant exit penalties. When the Federal Reserve cut rates to near-zero following the 2008 financial crisis, universities became trapped — paying up to 50× what their bank counterparties paid — on contracts built upon LIBOR rates we now know were illegally manipulated by sixteen major global banks.
+As documented by the Roosevelt Institute's 2016 research, institutions entered into interest rate swap agreements where the realized outcomes differed substantially from projected outcomes at signing. Swaps were marketed as interest rate risk management instruments; however, their 30-year terms and termination fee structures created substantial long-term payment obligations. When the Federal Reserve reduced rates to near-zero following the 2008 financial crisis, universities' net payment obligations increased substantially — paying up to 50× what their counterparties remitted — during a period in which LIBOR was subsequently confirmed by global regulators to have been manipulated by multiple major financial institutions, as documented in investigations by U.S., U.K., European, Japanese, and Canadian authorities.
 
-The cost was borne by students. Per-student debt interest payments rose 45% at public colleges and 76% at community colleges between 2003 and 2012. Harvard paid $1.25 billion to terminate its swaps. Cornell lost over $280 million. Michigan State lost $130 million while tuition rose faster than the national average. Rutgers was forced into a 100-year "century bond" (maturing 2119) simply to exit its swap agreements. These are not abstract institutional losses — they are direct contributors to the $38,000 average student debt burden that depresses homeownership, entrepreneurship, and retirement savings for an entire generation.
+The resulting costs were reflected in student outcomes. Per-student debt interest payments rose 45% at public colleges and 76% at community colleges between 2003 and 2012. Harvard incurred $1.25 billion in termination fees. Cornell documented losses of over $280 million. Michigan State documented $130 million in costs concurrent with above-average tuition increases. Rutgers issued a 100-year bond (maturing 2119) to fund swap exit costs. These documented institutional losses are contributing factors to the $38,000 average student debt burden with well-documented downstream effects on homeownership, entrepreneurship, and retirement outcomes.
 
 I am calling for:
   1. Full public disclosure of all outstanding swap agreements, notional values, and termination fee exposure at every public institution.
@@ -175,7 +175,7 @@ I am calling for:
   4. Annual tuition impact reporting that directly attributes swap costs to student tuition increases.
   5. Federal and state legislation to create public bond underwriting alternatives, reducing bank dependency.${petNote ? `\n\nAdditional note: ${petNote}` : ""}
 
-Higher education is a public good. Our students deserve to know that every tuition dollar serves learning — not Wall Street's bottom line.
+Higher education is a public good. Transparency in institutional finance and structural reform of public debt instruments are necessary to ensure that institutional resources are directed toward educational outcomes.
 
 Respectfully,
 ${petName || "[Your Name]"}${petRole ? `\n${petRole}` : ""}
@@ -237,10 +237,10 @@ ${petInst || "[Institution]"}${petState ? `, ${petState}` : ""}`
           {/* ── Stat Strip ── */}
           <div style={{ display: "flex", gap: 0, marginTop: 36, borderTop: `1px solid ${C.border}`, paddingTop: 28, flexWrap: "wrap" }} className="sr-stats">
             {[
-              { num: "$2.7B",   sub: "Lost by 19 documented schools to interest rate swap agreements" },
-              { num: "108,000", sub: "Students whose full tuition could have been covered by those losses" },
-              { num: "50×",     sub: "More than universities paid vs. banks after 2008 LIBOR collapse" },
-              { num: "76%",     sub: "Rise in community college per-student debt interest, 2003–2012" },
+              { num: "$2.7B",   sub: "Documented losses by 19 universities in interest rate swap agreements, per Roosevelt Institute" },
+              { num: "108,000", sub: "Students whose full tuition could have been covered by those documented institutional losses" },
+              { num: "50×",     sub: "Estimated ratio of university fixed payments to bank variable payments at post-2008 LIBOR trough" },
+              { num: "76%",     sub: "Rise in community college per-student debt interest payments, 2003–2012 (Roosevelt Institute)" },
             ].map((st, i) => (
               <div key={i} style={{ flex: 1, minWidth: 155, paddingRight: 36, marginBottom: 12 }}>
                 <div style={{ fontFamily: F.head, fontSize: "clamp(22px,3vw,40px)", fontWeight: 900, color: C.redBright, lineHeight: 1, marginBottom: 7 }}>{st.num}</div>
@@ -269,13 +269,13 @@ ${petInst || "[Institution]"}${petState ? `, ${petState}` : ""}`
             {/* HOW SWAPS WORK */}
             <div style={{ marginBottom: 64 }}>
               <div style={eyebrow}>Explainer</div>
-              <h2 style={h2}>How Universities Were Trapped in Four Steps</h2>
+              <h2 style={h2}>Interest Rate Swap Mechanics: Four Structural Phases</h2>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(252px, 1fr))", gap: 16 }} className="sr-steps">
                 {[
-                  { step:"01", title:"The Pitch",    body:"Banks approach university finance committees — typically a few people without derivatives expertise — offering to 'swap' variable-rate bond interest for stable fixed-rate payments. Promised benefit: lower, predictable borrowing costs for campus construction." },
-                  { step:"02", title:"The Structure", body:"University pays the bank a fixed rate (~5.3%). The bank pays the university a variable rate (LIBOR-linked). If LIBOR rises above the fixed rate, the university profits. If it falls below — the bank wins and keeps the difference." },
-                  { step:"03", title:"The 2008 Crash",body:"The Fed cuts rates to near-zero. LIBOR collapses from 5.25% to 0.24%. Universities continue paying 5%+ fixed while receiving near-zero from banks — effectively paying up to 50× what banks pay them. This was also the period LIBOR was illegally manipulated." },
-                  { step:"04", title:"The Trap",      body:"Termination fees — pegged to the net present value of all remaining future payments — make exiting prohibitively costly. Some contracts ran 30 years, longer than those sold to any other sector. Schools pass costs to students through tuition increases." },
+                  { step:"01", title:"The Pitch",    body:"Financial institutions approached university finance committees — typically a small group without derivatives expertise — offering to exchange variable-rate bond interest for stable fixed-rate payments. The projected benefit: lower, predictable borrowing costs for campus construction." },
+                  { step:"02", title:"The Structure", body:"The university pays the bank a fixed rate (~5.3%). The bank pays the university a variable rate (LIBOR-linked). If LIBOR rises above the fixed rate, the university's net position improves. If LIBOR falls below the fixed rate, the university's net payment obligation increases proportionally." },
+                  { step:"03", title:"The 2008 Crash",body:"The Fed cuts rates to near-zero. LIBOR declines from 5.25% to 0.24%. Universities continue paying 5%+ fixed while receiving near-zero variable payments from banks — resulting in net payment obligations up to 50× what banks remit. This period also coincides with the LIBOR manipulation that was later confirmed by global regulators." },
+                  { step:"04", title:"Exit Constraints",      body:"Termination fees — calculated on the net present value of all remaining future payments — created substantial early exit costs. Some contracts extended 30 years, longer than those sold to any other sector. Institutions reflected the resulting debt service burden in subsequent tuition and budget adjustments." },
                 ].map((item) => (
                   <div key={item.step} style={{ ...card(), borderTop: `3px solid ${C.red}` }}>
                     <div style={{ fontFamily: F.mono, fontSize: 10, color: C.red, marginBottom: 8, letterSpacing: "0.12em" }}>STEP {item.step}</div>
@@ -289,9 +289,9 @@ ${petInst || "[Institution]"}${petState ? `, ${petState}` : ""}`
             {/* RATE DIVERGENCE CHART */}
             <div style={{ marginBottom: 64 }}>
               <div style={eyebrow}>Chart 1 — Rate Analysis</div>
-              <h2 style={h2}>The Rate Divergence: When the Trap Sprang</h2>
+              <h2 style={h2}>The Rate Divergence: Fixed vs. LIBOR Variable Rates, 2005–2020</h2>
               <p style={{ ...bodyText, marginBottom: 28, maxWidth: "90%" }}>
-                Universities locked in fixed rates of 4.5–5.5%. When the Federal Reserve slashed rates after 2008, LIBOR — the variable rate banks owed universities — collapsed to near-zero. This structural divergence persisted for over a decade, representing billions in windfall payments from universities to banks.
+                Universities locked in fixed rates of 4.5–5.5%. When the Federal Reserve reduced rates after 2008, LIBOR — the variable rate banks owed universities — declined to near-zero. This structural divergence persisted for over a decade, representing sustained net payment differentials from universities to their swap counterparties.
               </p>
               <div style={{ ...card(), padding: "28px 12px 20px 0" }}>
                 <ResponsiveContainer width="100%" height={340}>
@@ -544,7 +544,7 @@ ${petInst || "[Institution]"}${petState ? `, ${petState}` : ""}`
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(256px, 1fr))", gap: 16 }}>
                 {[
                   { title: "Roosevelt Institute",                  type: "Research",   url: "https://rooseveltinstitute.org",     desc: "Original research on higher education financialization. Active student chapters nationwide. Primary source for this analysis." },
-                  { title: "Action Center on Race & the Economy",  type: "Advocacy",   url: "https://acrecampaigns.org",          desc: "Continued documentation of predatory finance impact on public universities, municipalities, and community institutions." },
+                  { title: "Action Center on Race & the Economy",  type: "Advocacy",   url: "https://acrecampaigns.org",          desc: "Documentation of financial instrument impacts on public universities, municipalities, and community institutions." },
                   { title: "The Hechinger Report",                 type: "Journalism", url: "https://hechingerreport.org",        desc: "Investigative journalism covering college financing, endowment management, and the student cost of institutional financial decisions." },
                   { title: "Student Debt Crisis Center",           type: "Advocacy",   url: "https://studentdebtcrisis.org",      desc: "National advocacy for student debt cancellation and structural reform of higher education finance." },
                 ].map((r) => (

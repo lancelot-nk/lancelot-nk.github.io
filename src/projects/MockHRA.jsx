@@ -429,7 +429,7 @@ export default function HRAEnterpriseApp() {
 
       {/* SIDE PANEL (Slide over) */}
       {selected && (
-        <div className="fixed top-0 right-0 h-full w-full md:w-[400px] bg-white border-l shadow-2xl z-50 transform transition-transform overflow-y-auto">
+        <div className="absolute top-0 right-0 h-full w-full md:w-[400px] bg-white border-l shadow-2xl z-50 transform transition-transform overflow-y-auto">
           <div className="p-6">
             <div className="flex justify-between items-start mb-6">
               <div>

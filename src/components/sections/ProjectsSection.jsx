@@ -121,6 +121,7 @@ function ProjectTile({ project, i }) {
           width: '100%', display: 'flex', alignItems: 'center', gap: 14,
           padding: '0.9rem 1.1rem', background: 'rgba(255,255,255,0.93)',
           border: `2px solid ${open ? PINK : BORDER}`,
+          borderBottom: open ? 'none' : `2px solid ${BORDER}`,
           borderRadius: open ? '0.75rem 0.75rem 0 0' : '0.75rem',
           boxShadow: open ? `0 6px 28px rgba(184,0,78,0.13)` : '0 2px 10px rgba(15,0,30,0.05)',
           transition: 'border-color 0.2s, box-shadow 0.2s, border-radius 0.2s',
@@ -273,12 +274,17 @@ export default function ProjectsSection() {
           overflow-x: hidden;
           overflow-y: auto;
           max-height: 72vh;
-          border-top: 1px solid ${BORDER};
+          border-left: 2px solid ${PINK};
+          border-right: 2px solid ${PINK};
+          border-bottom: 2px solid ${PINK};
+          border-radius: 0 0 0.75rem 0.75rem;
           scrollbar-width: thin;
           scrollbar-color: ${PINK} ${DEEP};
+          /* contain fixed-position children (e.g. slide-over panels) */
+          transform: translateZ(0);
         }
         .ps-preview-inner {
-          padding: 0.9rem 1rem 1rem;
+          padding: 0.5rem;
         }
         .ps-preview-wrap::-webkit-scrollbar { width: 12px; }
         .ps-preview-wrap::-webkit-scrollbar-track {
@@ -297,7 +303,7 @@ export default function ProjectsSection() {
         /* Desktop: 20% taller preview container (expanded by 20%) */
         @media (min-width: 641px) {
           .ps-preview-wrap { max-height: min(100vh, calc(86vh * 1.2)); }
-          .ps-preview-inner { padding: 1rem 1.25rem 1.25rem; }
+          .ps-preview-inner { padding: 0.5rem; }
         }
 
         /* Mobile: scale preview content down so it fits without horizontal scroll */
