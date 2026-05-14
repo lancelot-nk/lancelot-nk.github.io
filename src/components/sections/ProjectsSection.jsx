@@ -1,14 +1,17 @@
 import { useState, lazy, Suspense } from 'react';
 import { ChevronDown, ChevronUp, Code, Clock, ExternalLink } from 'lucide-react';
+import JsxViewer from '../JsxViewer';
 
-// Lazy-load heavy ipynb viewer only when first expanded
-const IpynbViewer = lazy(() => import('../IpynbViewer'));
+// Lazy-load heavy viewers only when first expanded
+const IpynbViewer     = lazy(() => import('../IpynbViewer'));
+const LazyPrimeFields = lazy(() => import('../../projects/PrimeFields'));
 
 // ── Image Imports ────────────────────────────────────────────────────────────
 import img1 from '../../assets/project1.jpg';
 import img2 from '../../assets/project2.jpg';
 import img3 from '../../assets/project3.jpg';
 import img4 from '../../assets/project4.jpg';
+import img5 from '../../assets/project1.jpg'; // reuse until a dedicated asset is added
 
 // ── Brand Colors ─────────────────────────────────────────────────────────────
 const PINK   = '#B8004E';
@@ -47,10 +50,18 @@ export const PROJECTS = [
     link: '/LancelotNaipierKaneAzureSqlNotebook.ipynb',
     img: img4,
   },
+  {
+    title: 'Prime Field Functions',
+    desc: 'Interactive explorer for ζ-weighted functions over ordered prime pairs — scatter plot and |F| heatmap views, complex plane analysis.',
+    tech: ['React', 'Recharts', 'Complex Analysis', 'Number Theory', 'Visualization'],
+    link: '/prime_fields.jsx',
+    type: 'jsx',
+    component: LazyPrimeFields,
+    img: img5,
+  },
 ];
 
 const COMING_SOON = [
-  { title: 'Coming Soon', desc: 'New project in development — check back soon.', tech: [] },
   { title: 'Coming Soon', desc: 'New project in development — check back soon.', tech: [] },
 ];
 
@@ -154,18 +165,21 @@ function ProjectTile({ project, i }) {
         </div>
       </button>
 
-      {/* ── Expanded: inline notebook preview ──────────────────────────── */}
+      {/* ── Expanded: inline preview — viewer chosen by project.type ───── */}
       {open && project.link && (
-        <div style={{
-          borderTop: `1px solid ${BORDER}`,
-          // Container: full width, only vertical scroll
-          overflowX: 'hidden',
-          overflowY: 'auto',
-        }}>
-          <Suspense fallback={<NotebookFallback />}>
-            <IpynbViewer src={project.link} />
-          </Suspense>
-        </div>
+        project.type === 'jsx'
+          ? <JsxViewer LazyComponent={project.component} />
+          : (
+            <div style={{
+              borderTop: `1px solid ${BORDER}`,
+              overflowX: 'hidden',
+              overflowY: 'auto',
+            }}>
+              <Suspense fallback={<NotebookFallback />}>
+                <IpynbViewer src={project.link} />
+              </Suspense>
+            </div>
+          )
       )}
     </div>
   );
