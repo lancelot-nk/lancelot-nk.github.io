@@ -13,6 +13,7 @@ const LazySolarDonor       = lazy(() => import('../../projects/SolarDonorIntelli
 const LazyFinOpsDash       = lazy(() => import('../../projects/FinOpsDashboard'));
 const LazyHomelessSvc      = lazy(() => import('../../projects/HomelessServicesDashboard'));
 const LazyLytxCSM          = lazy(() => import('../../projects/LytxCSMExample'));
+const LazyKingmanRFP       = lazy(() => import('../../projects/KingmanRFPInteractive'));
 
 // ── Image Imports ────────────────────────────────────────────────────────────
 import img1 from '../../assets/project1.jpg';
@@ -28,6 +29,7 @@ import img10 from '../../assets/project_solar_donor.jpg';
 import img11 from '../../assets/project_finops.jpg';
 import img12 from '../../assets/project_homeless_services.jpg';
 import img13 from '../../assets/project_lytx_csm.jpg';
+import img14 from '../../assets/project_kingman_rfp.jpg';
 
 // ── Brand Colors ─────────────────────────────────────────────────────────────
 const PINK   = '#B8004E';
@@ -100,6 +102,15 @@ export const PROJECTS = [
     type: 'jsx',
     component: LazyLytxCSM,
     img: img13,
+  },
+  {
+    title: 'Kingman Island Green Infrastructure RFP',
+    desc: 'Interactive DOEE grant proposal — workforce training program analysis with budget allocations, phase timelines, impact metrics, partner networks, and environmental outcome visualizations.',
+    tech: ['React', 'SVG Charts', 'Grant Writing', 'Environmental Policy', 'Workforce Development', 'DC Government'],
+    link: '/kingman_rfp_interactive.jsx',
+    type: 'jsx',
+    component: LazyKingmanRFP,
+    img: img14,
   },
   {
     title: 'Python & Statistics Analysis',

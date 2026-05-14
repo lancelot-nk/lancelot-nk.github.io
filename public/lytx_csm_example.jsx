@@ -642,7 +642,7 @@ export default function EnterprisePlatform() {
 
       {/* MAIN */}
 
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col overflow-hidden" style={{ transform: 'scale(0.88)', transformOrigin: 'top left', width: '113.6%', height: '113.6%' }}>
 
         {/* TOP BAR */}
 

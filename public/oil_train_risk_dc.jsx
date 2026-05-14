@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 
 // ─────────────────────────────────────────────────
 // DATA LAYER — Real routes + sample risk overlays
@@ -367,16 +367,8 @@ const WATERWAY_IMPACTS = [
 // SIMPLE SVG MAP COMPONENT
 // ─────────────────────────────────────────────────
 
-function DCMapSVG({ selectedCorridor, selectedZone, onSelectCorridor, onSelectZone, zoom = 1, showPopDensity = false, showWaterways = false, onWheelZoom }) {
-  const mapRef = useRef(null);
-  useEffect(() => {
-    const el = mapRef.current;
-    if (!el || !onWheelZoom) return;
-    const handler = (e) => { e.preventDefault(); onWheelZoom(e.deltaY); };
-    el.addEventListener('wheel', handler, { passive: false });
-    return () => el.removeEventListener('wheel', handler);
-  }, [onWheelZoom]);
-  // DC bounding box approx: lat 38.79–39.02, lng -77.12–-76.91
+function DCMapSVG({ selectedCorridor, selectedZone, onSelectCorridor, onSelectZone, showPopDensity = false, showWaterways = false }) {
+  // DC bounding box: lat 38.79–39.02, lng -77.14–-76.90
   const LAT_MIN = 38.79, LAT_MAX = 39.02;
   const LNG_MIN = -77.14, LNG_MAX = -76.90;
   const W = 780, H = 520;
@@ -407,34 +399,21 @@ function DCMapSVG({ selectedCorridor, selectedZone, onSelectCorridor, onSelectZo
     { name: "Navy Yard", lat: 38.876, lng: -77.001, symbol: "⚓" },
   ];
 
-  // Compute viewBox dimensions from zoom
-  const vbW = W / zoom, vbH = H / zoom;
-  const vbX = (W - vbW) / 2, vbY = (H - vbH) / 2;
-
-  // Quantize zoom to 0.25 steps so we only fetch a new tile at meaningful zoom changes
-  const qZoom = Math.round(zoom * 4) / 4;
-  const lonRange = LNG_MAX - LNG_MIN; // 0.24
-  const latRange = LAT_MAX - LAT_MIN; // 0.23
-  // Geographic bbox for the visible viewport at this zoom level
-  const bboxMinLon = (LNG_MIN + ((qZoom - 1) / (2 * qZoom)) * lonRange).toFixed(6);
-  const bboxMaxLon = (LNG_MIN + ((qZoom + 1) / (2 * qZoom)) * lonRange).toFixed(6);
-  const bboxMaxLat = (LAT_MAX - ((qZoom - 1) / (2 * qZoom)) * latRange).toFixed(6);
-  const bboxMinLat = (LAT_MAX - ((qZoom + 1) / (2 * qZoom)) * latRange).toFixed(6);
-  // Request at 2× pixel density for sharpness
-  const basemapUrl = `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=${bboxMinLon},${bboxMinLat},${bboxMaxLon},${bboxMaxLat}&bboxSR=4326&imageSR=4326&size=${W * 2},${H * 2}&format=png&f=image`;
+  // Fixed satellite basemap for full DC bounding box — no zoom, always aligned
+  const basemapUrl = `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=${LNG_MIN},${LAT_MIN},${LNG_MAX},${LAT_MAX}&bboxSR=4326&imageSR=4326&size=${W * 2},${H * 2}&format=png&f=image`;
 
   return (
-    <div ref={mapRef} style={{ borderRadius: 10, overflow: "hidden", position: "relative" }}>
-      <svg viewBox={`${vbX} ${vbY} ${vbW} ${vbH}`} width="100%" style={{ background: "#1a1a2e", borderRadius: 10, cursor: "pointer", maxHeight: 520, display: "block" }}>
+    <div style={{ borderRadius: 10, overflow: "hidden", position: "relative" }}>
+      <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ background: "#1a1a2e", borderRadius: 10, cursor: "pointer", maxHeight: 520, display: "block" }}>
       <defs>
         <filter id="textShadow" x="-20%" y="-20%" width="140%" height="140%">
           <feDropShadow dx="0" dy="0" stdDeviation="1.5" floodColor="#000000" floodOpacity="0.8"/>
         </filter>
       </defs>
-      {/* ArcGIS satellite basemap — positioned in viewBox coords so it fills the visible area exactly at each zoom */}
+      {/* ArcGIS satellite basemap — fixed to full DC bbox, always aligned */}
       <image
         href={basemapUrl}
-        x={vbX} y={vbY} width={vbW} height={vbH} preserveAspectRatio="none"
+        x={0} y={0} width={W} height={H} preserveAspectRatio="none"
         style={{ pointerEvents: "none" }}
       />
       {/* DC boundary rough polygon */}
@@ -575,7 +554,6 @@ function DCMapSVG({ selectedCorridor, selectedZone, onSelectCorridor, onSelectZo
 function Tab1Map() {
   const [selectedCorridor, setSelectedCorridor] = useState(null);
   const [selectedZone, setSelectedZone] = useState(null);
-  const [zoom, setZoom] = useState(1);
   const [showPopDensity, setShowPopDensity] = useState(false);
   const [showWaterways, setShowWaterways] = useState(false);
   const corridor = RAIL_CORRIDORS.find(c => c.id === selectedCorridor);
@@ -589,7 +567,7 @@ function Tab1Map() {
         </p>
       </div>
 
-      {/* Layer toggles + zoom controls */}
+      {/* Layer toggles */}
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
         <span style={{ fontSize: 11, color: "#374151", fontFamily: "monospace" }}>MAP LAYERS:</span>
         <button
@@ -602,13 +580,6 @@ function Tab1Map() {
           style={{ padding: "4px 12px", borderRadius: 20, border: `1px solid ${showWaterways ? "#2563eb" : "#e5e7eb"}`, background: showWaterways ? "rgba(37,99,235,0.08)" : "#f9fafb", color: showWaterways ? "#2563eb" : "#6b7280", fontSize: 11, cursor: "pointer" }}>
           {showWaterways ? "● " : "○ "}Waterway Risk Zones
         </button>
-        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 6 }}>
-          <span style={{ fontSize: 11, color: "#374151", fontFamily: "monospace" }}>ZOOM:</span>
-          <button onClick={() => setZoom(z => Math.min(3, +(z + 0.25).toFixed(2)))} style={{ width: 26, height: 26, borderRadius: 6, border: "1px solid #e5e7eb", background: "#f9fafb", color: "#374151", fontSize: 16, cursor: "pointer", lineHeight: 1 }}>+</button>
-          <span style={{ fontSize: 11, color: "#374151", fontFamily: "monospace", minWidth: 36, textAlign: "center" }}>{zoom.toFixed(1)}×</span>
-          <button onClick={() => setZoom(z => Math.max(0.5, +(z - 0.25).toFixed(2)))} style={{ width: 26, height: 26, borderRadius: 6, border: "1px solid #e5e7eb", background: "#f9fafb", color: "#374151", fontSize: 18, cursor: "pointer", lineHeight: 1 }}>−</button>
-          <button onClick={() => setZoom(1)} style={{ width: 26, height: 26, borderRadius: 6, border: "1px solid #e5e7eb", background: "#f9fafb", color: "#374151", fontSize: 10, cursor: "pointer" }}>⊡</button>
-        </div>
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 16, alignItems: "start" }}>
@@ -617,10 +588,8 @@ function Tab1Map() {
           selectedZone={selectedZone}
           onSelectCorridor={setSelectedCorridor}
           onSelectZone={setSelectedZone}
-          zoom={zoom}
           showPopDensity={showPopDensity}
           showWaterways={showWaterways}
-          onWheelZoom={(delta) => setZoom(z => parseFloat(Math.max(0.5, Math.min(3, z - delta * 0.0015)).toFixed(2)))}
         />
         <div style={{ width: 220, display: "flex", flexDirection: "column", gap: 10, maxHeight: 520, overflowY: "auto" }}>
           <div style={{ color: "#374151", fontSize: 11, fontFamily: "monospace", letterSpacing: 1, borderBottom: "1px solid #d1d5db", paddingBottom: 6 }}>CORRIDORS</div>

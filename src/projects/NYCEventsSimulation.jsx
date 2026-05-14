@@ -672,29 +672,29 @@ const ORGANIZERS = [
 ];
 
 const NYC_ZIPCODES = [
-  // Manhattan
-  { zip: '10001', name: 'Chelsea', borough: 'Manhattan', x: 262, y: 210 },
-  { zip: '10002', name: 'Lower East Side', borough: 'Manhattan', x: 270, y: 255 },
-  { zip: '10012', name: 'SoHo', borough: 'Manhattan', x: 265, y: 270 },
-  { zip: '10036', name: 'Midtown', borough: 'Manhattan', x: 260, y: 195 },
-  { zip: '10027', name: 'Harlem', borough: 'Manhattan', x: 258, y: 175 },
+  // Manhattan — projected from lat/lng: x=(lng+74.26)/0.56*600, y=(40.92-lat)/0.45*500
+  { zip: '10001', name: 'Chelsea', borough: 'Manhattan', x: 276, y: 191 },
+  { zip: '10002', name: 'Lower East Side', borough: 'Manhattan', x: 293, y: 227 },
+  { zip: '10012', name: 'SoHo', borough: 'Manhattan', x: 277, y: 217 },
+  { zip: '10036', name: 'Midtown', borough: 'Manhattan', x: 285, y: 179 },
+  { zip: '10027', name: 'Harlem', borough: 'Manhattan', x: 329, y: 120 },
   // Brooklyn
-  { zip: '11201', name: 'Brooklyn Heights', borough: 'Brooklyn', x: 295, y: 285 },
-  { zip: '11215', name: 'Park Slope', borough: 'Brooklyn', x: 308, y: 310 },
-  { zip: '11237', name: 'Bushwick', borough: 'Brooklyn', x: 345, y: 298 },
-  { zip: '11220', name: 'Bay Ridge', borough: 'Brooklyn', x: 300, y: 355 },
+  { zip: '11201', name: 'Brooklyn Heights', borough: 'Brooklyn', x: 290, y: 248 },
+  { zip: '11215', name: 'Park Slope', borough: 'Brooklyn', x: 296, y: 278 },
+  { zip: '11237', name: 'Bushwick', borough: 'Brooklyn', x: 362, y: 239 },
+  { zip: '11220', name: 'Bay Ridge', borough: 'Brooklyn', x: 251, y: 314 },
   // Queens
-  { zip: '11354', name: 'Flushing', borough: 'Queens', x: 390, y: 205 },
-  { zip: '11375', name: 'Forest Hills', borough: 'Queens', x: 365, y: 250 },
-  { zip: '11101', name: 'Long Island City', borough: 'Queens', x: 330, y: 230 },
-  { zip: '11106', name: 'Astoria', borough: 'Queens', x: 330, y: 200 },
+  { zip: '11354', name: 'Flushing', borough: 'Queens', x: 458, y: 169 },
+  { zip: '11375', name: 'Forest Hills', borough: 'Queens', x: 440, y: 221 },
+  { zip: '11101', name: 'Long Island City', borough: 'Queens', x: 340, y: 195 },
+  { zip: '11106', name: 'Astoria', borough: 'Queens', x: 354, y: 164 },
   // Bronx
-  { zip: '10453', name: 'Morris Heights', borough: 'Bronx', x: 283, y: 118 },
-  { zip: '10456', name: 'Mott Haven', borough: 'Bronx', x: 298, y: 128 },
-  { zip: '10462', name: 'Westchester Sq', borough: 'Bronx', x: 322, y: 115 },
+  { zip: '10453', name: 'Morris Heights', borough: 'Bronx', x: 371, y: 79 },
+  { zip: '10456', name: 'Mott Haven', borough: 'Bronx', x: 365, y: 112 },
+  { zip: '10462', name: 'Westchester Sq', borough: 'Bronx', x: 426, y: 80 },
   // Staten Island
-  { zip: '10301', name: 'St. George', borough: 'Staten Island', x: 165, y: 390 },
-  { zip: '10314', name: 'Travis', borough: 'Staten Island', x: 175, y: 415 },
+  { zip: '10301', name: 'St. George', borough: 'Staten Island', x: 194, y: 308 },
+  { zip: '10314', name: 'Travis', borough: 'Staten Island', x: 96, y: 357 },
 ];
 
 const generateEvents = () => {
@@ -1392,7 +1392,7 @@ export default function NYCEventsTracker() {
                       {/* Manhattan */}
                       <path 
                         className="nyc-borough"
-                        d="M 250 150 L 270 140 L 275 200 L 290 250 L 285 320 L 270 350 L 260 340 L 255 280 L 245 220 Z"
+                        d="M 260,244 L 276,224 L 301,203 L 308,184 L 316,167 L 328,150 L 339,133 L 345,118 L 351,106 L 361,88 L 372,72 L 378,60 L 378,49 L 376,46 L 366,46 L 363,52 L 355,67 L 344,80 L 334,99 L 328,112 L 320,130 L 304,148 L 289,167 L 280,184 L 272,201 L 263,222 Z"
                         fill={hoveredBorough === 'Manhattan' ? 'var(--yellow)' : 'var(--surface-3)'}
                         opacity={(boroughData.find(b => b.name === 'Manhattan')?.events ? 
                           (boroughData.find(b => b.name === 'Manhattan').events / Math.max(...boroughData.map(b => b.events))) * 0.8 + 0.2 : 0.3) * 0.55}
@@ -1406,7 +1406,7 @@ export default function NYCEventsTracker() {
                       {/* Brooklyn */}
                       <path 
                         className="nyc-borough"
-                        d="M 290 250 L 310 260 L 350 290 L 370 330 L 360 370 L 320 380 L 285 360 L 270 350 Z"
+                        d="M 289,238 L 306,224 L 321,218 L 331,212 L 338,206 L 354,206 L 370,218 L 380,228 L 381,238 L 411,260 L 419,289 L 414,319 L 393,354 L 343,368 L 294,381 L 259,380 L 241,351 L 254,316 L 267,289 L 274,271 L 282,252 Z"
                         fill={hoveredBorough === 'Brooklyn' ? 'var(--yellow)' : 'var(--surface-3)'}
                         opacity={(boroughData.find(b => b.name === 'Brooklyn')?.events ? 
                           (boroughData.find(b => b.name === 'Brooklyn').events / Math.max(...boroughData.map(b => b.events))) * 0.8 + 0.2 : 0.3) * 0.55}
@@ -1420,7 +1420,7 @@ export default function NYCEventsTracker() {
                       {/* Queens */}
                       <path 
                         className="nyc-borough"
-                        d="M 310 180 L 370 200 L 410 240 L 420 280 L 390 300 L 350 290 L 310 260 L 290 250 L 275 200 Z"
+                        d="M 342,163 L 366,158 L 386,157 L 422,157 L 453,171 L 482,176 L 523,179 L 541,193 L 538,222 L 539,249 L 526,290 L 518,321 L 500,354 L 447,372 L 386,378 L 291,380 L 393,354 L 414,319 L 419,289 L 411,260 L 381,238 L 380,228 L 370,217 L 354,206 L 343,206 L 345,196 Z"
                         fill={hoveredBorough === 'Queens' ? 'var(--yellow)' : 'var(--surface-3)'}
                         opacity={(boroughData.find(b => b.name === 'Queens')?.events ? 
                           (boroughData.find(b => b.name === 'Queens').events / Math.max(...boroughData.map(b => b.events))) * 0.8 + 0.2 : 0.3) * 0.55}
@@ -1434,7 +1434,7 @@ export default function NYCEventsTracker() {
                       {/* Bronx */}
                       <path 
                         className="nyc-borough"
-                        d="M 250 100 L 300 90 L 340 110 L 350 150 L 310 180 L 270 140 Z"
+                        d="M 356,122 L 374,113 L 394,100 L 418,84 L 449,72 L 466,73 L 486,64 L 493,52 L 470,31 L 441,12 L 419,8 L 391,11 L 372,22 L 363,38 L 354,57 L 350,73 Z"
                         fill={hoveredBorough === 'Bronx' ? 'var(--yellow)' : 'var(--surface-3)'}
                         opacity={(boroughData.find(b => b.name === 'Bronx')?.events ? 
                           (boroughData.find(b => b.name === 'Bronx').events / Math.max(...boroughData.map(b => b.events))) * 0.8 + 0.2 : 0.3) * 0.55}
@@ -1448,7 +1448,7 @@ export default function NYCEventsTracker() {
                       {/* Staten Island */}
                       <path 
                         className="nyc-borough"
-                        d="M 150 370 L 200 360 L 220 390 L 210 430 L 170 440 L 140 420 Z"
+                        d="M 205,302 L 230,312 L 239,329 L 223,356 L 214,386 L 188,418 L 155,463 L 113,492 L 45,476 L 13,446 L 6,402 L 17,369 L 27,332 L 60,311 L 89,304 L 118,301 L 155,303 L 175,302 Z"
                         fill={hoveredBorough === 'Staten Island' ? 'var(--yellow)' : 'var(--surface-3)'}
                         opacity={(boroughData.find(b => b.name === 'Staten Island')?.events ? 
                           (boroughData.find(b => b.name === 'Staten Island').events / Math.max(...boroughData.map(b => b.events))) * 0.8 + 0.2 : 0.3) * 0.55}
@@ -1460,11 +1460,11 @@ export default function NYCEventsTracker() {
                       </path>
                       
                       {/* Labels */}
-                      <text x="265" y="250" fontSize="12" fill="var(--text)" textAnchor="middle" pointerEvents="none">Manhattan</text>
-                      <text x="330" y="330" fontSize="12" fill="var(--text)" textAnchor="middle" pointerEvents="none">Brooklyn</text>
-                      <text x="360" y="230" fontSize="12" fill="var(--text)" textAnchor="middle" pointerEvents="none">Queens</text>
-                      <text x="295" y="130" fontSize="12" fill="var(--text)" textAnchor="middle" pointerEvents="none">Bronx</text>
-                      <text x="180" y="400" fontSize="12" fill="var(--text)" textAnchor="middle" pointerEvents="none">Staten Is.</text>
+                      <text x="327" y="129" fontSize="12" fill="var(--text)" textAnchor="middle" pointerEvents="none">Manhattan</text>
+                      <text x="330" y="277" fontSize="12" fill="var(--text)" textAnchor="middle" pointerEvents="none">Brooklyn</text>
+                      <text x="426" y="247" fontSize="12" fill="var(--text)" textAnchor="middle" pointerEvents="none">Queens</text>
+                      <text x="412" y="58" fontSize="12" fill="var(--text)" textAnchor="middle" pointerEvents="none">Bronx</text>
+                      <text x="126" y="367" fontSize="12" fill="var(--text)" textAnchor="middle" pointerEvents="none">Staten Is.</text>
 
                       {/* Zipcode markers */}
                       {zipcodeData.map(zz => {
