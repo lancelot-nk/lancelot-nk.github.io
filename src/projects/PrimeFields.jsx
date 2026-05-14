@@ -186,37 +186,51 @@ export default function App() {
   const gridMax  = Math.max(...gridFlat, 1);
   const gridMin  = Math.min(...gridFlat, 0);
 
-  const BG     = "#04090f";
-  const CARD   = "#06101c";
-  const BORDER = "#0c1e30";
-  const MUTED  = "#0d2035";
+  // ── Theme: readable dark navy (slate palette) ─────────────────────────
+  const BG     = "#0f172a";   // slate-900 — dark but clearly visible
+  const CARD   = "#1e293b";   // slate-800
+  const BORDER = "#334155";   // slate-600 — visible borders
+  const MUTED  = "#94a3b8";   // slate-400 — fully legible muted text
   const accent = FN_COLORS[tab];
 
   return (
-    <div style={{ background: BG, color: "#e2e8f0", minHeight: "100vh" }}>
+    <div style={{ background: BG, color: "#f1f5f9", minHeight: "100vh" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background: ${BG}; }
+        .pf-wrap * { box-sizing: border-box; }
         .fn-tab { transition: all 0.18s ease; }
-        .fn-tab:hover { border-color: #1e3a5f !important; color: #93c5fd !important; background: #08182a !important; }
+        .fn-tab:hover { border-color: #475569 !important; color: #93c5fd !important; background: #1e293b !important; }
         .view-toggle { transition: all 0.15s ease; }
         .view-toggle:hover { opacity: 0.75; }
+
+        /* Desktop: use full available width */
+        .pf-inner {
+          max-width: 100%;
+          margin: 0 auto;
+          padding: 32px 24px;
+        }
+        /* Mobile: narrow, capped */
+        @media (max-width: 640px) {
+          .pf-inner {
+            max-width: 480px;
+            padding: 20px 14px;
+          }
+        }
       `}</style>
 
-      <div style={{ maxWidth: 940, margin: "0 auto", padding: "32px 22px" }}>
+      <div className="pf-wrap pf-inner">
 
         {/* ── Header ─────────────────────────────────────────── */}
         <div style={{ marginBottom: 30 }}>
           <div style={{ display: "flex", alignItems: "flex-end", gap: 14, marginBottom: 8 }}>
-            <h1 style={{ fontFamily: "Syne, sans-serif", fontSize: 28, fontWeight: 800, letterSpacing: -1.2, color: "#e2e8f0", lineHeight: 1 }}>
-              Riemann Hypothesis Functions
+            <h1 style={{ fontFamily: "Syne, sans-serif", fontSize: 28, fontWeight: 800, letterSpacing: -1.2, color: "#f1f5f9", lineHeight: 1 }}>
+              Prime Field Functions
             </h1>
-            <span style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 10, color: "#1e3a5f", letterSpacing: 3, textTransform: "uppercase", paddingBottom: 2 }}>
+            <span style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 10, color: MUTED, letterSpacing: 3, textTransform: "uppercase", paddingBottom: 2 }}>
               ζ × primes
             </span>
           </div>
-          <p style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 11.5, color: "#1e3a5f", lineHeight: 1.7 }}>
+          <p style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 11.5, color: "#94a3b8", lineHeight: 1.7 }}>
             All ordered pairs (p,q) ∈ {"{"}{PRIMES.join(", ")}{"}"}<sup>2</sup>
             &nbsp;·&nbsp; A(p,q)=p &nbsp;·&nbsp; D(p,q)=q
             &nbsp;·&nbsp; N=200 terms &nbsp;·&nbsp; Euler–Maclaurin corrected
@@ -228,9 +242,9 @@ export default function App() {
           {FN_LABELS.map((l, i) => (
             <button key={i} onClick={() => setTab(i)} className="fn-tab" style={{
               padding: "6px 16px", borderRadius: 6,
-              border: `1px solid ${tab===i ? FN_COLORS[i]+"55" : BORDER}`,
-              background: tab===i ? FN_COLORS[i]+"12" : CARD,
-              color: tab===i ? FN_COLORS[i] : "#334155",
+              border: `1px solid ${tab===i ? FN_COLORS[i]+"88" : BORDER}`,
+              background: tab===i ? FN_COLORS[i]+"18" : CARD,
+              color: tab===i ? FN_COLORS[i] : "#94a3b8",
               fontFamily: "JetBrains Mono, monospace", fontWeight: 700, fontSize: 12.5, cursor: "pointer",
             }}>{l}</button>
           ))}
@@ -238,9 +252,9 @@ export default function App() {
           {[["scatter","ℂ-PLANE"],["grid","| F | GRID"]].map(([v, label]) => (
             <button key={v} onClick={() => setView(v)} className="view-toggle" style={{
               padding: "6px 12px", borderRadius: 6,
-              border: `1px solid ${view===v ? "#1d4ed8" : BORDER}`,
-              background: view===v ? "#0f1e38" : CARD,
-              color: view===v ? "#60a5fa" : "#1e3a5f",
+              border: `1px solid ${view===v ? "#3b82f6" : BORDER}`,
+              background: view===v ? "#1d3a6e" : CARD,
+              color: view===v ? "#93c5fd" : MUTED,
               fontFamily: "JetBrains Mono, monospace", fontSize: 10, letterSpacing: 1.5, cursor: "pointer",
             }}>{label}</button>
           ))}
@@ -253,11 +267,11 @@ export default function App() {
           fontFamily: "JetBrains Mono, monospace", fontSize: 11, lineHeight: 1.8, overflowX: "auto",
         }}>
           <span style={{ color: accent, fontWeight: 700 }}>{FN_LABELS[tab]}</span>
-          <span style={{ color: "#1e3a5f" }}> = </span>
-          <span style={{ color: "#1a3a57" }}>[</span>
-          <span style={{ color: "#2a5a82" }}>{FN_BRACKET[tab]}</span>
-          <span style={{ color: "#1a3a57" }}>] + (⌊q/p⌋ ln p − &#123;q/p&#125; ln q) &nbsp;</span>
-          <span style={{ color: "#0d2035" }}>· {FN_S_DESC[tab]}</span>
+          <span style={{ color: "#cbd5e1" }}> = </span>
+          <span style={{ color: "#94a3b8" }}>[</span>
+          <span style={{ color: "#cbd5e1" }}>{FN_BRACKET[tab]}</span>
+          <span style={{ color: "#94a3b8" }}>] + (⌊q/p⌋ ln p − &#123;q/p&#125; ln q) &nbsp;</span>
+          <span style={{ color: "#64748b" }}>· {FN_S_DESC[tab]}</span>
         </div>
 
         {/* ── Main chart card ────────────────────────────────── */}
@@ -270,23 +284,23 @@ export default function App() {
               </div>
               <ResponsiveContainer width="100%" height={440}>
                 <ScatterChart margin={{ top: 12, right: 24, bottom: 36, left: 12 }}>
-                  <CartesianGrid strokeDasharray="1 10" stroke="#050e18" />
+                  <CartesianGrid strokeDasharray="1 10" stroke="#1e293b" />
                   <XAxis dataKey="x" name="Re" type="number" domain={["auto","auto"]}
-                    tick={{ fill: "#0d1e30", fontSize: 9.5, fontFamily: "JetBrains Mono, monospace" }}
-                    label={{ value: "Re(F)", position: "insideBottom", offset: -20, fill: "#1e3a5f", fontSize: 11, fontFamily: "JetBrains Mono, monospace" }} />
+                    tick={{ fill: "#64748b", fontSize: 9.5, fontFamily: "JetBrains Mono, monospace" }}
+                    label={{ value: "Re(F)", position: "insideBottom", offset: -20, fill: MUTED, fontSize: 11, fontFamily: "JetBrains Mono, monospace" }} />
                   <YAxis dataKey="y" name="Im" type="number" domain={["auto","auto"]}
-                    tick={{ fill: "#0d1e30", fontSize: 9.5, fontFamily: "JetBrains Mono, monospace" }}
-                    label={{ value: "Im(F)", angle: -90, position: "insideLeft", offset: 16, fill: "#1e3a5f", fontSize: 11, fontFamily: "JetBrains Mono, monospace" }} />
+                    tick={{ fill: "#64748b", fontSize: 9.5, fontFamily: "JetBrains Mono, monospace" }}
+                    label={{ value: "Im(F)", angle: -90, position: "insideLeft", offset: 16, fill: MUTED, fontSize: 11, fontFamily: "JetBrains Mono, monospace" }} />
                   <Tooltip cursor={false} content={({ payload }) => {
                     if (!payload?.length) return null;
                     const d = payload[0].payload;
                     return (
-                      <div style={{ background: "#020810", border: "1px solid #0f2a45", borderRadius: 8, padding: "10px 14px", fontFamily: "JetBrains Mono, monospace", fontSize: 12, lineHeight: 1.9, boxShadow: `0 0 24px ${accent}22` }}>
+                      <div style={{ background: "#0f172a", border: `1px solid ${BORDER}`, borderRadius: 8, padding: "10px 14px", fontFamily: "JetBrains Mono, monospace", fontSize: 12, lineHeight: 1.9, boxShadow: `0 0 24px ${accent}33` }}>
                         <div style={{ color: accent, fontWeight: 700, marginBottom: 3 }}>p={d.p}, q={d.q}</div>
-                        <div style={{ color: "#1e3a5f" }}>Re = <span style={{ color: "#60a5fa" }}>{d.x}</span></div>
-                        <div style={{ color: "#1e3a5f" }}>Im = <span style={{ color: "#34d399" }}>{d.y}</span></div>
-                        <div style={{ color: "#1e3a5f" }}>|F| = <span style={{ color: "#fbbf24" }}>{d.m}</span></div>
-                        <div style={{ color: "#1e3a5f" }}>arg = <span style={{ color: "#a78bfa" }}>{d.arg} rad</span></div>
+                        <div style={{ color: MUTED }}>Re = <span style={{ color: "#60a5fa" }}>{d.x}</span></div>
+                        <div style={{ color: MUTED }}>Im = <span style={{ color: "#34d399" }}>{d.y}</span></div>
+                        <div style={{ color: MUTED }}>|F| = <span style={{ color: "#fbbf24" }}>{d.m}</span></div>
+                        <div style={{ color: MUTED }}>arg = <span style={{ color: "#a78bfa" }}>{d.arg} rad</span></div>
                       </div>
                     );
                   }} />
@@ -299,7 +313,7 @@ export default function App() {
                 {series.map(({ name, color }) => (
                   <div key={name} style={{ display: "flex", alignItems: "center", gap: 6, fontFamily: "JetBrains Mono, monospace", fontSize: 11 }}>
                     <div style={{ width: 8, height: 8, borderRadius: "50%", background: color, boxShadow: `0 0 8px ${color}88` }} />
-                    <span style={{ color: "#1e3a5f" }}>{name}</span>
+                    <span style={{ color: "#cbd5e1" }}>{name}</span>
                   </div>
                 ))}
               </div>
@@ -323,7 +337,7 @@ export default function App() {
                   {/* q row labels */}
                   {PRIMES.map((q, qi) => (
                     <text key={qi} x={48} y={34 + qi*62 + 35} textAnchor="middle"
-                      fill="#334155" fontSize={12} fontFamily="JetBrains Mono, monospace">{q}</text>
+                      fill="#94a3b8" fontSize={12} fontFamily="JetBrains Mono, monospace">{q}</text>
                   ))}
                   <text x={48} y={36 + 6*62 + 8} fill={MUTED} fontSize={9} fontFamily="JetBrains Mono, monospace" textAnchor="middle">q ↓</text>
 
@@ -333,7 +347,7 @@ export default function App() {
                       if (val === null) return null;
                       const col = heatColor(val, gridMin, gridMax);
                       const t = gridMax===gridMin ? 0.5 : (val-gridMin)/(gridMax-gridMin);
-                      const textColor = t > 0.55 ? "rgba(0,0,0,0.75)" : "rgba(255,255,255,0.65)";
+                      const textColor = t > 0.55 ? "rgba(0,0,0,0.85)" : "rgba(255,255,255,0.9)";
                       return (
                         <g key={`${pi}-${qi}`}>
                           <rect x={65 + pi*60} y={32 + qi*62} width={56} height={56} rx={5}
@@ -350,9 +364,9 @@ export default function App() {
               </div>
               {/* Color scale */}
               <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, marginTop: 14 }}>
-                <span style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 10, color: "#1e3a5f" }}>{gridMin.toFixed(2)}</span>
+                <span style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 10, color: "#94a3b8" }}>{gridMin.toFixed(2)}</span>
                 <div style={{ width: 140, height: 8, borderRadius: 4, background: "linear-gradient(to right, rgb(4,10,35), rgb(15,70,170), rgb(15,175,155), rgb(215,175,35), rgb(215,38,38))" }} />
-                <span style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 10, color: "#1e3a5f" }}>{gridMax.toFixed(2)}</span>
+                <span style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 10, color: "#94a3b8" }}>{gridMax.toFixed(2)}</span>
                 <span style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 9, color: MUTED, marginLeft: 4 }}>|F|</span>
               </div>
             </>
@@ -371,7 +385,7 @@ export default function App() {
               ].map(([lbl, val]) => (
                 <div key={lbl} style={{ background: CARD, border: `1px solid ${BORDER}`, borderRadius: 8, padding: "12px 14px" }}>
                   <div style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 9.5, color: MUTED, textTransform: "uppercase", letterSpacing: 1, marginBottom: 7 }}>{lbl}</div>
-                  <div style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 20, fontWeight: 700, color: "#c7d2fe" }}>{val}</div>
+                  <div style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 20, fontWeight: 700, color: "#e2e8f0" }}>{val}</div>
                 </div>
               ))}
             </div>
@@ -389,8 +403,8 @@ export default function App() {
                   fontFamily: "JetBrains Mono, monospace", fontSize: 12, alignItems: "center",
                 }}>
                   <span style={{ color: SERIES_COLORS[PRIMES.indexOf(d.p)], fontWeight: 700 }}>({d.p}, {d.q})</span>
-                  <span style={{ color: "#1e3a5f" }}>Re = <span style={{ color: "#60a5fa" }}>{d.x}</span></span>
-                  <span style={{ color: "#1e3a5f" }}>Im = <span style={{ color: "#34d399" }}>{d.y}</span></span>
+                  <span style={{ color: MUTED }}>Re = <span style={{ color: "#60a5fa" }}>{d.x}</span></span>
+                  <span style={{ color: MUTED }}>Im = <span style={{ color: "#34d399" }}>{d.y}</span></span>
                   <span style={{ color: "#fbbf24" }}>|F| = {d.m}</span>
                 </div>
               ))}

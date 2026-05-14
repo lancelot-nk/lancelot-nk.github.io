@@ -124,7 +124,25 @@ function TableauEmbed() {
 
 export default function DashboardsSection() {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+    <>
+      <style>{`
+        .ds-outer {
+          margin-left: -1.5rem;
+          margin-right: -1.5rem;
+          padding-left: 1rem;
+          padding-right: 1rem;
+        }
+        @media (min-width: 768px) {
+          .ds-outer {
+            margin-left: calc(-50vw + 50%);
+            margin-right: calc(-50vw + 50%);
+            width: 100vw;
+            padding-left: clamp(1rem, 2vw, 2rem);
+            padding-right: clamp(1rem, 2vw, 2rem);
+          }
+        }
+      `}</style>
+      <div className="ds-outer" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
 
       {/* ── Tableau Dashboard ────────────────────────────────────────────── */}
       <div style={{
@@ -231,5 +249,6 @@ export default function DashboardsSection() {
         </div>
       </div>
     </div>
+    </>
   );
 }

@@ -2027,7 +2027,18 @@ export default function ResumeSection() {
     visibleAwards.length + visiblePubs.length + visibleProjects.length > 0;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.45rem' }}>
+    <>
+      <style>{`
+        @media (min-width: 768px) {
+          .rs-outer {
+            /* 1040px * 1.30 ≈ 1352px — centred, 30% wider */
+            max-width: min(1352px, calc(100vw - 2rem));
+            margin-left: auto;
+            margin-right: auto;
+          }
+        }
+      `}</style>
+      <div className="rs-outer" style={{ display: 'flex', flexDirection: 'column', gap: '1.45rem' }}>
 
       {/* ── Controls bar ─────────────────────────────────────────────────── */}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'center' }}>
@@ -2332,5 +2343,6 @@ export default function ResumeSection() {
       )}
 
     </div>
+    </>
   );
 }
