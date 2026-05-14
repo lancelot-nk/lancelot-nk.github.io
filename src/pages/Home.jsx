@@ -259,7 +259,7 @@ function QuoteBox({ onGameUnlock }) {
 }
 
 export default function Home() {
-  const [activeSection, setActiveSection] = useState(null);
+  const [activeSection, setActiveSection] = useState('projects');
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [gameActive, setGameActive] = useState(false);
   const [callHov, setCallHov] = useState(false);
@@ -274,6 +274,12 @@ export default function Home() {
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Auto-scroll to projects panel on initial load (mimics clicking the hexagon)
+  useEffect(() => {
+    scrollToContent(1600, 900);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {

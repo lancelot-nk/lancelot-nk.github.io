@@ -3,8 +3,9 @@ import { ChevronDown, ChevronUp, Code, Clock, ExternalLink } from 'lucide-react'
 import JsxViewer from '../JsxViewer';
 
 // Lazy-load heavy viewers only when first expanded
-const IpynbViewer     = lazy(() => import('../IpynbViewer'));
-const LazyPrimeFields = lazy(() => import('../../projects/PrimeFields'));
+const IpynbViewer          = lazy(() => import('../IpynbViewer'));
+const LazyPrimeFields      = lazy(() => import('../../projects/PrimeFields'));
+const LazyInterestSwap     = lazy(() => import('../../projects/InterestSwapReport'));
 
 // ── Image Imports ────────────────────────────────────────────────────────────
 import img1 from '../../assets/project1.jpg';
@@ -12,6 +13,7 @@ import img2 from '../../assets/project2.jpg';
 import img3 from '../../assets/project3.jpg';
 import img4 from '../../assets/project4.jpg';
 import img5 from '../../assets/project_prime_fields.png';
+import img6 from '../../assets/project_interest_swap.jpg';
 
 // ── Brand Colors ─────────────────────────────────────────────────────────────
 const PINK   = '#B8004E';
@@ -58,6 +60,15 @@ export const PROJECTS = [
     type: 'jsx',
     component: LazyPrimeFields,
     img: img5,
+  },
+  {
+    title: 'Interest Rate Swap Report',
+    desc: 'Data-driven analysis of university interest rate swap losses post-2008 — LIBOR collapse, tuition impacts, and institutional timelines.',
+    tech: ['React', 'Recharts', 'Finance', 'Data Analysis', 'Policy Research'],
+    link: '/interest_swap_report.jsx',
+    type: 'jsx',
+    component: LazyInterestSwap,
+    img: img6,
   },
 ];
 
