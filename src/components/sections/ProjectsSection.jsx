@@ -101,25 +101,20 @@ function ProjectTile({ project, i }) {
   const [open, setOpen] = useState(false);
 
   return (
-    <div
-      style={{
-        borderRadius: '0.75rem',
-        border: `2px solid ${open ? PINK : BORDER}`,
-        background: 'rgba(255,255,255,0.93)',
-        overflow: 'hidden',
-        boxShadow: open ? `0 6px 28px rgba(184,0,78,0.13)` : '0 2px 10px rgba(15,0,30,0.05)',
-        transition: 'border-color 0.2s, box-shadow 0.2s',
-        // Hint browser to isolate compositing
-        contain: 'layout style',
-      }}
-    >
+    <div style={{ width: '100%' }}>
       {/* ── Tile Header (always visible) ─────────────────────────────── */}
       <button
         onClick={() => setOpen(v => !v)}
+        className="ps-card"
         style={{
           width: '100%', display: 'flex', alignItems: 'center', gap: 14,
-          padding: '0.9rem 1.1rem', background: 'none', border: 'none',
+          padding: '0.9rem 1.1rem', background: 'rgba(255,255,255,0.93)',
+          border: `2px solid ${open ? PINK : BORDER}`,
+          borderRadius: '0.75rem', boxShadow: open ? `0 6px 28px rgba(184,0,78,0.13)` : '0 2px 10px rgba(15,0,30,0.05)',
+          transition: 'border-color 0.2s, box-shadow 0.2s',
           cursor: 'pointer', textAlign: 'left',
+          overflow: 'hidden',
+          contain: 'layout style',
         }}
         aria-expanded={open}
       >
@@ -189,15 +184,17 @@ function ProjectTile({ project, i }) {
 
       {/* ── Expanded: inline preview — viewer chosen by project.type ───── */}
       {open && project.link && (
-        project.type === 'jsx'
-          ? <div className="ps-preview-wrap"><JsxViewer LazyComponent={project.component} /></div>
-          : (
-            <div className="ps-preview-wrap" style={{ borderTop: `1px solid ${BORDER}` }}>
+        <div className="ps-preview-wrap">
+          <div className="ps-preview-inner">
+            {project.type === 'jsx'
+              ? <JsxViewer LazyComponent={project.component} />
+              : (
               <Suspense fallback={<NotebookFallback />}>
                 <IpynbViewer src={project.link} />
               </Suspense>
-            </div>
-          )
+              )}
+          </div>
+        </div>
       )}
     </div>
   );
@@ -205,18 +202,20 @@ function ProjectTile({ project, i }) {
 
 function ComingSoonTile({ i }) {
   return (
-    <div style={{
-      borderRadius: '0.75rem', border: `2px solid rgba(184,0,78,0.1)`,
-      background: 'rgba(255,255,255,0.5)', overflow: 'hidden',
-      opacity: 0.6, display: 'flex', alignItems: 'center', gap: 14,
-      padding: '0.9rem 1.1rem',
-    }}>
-      <div style={{ width: 72, height: 48, borderRadius: 8, background: 'rgba(184,0,78,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-        <Clock style={{ width: 20, height: 20, color: 'rgba(184,0,78,0.2)' }} />
-      </div>
-      <div>
-        <p style={{ margin: 0, fontSize: '0.88rem', fontWeight: 700, color: MID }}>Coming Soon</p>
-        <p style={{ margin: 0, fontSize: '0.75rem', color: SOFT, opacity: 0.7 }}>New project in development — check back soon.</p>
+    <div style={{ width: '100%' }}>
+      <div className="ps-card" style={{
+        borderRadius: '0.75rem', border: `2px solid rgba(184,0,78,0.1)`,
+        background: 'rgba(255,255,255,0.5)', overflow: 'hidden',
+        opacity: 0.6, display: 'flex', alignItems: 'center', gap: 14,
+        padding: '0.9rem 1.1rem',
+      }}>
+        <div style={{ width: 72, height: 48, borderRadius: 8, background: 'rgba(184,0,78,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <Clock style={{ width: 20, height: 20, color: 'rgba(184,0,78,0.2)' }} />
+        </div>
+        <div>
+          <p style={{ margin: 0, fontSize: '0.88rem', fontWeight: 700, color: MID }}>Coming Soon</p>
+          <p style={{ margin: 0, fontSize: '0.75rem', color: SOFT, opacity: 0.7 }}>New project in development — check back soon.</p>
+        </div>
       </div>
     </div>
   );
@@ -236,6 +235,9 @@ export default function ProjectsSection() {
           padding-left: 1rem;
           padding-right: 1rem;
         }
+        .ps-card {
+          width: 100%;
+        }
         /* Desktop: also escape the 1040px cap via a wide max-width */
         @media (min-width: 768px) {
           .ps-outer {
@@ -247,6 +249,11 @@ export default function ProjectsSection() {
             padding-left: clamp(1rem, 2vw, 2rem);
             padding-right: clamp(1rem, 2vw, 2rem);
           }
+          .ps-card {
+            width: min(70%, 100%);
+            margin-left: auto;
+            margin-right: auto;
+          }
         }
 
         /* ── Preview container: always-visible styled scrollbar ─────────── */
@@ -254,8 +261,12 @@ export default function ProjectsSection() {
           overflow-x: hidden;
           overflow-y: auto;
           max-height: 72vh;
+          border-top: 1px solid ${BORDER};
           scrollbar-width: thin;
           scrollbar-color: ${PINK} ${DEEP};
+        }
+        .ps-preview-inner {
+          padding: 0.9rem 1rem 1rem;
         }
         .ps-preview-wrap::-webkit-scrollbar { width: 12px; }
         .ps-preview-wrap::-webkit-scrollbar-track {
@@ -274,6 +285,7 @@ export default function ProjectsSection() {
         /* Desktop: 20% taller preview container (expanded by 20%) */
         @media (min-width: 641px) {
           .ps-preview-wrap { max-height: min(100vh, calc(86vh * 1.2)); }
+          .ps-preview-inner { padding: 1rem 1.25rem 1.25rem; }
         }
 
         /* Mobile: scale preview content down so it fits without horizontal scroll */

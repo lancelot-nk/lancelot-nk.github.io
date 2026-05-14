@@ -43,7 +43,6 @@ export default function JsxViewer({ LazyComponent }) {
   if (!LazyComponent) return null;
   return (
     <div style={{
-      borderTop: '1px solid rgba(184,0,78,0.18)',
       borderRadius: '0 0 12px 12px',
       width: '100%',
     }}>
