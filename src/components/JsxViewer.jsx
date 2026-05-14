@@ -46,20 +46,22 @@ function JsxFallback() {
 export default function JsxViewer({ LazyComponent }) {
   if (!LazyComponent) return null;
   return (
-    <div style={{
-      borderTop: `1px solid ${BORDER}`,
-      maxHeight: '70vh',
-      overflowY: 'auto',
-      overflowX: 'hidden',
-      WebkitOverflowScrolling: 'touch',
-      contain: 'content',
-      borderRadius: '0 0 12px 12px',
-    }}>
-      <JsxErrorBoundary>
-        <Suspense fallback={<JsxFallback />}>
-          <LazyComponent />
-        </Suspense>
-      </JsxErrorBoundary>
-    </div>
+    <>
+      <style>{`
+        .jsx-viewer-wrap { border-top: 1px solid ${BORDER}; max-height: 70vh; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; contain: content; border-radius: 0 0 12px 12px; }
+        .jsx-viewer-wrap::-webkit-scrollbar { width: 12px; }
+        .jsx-viewer-wrap::-webkit-scrollbar-track { background: ${DEEP}; border-radius: 6px; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02); }
+        .jsx-viewer-wrap::-webkit-scrollbar-thumb { background: linear-gradient(180deg, ${PINK} 0%, ${VIOLET} 100%); border-radius: 6px; border: 3px solid ${DEEP}; box-shadow: inset 0 0 8px rgba(0,0,0,0.35); }
+        .jsx-viewer-wrap::-webkit-scrollbar-thumb:hover { filter: brightness(1.08); }
+        .jsx-viewer-wrap { scrollbar-width: thin; scrollbar-color: ${PINK} ${DEEP}; }
+      `}</style>
+      <div className="jsx-viewer-wrap">
+        <JsxErrorBoundary>
+          <Suspense fallback={<JsxFallback />}>
+            <LazyComponent />
+          </Suspense>
+        </JsxErrorBoundary>
+      </div>
+    </>
   );
 }

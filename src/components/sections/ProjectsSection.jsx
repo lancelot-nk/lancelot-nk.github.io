@@ -254,30 +254,26 @@ export default function ProjectsSection() {
           overflow-x: hidden;
           overflow-y: auto;
           max-height: 72vh;
-          scrollbar-width: thick;
-          scrollbar-color: rgba(184,0,200,0.75) rgba(15,0,30,0.55);
+          scrollbar-width: thin;
+          scrollbar-color: ${PINK} ${DEEP};
         }
-        .ps-preview-wrap::-webkit-scrollbar {
-          width: 12px;
-        }
+        .ps-preview-wrap::-webkit-scrollbar { width: 12px; }
         .ps-preview-wrap::-webkit-scrollbar-track {
-          background: rgba(15,0,30,0.55);
+          background: ${DEEP};
           border-radius: 6px;
+          box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02);
         }
         .ps-preview-wrap::-webkit-scrollbar-thumb {
-          background: linear-gradient(180deg, #b8004e 0%, #8000c8 100%);
+          background: linear-gradient(180deg, ${PINK} 0%, ${VIOLET} 100%);
           border-radius: 6px;
-          border: 2px solid rgba(15,0,30,0.55);
+          border: 3px solid ${DEEP};
+          box-shadow: inset 0 0 8px rgba(0,0,0,0.35);
         }
-        .ps-preview-wrap::-webkit-scrollbar-thumb:hover {
-          background: linear-gradient(180deg, #e0006e 0%, #a000f0 100%);
-        }
+        .ps-preview-wrap::-webkit-scrollbar-thumb:hover { filter: brightness(1.08); }
 
         /* Desktop: 20% taller preview container */
         @media (min-width: 641px) {
-          .ps-preview-wrap {
-            max-height: 86vh;
-          }
+          .ps-preview-wrap { max-height: 86vh; }
         }
 
         /* Mobile: scale preview content down so it fits without horizontal scroll */
