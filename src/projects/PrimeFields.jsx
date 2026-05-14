@@ -210,7 +210,7 @@ export default function App() {
         <div style={{ marginBottom: 30 }}>
           <div style={{ display: "flex", alignItems: "flex-end", gap: 14, marginBottom: 8 }}>
             <h1 style={{ fontFamily: "Syne, sans-serif", fontSize: 28, fontWeight: 800, letterSpacing: -1.2, color: "#e2e8f0", lineHeight: 1 }}>
-              Prime Field Functions
+              Riemann Hypothesis Functions
             </h1>
             <span style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 10, color: "#1e3a5f", letterSpacing: 3, textTransform: "uppercase", paddingBottom: 2 }}>
               ζ × primes

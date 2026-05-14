@@ -11,7 +11,7 @@ import img1 from '../../assets/project1.jpg';
 import img2 from '../../assets/project2.jpg';
 import img3 from '../../assets/project3.jpg';
 import img4 from '../../assets/project4.jpg';
-import img5 from '../../assets/project1.jpg'; // reuse until a dedicated asset is added
+import img5 from '../../assets/project_prime_fields.png';
 
 // ── Brand Colors ─────────────────────────────────────────────────────────────
 const PINK   = '#B8004E';
@@ -102,7 +102,7 @@ function ProjectTile({ project, i }) {
         aria-expanded={open}
       >
         {/* Thumbnail */}
-        <div style={{
+        <div className="ps-thumb" style={{
           width: 72, height: 48, borderRadius: 8,
           overflow: 'hidden', flexShrink: 0, background: DEEP,
         }}>
@@ -116,11 +116,11 @@ function ProjectTile({ project, i }) {
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 4 }}>
             <Code style={{ width: 13, height: 13, color: PINK, flexShrink: 0 }} />
-            <span style={{ fontSize: '0.92rem', fontWeight: 800, color: DEEP, lineHeight: 1.2 }}>
+            <span className="ps-title" style={{ fontSize: '0.92rem', fontWeight: 800, color: DEEP, lineHeight: 1.2 }}>
               {project.title}
             </span>
           </div>
-          <p style={{ margin: 0, fontSize: '0.78rem', color: MID, lineHeight: 1.5, opacity: 0.85, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          <p className="ps-desc" style={{ margin: 0, fontSize: '0.78rem', color: MID, lineHeight: 1.5, opacity: 0.85, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {project.desc}
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginTop: 6 }}>
@@ -168,9 +168,9 @@ function ProjectTile({ project, i }) {
       {/* ── Expanded: inline preview — viewer chosen by project.type ───── */}
       {open && project.link && (
         project.type === 'jsx'
-          ? <JsxViewer LazyComponent={project.component} />
+          ? <div className="ps-preview-wrap"><JsxViewer LazyComponent={project.component} /></div>
           : (
-            <div style={{
+            <div className="ps-preview-wrap" style={{
               borderTop: `1px solid ${BORDER}`,
               overflowX: 'hidden',
               overflowY: 'auto',
@@ -206,16 +206,80 @@ function ComingSoonTile({ i }) {
 
 export default function ProjectsSection() {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-      {PROJECTS.map((p, i) => <ProjectTile key={p.title} project={p} i={i} />)}
+    <>
+      {/* ── Responsive layout styles ─────────────────────────────────── */}
+      <style>{`
+        /* Break out of ContentPanel's max-w-[1040px] px-6 container.
+           ContentPanel uses px-6 (1.5rem each side), so -1.5rem cancels it.
+           Then we add our own small padding so tiles don't kiss the viewport edge. */
+        .ps-outer {
+          margin-left: -1.5rem;
+          margin-right: -1.5rem;
+          padding-left: 1rem;
+          padding-right: 1rem;
+        }
+        /* Desktop: also escape the 1040px cap via a wide max-width */
+        @media (min-width: 768px) {
+          .ps-outer {
+            /* Push the content panel's own max-width aside by allowing full viewport.
+               Since ContentPanel centres itself, we use a viewport-relative trick. */
+            margin-left: calc(-50vw + 50%);
+            margin-right: calc(-50vw + 50%);
+            width: 100vw;
+            padding-left: clamp(1rem, 2vw, 2rem);
+            padding-right: clamp(1rem, 2vw, 2rem);
+          }
+        }
 
-      <div style={{
-        height: 1,
-        background: `linear-gradient(to right, transparent, ${BORDER}, transparent)`,
-        margin: '0.5rem 0',
-      }} />
+        /* Mobile: scale preview content down so it fits without horizontal scroll */
+        @media (max-width: 640px) {
+          .ps-preview-wrap {
+            overflow: hidden;
+          }
+          .ps-preview-wrap > * {
+            transform: scale(0.82);
+            transform-origin: top left;
+            width: calc(100% / 0.82);
+            max-height: 65vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+          }
 
-      {COMING_SOON.map((_, i) => <ComingSoonTile key={i} i={i} />)}
-    </div>
+          /* Title: clamp to 2 lines, shrink font to fit tile height */
+          .ps-title {
+            font-size: 0.78rem !important;
+            display: -webkit-box !important;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            white-space: normal !important;
+            line-height: 1.25 !important;
+          }
+
+          /* Keep description single-line ellipsis on mobile too */
+          .ps-desc {
+            font-size: 0.72rem !important;
+          }
+
+          /* Thumbnail slightly smaller on mobile */
+          .ps-thumb {
+            width: 56px !important;
+            height: 40px !important;
+          }
+        }
+      `}</style>
+
+      <div className="ps-outer" style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+        {PROJECTS.map((p, i) => <ProjectTile key={p.title} project={p} i={i} />)}
+
+        <div style={{
+          height: 1,
+          background: `linear-gradient(to right, transparent, ${BORDER}, transparent)`,
+          margin: '0.5rem 0',
+        }} />
+
+        {COMING_SOON.map((_, i) => <ComingSoonTile key={i} i={i} />)}
+      </div>
+    </>
   );
 }
