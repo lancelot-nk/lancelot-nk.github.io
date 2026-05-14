@@ -181,11 +181,7 @@ function ProjectTile({ project, i }) {
         project.type === 'jsx'
           ? <div className="ps-preview-wrap"><JsxViewer LazyComponent={project.component} /></div>
           : (
-            <div className="ps-preview-wrap" style={{
-              borderTop: `1px solid ${BORDER}`,
-              overflowX: 'hidden',
-              overflowY: 'auto',
-            }}>
+            <div className="ps-preview-wrap" style={{ borderTop: `1px solid ${BORDER}` }}>
               <Suspense fallback={<NotebookFallback />}>
                 <IpynbViewer src={project.link} />
               </Suspense>
@@ -242,17 +238,48 @@ export default function ProjectsSection() {
           }
         }
 
+        /* ── Preview container: always-visible styled scrollbar ─────────── */
+        .ps-preview-wrap {
+          overflow-x: hidden;
+          overflow-y: auto;
+          max-height: 72vh;
+          scrollbar-width: thick;
+          scrollbar-color: rgba(184,0,200,0.75) rgba(15,0,30,0.55);
+        }
+        .ps-preview-wrap::-webkit-scrollbar {
+          width: 12px;
+        }
+        .ps-preview-wrap::-webkit-scrollbar-track {
+          background: rgba(15,0,30,0.55);
+          border-radius: 6px;
+        }
+        .ps-preview-wrap::-webkit-scrollbar-thumb {
+          background: linear-gradient(180deg, #b8004e 0%, #8000c8 100%);
+          border-radius: 6px;
+          border: 2px solid rgba(15,0,30,0.55);
+        }
+        .ps-preview-wrap::-webkit-scrollbar-thumb:hover {
+          background: linear-gradient(180deg, #e0006e 0%, #a000f0 100%);
+        }
+
+        /* Desktop: 20% taller preview container */
+        @media (min-width: 641px) {
+          .ps-preview-wrap {
+            max-height: 86vh;
+          }
+        }
+
         /* Mobile: scale preview content down so it fits without horizontal scroll */
         @media (max-width: 640px) {
           .ps-preview-wrap {
-            overflow: hidden;
+            overflow-x: hidden;
+            max-height: 65vh;
           }
           .ps-preview-wrap > * {
             transform: scale(0.82);
             transform-origin: top left;
             width: calc(100% / 0.82);
-            max-height: 65vh;
-            overflow-y: auto;
+            overflow-y: visible;
             overflow-x: hidden;
           }
 
