@@ -101,20 +101,20 @@ function ProjectTile({ project, i }) {
   const [open, setOpen] = useState(false);
 
   return (
-    <div style={{ width: '100%' }}>
+    // ps-tile-wrap: 70% centered on desktop, full-width on mobile
+    <div className="ps-tile-wrap">
       {/* ── Tile Header (always visible) ─────────────────────────────── */}
       <button
         onClick={() => setOpen(v => !v)}
-        className="ps-card"
         style={{
           width: '100%', display: 'flex', alignItems: 'center', gap: 14,
           padding: '0.9rem 1.1rem', background: 'rgba(255,255,255,0.93)',
           border: `2px solid ${open ? PINK : BORDER}`,
-          borderRadius: '0.75rem', boxShadow: open ? `0 6px 28px rgba(184,0,78,0.13)` : '0 2px 10px rgba(15,0,30,0.05)',
-          transition: 'border-color 0.2s, box-shadow 0.2s',
+          borderRadius: open ? '0.75rem 0.75rem 0 0' : '0.75rem',
+          boxShadow: open ? `0 6px 28px rgba(184,0,78,0.13)` : '0 2px 10px rgba(15,0,30,0.05)',
+          transition: 'border-color 0.2s, box-shadow 0.2s, border-radius 0.2s',
           cursor: 'pointer', textAlign: 'left',
           overflow: 'hidden',
-          contain: 'layout style',
         }}
         aria-expanded={open}
       >
@@ -202,8 +202,8 @@ function ProjectTile({ project, i }) {
 
 function ComingSoonTile({ i }) {
   return (
-    <div style={{ width: '100%' }}>
-      <div className="ps-card" style={{
+    <div className="ps-tile-wrap">
+      <div style={{
         borderRadius: '0.75rem', border: `2px solid rgba(184,0,78,0.1)`,
         background: 'rgba(255,255,255,0.5)', overflow: 'hidden',
         opacity: 0.6, display: 'flex', alignItems: 'center', gap: 14,
@@ -235,7 +235,7 @@ export default function ProjectsSection() {
           padding-left: 1rem;
           padding-right: 1rem;
         }
-        .ps-card {
+        .ps-tile-wrap {
           width: 100%;
         }
         /* Desktop: also escape the 1040px cap via a wide max-width */
@@ -249,8 +249,9 @@ export default function ProjectsSection() {
             padding-left: clamp(1rem, 2vw, 2rem);
             padding-right: clamp(1rem, 2vw, 2rem);
           }
-          .ps-card {
-            width: min(70%, 100%);
+          /* Tile + its dropdown share the same 70%-wide centered container */
+          .ps-tile-wrap {
+            width: 70%;
             margin-left: auto;
             margin-right: auto;
           }
