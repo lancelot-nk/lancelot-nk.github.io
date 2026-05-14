@@ -12,6 +12,7 @@ const LazyNYCEvents        = lazy(() => import('../../projects/NYCEventsSimulati
 const LazySolarDonor       = lazy(() => import('../../projects/SolarDonorIntelligence'));
 const LazyFinOpsDash       = lazy(() => import('../../projects/FinOpsDashboard'));
 const LazyHomelessSvc      = lazy(() => import('../../projects/HomelessServicesDashboard'));
+const LazyLytxCSM          = lazy(() => import('../../projects/LytxCSMExample'));
 
 // ── Image Imports ────────────────────────────────────────────────────────────
 import img1 from '../../assets/project1.jpg';
@@ -26,6 +27,7 @@ import img9  from '../../assets/project_nyc_events.jpg';
 import img10 from '../../assets/project_solar_donor.jpg';
 import img11 from '../../assets/project_finops.jpg';
 import img12 from '../../assets/project_homeless_services.jpg';
+import img13 from '../../assets/project_lytx_csm.jpg';
 
 // ── Brand Colors ─────────────────────────────────────────────────────────────
 const PINK   = '#B8004E';
@@ -89,6 +91,15 @@ export const PROJECTS = [
     type: 'jsx',
     component: LazySolarDonor,
     img: img10,
+  },
+  {
+    title: 'Lytx Fleet Intelligence Platform',
+    desc: 'Enterprise fleet CSM simulation — Salesforce-integrated command center with AI risk scoring, driver coaching decision trees, escalation engine, telematics dashboards, and renewal pipeline.',
+    tech: ['React', 'Salesforce', 'Fleet Telematics', 'CSM', 'Enterprise SaaS', 'AI Risk Scoring'],
+    link: '/lytx_csm_example.jsx',
+    type: 'jsx',
+    component: LazyLytxCSM,
+    img: img13,
   },
   {
     title: 'Python & Statistics Analysis',
