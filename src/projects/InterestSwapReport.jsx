@@ -220,18 +220,18 @@ ${petInst || "[Institution]"}${petState ? `, ${petState}` : ""}`
         }
       `}</style>
 
-      <div style={{ background: C.bg, color: C.text, fontFamily: F.body, minHeight: "100vh", width: "100%", maxWidth: 1280, margin: "0 auto" }}>
+      <div style={{ background: C.bg, color: C.text, fontFamily: F.body, minHeight: "100vh", width: "100%" }}>
 
         {/* ╔══════ HEADER ══════╗ */}
         <div style={{ background: C.surface, borderBottom: `1px solid ${C.border}`, padding: "44px 52px 36px" }} className="sr-header">
           <div style={eyebrow}>Policy & Financial Analysis · Interest Rate Derivatives · Post-2008</div>
-          <h1 style={{ fontFamily: F.head, fontSize: "clamp(26px,3.8vw,50px)", fontWeight: 900, lineHeight: 1.06, color: C.text, maxWidth: 740, marginBottom: 20 }}>
+          <h1 style={{ fontFamily: F.head, fontSize: "clamp(26px,3.8vw,50px)", fontWeight: 900, lineHeight: 1.06, color: C.text, maxWidth: "90%", marginBottom: 20 }}>
             The Financialization of Higher Education:<br />
             How Interest Rate Swaps Transferred{" "}
             <em style={{ color: C.redBright, fontStyle: "italic" }}>$2.7 Billion</em>{" "}
             from Campuses to Wall Street
           </h1>
-          <p style={{ fontSize: 16, color: C.muted, maxWidth: 620, lineHeight: 1.65 }}>
+          <p style={{ fontSize: 16, color: C.muted, maxWidth: "80%", lineHeight: 1.65 }}>
             An interactive analysis of post-2008 interest rate swap agreements, their direct impact on college tuition and student debt, and the structural policy reforms required to prevent recurrence.
           </p>
           {/* ── Stat Strip ── */}
@@ -290,7 +290,7 @@ ${petInst || "[Institution]"}${petState ? `, ${petState}` : ""}`
             <div style={{ marginBottom: 64 }}>
               <div style={eyebrow}>Chart 1 — Rate Analysis</div>
               <h2 style={h2}>The Rate Divergence: When the Trap Sprang</h2>
-              <p style={{ ...bodyText, marginBottom: 28, maxWidth: 740 }}>
+              <p style={{ ...bodyText, marginBottom: 28, maxWidth: "90%" }}>
                 Universities locked in fixed rates of 4.5–5.5%. When the Federal Reserve slashed rates after 2008, LIBOR — the variable rate banks owed universities — collapsed to near-zero. This structural divergence persisted for over a decade, representing billions in windfall payments from universities to banks.
               </p>
               <div style={{ ...card(), padding: "28px 12px 20px 0" }}>
@@ -338,7 +338,7 @@ ${petInst || "[Institution]"}${petState ? `, ${petState}` : ""}`
             <div style={{ marginBottom: 64 }}>
               <div style={eyebrow}>Chart 2 — Institutional Impact</div>
               <h2 style={h2}>Documented & Estimated Swap Losses by Institution</h2>
-              <p style={{ ...bodyText, marginBottom: 20, maxWidth: 680 }}>
+              <p style={{ ...bodyText, marginBottom: 20, maxWidth: "85%" }}>
                 Figures for Harvard, Cornell, Michigan State, and the University of Michigan are directly confirmed from the Roosevelt Institute 2016 report and subsequent journalism. All other figures are estimated from published methodology. Hover any bar for source notes.
               </p>
               <div style={{ display: "flex", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
@@ -377,7 +377,7 @@ ${petInst || "[Institution]"}${petState ? `, ${petState}` : ""}`
             <div style={{ marginBottom: 64 }}>
               <div style={eyebrow}>Chart 3 — Student Impact</div>
               <h2 style={h2}>Tuition & Student Debt: The Human Cost, 2000–2024</h2>
-              <p style={{ ...bodyText, marginBottom: 28, maxWidth: 740 }}>
+              <p style={{ ...bodyText, marginBottom: 28, maxWidth: "90%" }}>
                 As swap costs ballooned, institutions passed expenses to students. Average annual in-state public tuition tripled from 2000 to 2024. Average student debt at graduation reached $35,000 by 2016 and continues to rise.
               </p>
               <div style={{ ...card(), padding: "28px 12px 20px 0" }}>
@@ -429,7 +429,7 @@ ${petInst || "[Institution]"}${petState ? `, ${petState}` : ""}`
             <div style={{ marginBottom: 64 }}>
               <div style={eyebrow}>Reform Framework</div>
               <h2 style={h2}>Structural Policy Recommendations</h2>
-              <p style={{ ...bodyText, marginBottom: 28, maxWidth: 680 }}>
+              <p style={{ ...bodyText, marginBottom: 28, maxWidth: "85%" }}>
                 The following reforms address both immediate remediation for institutions and students harmed by swap agreements, and long-term structural changes to prevent recurrence. Click any item to expand.
               </p>
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -501,7 +501,7 @@ ${petInst || "[Institution]"}${petState ? `, ${petState}` : ""}`
             <div style={{ marginBottom: 64 }}>
               <div style={eyebrow}>Advocacy Tool</div>
               <h2 style={h2}>Generate a Petition & Advocacy Letter</h2>
-              <p style={{ ...bodyText, marginBottom: 28, maxWidth: 680 }}>
+              <p style={{ ...bodyText, marginBottom: 28, maxWidth: "85%" }}>
                 Complete the fields below to generate a personalized letter for your institution's board, state legislature, or congressional representative. Draws on documented figures and specific policy demands grounded in Roosevelt Institute research.
               </p>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 16, marginBottom: 16 }}>
