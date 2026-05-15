@@ -484,7 +484,13 @@ export default function SHEAnnualReportPage() {
 
   return (
     <>
-    <div className="min-h-screen bg-gradient-to-b from-amber-50 via-orange-50/50 to-yellow-50">
+    <style>{`
+      @media (max-width: 640px) {
+        .she-root { overflow-x: hidden !important; }
+        .she-root .grid-cols-3, .she-root .grid-cols-4, .she-root .grid-cols-5 { grid-template-columns: 1fr 1fr !important; }
+      }
+    `}</style>
+    <div className="she-root min-h-screen bg-gradient-to-b from-amber-50 via-orange-50/50 to-yellow-50">
       {/* Floating Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-orange-100 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 py-2.5 flex items-center justify-between">

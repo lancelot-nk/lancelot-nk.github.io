@@ -545,8 +545,15 @@ export default function B2BChurnPredictorSimulation() {
 
   return (
     <>
+    <style>{`
+      @media (max-width: 640px) {
+        .b2b-root { overflow-x: hidden !important; }
+        .b2b-root .grid-cols-3, .b2b-root .grid-cols-4 { grid-template-columns: 1fr 1fr !important; }
+        .b2b-root .grid-cols-5, .b2b-root .grid-cols-6 { grid-template-columns: 1fr 1fr !important; }
+      }
+    `}</style>
     <TooltipProvider>
-      <div className="min-h-screen bg-slate-50 text-slate-800">
+      <div className="b2b-root min-h-screen bg-slate-50 text-slate-800">
         {/* System Header Bar */}
         <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur-xl">
           <div className="mx-auto max-w-7xl px-4 py-3">

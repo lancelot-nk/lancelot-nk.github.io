@@ -523,7 +523,7 @@ const AllocationMap = () => {
       <div style={{ display:"flex", gap:20, flexWrap:"wrap" }}>
 
         {/* ── LEFT: Cloud Spend Sources ── */}
-        <div style={{ width:230, flexShrink:0, minWidth:200 }}>
+        <div className="finops-sidebar" style={{ width:230, flexShrink:0, minWidth:200 }}>
           <div style={{ ...cardStyle }}>
             <div style={{ fontSize:14, fontWeight:700, color:C.blue, marginBottom:16, fontFamily:"'Outfit',sans-serif" }}>
               Cloud Spend Sources
@@ -655,7 +655,7 @@ const AllocationMap = () => {
         </div>
 
         {/* ── RIGHT: FinOps Actions ── */}
-        <div style={{ width:210, flexShrink:0, minWidth:190 }}>
+        <div className="finops-sidebar" style={{ width:210, flexShrink:0, minWidth:190 }}>
           <div style={{ fontSize:13, fontWeight:700, color:C.navy, marginBottom:12,
             fontFamily:"'Outfit',sans-serif" }}>FinOps Actions</div>
           {FINOPS_ACTIONS.map((action,i)=>(
@@ -1109,7 +1109,7 @@ export default function FinOpsDashboard() {
   ];
 
   return (
-    <div style={{ fontFamily:"'DM Sans','Segoe UI',sans-serif", background:C.bg,
+    <div className="finops-root" style={{ fontFamily:"'DM Sans','Segoe UI',sans-serif", background:C.bg,
       minHeight:"100vh", color:C.text, position:"relative" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap');
@@ -1119,6 +1119,10 @@ export default function FinOpsDashboard() {
         ::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:3px;}
         input:focus{outline:2px solid #2563eb !important;outline-offset:0;}
         @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+        @media (max-width: 640px) {
+          .finops-root > div { flex-direction: column !important; }
+          .finops-sidebar { width: 100% !important; min-width: unset !important; flex-shrink: 1 !important; }
+        }
       `}</style>
 
       {/* ── HEADER BAR ── */}

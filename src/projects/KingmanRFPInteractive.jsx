@@ -213,7 +213,14 @@ export default function KingmanIslandRFP() {
   const COLORS = ['#1a5c3a', '#2d7a4f', '#2d7a4f', '#a78bfa', '#f472b6', '#fb923c'];
 
   return (
-    <div style={{ width:'100%', maxWidth:'100%', background:'linear-gradient(180deg, #f0faf5 0%, #ddf2e8 40%, #c8ecda 100%)', color:'#0d3b1e', overflowX:'hidden', position:'relative' }}>
+    <div className="kingman-root" style={{ width:'100%', maxWidth:'100%', background:'linear-gradient(180deg, #f0faf5 0%, #ddf2e8 40%, #c8ecda 100%)', color:'#0d3b1e', overflowX:'hidden', position:'relative' }}>
+      <style>{`
+        @media (max-width: 640px) {
+          .kingman-root table { min-width: unset !important; width: 100% !important; font-size: 11px !important; }
+          .kingman-root table td, .kingman-root table th { padding: 4px 6px !important; }
+          .kingman-root .tab-btn { padding: 8px 10px !important; font-size: 10px !important; }
+        }
+      `}</style>
       <style>{`
         * { scroll-behavior: smooth; }
 

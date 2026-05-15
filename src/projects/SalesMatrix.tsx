@@ -890,7 +890,16 @@ export default function FleetSalesMatrixPage() {
   
   return (
     <>
-    <div className="min-h-screen bg-gray-50 text-gray-900">
+    <style>{`
+      @media (max-width: 640px) {
+        .sales-root { overflow-x: hidden !important; }
+        .sales-root table { font-size: 11px !important; }
+        .sales-root table td, .sales-root table th { padding: 4px 6px !important; }
+        .sales-root .grid-cols-3, .sales-root .grid-cols-4, .sales-root .grid-cols-5 { grid-template-columns: 1fr 1fr !important; }
+        .sales-root .grid-cols-6, .sales-root .grid-cols-7 { grid-template-columns: repeat(3, 1fr) !important; }
+      }
+    `}</style>
+    <div className="sales-root min-h-screen bg-gray-50 text-gray-900">
       {/* === HEADER === */}
       <header className="bg-blue-600 text-white sticky top-0 z-50 shadow-lg">
         <div className="max-w-[1800px] mx-auto px-6 py-4">

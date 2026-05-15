@@ -1316,7 +1316,14 @@ export default function SentinelDashboard() {
 
   return (
     <>
-    <div className="min-h-screen bg-gray-50">
+    <style>{`
+      @media (max-width: 640px) {
+        .fedgrant-root { overflow-x: hidden !important; }
+        .fedgrant-root .grid-cols-3, .fedgrant-root .grid-cols-4 { grid-template-columns: 1fr 1fr !important; }
+        .fedgrant-root .grid-cols-5, .fedgrant-root .grid-cols-6 { grid-template-columns: 1fr 1fr !important; }
+      }
+    `}</style>
+    <div className="fedgrant-root min-h-screen bg-gray-50">
       {/* Top Header Bar */}
       <header className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-40">
         <div className="px-6 py-3">

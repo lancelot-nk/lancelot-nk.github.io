@@ -1083,7 +1083,15 @@ export default function NISTCyberSimulator() {
 
   return (
     <>
-    <div className="min-h-screen bg-white text-neutral-900 flex flex-col">
+    <style>{`
+      @media (max-width: 640px) {
+        .nist-old-root { overflow: visible !important; height: auto !important; }
+        .nist-old-root main { flex-direction: column !important; overflow: visible !important; height: auto !important; }
+        .nist-old-root .flex.flex-1.overflow-hidden { flex-direction: column !important; overflow: visible !important; }
+        .nist-old-root .w-80 { width: 100% !important; max-height: 220px; overflow-y: auto; }
+      }
+    `}</style>
+    <div className="nist-old-root min-h-screen bg-white text-neutral-900 flex flex-col">
       {/* Top Header */}
       <header className="h-14 border-b-2 border-neutral-200 bg-white flex items-center justify-between px-6 shrink-0">
         <div className="flex items-center gap-4">

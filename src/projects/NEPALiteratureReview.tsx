@@ -1970,7 +1970,14 @@ export default function NEPALiteratureReviewApplet() {
 
   return (
     <>
-    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans">
+    <style>{`
+      @media (max-width: 640px) {
+        .nepa-root { overflow-x: hidden !important; }
+        .nepa-root .grid-cols-3, .nepa-root .grid-cols-4 { grid-template-columns: 1fr 1fr !important; }
+        .nepa-root .grid-cols-2 { grid-template-columns: 1fr !important; }
+      }
+    `}</style>
+    <div className="nepa-root min-h-screen bg-slate-50 text-slate-800 font-sans">
       {/* Progress Indicator */}
       <div className="fixed top-0 left-0 right-0 h-1 bg-slate-200 z-[60]">
         <div 

@@ -381,6 +381,12 @@ export default function BudgetAuditPage() {
 
   return (
     <>
+    <style>{`
+      @media (max-width: 640px) {
+        .ngo-layout { flex-direction: column !important; }
+        .ngo-sidebar { width: 100% !important; position: static !important; max-height: 200px; overflow-y: auto; border-right: none !important; border-bottom: 1px solid #a7f3d0; }
+      }
+    `}</style>
     <div className="min-h-screen bg-gradient-to-br from-emerald-100 via-green-50 to-teal-100">
       {/* Header Banner */}
       <header className="bg-gradient-to-r from-emerald-800 via-green-700 to-teal-800 text-white shadow-lg">
@@ -412,9 +418,9 @@ export default function BudgetAuditPage() {
         </div>
       </header>
 
-      <div className="flex max-w-[1800px] mx-auto">
+      <div className="ngo-layout flex max-w-[1800px] mx-auto">
         {/* Left Sidebar Navigation */}
-        <aside className="w-64 self-start sticky top-0 bg-white/60 backdrop-blur-sm border-r border-emerald-200 p-4">
+        <aside className="ngo-sidebar w-64 self-start sticky top-0 bg-white/60 backdrop-blur-sm border-r border-emerald-200 p-4">
           <nav className="space-y-1">
             {navItems.map(item => (
               <button

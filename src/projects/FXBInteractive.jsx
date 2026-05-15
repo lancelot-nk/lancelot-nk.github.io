@@ -261,6 +261,9 @@ const STYLES = `
   .fxb-root { height: auto; min-height: 100svh; }
   .fxb-book { height: 78vw; min-height: 500px; }
   .fxb-nav { position: relative; bottom: auto; left: auto; transform: none; width: 100%; padding: 12px 16px; background: rgba(28,25,22,0.85); display: flex; justify-content: space-between; align-items: center; }
+  .fxb-cv { flex-direction: column; }
+  .fxb-cvl { flex: 1 1 auto; padding: 28px 24px; }
+  .fxb-cvr { flex: 0 0 160px; }
 }
 `;
 

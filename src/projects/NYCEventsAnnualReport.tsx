@@ -204,7 +204,13 @@ export default function AnnualReport() {
     }).format(n)
 
   return (
-    <div className="relative min-h-screen bg-[#FDFBF7] text-[#1A1A1A]" style={{ fontFamily: "'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif" }}>
+    <div className="nyc-annual-root relative min-h-screen bg-[#FDFBF7] text-[#1A1A1A]" style={{ fontFamily: "'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif" }}>
+      <style>{`
+        @media (max-width: 640px) {
+          .nyc-annual-root { overflow: visible !important; }
+          .nyc-scroll-area { height: auto !important; overflow-y: visible !important; }
+        }
+      `}</style>
       {/* Reading Progress Bar */}
       <div className="fixed top-0 left-0 right-0 h-1 bg-[#E8E4DC] z-50">
         <div
@@ -289,7 +295,7 @@ export default function AnnualReport() {
       {/* Main Content Container */}
       <div
         ref={containerRef}
-        className="h-screen overflow-y-auto scroll-smooth"
+        className="nyc-scroll-area h-screen overflow-y-auto scroll-smooth"
         style={{ scrollBehavior: "smooth" }}
       >
         {/* ═══════════════════════════════════════════════════════════════════ */}

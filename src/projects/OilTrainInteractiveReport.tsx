@@ -280,7 +280,13 @@ export default function DCOilTrainSafetyNewsletter() {
 
   return (
     <>
-    <div ref={containerRef} className="min-h-screen bg-white">
+    <style>{`
+      @media (max-width: 640px) {
+        .oiltrain-report-root section { padding-top: 40px !important; padding-bottom: 40px !important; padding-left: 16px !important; padding-right: 16px !important; min-height: unset !important; }
+        .oiltrain-report-root section.pt-24 { padding-top: 60px !important; }
+      }
+    `}</style>
+    <div ref={containerRef} className="oiltrain-report-root min-h-screen bg-white">
       {/* Fixed Progress Indicator */}
       <div className="fixed top-0 left-0 right-0 z-50 h-1 bg-neutral-200">
         <div 
