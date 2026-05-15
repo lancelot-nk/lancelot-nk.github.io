@@ -1400,6 +1400,25 @@ export default function WAHMISBackendSystem() {
           </div>
         </div>
       )}
+
+      {/* ─── PROJECT FOOTER ────────────────────────────────────── */}
+      <div style={{
+        borderTop: "1px solid #cccccc",
+        marginTop: 40,
+        padding: "18px 24px",
+        background: "#f9f9f7",
+        fontFamily: "'Trebuchet MS','Gill Sans',Tahoma,sans-serif",
+        fontSize: 12,
+        color: "#555550",
+        lineHeight: 1.7,
+      }}>
+        <p style={{ margin: 0 }}>
+          <strong style={{ color: "#1a1a14" }}>Lancelot Napier-Kane</strong> &nbsp;·&nbsp;
+          Tools: React, Recharts, Mapbox &nbsp;·&nbsp;
+          Methods: Case management analytics, shelter utilization tracking, service outcome analysis &nbsp;·&nbsp;
+          Sources: NYC DHS data models, HUD reporting standards, HMIS frameworks
+        </p>
+      </div>
     </div>
   );
 }

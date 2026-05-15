@@ -265,7 +265,7 @@ const STYLES = `
 
   .nyc-stat-label {
     font-size: 11px;
-    color: var(--text-dim);
+    color: #1a1a1a;
     text-transform: uppercase;
     letter-spacing: 1px;
     font-family: var(--mono);
@@ -274,7 +274,7 @@ const STYLES = `
   .nyc-stat-value {
     font-size: 36px;
     font-weight: 700;
-    color: var(--yellow);
+    color: #000000;
     font-family: var(--mono);
   }
 
@@ -839,6 +839,14 @@ export default function NYCEventsTracker() {
   // Map state
   const [hoveredBorough, setHoveredBorough] = useState(null);
   const [hoveredZip, setHoveredZip] = useState(null);
+  const [boroughGeo, setBoroughGeo] = useState(null);
+
+  useEffect(() => {
+    fetch('/boroughsnsafezones.json')
+      .then(r => r.json())
+      .then(d => setBoroughGeo(d))
+      .catch(() => {});
+  }, []);
 
   const handleRefresh = () => {
     setLoading(true);
@@ -871,6 +879,22 @@ export default function NYCEventsTracker() {
   const categoryData = getCategoryDistribution();
   const zipcodeData = getZipcodeStats();
 
+  function projectCoord(lng, lat, svgW = 600, svgH = 500) {
+    const minLng = -74.27, maxLng = -73.68;
+    const minLat = 40.48, maxLat = 40.93;
+    const x = ((lng - minLng) / (maxLng - minLng)) * svgW;
+    const y = svgH - ((lat - minLat) / (maxLat - minLat)) * svgH;
+    return [x, y];
+  }
+
+  function geoToSvgPath(geometry) {
+    const rings = geometry.type === 'Polygon' ? geometry.coordinates : geometry.coordinates.flat();
+    return rings.map(ring => {
+      const pts = ring.map(([lng, lat]) => projectCoord(lng, lat));
+      return pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ') + ' Z';
+    }).join(' ');
+  }
+
   return (
     <div className="nyc-root">
       <style>{STYLES}</style>
@@ -901,29 +925,40 @@ export default function NYCEventsTracker() {
       </div>
 
       {/* Tabs */}
-      <div className="nyc-tabs">
-        <button className={`nyc-tab ${activeTab === 0 ? 'active' : ''}`} onClick={() => setActiveTab(0)}>
-          Events Calendar
-        </button>
-        <button className={`nyc-tab ${activeTab === 1 ? 'active' : ''}`} onClick={() => setActiveTab(1)}>
-          Analytics Dashboard
-        </button>
-        <button className={`nyc-tab ${activeTab === 2 ? 'active' : ''}`} onClick={() => setActiveTab(2)}>
-          Insights & Outcomes
-        </button>
-        <button className={`nyc-tab ${activeTab === 3 ? 'active' : ''}`} onClick={() => setActiveTab(3)}>
-          Map View
-        </button>
-        <button className={`nyc-tab ${activeTab === 4 ? 'active' : ''}`} onClick={() => setActiveTab(4)}>
-          Data Architecture
-        </button>
+      <div style={{ background: "#ffffff", borderBottom: "2px solid #000000", display: "flex", flexWrap: "wrap", padding: "0 16px" }}>
+        {[
+          { label: "Analytics Dashboard", icon: "📊" },
+          { label: "Events Calendar", icon: "📅" },
+          { label: "Insights & Outcomes", icon: "💡" },
+          { label: "Map View", icon: "🗺️" },
+          { label: "Data Architecture", icon: "🏗️" },
+        ].map((tab, i) => (
+          <button key={i} onClick={() => setActiveTab(i)} style={{
+            background: activeTab === i ? "#1a1a1a" : "transparent",
+            color: activeTab === i ? "#ffffff" : "#000000",
+            border: "none",
+            borderBottom: activeTab === i ? "3px solid #1a1a1a" : "3px solid transparent",
+            padding: "10px 16px",
+            cursor: "pointer",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 4,
+            fontSize: 11,
+            fontWeight: activeTab === i ? 700 : 500,
+            minWidth: 70,
+          }}>
+            <span style={{ fontSize: 18 }}>{tab.icon}</span>
+            <span>{tab.label}</span>
+          </button>
+        ))}
       </div>
 
       {/* Content */}
       <div className="nyc-content">
 
-        {/* TAB 0: Events Calendar */}
-        {activeTab === 0 && (
+        {/* TAB 1: Events Calendar */}
+        {activeTab === 1 && (
           <>
             {/* Summary Stats */}
             <div className="nyc-grid nyc-grid-4" style={{ marginBottom: 32 }}>
@@ -1037,8 +1072,8 @@ export default function NYCEventsTracker() {
           </>
         )}
 
-        {/* TAB 1: Analytics Dashboard */}
-        {activeTab === 1 && (
+        {/* TAB 0: Analytics Dashboard */}
+        {activeTab === 0 && (
           <>
             <div className="nyc-grid nyc-grid-2" style={{ marginBottom: 24 }}>
               {/* Monthly Trends */}
@@ -1388,83 +1423,36 @@ export default function NYCEventsTracker() {
                         preserveAspectRatio="none"
                         style={{ pointerEvents: 'none' }}
                       />
-                      {/* Simplified NYC Borough Map */}
-                      {/* Manhattan */}
-                      <path 
-                        className="nyc-borough"
-                        d="M 260,244 L 276,224 L 301,203 L 308,184 L 316,167 L 328,150 L 339,133 L 345,118 L 351,106 L 361,88 L 372,72 L 378,60 L 378,49 L 376,46 L 366,46 L 363,52 L 355,67 L 344,80 L 334,99 L 328,112 L 320,130 L 304,148 L 289,167 L 280,184 L 272,201 L 263,222 Z"
-                        fill={hoveredBorough === 'Manhattan' ? 'var(--yellow)' : 'var(--surface-3)'}
-                        opacity={(boroughData.find(b => b.name === 'Manhattan')?.events ? 
-                          (boroughData.find(b => b.name === 'Manhattan').events / Math.max(...boroughData.map(b => b.events))) * 0.8 + 0.2 : 0.3) * 0.55}
-                        stroke="#ffffff" strokeWidth={1}
-                        onMouseEnter={() => setHoveredBorough('Manhattan')}
-                        onMouseLeave={() => setHoveredBorough(null)}
-                      >
-                        <title>Manhattan: {boroughData.find(b => b.name === 'Manhattan')?.events || 0} events</title>
-                      </path>
-                      
-                      {/* Brooklyn */}
-                      <path 
-                        className="nyc-borough"
-                        d="M 289,238 L 306,224 L 321,218 L 331,212 L 338,206 L 354,206 L 370,218 L 380,228 L 381,238 L 411,260 L 419,289 L 414,319 L 393,354 L 343,368 L 294,381 L 259,380 L 241,351 L 254,316 L 267,289 L 274,271 L 282,252 Z"
-                        fill={hoveredBorough === 'Brooklyn' ? 'var(--yellow)' : 'var(--surface-3)'}
-                        opacity={(boroughData.find(b => b.name === 'Brooklyn')?.events ? 
-                          (boroughData.find(b => b.name === 'Brooklyn').events / Math.max(...boroughData.map(b => b.events))) * 0.8 + 0.2 : 0.3) * 0.55}
-                        stroke="#ffffff" strokeWidth={1}
-                        onMouseEnter={() => setHoveredBorough('Brooklyn')}
-                        onMouseLeave={() => setHoveredBorough(null)}
-                      >
-                        <title>Brooklyn: {boroughData.find(b => b.name === 'Brooklyn')?.events || 0} events</title>
-                      </path>
-                      
-                      {/* Queens */}
-                      <path 
-                        className="nyc-borough"
-                        d="M 342,163 L 366,158 L 386,157 L 422,157 L 453,171 L 482,176 L 523,179 L 541,193 L 538,222 L 539,249 L 526,290 L 518,321 L 500,354 L 447,372 L 386,378 L 291,380 L 393,354 L 414,319 L 419,289 L 411,260 L 381,238 L 380,228 L 370,217 L 354,206 L 343,206 L 345,196 Z"
-                        fill={hoveredBorough === 'Queens' ? 'var(--yellow)' : 'var(--surface-3)'}
-                        opacity={(boroughData.find(b => b.name === 'Queens')?.events ? 
-                          (boroughData.find(b => b.name === 'Queens').events / Math.max(...boroughData.map(b => b.events))) * 0.8 + 0.2 : 0.3) * 0.55}
-                        stroke="#ffffff" strokeWidth={1}
-                        onMouseEnter={() => setHoveredBorough('Queens')}
-                        onMouseLeave={() => setHoveredBorough(null)}
-                      >
-                        <title>Queens: {boroughData.find(b => b.name === 'Queens')?.events || 0} events</title>
-                      </path>
-                      
-                      {/* Bronx */}
-                      <path 
-                        className="nyc-borough"
-                        d="M 356,122 L 374,113 L 394,100 L 418,84 L 449,72 L 466,73 L 486,64 L 493,52 L 470,31 L 441,12 L 419,8 L 391,11 L 372,22 L 363,38 L 354,57 L 350,73 Z"
-                        fill={hoveredBorough === 'Bronx' ? 'var(--yellow)' : 'var(--surface-3)'}
-                        opacity={(boroughData.find(b => b.name === 'Bronx')?.events ? 
-                          (boroughData.find(b => b.name === 'Bronx').events / Math.max(...boroughData.map(b => b.events))) * 0.8 + 0.2 : 0.3) * 0.55}
-                        stroke="#ffffff" strokeWidth={1}
-                        onMouseEnter={() => setHoveredBorough('Bronx')}
-                        onMouseLeave={() => setHoveredBorough(null)}
-                      >
-                        <title>Bronx: {boroughData.find(b => b.name === 'Bronx')?.events || 0} events</title>
-                      </path>
-                      
-                      {/* Staten Island */}
-                      <path 
-                        className="nyc-borough"
-                        d="M 205,302 L 230,312 L 239,329 L 223,356 L 214,386 L 188,418 L 155,463 L 113,492 L 45,476 L 13,446 L 6,402 L 17,369 L 27,332 L 60,311 L 89,304 L 118,301 L 155,303 L 175,302 Z"
-                        fill={hoveredBorough === 'Staten Island' ? 'var(--yellow)' : 'var(--surface-3)'}
-                        opacity={(boroughData.find(b => b.name === 'Staten Island')?.events ? 
-                          (boroughData.find(b => b.name === 'Staten Island').events / Math.max(...boroughData.map(b => b.events))) * 0.8 + 0.2 : 0.3) * 0.55}
-                        stroke="#ffffff" strokeWidth={1}
-                        onMouseEnter={() => setHoveredBorough('Staten Island')}
-                        onMouseLeave={() => setHoveredBorough(null)}
-                      >
-                        <title>Staten Island: {boroughData.find(b => b.name === 'Staten Island')?.events || 0} events</title>
-                      </path>
-                      
+                      {/* GeoJSON-driven Borough Map */}
+                      {boroughGeo && boroughGeo.features
+                        .filter(f => f.properties.BoroName !== 'Safezone' && f.properties.BoroName)
+                        .map((f, i) => {
+                          const boroName = f.properties.BoroName;
+                          const colors = { Brooklyn: '#4a7aae', Queens: '#5a8a5e', Bronx: '#8a6a4a', Manhattan: '#6a5a8a', 'Staten Island': '#7a7a5a' };
+                          return (
+                            <path
+                              key={i}
+                              d={geoToSvgPath(f.geometry)}
+                              fill={hoveredBorough === boroName ? 'var(--yellow)' : (colors[boroName] || '#888888')}
+                              fillOpacity={0.6}
+                              stroke="#ffffff"
+                              strokeWidth={1.5}
+                              className="nyc-borough"
+                              onMouseEnter={() => setHoveredBorough(boroName)}
+                              onMouseLeave={() => setHoveredBorough(null)}
+                            >
+                              <title>{boroName}: {boroughData.find(b => b.name === boroName)?.events || 0} events</title>
+                            </path>
+                          );
+                        })
+                      }
+
                       {/* Labels */}
-                      <text x="327" y="129" fontSize="12" fill="var(--text)" textAnchor="middle" pointerEvents="none">Manhattan</text>
-                      <text x="330" y="277" fontSize="12" fill="var(--text)" textAnchor="middle" pointerEvents="none">Brooklyn</text>
-                      <text x="426" y="247" fontSize="12" fill="var(--text)" textAnchor="middle" pointerEvents="none">Queens</text>
-                      <text x="412" y="58" fontSize="12" fill="var(--text)" textAnchor="middle" pointerEvents="none">Bronx</text>
-                      <text x="126" y="367" fontSize="12" fill="var(--text)" textAnchor="middle" pointerEvents="none">Staten Is.</text>
+                      <text x="327" y="220" fontSize="12" fill="var(--text)" textAnchor="middle" pointerEvents="none" fontWeight="600">Manhattan</text>
+                      <text x="310" y="320" fontSize="12" fill="var(--text)" textAnchor="middle" pointerEvents="none" fontWeight="600">Brooklyn</text>
+                      <text x="450" y="260" fontSize="12" fill="var(--text)" textAnchor="middle" pointerEvents="none" fontWeight="600">Queens</text>
+                      <text x="420" y="80" fontSize="12" fill="var(--text)" textAnchor="middle" pointerEvents="none" fontWeight="600">Bronx</text>
+                      <text x="110" y="390" fontSize="12" fill="var(--text)" textAnchor="middle" pointerEvents="none" fontWeight="600">Staten Is.</text>
 
                       {/* Zipcode markers */}
                       {zipcodeData.map(zz => {
@@ -1763,6 +1751,25 @@ ORDER BY month DESC, borough;`}
           Data Analyst & Systems Architect<br />
           lancelot-nk.github.io
         </div>
+      </div>
+
+      {/* ─── PROJECT FOOTER ────────────────────────────────────── */}
+      <div style={{
+        borderTop: "1px solid #cccccc",
+        marginTop: 40,
+        padding: "18px 24px",
+        background: "#f9f9f7",
+        fontFamily: "'Trebuchet MS','Gill Sans',Tahoma,sans-serif",
+        fontSize: 12,
+        color: "#555550",
+        lineHeight: 1.7,
+      }}>
+        <p style={{ margin: 0 }}>
+          <strong style={{ color: "#1a1a14" }}>Lancelot Napier-Kane</strong> &nbsp;·&nbsp;
+          Tools: React, GeoJSON, SVG &nbsp;·&nbsp;
+          Methods: Event scheduling, geospatial borough analysis, venue capacity modeling &nbsp;·&nbsp;
+          Sources: NYC Parks/DOT event permits data models, NYC Open Data borough GIS
+        </p>
       </div>
     </div>
   );

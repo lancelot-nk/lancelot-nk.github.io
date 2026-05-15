@@ -1,31 +1,45 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 
-// ─── DESIGN TOKENS — Professional dark government/security palette ─────────
+// ─── DESIGN TOKENS — Enterprise government palette ────────────────────────
 const D = {
-  bg: "#0f1117",
-  bgPanel: "#161b22",
-  bgCard: "#1c2333",
-  bgHover: "#212940",
-  border: "#2a3347",
-  borderLight: "#3a4a63",
-  text: "#e6edf3",
-  textMid: "#a0b0c8",
-  textMute: "#5a6a80",
-  red: "#da3633",
-  redPale: "#3d1b1a",
-  orange: "#d18616",
-  orangePale: "#3a2a10",
-  yellow: "#c9a227",
-  yellowPale: "#2e2510",
-  green: "#2ea043",
-  greenPale: "#1a2e1e",
-  blue: "#1f6feb",
-  bluePale: "#1a2540",
-  teal: "#1a8a8a",
-  tealPale: "#152525",
-  purple: "#8250df",
-  purplePale: "#2a1f40",
-  accent: "#58a6ff",
+  bg: "#f5f4f0",
+  bgWhite: "#ffffff",
+  bgPanel: "#eeecea",
+  bgCard: "#f9f8f5",
+  bgHover: "#e4e2de",
+  bgDark: "#1c1f24",
+  bgDarkPanel: "#252830",
+  bgDarkCard: "#2e3340",
+  border: "#ccc9c0",
+  borderDark: "#b0ada4",
+  borderLight: "#dddad4",
+  text: "#1a1a14",
+  textMid: "#3d3d2e",
+  textMute: "#7a7868",
+  primary: "#2d5a8e",
+  primaryLight: "#4a7aae",
+  primaryPale: "#e8eff7",
+  primaryBorder: "#9ab8d4",
+  teal: "#1d6b5a",
+  tealPale: "#e0f0ea",
+  red: "#7a2020",
+  redPale: "#f5e4e4",
+  green: "#2a5c3a",
+  greenPale: "#e4f0e8",
+  amber: "#7a5a1a",
+  amberPale: "#f5f0e0",
+  purple: "#4a2870",
+  purplePale: "#ede4f5",
+  orange: "#8c4020",
+  orangePale: "#f5ece0",
+  headerBg: "#1c2840",
+  headerText: "#e8edf5",
+  // Backward-compat aliases
+  accent: "#2d5a8e",
+  blue: "#2d5a8e",
+  bluePale: "#e8eff7",
+  yellow: "#7a5a1a",
+  yellowPale: "#f5f0e0",
 };
 
 // ─── REAL DATA LAYER ─────────────────────────────────────────────────────────
@@ -178,7 +192,7 @@ function useSystemPulse() {
 
 // ─── COMPONENTS ──────────────────────────────────────────────────────────────
 function Tag({ label, color, bg }) {
-  return <span style={{ background:bg||color+"22", color:color, padding:"2px 8px", borderRadius:3, fontSize:10, fontWeight:700, fontFamily:"'Courier New',monospace", letterSpacing:0.5, border:`1px solid ${color}44` }}>{label}</span>;
+  return <span style={{ background:bg||color+"22", color:color, padding:"2px 8px", borderRadius:3, fontSize:10, fontWeight:700, fontFamily:"'IBM Plex Mono','Courier New',monospace", letterSpacing:0.5, border:`1px solid ${color}44` }}>{label}</span>;
 }
 
 function MetricCard({ label, value, sub, color, pulse: isPulse }) {
@@ -188,8 +202,8 @@ function MetricCard({ label, value, sub, color, pulse: isPulse }) {
   }, [value]);
   return (
     <div style={{ background:D.bgCard, border:`1px solid ${flash?color:D.border}`, borderRadius:4, padding:"14px 18px", transition:"border-color 0.3s" }}>
-      <div style={{ fontSize:10, color:D.textMute, textTransform:"uppercase", letterSpacing:1, marginBottom:4, fontFamily:"'Courier New',monospace" }}>{label}</div>
-      <div style={{ fontSize:22, fontWeight:700, color:color||D.text, fontFamily:"'Courier New',monospace" }}>{value}</div>
+      <div style={{ fontSize:10, color:D.textMute, textTransform:"uppercase", letterSpacing:1, marginBottom:4, fontFamily:"'IBM Plex Mono','Courier New',monospace" }}>{label}</div>
+      <div style={{ fontSize:22, fontWeight:700, color:color||D.text, fontFamily:"'IBM Plex Mono','Courier New',monospace" }}>{value}</div>
       {sub && <div style={{ fontSize:11, color:D.textMute, marginTop:2 }}>{sub}</div>}
     </div>
   );
@@ -202,7 +216,7 @@ function RiskBar({ score, width = "100%" }) {
       <div style={{ flex:1, background:D.border, borderRadius:2, height:6 }}>
         <div style={{ width:`${score*100}%`, height:"100%", background:c, borderRadius:2 }}/>
       </div>
-      <span style={{ fontSize:11, fontWeight:700, color:c, fontFamily:"'Courier New',monospace", minWidth:34 }}>{(score*100).toFixed(0)}%</span>
+      <span style={{ fontSize:11, fontWeight:700, color:c, fontFamily:"'IBM Plex Mono','Courier New',monospace", minWidth:34 }}>{(score*100).toFixed(0)}%</span>
     </div>
   );
 }
@@ -221,9 +235,9 @@ function Tab1Command({ pulse }) {
     <div style={{ display:"flex", flexDirection:"column", gap:18 }}>
       {/* System banner */}
       <div style={{ background:D.redPale, border:`1px solid ${D.red}`, borderRadius:4, padding:"10px 18px", display:"flex", gap:14, alignItems:"center", flexWrap:"wrap" }}>
-        <span style={{ color:D.red, fontWeight:700, fontSize:13, fontFamily:"'Courier New',monospace" }}>⚑ ACTIVE ALERT</span>
+        <span style={{ color:D.red, fontWeight:700, fontSize:13, fontFamily:"'IBM Plex Mono','Courier New',monospace" }}>⚑ ACTIVE ALERT</span>
         <span style={{ color:"#e0a0a0", fontSize:12 }}>Dark Web Sentinel: 2 SSNs matched in monitored credential dump — PIN resets initiated. DOI notified per 18 U.S.C. § 1030.</span>
-        <span style={{ marginLeft:"auto", fontSize:11, color:D.red, fontFamily:"'Courier New',monospace" }}>2025-05-14 07:44 UTC</span>
+        <span style={{ marginLeft:"auto", fontSize:11, color:D.red, fontFamily:"'IBM Plex Mono','Courier New',monospace" }}>2025-05-14 07:44 UTC</span>
       </div>
 
       {/* Live pulse strip */}
@@ -238,7 +252,7 @@ function Tab1Command({ pulse }) {
 
       {/* Program KPIs */}
       <div style={{ background:D.bgPanel, border:`1px solid ${D.border}`, borderRadius:4, padding:"16px 20px" }}>
-        <div style={{ fontSize:11, color:D.textMute, textTransform:"uppercase", letterSpacing:1, fontFamily:"'Courier New',monospace", marginBottom:14 }}>HRA Program Integrity — FY2023–2024 Key Metrics (Real Data)</div>
+        <div style={{ fontSize:11, color:D.textMute, textTransform:"uppercase", letterSpacing:1, fontFamily:"'IBM Plex Mono','Courier New',monospace", marginBottom:14 }}>HRA Program Integrity — FY2023–2024 Key Metrics (Real Data)</div>
         <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(200px,1fr))", gap:12 }}>
           {[
             ["Budget Managed","$7.6B","NYC SNAP/EBT + Cash Assistance",D.accent],
@@ -251,8 +265,8 @@ function Tab1Command({ pulse }) {
             ["Workload Reduction","40%","Via RPA + process automation",D.green],
           ].map(([label,val,sub,color])=>(
             <div key={label} style={{ background:D.bgCard, border:`1px solid ${D.border}`, borderRadius:4, padding:"12px 16px" }}>
-              <div style={{ fontSize:10, color:D.textMute, textTransform:"uppercase", letterSpacing:0.5, marginBottom:4, fontFamily:"'Courier New',monospace" }}>{label}</div>
-              <div style={{ fontSize:20, fontWeight:700, color, fontFamily:"'Courier New',monospace" }}>{val}</div>
+              <div style={{ fontSize:10, color:D.textMute, textTransform:"uppercase", letterSpacing:0.5, marginBottom:4, fontFamily:"'IBM Plex Mono','Courier New',monospace" }}>{label}</div>
+              <div style={{ fontSize:20, fontWeight:700, color, fontFamily:"'IBM Plex Mono','Courier New',monospace" }}>{val}</div>
               <div style={{ fontSize:11, color:D.textMute, marginTop:2 }}>{sub}</div>
             </div>
           ))}
@@ -263,7 +277,7 @@ function Tab1Command({ pulse }) {
       <div style={{ display:"grid", gridTemplateColumns:"1.5fr 1fr", gap:16 }}>
         {/* Monthly case volume bar chart */}
         <div style={{ background:D.bgPanel, border:`1px solid ${D.border}`, borderRadius:4, padding:"16px 20px" }}>
-          <div style={{ fontSize:11, color:D.textMute, textTransform:"uppercase", letterSpacing:1, fontFamily:"'Courier New',monospace", marginBottom:14 }}>Monthly Fraud Cases — Jun 2023 to May 2024 (USDA FNS / NYC DOI)</div>
+          <div style={{ fontSize:11, color:D.textMute, textTransform:"uppercase", letterSpacing:1, fontFamily:"'IBM Plex Mono','Courier New',monospace", marginBottom:14 }}>Monthly Fraud Cases — Jun 2023 to May 2024 (USDA FNS / NYC DOI)</div>
           <div style={{ display:"flex", gap:3, alignItems:"flex-end", height:140 }}>
             {MONTHLY_FRAUD_DATA.map((m,i)=>{
               const h = Math.round((m.cases/maxCases)*120);
@@ -287,7 +301,7 @@ function Tab1Command({ pulse }) {
 
         {/* Borough breakdown */}
         <div style={{ background:D.bgPanel, border:`1px solid ${D.border}`, borderRadius:4, padding:"16px 20px" }}>
-          <div style={{ fontSize:11, color:D.textMute, textTransform:"uppercase", letterSpacing:1, fontFamily:"'Courier New',monospace", marginBottom:14 }}>Fraud by Borough — Q1 2024</div>
+          <div style={{ fontSize:11, color:D.textMute, textTransform:"uppercase", letterSpacing:1, fontFamily:"'IBM Plex Mono','Courier New',monospace", marginBottom:14 }}>Fraud by Borough — Q1 2024</div>
           {BOROUGH_DATA.map(b=>{
             const maxC = Math.max(...BOROUGH_DATA.map(x=>x.cases));
             const pct = Math.round(b.cases/maxC*100);
@@ -297,7 +311,7 @@ function Tab1Command({ pulse }) {
                 <div style={{ display:"flex", justifyContent:"space-between", marginBottom:4 }}>
                   <span style={{ fontSize:12, color:D.text, fontWeight:600 }}>{b.borough}</span>
                   <div style={{ display:"flex", gap:8 }}>
-                    <span style={{ fontSize:11, color:bc, fontFamily:"'Courier New',monospace", fontWeight:700 }}>{b.cases.toLocaleString()}</span>
+                    <span style={{ fontSize:11, color:bc, fontFamily:"'IBM Plex Mono','Courier New',monospace", fontWeight:700 }}>{b.cases.toLocaleString()}</span>
                     <Tag label={b.riskLevel} color={bc}/>
                   </div>
                 </div>
@@ -313,7 +327,7 @@ function Tab1Command({ pulse }) {
 
       {/* Fraud type breakdown */}
       <div style={{ background:D.bgPanel, border:`1px solid ${D.border}`, borderRadius:4, padding:"16px 20px" }}>
-        <div style={{ fontSize:11, color:D.textMute, textTransform:"uppercase", letterSpacing:1, fontFamily:"'Courier New',monospace", marginBottom:14 }}>Fraud Type Composition — May 2024 (Trailing Month)</div>
+        <div style={{ fontSize:11, color:D.textMute, textTransform:"uppercase", letterSpacing:1, fontFamily:"'IBM Plex Mono','Courier New',monospace", marginBottom:14 }}>Fraud Type Composition — May 2024 (Trailing Month)</div>
         <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(220px,1fr))", gap:12 }}>
           {[
             ["EBT Skimming / Card Cloning",2720,"69.0%","Primary vector — POS overlay devices. NYC: #1 nationally Q1 2024.",D.red],
@@ -322,13 +336,13 @@ function Tab1Command({ pulse }) {
             ["Other (Phishing, Internal, Ghost)",188,"4.8%","Smishing campaigns, caseworker anomalies, DMF sync gaps.",D.yellow],
           ].map(([label,count,pct,desc,color])=>(
             <div key={label} style={{ background:D.bgCard, border:`1px solid ${D.border}`, borderRadius:4, padding:"12px 16px" }}>
-              <div style={{ fontSize:20, fontWeight:700, color, fontFamily:"'Courier New',monospace", marginBottom:2 }}>{count.toLocaleString()}</div>
+              <div style={{ fontSize:20, fontWeight:700, color, fontFamily:"'IBM Plex Mono','Courier New',monospace", marginBottom:2 }}>{count.toLocaleString()}</div>
               <div style={{ fontSize:12, fontWeight:700, color:D.text, marginBottom:4 }}>{label}</div>
               <div style={{ fontSize:10, color:D.textMute, lineHeight:1.5 }}>{desc}</div>
               <div style={{ marginTop:8, background:D.border, borderRadius:2, height:4 }}>
                 <div style={{ width:pct, height:"100%", background:color, borderRadius:2 }}/>
               </div>
-              <div style={{ fontSize:10, color, marginTop:3, fontFamily:"'Courier New',monospace", fontWeight:700 }}>{pct}</div>
+              <div style={{ fontSize:10, color, marginTop:3, fontFamily:"'IBM Plex Mono','Courier New',monospace", fontWeight:700 }}>{pct}</div>
             </div>
           ))}
         </div>
@@ -358,9 +372,9 @@ function Tab2Cases() {
     <div style={{ display:"flex", flexDirection:"column", gap:14 }}>
       {/* Filters */}
       <div style={{ display:"flex", gap:6, flexWrap:"wrap", alignItems:"center" }}>
-        <span style={{ fontSize:11, color:D.textMute, fontFamily:"'Courier New',monospace" }}>FILTER:</span>
+        <span style={{ fontSize:11, color:D.textMute, fontFamily:"'IBM Plex Mono','Courier New',monospace" }}>FILTER:</span>
         {types.slice(0,6).map(t=>(
-          <button key={t} onClick={()=>setFilter(t)} style={{ padding:"4px 10px", borderRadius:3, border:`1px solid ${filter===t?D.accent:D.border}`, background:filter===t?D.bluePale:D.bgCard, color:filter===t?D.accent:D.textMute, fontSize:11, cursor:"pointer", fontFamily:"'Courier New',monospace" }}>{t}</button>
+          <button key={t} onClick={()=>setFilter(t)} style={{ padding:"4px 10px", borderRadius:3, border:`1px solid ${filter===t?D.accent:D.border}`, background:filter===t?D.bluePale:D.bgCard, color:filter===t?D.accent:D.textMute, fontSize:11, cursor:"pointer", fontFamily:"'IBM Plex Mono','Courier New',monospace" }}>{t}</button>
         ))}
       </div>
 
@@ -368,7 +382,7 @@ function Tab2Cases() {
         {/* Case list */}
         <div style={{ background:D.bgPanel, border:`1px solid ${D.border}`, borderRadius:4, overflow:"hidden" }}>
           <div style={{ borderBottom:`1px solid ${D.border}`, padding:"10px 16px", background:D.bgCard }}>
-            <span style={{ fontSize:11, color:D.textMute, fontFamily:"'Courier New',monospace", textTransform:"uppercase", letterSpacing:1 }}>Case Queue — {filtered.length} records</span>
+            <span style={{ fontSize:11, color:D.textMute, fontFamily:"'IBM Plex Mono','Courier New',monospace", textTransform:"uppercase", letterSpacing:1 }}>Case Queue — {filtered.length} records</span>
           </div>
           <div style={{ overflowY:"auto", maxHeight:520 }}>
             {filtered.map((c,i)=>{
@@ -378,7 +392,7 @@ function Tab2Cases() {
                   style={{ padding:"12px 16px", borderBottom:`1px solid ${D.border}`, cursor:"pointer", background:isSel?D.bgHover:"transparent", transition:"background 0.1s" }}>
                   <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:6, flexWrap:"wrap", gap:6 }}>
                     <div>
-                      <div style={{ fontFamily:"'Courier New',monospace", fontSize:12, color:D.accent, marginBottom:2 }}>{c.id}</div>
+                      <div style={{ fontFamily:"'IBM Plex Mono','Courier New',monospace", fontSize:12, color:D.accent, marginBottom:2 }}>{c.id}</div>
                       <div style={{ fontSize:13, fontWeight:700, color:D.text }}>{c.caseType}</div>
                     </div>
                     <div style={{ display:"flex", gap:5, flexWrap:"wrap" }}>
@@ -389,7 +403,7 @@ function Tab2Cases() {
                   <div style={{ display:"flex", gap:12, flexWrap:"wrap" }}>
                     <RiskBar score={c.riskScore}/>
                     <span style={{ fontSize:11, color:D.textMute }}>{c.borough}</span>
-                    <span style={{ fontSize:11, color:D.orange, fontFamily:"'Courier New',monospace" }}>{fmtDollar(c.amount)}</span>
+                    <span style={{ fontSize:11, color:D.orange, fontFamily:"'IBM Plex Mono','Courier New',monospace" }}>{fmtDollar(c.amount)}</span>
                     <span style={{ fontSize:11, color:D.textMute }}>{c.detectedDate}</span>
                     {c.travelFlag && <Tag label="IMPOSSIBLE TRAVEL" color={D.red}/>}
                     {c.evenDollar && <Tag label="EVEN-DOLLAR FLAG" color={D.orange}/>}
@@ -405,7 +419,7 @@ function Tab2Cases() {
           <div style={{ background:D.bgPanel, border:`1px solid ${D.border}`, borderRadius:4, padding:"18px 22px" }}>
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:16, flexWrap:"wrap", gap:8 }}>
               <div>
-                <div style={{ fontFamily:"'Courier New',monospace", fontSize:11, color:D.textMute, marginBottom:4 }}>CASE FILE · {caseDetail.id}</div>
+                <div style={{ fontFamily:"'IBM Plex Mono','Courier New',monospace", fontSize:11, color:D.textMute, marginBottom:4 }}>CASE FILE · {caseDetail.id}</div>
                 <h3 style={{ margin:0, fontSize:16, color:D.text }}>{caseDetail.caseType}</h3>
                 <div style={{ fontSize:12, color:D.textMute, marginTop:3 }}>{caseDetail.borough} ZIP {caseDetail.zip} · Detected {caseDetail.detectedDate}</div>
               </div>
@@ -415,8 +429,8 @@ function Tab2Cases() {
             <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:10, marginBottom:16 }}>
               {[["Risk Score",(caseDetail.riskScore*100).toFixed(0)+"%",riskColor(caseDetail.riskScore)],["Estimated Loss",fmtDollar(caseDetail.amount),D.orange],["Victims",caseDetail.victims,D.red],["NIST Control",caseDetail.nistControl,D.teal],["Investigator",caseDetail.investigator,D.textMid],["Caseworker",caseDetail.caseworker,D.textMid]].map(([k,v,c])=>(
                 <div key={k} style={{ background:D.bgCard, borderRadius:3, padding:"8px 12px" }}>
-                  <div style={{ fontSize:10, color:D.textMute, textTransform:"uppercase", letterSpacing:0.5, fontFamily:"'Courier New',monospace", marginBottom:3 }}>{k}</div>
-                  <div style={{ fontSize:13, fontWeight:700, color:c, fontFamily:"'Courier New',monospace" }}>{v}</div>
+                  <div style={{ fontSize:10, color:D.textMute, textTransform:"uppercase", letterSpacing:0.5, fontFamily:"'IBM Plex Mono','Courier New',monospace", marginBottom:3 }}>{k}</div>
+                  <div style={{ fontSize:13, fontWeight:700, color:c, fontFamily:"'IBM Plex Mono','Courier New',monospace" }}>{v}</div>
                 </div>
               ))}
             </div>
@@ -436,26 +450,26 @@ function Tab2Cases() {
             </div>
 
             <div style={{ background:D.bgCard, borderRadius:3, padding:"10px 14px", marginBottom:14 }}>
-              <div style={{ fontSize:10, color:D.textMute, textTransform:"uppercase", letterSpacing:0.5, fontFamily:"'Courier New',monospace", marginBottom:6 }}>Detection Method</div>
+              <div style={{ fontSize:10, color:D.textMute, textTransform:"uppercase", letterSpacing:0.5, fontFamily:"'IBM Plex Mono','Courier New',monospace", marginBottom:6 }}>Detection Method</div>
               <div style={{ fontSize:13, color:D.accent }}>{caseDetail.method}</div>
             </div>
 
             <div style={{ background:D.bgCard, borderRadius:3, padding:"10px 14px", marginBottom:16 }}>
-              <div style={{ fontSize:10, color:D.textMute, textTransform:"uppercase", letterSpacing:0.5, fontFamily:"'Courier New',monospace", marginBottom:6 }}>Disposition</div>
+              <div style={{ fontSize:10, color:D.textMute, textTransform:"uppercase", letterSpacing:0.5, fontFamily:"'IBM Plex Mono','Courier New',monospace", marginBottom:6 }}>Disposition</div>
               <div style={{ fontSize:13, color:D.text }}>{caseDetail.disposition}</div>
             </div>
 
             {/* Subpoena drafter */}
             {caseDetail.riskScore >= 0.89 && (
               <div style={{ border:`1px solid ${D.orange}`, borderRadius:4, padding:"14px 18px", background:D.orangePale, marginBottom:14 }}>
-                <div style={{ fontSize:11, color:D.orange, fontWeight:700, fontFamily:"'Courier New',monospace", marginBottom:8 }}>⚑ AUTO-SUBPOENA THRESHOLD MET (Risk ≥ 0.89)</div>
+                <div style={{ fontSize:11, color:D.orange, fontWeight:700, fontFamily:"'IBM Plex Mono','Courier New',monospace", marginBottom:8 }}>⚑ AUTO-SUBPOENA THRESHOLD MET (Risk ≥ 0.89)</div>
                 <div style={{ fontSize:12, color:"#e0c080", marginBottom:10 }}>This case qualifies for automated legal packet generation under HRA Integrity Protocol §7.4. The packet includes all transaction logs, geo-tags, ISO 8583 records, and NIST audit chain.</div>
                 <button onClick={()=>generateSubpoena(caseDetail)}
-                  style={{ background:D.orange, color:"#1a1000", border:"none", borderRadius:3, padding:"9px 18px", fontSize:12, fontWeight:700, cursor:"pointer", fontFamily:"'Courier New',monospace" }}>
+                  style={{ background:D.orange, color:"#1a1000", border:"none", borderRadius:3, padding:"9px 18px", fontSize:12, fontWeight:700, cursor:"pointer", fontFamily:"'IBM Plex Mono','Courier New',monospace" }}>
                   GENERATE LEGAL PACKET → DA
                 </button>
                 {subpoenaDraft?._id===caseDetail.id || subpoenaDraft?.id===caseDetail.id ? (
-                  <div style={{ marginTop:10, fontSize:12, color:subpoenaGenerated?D.green:D.yellow, fontFamily:"'Courier New',monospace", fontWeight:700 }}>
+                  <div style={{ marginTop:10, fontSize:12, color:subpoenaGenerated?D.green:D.yellow, fontFamily:"'IBM Plex Mono','Courier New',monospace", fontWeight:700 }}>
                     {subpoenaGenerated ? `✓ SP-${caseDetail.id.slice(-4)} generated — routed to ADA queue. NIST AU-6 event logged.` : "⟳ Compiling transaction logs + geo-tags + audit chain..."}
                   </div>
                 ) : null}
@@ -464,8 +478,8 @@ function Tab2Cases() {
 
             {/* Raw packet preview */}
             <details>
-              <summary style={{ fontSize:11, color:D.textMute, cursor:"pointer", userSelect:"none", fontFamily:"'Courier New',monospace" }}>View ISO 8583 Packet Sample ▾</summary>
-              <pre style={{ fontSize:10, background:D.bg, borderRadius:3, padding:"10px 14px", marginTop:8, color:"#68d068", overflowX:"auto", lineHeight:1.7, fontFamily:"'Courier New',monospace" }}>{`MTI: 0200 (Authorization Request)
+              <summary style={{ fontSize:11, color:D.textMute, cursor:"pointer", userSelect:"none", fontFamily:"'IBM Plex Mono','Courier New',monospace" }}>View ISO 8583 Packet Sample ▾</summary>
+              <pre style={{ fontSize:10, background:D.bgDark, borderRadius:3, padding:"10px 14px", marginTop:8, color:"#68d068", overflowX:"auto", lineHeight:1.7, fontFamily:"'IBM Plex Mono','Courier New',monospace" }}>{`MTI: 0200 (Authorization Request)
 Field 2  (PAN):           ****-****-****-7823 [MASKED]
 Field 3  (Proc Code):     00 20 00 (Purchase)
 Field 4  (Tx Amount):     $200.00 ← EVEN-DOLLAR FLAG
@@ -507,7 +521,7 @@ function Tab3Compliance() {
 
       {/* Compliance heatmap */}
       <div style={{ background:D.bgPanel, border:`1px solid ${D.border}`, borderRadius:4, padding:"16px 20px" }}>
-        <div style={{ fontSize:11, color:D.textMute, textTransform:"uppercase", letterSpacing:1, fontFamily:"'Courier New',monospace", marginBottom:14 }}>NIST-800-53 Control Compliance Matrix</div>
+        <div style={{ fontSize:11, color:D.textMute, textTransform:"uppercase", letterSpacing:1, fontFamily:"'IBM Plex Mono','Courier New',monospace", marginBottom:14 }}>NIST-800-53 Control Compliance Matrix</div>
         <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(260px,1fr))", gap:8 }}>
           {NIST_CONTROLS.map(ctrl=>{
             const isSel = selected===ctrl.id;
@@ -516,7 +530,7 @@ function Tab3Compliance() {
               <div key={ctrl.id} onClick={()=>setSelected(isSel?null:ctrl.id)}
                 style={{ background:isSel?D.bgHover:D.bgCard, border:`1px solid ${isSel?borderColor:D.border}`, borderRadius:4, padding:"12px 14px", cursor:"pointer", transition:"all 0.15s", borderLeft:`3px solid ${borderColor}` }}>
                 <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:6 }}>
-                  <span style={{ fontFamily:"'Courier New',monospace", fontSize:12, color:D.accent, fontWeight:700 }}>{ctrl.id}</span>
+                  <span style={{ fontFamily:"'IBM Plex Mono','Courier New',monospace", fontSize:12, color:D.accent, fontWeight:700 }}>{ctrl.id}</span>
                   <div style={{ display:"flex", gap:5 }}>
                     <Tag label={ctrl.status} color={ctrl.status==="COMPLIANT"?D.green:D.orange}/>
                     <Tag label={ctrl.risk} color={ctrl.risk==="HIGH"?D.red:ctrl.risk==="MEDIUM"?D.orange:D.green}/>
@@ -538,11 +552,11 @@ function Tab3Compliance() {
 
       {/* Active findings detail */}
       <div style={{ background:D.bgPanel, border:`1px solid ${D.border}`, borderRadius:4, padding:"16px 20px" }}>
-        <div style={{ fontSize:11, color:D.textMute, textTransform:"uppercase", letterSpacing:1, fontFamily:"'Courier New',monospace", marginBottom:14 }}>Active Findings — Remediation Required</div>
+        <div style={{ fontSize:11, color:D.textMute, textTransform:"uppercase", letterSpacing:1, fontFamily:"'IBM Plex Mono','Courier New',monospace", marginBottom:14 }}>Active Findings — Remediation Required</div>
         {NIST_CONTROLS.filter(c=>c.status==="FINDING").map(ctrl=>(
           <div key={ctrl.id} style={{ background:D.bgCard, border:`1px solid ${ctrl.risk==="HIGH"?D.red:D.orange}`, borderRadius:4, padding:"14px 18px", marginBottom:10, borderLeft:`4px solid ${ctrl.risk==="HIGH"?D.red:D.orange}` }}>
             <div style={{ display:"flex", gap:10, alignItems:"center", marginBottom:8, flexWrap:"wrap" }}>
-              <span style={{ fontFamily:"'Courier New',monospace", fontSize:12, color:D.accent, fontWeight:700 }}>{ctrl.id}</span>
+              <span style={{ fontFamily:"'IBM Plex Mono','Courier New',monospace", fontSize:12, color:D.accent, fontWeight:700 }}>{ctrl.id}</span>
               <span style={{ fontSize:13, color:D.text, fontWeight:700 }}>{ctrl.name}</span>
               <Tag label={`RISK: ${ctrl.risk}`} color={ctrl.risk==="HIGH"?D.red:D.orange}/>
               <span style={{ fontSize:11, color:D.textMute, marginLeft:"auto" }}>Last Audit: {ctrl.lastAudit}</span>
@@ -554,7 +568,7 @@ function Tab3Compliance() {
 
       {/* Regulatory references */}
       <div style={{ background:D.bgPanel, border:`1px solid ${D.border}`, borderRadius:4, padding:"16px 20px" }}>
-        <div style={{ fontSize:11, color:D.textMute, textTransform:"uppercase", letterSpacing:1, fontFamily:"'Courier New',monospace", marginBottom:12 }}>Applicable Regulatory Framework</div>
+        <div style={{ fontSize:11, color:D.textMute, textTransform:"uppercase", letterSpacing:1, fontFamily:"'IBM Plex Mono','Courier New',monospace", marginBottom:12 }}>Applicable Regulatory Framework</div>
         <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(300px,1fr))", gap:10 }}>
           {[
             ["NIST SP 800-53 Rev 5","Federal security and privacy controls baseline for all federal/state-funded social service systems. Mandated for HRA WMS under FedRAMP."],
@@ -567,7 +581,7 @@ function Tab3Compliance() {
             ["44 U.S.C. § 3101","Federal records retention requirement — 3-year minimum for all audit logs and transaction records. HRA current retention: 5 years."],
           ].map(([title,desc])=>(
             <div key={title} style={{ background:D.bgCard, border:`1px solid ${D.border}`, borderRadius:3, padding:"12px 14px" }}>
-              <div style={{ fontFamily:"'Courier New',monospace", fontSize:11, color:D.teal, fontWeight:700, marginBottom:5 }}>{title}</div>
+              <div style={{ fontFamily:"'IBM Plex Mono','Courier New',monospace", fontSize:11, color:D.teal, fontWeight:700, marginBottom:5 }}>{title}</div>
               <div style={{ fontSize:12, color:D.textMid, lineHeight:1.5 }}>{desc}</div>
             </div>
           ))}
@@ -617,7 +631,7 @@ function Tab4RPA() {
 
       {/* Task grid */}
       <div style={{ background:D.bgPanel, border:`1px solid ${D.border}`, borderRadius:4, padding:"16px 20px" }}>
-        <div style={{ fontSize:11, color:D.textMute, textTransform:"uppercase", letterSpacing:1, fontFamily:"'Courier New',monospace", marginBottom:14 }}>RPA Bot Registry — UiPath, Power Automate, SSIS</div>
+        <div style={{ fontSize:11, color:D.textMute, textTransform:"uppercase", letterSpacing:1, fontFamily:"'IBM Plex Mono','Courier New',monospace", marginBottom:14 }}>RPA Bot Registry — UiPath, Power Automate, SSIS</div>
         <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
           {RPA_TASKS.map(task=>{
             const sc = task.status==="RUNNING"?D.green:task.status==="ALERT"?D.red:D.teal;
@@ -634,7 +648,7 @@ function Tab4RPA() {
                   <span style={{ fontSize:11, color:D.textMute }}>Last: {task.lastRun}</span>
                   {task.reducedManualTouchpoints > 0 && <span style={{ fontSize:11, color:D.green }}>−{task.reducedManualTouchpoints} manual</span>}
                   <button onClick={()=>triggerBot(task)} disabled={!!running}
-                    style={{ background:running?D.border:D.bluePale, color:running?D.textMute:D.accent, border:`1px solid ${running?D.border:D.blue}`, borderRadius:3, padding:"4px 12px", fontSize:11, cursor:running?"not-allowed":"pointer", fontFamily:"'Courier New',monospace" }}>
+                    style={{ background:running?D.border:D.bluePale, color:running?D.textMute:D.accent, border:`1px solid ${running?D.border:D.blue}`, borderRadius:3, padding:"4px 12px", fontSize:11, cursor:running?"not-allowed":"pointer", fontFamily:"'IBM Plex Mono','Courier New',monospace" }}>
                     {isThis ? "⟳ RUNNING..." : "▶ TRIGGER"}
                   </button>
                 </div>
@@ -647,10 +661,10 @@ function Tab4RPA() {
       {/* Bot console */}
       {taskLog.length > 0 && (
         <div style={{ background:D.bgPanel, border:`1px solid ${D.border}`, borderRadius:4, padding:"16px 20px" }}>
-          <div style={{ fontSize:11, color:D.textMute, textTransform:"uppercase", letterSpacing:1, fontFamily:"'Courier New',monospace", marginBottom:10 }}>Bot Execution Console</div>
-          <div style={{ background:D.bg, borderRadius:3, padding:"14px 16px", fontFamily:"'Courier New',monospace", fontSize:12, lineHeight:1.8, maxHeight:240, overflowY:"auto" }}>
+          <div style={{ fontSize:11, color:D.textMute, textTransform:"uppercase", letterSpacing:1, fontFamily:"'IBM Plex Mono','Courier New',monospace", marginBottom:10 }}>Bot Execution Console</div>
+          <div style={{ background:D.bgDark, borderRadius:3, padding:"14px 16px", fontFamily:"'IBM Plex Mono','Courier New',monospace", fontSize:12, lineHeight:1.8, maxHeight:240, overflowY:"auto" }}>
             {taskLog.map((line,i)=>(
-              <div key={i} style={{ color:line.includes("✓")?D.green:line.includes("ERROR")?D.red:"#8ab8d8" }}>{line}</div>
+              <div key={i} style={{ color:line.includes("✓")?"#5da87a":line.includes("ERROR")?"#e07070":"#8ab8d8" }}>{line}</div>
             ))}
           </div>
         </div>
@@ -658,7 +672,7 @@ function Tab4RPA() {
 
       {/* Tools explainer */}
       <div style={{ background:D.bgPanel, border:`1px solid ${D.border}`, borderRadius:4, padding:"16px 20px" }}>
-        <div style={{ fontSize:11, color:D.textMute, textTransform:"uppercase", letterSpacing:1, fontFamily:"'Courier New',monospace", marginBottom:12 }}>Tool Stack — HRA Data Infrastructure</div>
+        <div style={{ fontSize:11, color:D.textMute, textTransform:"uppercase", letterSpacing:1, fontFamily:"'IBM Plex Mono','Courier New',monospace", marginBottom:12 }}>Tool Stack — HRA Data Infrastructure</div>
         <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(240px,1fr))", gap:10 }}>
           {[
             ["UiPath (RPA)", D.teal, "Robotic Process Automation — WMS–POS reconciliation, benefit issuance verification, DMF sync. Eliminated 40% of manual caseworker touchpoints FY2024."],
@@ -671,7 +685,7 @@ function Tab4RPA() {
             ["POS (Paperless Office System)", D.yellow, "Digital document management for caseworker workflows. Integrated with WMS for paperless benefit verification. RPA sync target."],
           ].map(([name,color,desc])=>(
             <div key={name} style={{ background:D.bgCard, border:`1px solid ${D.border}`, borderRadius:3, padding:"12px 14px" }}>
-              <div style={{ fontWeight:700, color, fontSize:13, marginBottom:5, fontFamily:"'Courier New',monospace" }}>{name}</div>
+              <div style={{ fontWeight:700, color, fontSize:13, marginBottom:5, fontFamily:"'IBM Plex Mono','Courier New',monospace" }}>{name}</div>
               <div style={{ fontSize:12, color:D.textMid, lineHeight:1.5 }}>{desc}</div>
             </div>
           ))}
@@ -706,16 +720,16 @@ function Tab5AuditLog() {
   return (
     <div style={{ display:"flex", flexDirection:"column", gap:14 }}>
       <div style={{ display:"flex", gap:6, flexWrap:"wrap", alignItems:"center" }}>
-        <span style={{ fontSize:11, color:D.textMute, fontFamily:"'Courier New',monospace" }}>SEVERITY:</span>
+        <span style={{ fontSize:11, color:D.textMute, fontFamily:"'IBM Plex Mono','Courier New',monospace" }}>SEVERITY:</span>
         {sevs.map(s=>(
-          <button key={s} onClick={()=>setFilterSev(s)} style={{ padding:"4px 10px", borderRadius:3, border:`1px solid ${filterSev===s?D.accent:D.border}`, background:filterSev===s?D.bluePale:D.bgCard, color:filterSev===s?D.accent:D.textMute, fontSize:11, cursor:"pointer", fontFamily:"'Courier New',monospace" }}>{s}</button>
+          <button key={s} onClick={()=>setFilterSev(s)} style={{ padding:"4px 10px", borderRadius:3, border:`1px solid ${filterSev===s?D.accent:D.border}`, background:filterSev===s?D.bluePale:D.bgCard, color:filterSev===s?D.accent:D.textMute, fontSize:11, cursor:"pointer", fontFamily:"'IBM Plex Mono','Courier New',monospace" }}>{s}</button>
         ))}
-        <span style={{ fontSize:11, color:D.green, marginLeft:8, fontFamily:"'Courier New',monospace" }}>● LIVE — updating every 4s</span>
+        <span style={{ fontSize:11, color:D.green, marginLeft:8, fontFamily:"'IBM Plex Mono','Courier New',monospace" }}>● LIVE — updating every 4s</span>
       </div>
 
       <div style={{ background:D.bgPanel, border:`1px solid ${D.border}`, borderRadius:4, overflow:"hidden" }}>
         <div style={{ padding:"10px 16px", background:D.bgCard, borderBottom:`1px solid ${D.border}` }}>
-          <span style={{ fontSize:11, color:D.textMute, fontFamily:"'Courier New',monospace", textTransform:"uppercase", letterSpacing:1 }}>KERNEL AUDIT LOG — {filtered.length} events · NIST 800-53 AU-2/AU-3 Compliant · Retention: 5 years</span>
+          <span style={{ fontSize:11, color:D.textMute, fontFamily:"'IBM Plex Mono','Courier New',monospace", textTransform:"uppercase", letterSpacing:1 }}>KERNEL AUDIT LOG — {filtered.length} events · NIST 800-53 AU-2/AU-3 Compliant · Retention: 5 years</span>
         </div>
         <div style={{ maxHeight:540, overflowY:"auto" }}>
           {filtered.map((event,i)=>{
@@ -723,9 +737,9 @@ function Tab5AuditLog() {
             return (
               <div key={i} style={{ padding:"10px 16px", borderBottom:`1px solid ${D.border}`, display:"flex", gap:12, alignItems:"flex-start", background:i===0&&event.severity!=="INFO"?event.severity==="HIGH"||event.severity==="CRITICAL"?D.redPale+"44":"transparent":"transparent" }}>
                 <SeverityDot s={event.severity}/>
-                <span style={{ fontSize:11, color:D.textMute, fontFamily:"'Courier New',monospace", minWidth:140, flexShrink:0 }}>{event.ts}</span>
-                <span style={{ fontSize:11, color:D.accent, fontFamily:"'Courier New',monospace", minWidth:80, flexShrink:0 }}>{event.user}</span>
-                <span style={{ fontSize:11, color:sc, fontFamily:"'Courier New',monospace", minWidth:160, flexShrink:0, fontWeight:event.severity==="CRITICAL"||event.severity==="HIGH"?700:400 }}>{event.action}</span>
+                <span style={{ fontSize:11, color:D.textMute, fontFamily:"'IBM Plex Mono','Courier New',monospace", minWidth:140, flexShrink:0 }}>{event.ts}</span>
+                <span style={{ fontSize:11, color:D.accent, fontFamily:"'IBM Plex Mono','Courier New',monospace", minWidth:80, flexShrink:0 }}>{event.user}</span>
+                <span style={{ fontSize:11, color:sc, fontFamily:"'IBM Plex Mono','Courier New',monospace", minWidth:160, flexShrink:0, fontWeight:event.severity==="CRITICAL"||event.severity==="HIGH"?700:400 }}>{event.action}</span>
                 <span style={{ fontSize:12, color:D.textMid, flex:1, lineHeight:1.5 }}>{event.detail}</span>
                 <Tag label={event.nist} color={D.teal}/>
               </div>
@@ -736,7 +750,7 @@ function Tab5AuditLog() {
 
       {/* Log integrity */}
       <div style={{ background:D.bgPanel, border:`1px solid ${D.border}`, borderRadius:4, padding:"14px 18px" }}>
-        <div style={{ fontSize:11, color:D.textMute, textTransform:"uppercase", letterSpacing:1, fontFamily:"'Courier New',monospace", marginBottom:10 }}>Log Integrity Controls</div>
+        <div style={{ fontSize:11, color:D.textMute, textTransform:"uppercase", letterSpacing:1, fontFamily:"'IBM Plex Mono','Courier New',monospace", marginBottom:10 }}>Log Integrity Controls</div>
         <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(240px,1fr))", gap:10 }}>
           {[
             ["Log Chain Hash","SHA-256 Merkle chain. Tamper-evident. Verified each write cycle. NIST AU-9.","#68d068"],
@@ -745,7 +759,7 @@ function Tab5AuditLog() {
             ["Export / SIEM","Logs forwarded to NYC DOITT SIEM (Splunk) via syslog. Real-time correlation with threat intel feeds.","#8ab8d8"],
           ].map(([title,desc,color])=>(
             <div key={title} style={{ background:D.bgCard, borderRadius:3, padding:"10px 14px" }}>
-              <div style={{ fontFamily:"'Courier New',monospace", fontSize:11, color, fontWeight:700, marginBottom:4 }}>{title}</div>
+              <div style={{ fontFamily:"'IBM Plex Mono','Courier New',monospace", fontSize:11, color, fontWeight:700, marginBottom:4 }}>{title}</div>
               <div style={{ fontSize:12, color:D.textMid, lineHeight:1.5 }}>{desc}</div>
             </div>
           ))}
@@ -797,17 +811,17 @@ function Tab6LiveTriage({ isLive }) {
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search case ID, type, borough, rule..."
-            style={{ background:'none', border:'none', outline:'none', color:D.text, fontSize:12, width:'100%', fontFamily:"'Courier New',monospace" }}
+            style={{ background:'none', border:'none', outline:'none', color:D.text, fontSize:12, width:'100%', fontFamily:"'IBM Plex Mono','Courier New',monospace" }}
           />
         </div>
-        <span style={{ fontSize:11, color:D.textMute, fontFamily:"'Courier New',monospace" }}>SEV:</span>
+        <span style={{ fontSize:11, color:D.textMute, fontFamily:"'IBM Plex Mono','Courier New',monospace" }}>SEV:</span>
         {['ALL','CRITICAL','HIGH','MEDIUM','LOW'].map(s => (
           <button key={s} onClick={() => setSevFilter(s)}
-            style={{ padding:'4px 10px', borderRadius:3, border:`1px solid ${sevFilter===s ? sevColor(s) : D.border}`, background:sevFilter===s ? sevColor(s)+'22' : D.bgCard, color:sevFilter===s ? sevColor(s) : D.textMute, fontSize:11, cursor:'pointer', fontFamily:"'Courier New',monospace" }}
+            style={{ padding:'4px 10px', borderRadius:3, border:`1px solid ${sevFilter===s ? sevColor(s) : D.border}`, background:sevFilter===s ? sevColor(s)+'22' : D.bgCard, color:sevFilter===s ? sevColor(s) : D.textMute, fontSize:11, cursor:'pointer', fontFamily:"'IBM Plex Mono','Courier New',monospace" }}
           >{s}</button>
         ))}
         {isLive && (
-          <span style={{ fontSize:11, color:D.green, fontFamily:"'Courier New',monospace", fontWeight:700 }}>
+          <span style={{ fontSize:11, color:D.green, fontFamily:"'IBM Plex Mono','Courier New',monospace", fontWeight:700 }}>
             ● LIVE — {liveCount} injected
           </span>
         )}
@@ -824,8 +838,8 @@ function Tab6LiveTriage({ isLive }) {
           ['Savings Pot.', '$'+streamData.reduce((s,c)=>s+parseFloat(c.savingsPotential),0).toLocaleString(undefined,{maximumFractionDigits:0}), D.teal],
         ].map(([lbl,val,col]) => (
           <div key={lbl} style={{ background:D.bgCard, border:`1px solid ${D.border}`, borderRadius:4, padding:'10px 14px' }}>
-            <div style={{ fontSize:10, color:D.textMute, textTransform:'uppercase', letterSpacing:0.5, fontFamily:"'Courier New',monospace", marginBottom:3 }}>{lbl}</div>
-            <div style={{ fontSize:18, fontWeight:700, color:col, fontFamily:"'Courier New',monospace" }}>{val}</div>
+            <div style={{ fontSize:10, color:D.textMute, textTransform:'uppercase', letterSpacing:0.5, fontFamily:"'IBM Plex Mono','Courier New',monospace", marginBottom:3 }}>{lbl}</div>
+            <div style={{ fontSize:18, fontWeight:700, color:col, fontFamily:"'IBM Plex Mono','Courier New',monospace" }}>{val}</div>
           </div>
         ))}
       </div>
@@ -833,15 +847,15 @@ function Tab6LiveTriage({ isLive }) {
       {/* Table */}
       <div style={{ background:D.bgPanel, border:`1px solid ${D.border}`, borderRadius:4, overflow:'hidden' }}>
         <div style={{ padding:'10px 16px', background:D.bgCard, borderBottom:`1px solid ${D.border}`, display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-          <span style={{ fontSize:11, color:D.textMute, fontFamily:"'Courier New',monospace", textTransform:'uppercase', letterSpacing:1 }}>Triage Stream — {filtered.length} records</span>
-          <span style={{ fontSize:10, color:D.textMute, fontFamily:"'Courier New',monospace" }}>Click row for packet detail</span>
+          <span style={{ fontSize:11, color:D.textMute, fontFamily:"'IBM Plex Mono','Courier New',monospace", textTransform:'uppercase', letterSpacing:1 }}>Triage Stream — {filtered.length} records</span>
+          <span style={{ fontSize:10, color:D.textMute, fontFamily:"'IBM Plex Mono','Courier New',monospace" }}>Click row for packet detail</span>
         </div>
         <div style={{ overflowY:'auto', maxHeight:420 }}>
           <table style={{ width:'100%', borderCollapse:'collapse', fontSize:11 }}>
             <thead>
               <tr style={{ background:D.bg, position:'sticky', top:0, zIndex:1 }}>
                 {['Case ID','Type','Borough','Risk','Severity','Status','Agent','Savings','Timestamp'].map(h => (
-                  <th key={h} style={{ padding:'8px 12px', textAlign:'left', fontSize:10, fontWeight:700, color:D.textMute, borderBottom:`1px solid ${D.border}`, whiteSpace:'nowrap', fontFamily:"'Courier New',monospace", textTransform:'uppercase', letterSpacing:0.5 }}>{h}</th>
+                  <th key={h} style={{ padding:'8px 12px', textAlign:'left', fontSize:10, fontWeight:700, color:D.textMute, borderBottom:`1px solid ${D.border}`, whiteSpace:'nowrap', fontFamily:"'IBM Plex Mono','Courier New',monospace", textTransform:'uppercase', letterSpacing:0.5 }}>{h}</th>
                 ))}
               </tr>
             </thead>
@@ -851,7 +865,7 @@ function Tab6LiveTriage({ isLive }) {
                 return (
                   <tr key={c.id} onClick={() => setSelected(isSel ? null : c.id)}
                     style={{ background: isSel ? D.bgHover : i % 2 === 0 ? 'transparent' : D.bg+'88', borderBottom:`1px solid ${D.border}44`, cursor:'pointer', transition:'background 0.1s' }}>
-                    <td style={{ padding:'7px 12px', fontFamily:"'Courier New',monospace", color:D.accent, fontSize:11 }}>{c.id}</td>
+                    <td style={{ padding:'7px 12px', fontFamily:"'IBM Plex Mono','Courier New',monospace", color:D.accent, fontSize:11 }}>{c.id}</td>
                     <td style={{ padding:'7px 12px', color:D.text, fontSize:11 }}>{c.caseType}</td>
                     <td style={{ padding:'7px 12px', color:D.textMid, fontSize:11 }}>{c.borough}</td>
                     <td style={{ padding:'7px 12px', minWidth:100 }}>
@@ -859,18 +873,18 @@ function Tab6LiveTriage({ isLive }) {
                         <div style={{ width:50, background:D.border, borderRadius:2, height:5 }}>
                           <div style={{ width:`${c.riskScore*100}%`, height:'100%', background:riskColor(c.riskScore), borderRadius:2 }}/>
                         </div>
-                        <span style={{ fontSize:10, color:riskColor(c.riskScore), fontFamily:"'Courier New',monospace", fontWeight:700 }}>{(c.riskScore*100).toFixed(0)}%</span>
+                        <span style={{ fontSize:10, color:riskColor(c.riskScore), fontFamily:"'IBM Plex Mono','Courier New',monospace", fontWeight:700 }}>{(c.riskScore*100).toFixed(0)}%</span>
                       </div>
                     </td>
                     <td style={{ padding:'7px 12px' }}>
-                      <span style={{ background:sevColor(c.severity)+'22', color:sevColor(c.severity), padding:'2px 7px', borderRadius:3, fontSize:10, fontWeight:700, fontFamily:"'Courier New',monospace", border:`1px solid ${sevColor(c.severity)}44` }}>{c.severity}</span>
+                      <span style={{ background:sevColor(c.severity)+'22', color:sevColor(c.severity), padding:'2px 7px', borderRadius:3, fontSize:10, fontWeight:700, fontFamily:"'IBM Plex Mono','Courier New',monospace", border:`1px solid ${sevColor(c.severity)}44` }}>{c.severity}</span>
                     </td>
                     <td style={{ padding:'7px 12px' }}>
-                      <span style={{ background:statusColor(c.status)+'22', color:statusColor(c.status), padding:'2px 7px', borderRadius:3, fontSize:10, fontWeight:700, fontFamily:"'Courier New',monospace", border:`1px solid ${statusColor(c.status)}44` }}>{c.status}</span>
+                      <span style={{ background:statusColor(c.status)+'22', color:statusColor(c.status), padding:'2px 7px', borderRadius:3, fontSize:10, fontWeight:700, fontFamily:"'IBM Plex Mono','Courier New',monospace", border:`1px solid ${statusColor(c.status)}44` }}>{c.status}</span>
                     </td>
-                    <td style={{ padding:'7px 12px', color:D.textMid, fontSize:11, fontFamily:"'Courier New',monospace" }}>{c.agent}</td>
-                    <td style={{ padding:'7px 12px', color:D.teal, fontSize:11, fontFamily:"'Courier New',monospace" }}>${parseFloat(c.savingsPotential).toLocaleString(undefined,{maximumFractionDigits:0})}</td>
-                    <td style={{ padding:'7px 12px', color:D.textMute, fontSize:10, fontFamily:"'Courier New',monospace", whiteSpace:'nowrap' }}>{c.timestamp}</td>
+                    <td style={{ padding:'7px 12px', color:D.textMid, fontSize:11, fontFamily:"'IBM Plex Mono','Courier New',monospace" }}>{c.agent}</td>
+                    <td style={{ padding:'7px 12px', color:D.teal, fontSize:11, fontFamily:"'IBM Plex Mono','Courier New',monospace" }}>${parseFloat(c.savingsPotential).toLocaleString(undefined,{maximumFractionDigits:0})}</td>
+                    <td style={{ padding:'7px 12px', color:D.textMute, fontSize:10, fontFamily:"'IBM Plex Mono','Courier New',monospace", whiteSpace:'nowrap' }}>{c.timestamp}</td>
                   </tr>
                 );
               })}
@@ -884,23 +898,23 @@ function Tab6LiveTriage({ isLive }) {
         <div style={{ background:D.bgPanel, border:`1px solid ${D.accent}44`, borderRadius:4, padding:'18px 22px' }}>
           <div style={{ display:'flex', justifyContent:'space-between', marginBottom:14, flexWrap:'wrap', gap:8 }}>
             <div>
-              <div style={{ fontSize:10, color:D.textMute, textTransform:'uppercase', letterSpacing:1, fontFamily:"'Courier New',monospace", marginBottom:4 }}>PACKET INSPECTOR — {selCase.id}</div>
+              <div style={{ fontSize:10, color:D.textMute, textTransform:'uppercase', letterSpacing:1, fontFamily:"'IBM Plex Mono','Courier New',monospace", marginBottom:4 }}>PACKET INSPECTOR — {selCase.id}</div>
               <div style={{ fontSize:15, fontWeight:700, color:D.text }}>{selCase.caseType}</div>
               <div style={{ fontSize:12, color:D.textMute, marginTop:2 }}>{selCase.borough} · {selCase.timestamp} · Agent: {selCase.agent}</div>
             </div>
-            <button onClick={() => setSelected(null)} style={{ background:'none', border:`1px solid ${D.border}`, borderRadius:3, padding:'4px 10px', cursor:'pointer', fontSize:11, color:D.textMute, fontFamily:"'Courier New',monospace" }}>✕ CLOSE</button>
+            <button onClick={() => setSelected(null)} style={{ background:'none', border:`1px solid ${D.border}`, borderRadius:3, padding:'4px 10px', cursor:'pointer', fontSize:11, color:D.textMute, fontFamily:"'IBM Plex Mono','Courier New',monospace" }}>✕ CLOSE</button>
           </div>
           <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(200px,1fr))', gap:10, marginBottom:14 }}>
             {[['Rule Triggered', selCase.rule, D.orange], ['NIST Control', selCase.payload.nist_control, D.teal], ['Risk Score', (selCase.riskScore*100).toFixed(0)+'%', riskColor(selCase.riskScore)], ['Savings Potential', '$'+parseFloat(selCase.savingsPotential).toLocaleString(), D.green], ['Linked Cases', selCase.payload.linked_cases, D.accent], ['Geo Tag', selCase.payload.geo_tag, D.textMid]].map(([k,v,c]) => (
               <div key={k} style={{ background:D.bgCard, borderRadius:3, padding:'8px 12px' }}>
-                <div style={{ fontSize:10, color:D.textMute, textTransform:'uppercase', letterSpacing:0.5, fontFamily:"'Courier New',monospace", marginBottom:3 }}>{k}</div>
-                <div style={{ fontSize:12, fontWeight:700, color:c, fontFamily:"'Courier New',monospace" }}>{v}</div>
+                <div style={{ fontSize:10, color:D.textMute, textTransform:'uppercase', letterSpacing:0.5, fontFamily:"'IBM Plex Mono','Courier New',monospace", marginBottom:3 }}>{k}</div>
+                <div style={{ fontSize:12, fontWeight:700, color:c, fontFamily:"'IBM Plex Mono','Courier New',monospace" }}>{v}</div>
               </div>
             ))}
           </div>
           <details>
-            <summary style={{ fontSize:11, color:D.textMute, cursor:'pointer', userSelect:'none', fontFamily:"'Courier New',monospace" }}>View Raw ISO 8583 Trace ▾</summary>
-            <pre style={{ fontSize:10, background:D.bg, borderRadius:3, padding:'10px 14px', marginTop:8, color:'#68d068', overflowX:'auto', lineHeight:1.7, fontFamily:"'Courier New',monospace" }}>{`TRACE ROUTE: ${selCase.payload.trace_route}
+            <summary style={{ fontSize:11, color:D.textMute, cursor:'pointer', userSelect:'none', fontFamily:"'IBM Plex Mono','Courier New',monospace" }}>View Raw ISO 8583 Trace ▾</summary>
+            <pre style={{ fontSize:10, background:D.bgDark, borderRadius:3, padding:'10px 14px', marginTop:8, color:'#68d068', overflowX:'auto', lineHeight:1.7, fontFamily:"'IBM Plex Mono','Courier New',monospace" }}>{`TRACE ROUTE: ${selCase.payload.trace_route}
 RAW HEX DUMP: ${selCase.payload.raw_hex}
 RULE ENGINE: ${selCase.rule.toUpperCase()}
 GEO-TAG: ${selCase.payload.geo_tag}
@@ -949,11 +963,11 @@ function Tab7AdvancedModules() {
     <div style={{ display:'flex', gap:14 }}>
       {/* Sidebar */}
       <div style={{ width:200, flexShrink:0, display:'flex', flexDirection:'column', gap:4 }}>
-        <div style={{ fontSize:10, color:D.textMute, textTransform:'uppercase', letterSpacing:1, fontFamily:"'Courier New',monospace", marginBottom:6, padding:'4px 0' }}>DECADE MODULES</div>
+        <div style={{ fontSize:10, color:D.textMute, textTransform:'uppercase', letterSpacing:1, fontFamily:"'IBM Plex Mono','Courier New',monospace", marginBottom:6, padding:'4px 0' }}>DECADE MODULES</div>
         {modules.map(m => (
           <button key={m.id} onClick={() => setActiveModule(m.id)}
             style={{ textAlign:'left', padding:'8px 12px', borderRadius:3, border:`1px solid ${activeModule===m.id ? m.color+'66' : D.border}`, background: activeModule===m.id ? m.color+'18' : D.bgCard, cursor:'pointer', transition:'all 0.15s' }}>
-            <span style={{ fontFamily:"'Courier New',monospace", fontSize:10, fontWeight:700, color:m.color, marginRight:6 }}>[{m.tag}]</span>
+            <span style={{ fontFamily:"'IBM Plex Mono','Courier New',monospace", fontSize:10, fontWeight:700, color:m.color, marginRight:6 }}>[{m.tag}]</span>
             <span style={{ fontSize:11, color: activeModule===m.id ? D.text : D.textMid }}>{m.label}</span>
           </button>
         ))}
@@ -963,11 +977,11 @@ function Tab7AdvancedModules() {
       <div style={{ flex:1, minWidth:0 }}>
         {activeModule === 'sig' && (
           <div style={{ background:D.bgPanel, border:`1px solid ${D.border}`, borderRadius:4, padding:'18px 22px' }}>
-            <div style={{ fontSize:11, color:D.textMute, textTransform:'uppercase', letterSpacing:1, fontFamily:"'Courier New',monospace", marginBottom:6 }}>SYNTHETIC IDENTITY GRAPH (SIG) — NIST IA-8</div>
+            <div style={{ fontSize:11, color:D.textMute, textTransform:'uppercase', letterSpacing:1, fontFamily:"'IBM Plex Mono','Courier New',monospace", marginBottom:6 }}>SYNTHETIC IDENTITY GRAPH (SIG) — NIST IA-8</div>
             <div style={{ fontSize:13, color:D.textMid, lineHeight:1.6, marginBottom:14 }}>
               Relational database feature that maps shared phone numbers, IPs, and burner email patterns across seemingly unrelated benefit applications to detect "identity factories." Social graph visualization shows clusters of linked case IDs sharing PII vectors.
             </div>
-            <svg viewBox="0 0 400 280" style={{ width:'100%', maxWidth:480, height:'auto', background:D.bg, borderRadius:4, border:`1px solid ${D.border}` }}>
+            <svg viewBox="0 0 400 280" style={{ width:'100%', maxWidth:480, height:'auto', background:D.bgDark, borderRadius:4, border:`1px solid ${D.border}` }}>
               <defs>
                 <radialGradient id="nodeGrad" cx="50%" cy="50%" r="50%">
                   <stop offset="0%" stopColor={D.purple} stopOpacity="0.8"/>
@@ -980,20 +994,20 @@ function Tab7AdvancedModules() {
                 return <line key={n.id+lt} x1={n.x} y1={n.y} x2={target.x} y2={target.y} stroke={D.purple} strokeOpacity="0.35" strokeWidth="1.5" strokeDasharray="4 3"/>;
               }))}
               <circle cx="200" cy="140" r="18" fill={D.red} fillOpacity="0.3" stroke={D.red} strokeWidth="2"/>
-              <text x="200" y="144" textAnchor="middle" fill={D.red} fontSize="9" fontFamily="'Courier New',monospace" fontWeight="700">HUB-0099</text>
+              <text x="200" y="144" textAnchor="middle" fill={D.red} fontSize="9" fontFamily="'IBM Plex Mono','Courier New',monospace" fontWeight="700">HUB-0099</text>
               {sigNodes.map((n, i) => (
                 <g key={n.id}>
                   <line x1={n.x} y1={n.y} x2="200" y2="140" stroke={D.accent} strokeOpacity="0.2" strokeWidth="1"/>
                   <circle cx={n.x} cy={n.y} r="14" fill="url(#nodeGrad)" stroke={D.purple} strokeWidth="1.5"/>
-                  <text x={n.x} y={n.y+4} textAnchor="middle" fill={D.text} fontSize="8" fontFamily="'Courier New',monospace">{n.id}</text>
+                  <text x={n.x} y={n.y+4} textAnchor="middle" fill={D.text} fontSize="8" fontFamily="'IBM Plex Mono','Courier New',monospace">{n.id}</text>
                 </g>
               ))}
             </svg>
             <div style={{ marginTop:14, display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(180px,1fr))', gap:8 }}>
               {[['Identity Clusters Detected','14',D.red],['Shared Phone Numbers','7',D.orange],['Shared IPs','11',D.yellow],['Burner Email Patterns','23',D.purple]].map(([l,v,c]) => (
                 <div key={l} style={{ background:D.bgCard, border:`1px solid ${D.border}`, borderRadius:3, padding:'10px 14px' }}>
-                  <div style={{ fontSize:10, color:D.textMute, fontFamily:"'Courier New',monospace", textTransform:'uppercase', marginBottom:3 }}>{l}</div>
-                  <div style={{ fontSize:20, fontWeight:700, color:c, fontFamily:"'Courier New',monospace" }}>{v}</div>
+                  <div style={{ fontSize:10, color:D.textMute, fontFamily:"'IBM Plex Mono','Courier New',monospace", textTransform:'uppercase', marginBottom:3 }}>{l}</div>
+                  <div style={{ fontSize:20, fontWeight:700, color:c, fontFamily:"'IBM Plex Mono','Courier New',monospace" }}>{v}</div>
                 </div>
               ))}
             </div>
@@ -1002,7 +1016,7 @@ function Tab7AdvancedModules() {
 
         {activeModule === 'retailer' && (
           <div style={{ background:D.bgPanel, border:`1px solid ${D.border}`, borderRadius:4, padding:'18px 22px' }}>
-            <div style={{ fontSize:11, color:D.textMute, textTransform:'uppercase', letterSpacing:1, fontFamily:"'Courier New',monospace", marginBottom:6 }}>RETAILER COLLUSION ENGINE — NIST AU-6</div>
+            <div style={{ fontSize:11, color:D.textMute, textTransform:'uppercase', letterSpacing:1, fontFamily:"'IBM Plex Mono','Courier New',monospace", marginBottom:6 }}>RETAILER COLLUSION ENGINE — NIST AU-6</div>
             <div style={{ fontSize:13, color:D.textMid, lineHeight:1.6, marginBottom:14 }}>
               Monitors EBT transaction times and amounts at specific NYC retailers. Flags "even-dollar" spikes (exactly $200.00, $400.00) or transactions during non-business hours (11 PM–4 AM) suggesting benefit trafficking.
             </div>
@@ -1010,7 +1024,7 @@ function Tab7AdvancedModules() {
               <thead>
                 <tr style={{ background:D.bgCard }}>
                   {['Retailer','Borough','Even-$ %','Off-Hours %','Risk','Status'].map(h => (
-                    <th key={h} style={{ padding:'8px 12px', textAlign:'left', fontSize:10, fontWeight:700, color:D.textMute, borderBottom:`1px solid ${D.border}`, fontFamily:"'Courier New',monospace", textTransform:'uppercase' }}>{h}</th>
+                    <th key={h} style={{ padding:'8px 12px', textAlign:'left', fontSize:10, fontWeight:700, color:D.textMute, borderBottom:`1px solid ${D.border}`, fontFamily:"'IBM Plex Mono','Courier New',monospace", textTransform:'uppercase' }}>{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -1028,9 +1042,9 @@ function Tab7AdvancedModules() {
                     <tr key={name} style={{ background: i%2===0 ? 'transparent' : D.bg+'66', borderBottom:`1px solid ${D.border}44` }}>
                       <td style={{ padding:'9px 12px', color:D.text, fontWeight:600 }}>{name}</td>
                       <td style={{ padding:'9px 12px', color:D.textMid }}>{boro}</td>
-                      <td style={{ padding:'9px 12px', color:D.red, fontFamily:"'Courier New',monospace", fontWeight:700 }}>{even}</td>
-                      <td style={{ padding:'9px 12px', color:D.orange, fontFamily:"'Courier New',monospace", fontWeight:700 }}>{offhrs}</td>
-                      <td style={{ padding:'9px 12px' }}><span style={{ background:rc+'22', color:rc, padding:'2px 8px', borderRadius:3, fontSize:10, fontWeight:700, fontFamily:"'Courier New',monospace", border:`1px solid ${rc}44` }}>{risk}</span></td>
+                      <td style={{ padding:'9px 12px', color:D.red, fontFamily:"'IBM Plex Mono','Courier New',monospace", fontWeight:700 }}>{even}</td>
+                      <td style={{ padding:'9px 12px', color:D.orange, fontFamily:"'IBM Plex Mono','Courier New',monospace", fontWeight:700 }}>{offhrs}</td>
+                      <td style={{ padding:'9px 12px' }}><span style={{ background:rc+'22', color:rc, padding:'2px 8px', borderRadius:3, fontSize:10, fontWeight:700, fontFamily:"'IBM Plex Mono','Courier New',monospace", border:`1px solid ${rc}44` }}>{risk}</span></td>
                       <td style={{ padding:'9px 12px', color:D.textMid, fontSize:11 }}>{status}</td>
                     </tr>
                   );
@@ -1042,24 +1056,24 @@ function Tab7AdvancedModules() {
 
         {activeModule === 'dmf' && (
           <div style={{ background:D.bgPanel, border:`1px solid ${D.border}`, borderRadius:4, padding:'18px 22px' }}>
-            <div style={{ fontSize:11, color:D.textMute, textTransform:'uppercase', letterSpacing:1, fontFamily:"'Courier New',monospace", marginBottom:6 }}>DEATH MASTER FILE LIVE-SYNC — NIST AU-2</div>
+            <div style={{ fontSize:11, color:D.textMute, textTransform:'uppercase', letterSpacing:1, fontFamily:"'IBM Plex Mono','Courier New',monospace", marginBottom:6 }}>DEATH MASTER FILE LIVE-SYNC — NIST AU-2</div>
             <div style={{ fontSize:13, color:D.textMid, lineHeight:1.6, marginBottom:14 }}>
               High-speed API bridge to the Social Security Administration's Death Master File (DMF) to prevent "Ghost Beneficiary" payments within 24 hours of a reported death. Sync runs nightly at 00:01 EST via SSIS package.
             </div>
             <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(160px,1fr))', gap:10, marginBottom:14 }}>
               {[['Records Checked Today','1,843,200',D.accent],['DMF Matches Found','3',D.red],['Benefits Frozen','3',D.red],['Sync Latency','< 2 min',D.green],['Last Run','00:01 EST',D.teal],['Uptime SLA','99.98%',D.green]].map(([l,v,c]) => (
                 <div key={l} style={{ background:D.bgCard, border:`1px solid ${D.border}`, borderRadius:3, padding:'10px 14px' }}>
-                  <div style={{ fontSize:10, color:D.textMute, fontFamily:"'Courier New',monospace", textTransform:'uppercase', marginBottom:3 }}>{l}</div>
-                  <div style={{ fontSize:18, fontWeight:700, color:c, fontFamily:"'Courier New',monospace" }}>{v}</div>
+                  <div style={{ fontSize:10, color:D.textMute, fontFamily:"'IBM Plex Mono','Courier New',monospace", textTransform:'uppercase', marginBottom:3 }}>{l}</div>
+                  <div style={{ fontSize:18, fontWeight:700, color:c, fontFamily:"'IBM Plex Mono','Courier New',monospace" }}>{v}</div>
                 </div>
               ))}
             </div>
-            <div style={{ fontSize:11, color:D.textMute, textTransform:'uppercase', letterSpacing:1, fontFamily:"'Courier New',monospace", marginBottom:8 }}>Recent DMF Matches (Case IDs Redacted)</div>
+            <div style={{ fontSize:11, color:D.textMute, textTransform:'uppercase', letterSpacing:1, fontFamily:"'IBM Plex Mono','Courier New',monospace", marginBottom:8 }}>Recent DMF Matches (Case IDs Redacted)</div>
             {[['2025-05-14 00:03','DMF-MATCH-001','DOD: 2025-05-13','Staten Island','$318/mo frozen','CONFIRMED'],['2025-05-12 00:02','DMF-MATCH-002','DOD: 2025-05-11','Brooklyn','$536/mo frozen','CONFIRMED'],['2025-05-08 00:04','DMF-MATCH-003','DOD: 2025-05-07','Bronx','$292/mo frozen','CLOSED']].map(([ts,id,dod,boro,amt,status]) => (
               <div key={id} style={{ background:D.bgCard, border:`1px solid ${D.red}44`, borderRadius:4, padding:'12px 16px', marginBottom:8, borderLeft:`3px solid ${D.red}` }}>
                 <div style={{ display:'flex', justifyContent:'space-between', flexWrap:'wrap', gap:6, marginBottom:4 }}>
-                  <span style={{ fontFamily:"'Courier New',monospace", fontSize:12, color:D.accent, fontWeight:700 }}>{id}</span>
-                  <span style={{ background:D.green+'22', color:D.green, padding:'2px 8px', borderRadius:3, fontSize:10, fontWeight:700, fontFamily:"'Courier New',monospace", border:`1px solid ${D.green}44` }}>{status}</span>
+                  <span style={{ fontFamily:"'IBM Plex Mono','Courier New',monospace", fontSize:12, color:D.accent, fontWeight:700 }}>{id}</span>
+                  <span style={{ background:D.green+'22', color:D.green, padding:'2px 8px', borderRadius:3, fontSize:10, fontWeight:700, fontFamily:"'IBM Plex Mono','Courier New',monospace", border:`1px solid ${D.green}44` }}>{status}</span>
                 </div>
                 <div style={{ display:'flex', gap:14, flexWrap:'wrap', fontSize:12, color:D.textMid }}>
                   <span>{ts}</span><span>{dod}</span><span>{boro}</span><span style={{ color:D.red, fontWeight:700 }}>{amt}</span>
@@ -1071,31 +1085,31 @@ function Tab7AdvancedModules() {
 
         {activeModule === 'device' && (
           <div style={{ background:D.bgPanel, border:`1px solid ${D.border}`, borderRadius:4, padding:'18px 22px' }}>
-            <div style={{ fontSize:11, color:D.textMute, textTransform:'uppercase', letterSpacing:1, fontFamily:"'Courier New',monospace", marginBottom:6 }}>DEVICE FINGERPRINT & BIOMETRIC VELOCITY — NIST IA-3</div>
+            <div style={{ fontSize:11, color:D.textMute, textTransform:'uppercase', letterSpacing:1, fontFamily:"'IBM Plex Mono','Courier New',monospace", marginBottom:6 }}>DEVICE FINGERPRINT & BIOMETRIC VELOCITY — NIST IA-3</div>
             <div style={{ fontSize:13, color:D.textMid, lineHeight:1.6, marginBottom:14 }}>
               Tracking hardware ID and login "cadence" of mobile users. Detects if a single device is managing 50+ unique accounts — a hallmark of organized fraud rings. Biometric velocity measures how fast logins occur across accounts from the same device.
             </div>
             <div style={{ background:D.bgCard, border:`1px solid ${D.red}`, borderRadius:4, padding:'14px 18px', marginBottom:14 }}>
-              <div style={{ fontSize:11, color:D.red, fontWeight:700, fontFamily:"'Courier New',monospace", marginBottom:6 }}>⚑ ACTIVE ALERT — DEVICE CLUSTER d4a9...f23c</div>
+              <div style={{ fontSize:11, color:D.red, fontWeight:700, fontFamily:"'IBM Plex Mono','Courier New',monospace", marginBottom:6 }}>⚑ ACTIVE ALERT — DEVICE CLUSTER d4a9...f23c</div>
               <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(160px,1fr))', gap:10 }}>
                 {[['IMEI Hash','d4a9...f23c'],['Accounts Linked','73'],['Avg Logins/hr','4.1'],['Biometric Failures','61 / 73'],['First Seen','2024-03-12'],['Status','FROZEN']].map(([l,v]) => (
                   <div key={l} style={{ background:D.redPale, borderRadius:3, padding:'8px 12px' }}>
-                    <div style={{ fontSize:10, color:D.textMute, fontFamily:"'Courier New',monospace", textTransform:'uppercase', marginBottom:2 }}>{l}</div>
-                    <div style={{ fontSize:13, fontWeight:700, color:D.red, fontFamily:"'Courier New',monospace" }}>{v}</div>
+                    <div style={{ fontSize:10, color:D.textMute, fontFamily:"'IBM Plex Mono','Courier New',monospace", textTransform:'uppercase', marginBottom:2 }}>{l}</div>
+                    <div style={{ fontSize:13, fontWeight:700, color:D.red, fontFamily:"'IBM Plex Mono','Courier New',monospace" }}>{v}</div>
                   </div>
                 ))}
               </div>
             </div>
-            <div style={{ fontSize:11, color:D.textMute, textTransform:'uppercase', letterSpacing:1, fontFamily:"'Courier New',monospace", marginBottom:8 }}>Top Device Risk Clusters</div>
+            <div style={{ fontSize:11, color:D.textMute, textTransform:'uppercase', letterSpacing:1, fontFamily:"'IBM Plex Mono','Courier New',monospace", marginBottom:8 }}>Top Device Risk Clusters</div>
             {[['d4a9...f23c',73,4.1,'Brooklyn','CRITICAL'],['a1b7...88de',34,2.7,'Bronx','HIGH'],['f9c2...1104',18,1.9,'Queens','HIGH'],['7e3d...b542',11,1.1,'Manhattan','MEDIUM']].map(([hash,accts,vel,boro,risk]) => {
               const rc = risk==='CRITICAL'?D.red:risk==='HIGH'?D.orange:D.yellow;
               return (
                 <div key={hash} style={{ display:'flex', gap:14, alignItems:'center', padding:'10px 14px', background:D.bgCard, border:`1px solid ${D.border}`, borderRadius:4, marginBottom:6, flexWrap:'wrap' }}>
-                  <span style={{ fontFamily:"'Courier New',monospace", fontSize:12, color:D.accent, minWidth:100 }}>{hash}</span>
+                  <span style={{ fontFamily:"'IBM Plex Mono','Courier New',monospace", fontSize:12, color:D.accent, minWidth:100 }}>{hash}</span>
                   <span style={{ fontSize:12, color:D.text }}>{accts} accounts</span>
                   <span style={{ fontSize:12, color:D.orange }}>{vel} logins/hr</span>
                   <span style={{ fontSize:12, color:D.textMid }}>{boro}</span>
-                  <span style={{ background:rc+'22', color:rc, padding:'2px 8px', borderRadius:3, fontSize:10, fontWeight:700, fontFamily:"'Courier New',monospace", border:`1px solid ${rc}44`, marginLeft:'auto' }}>{risk}</span>
+                  <span style={{ background:rc+'22', color:rc, padding:'2px 8px', borderRadius:3, fontSize:10, fontWeight:700, fontFamily:"'IBM Plex Mono','Courier New',monospace", border:`1px solid ${rc}44`, marginLeft:'auto' }}>{risk}</span>
                 </div>
               );
             })}
@@ -1104,19 +1118,19 @@ function Tab7AdvancedModules() {
 
         {activeModule === 'recidivism' && (
           <div style={{ background:D.bgPanel, border:`1px solid ${D.border}`, borderRadius:4, padding:'18px 22px' }}>
-            <div style={{ fontSize:11, color:D.textMute, textTransform:'uppercase', letterSpacing:1, fontFamily:"'Courier New',monospace", marginBottom:6 }}>PREDICTIVE RECIDIVISM SCORING — NIST AU-6</div>
+            <div style={{ fontSize:11, color:D.textMute, textTransform:'uppercase', letterSpacing:1, fontFamily:"'IBM Plex Mono','Courier New',monospace", marginBottom:6 }}>PREDICTIVE RECIDIVISM SCORING — NIST AU-6</div>
             <div style={{ fontSize:13, color:D.textMid, lineHeight:1.6, marginBottom:14 }}>
               Machine Learning module assigning a "Likelihood to Re-offend" score to previously flagged individuals. Based on historical compliance behavior, prior fraud type, conviction status, time since last incident, and geographic clustering. Scores update nightly via dbt ML pipeline.
             </div>
             <div style={{ background:D.bgCard, border:`1px solid ${D.border}`, borderRadius:4, overflow:'hidden', marginBottom:14 }}>
               <div style={{ padding:'10px 16px', background:D.bg, borderBottom:`1px solid ${D.border}` }}>
-                <span style={{ fontSize:10, color:D.textMute, fontFamily:"'Courier New',monospace", textTransform:'uppercase', letterSpacing:1 }}>High-Risk Recidivism Candidates — Top 8 (Anonymized)</span>
+                <span style={{ fontSize:10, color:D.textMute, fontFamily:"'IBM Plex Mono','Courier New',monospace", textTransform:'uppercase', letterSpacing:1 }}>High-Risk Recidivism Candidates — Top 8 (Anonymized)</span>
               </div>
               {[['REC-001','EBT Skimming','2023-11-07',0.94,'Bronx','Convicted — 18mo'],['REC-002','Retailer Trafficking','2023-01-28',0.91,'Brooklyn','Disqualified'],['REC-003','Device Fingerprint','2024-01-15',0.88,'Brooklyn','Accounts Frozen'],['REC-004','Dual Participation','2022-09-14',0.82,'Queens','Benefits Terminated'],['REC-005','Synthetic Identity','2023-07-02',0.79,'Manhattan','Under Investigation'],['REC-006','Phishing','2023-12-18',0.76,'Queens','Card Reissued'],['REC-007','Ghost Beneficiary','2024-01-15',0.71,'Staten Island','Case Closed'],['REC-008','Caseworker Misconduct','2023-06-30',0.68,'Manhattan','Administrative Hearing']].map(([id, type, lastInc, score, boro, disposition]) => {
                 const sc = score >= 0.9 ? D.red : score >= 0.8 ? D.orange : D.yellow;
                 return (
                   <div key={id} style={{ padding:'10px 16px', borderBottom:`1px solid ${D.border}44`, display:'flex', alignItems:'center', gap:14, flexWrap:'wrap' }}>
-                    <span style={{ fontFamily:"'Courier New',monospace", fontSize:11, color:D.accent, minWidth:80 }}>{id}</span>
+                    <span style={{ fontFamily:"'IBM Plex Mono','Courier New',monospace", fontSize:11, color:D.accent, minWidth:80 }}>{id}</span>
                     <span style={{ fontSize:11, color:D.text, flex:1, minWidth:140 }}>{type}</span>
                     <span style={{ fontSize:11, color:D.textMute, minWidth:90 }}>{boro}</span>
                     <span style={{ fontSize:11, color:D.textMute, minWidth:80 }}>{lastInc}</span>
@@ -1124,7 +1138,7 @@ function Tab7AdvancedModules() {
                       <div style={{ width:60, background:D.border, borderRadius:2, height:5 }}>
                         <div style={{ width:`${score*100}%`, height:'100%', background:sc, borderRadius:2 }}/>
                       </div>
-                      <span style={{ fontSize:11, color:sc, fontFamily:"'Courier New',monospace", fontWeight:700 }}>{(score*100).toFixed(0)}%</span>
+                      <span style={{ fontSize:11, color:sc, fontFamily:"'IBM Plex Mono','Courier New',monospace", fontWeight:700 }}>{(score*100).toFixed(0)}%</span>
                     </div>
                     <span style={{ fontSize:10, color:D.textMid }}>{disposition}</span>
                   </div>
@@ -1136,29 +1150,29 @@ function Tab7AdvancedModules() {
 
         {activeModule === 'subpoena' && (
           <div style={{ background:D.bgPanel, border:`1px solid ${D.border}`, borderRadius:4, padding:'18px 22px' }}>
-            <div style={{ fontSize:11, color:D.textMute, textTransform:'uppercase', letterSpacing:1, fontFamily:"'Courier New',monospace", marginBottom:6 }}>AUTOMATED SUBPOENA DRAFTER — NIST AU-6</div>
+            <div style={{ fontSize:11, color:D.textMute, textTransform:'uppercase', letterSpacing:1, fontFamily:"'IBM Plex Mono','Courier New',monospace", marginBottom:6 }}>AUTOMATED SUBPOENA DRAFTER — NIST AU-6</div>
             <div style={{ fontSize:13, color:D.textMid, lineHeight:1.6, marginBottom:14 }}>
               When a fraud risk score exceeds 0.95, the system automatically generates a PDF legal packet for the District Attorney, including transaction logs, geo-tags, ISO 8583 records, and NIST audit chain. Packets are routed to the ADA queue within 4 hours of threshold breach.
             </div>
             <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(160px,1fr))', gap:10, marginBottom:16 }}>
               {[['Packets Generated Q1 2024','14',D.accent],['DA Referrals','8',D.red],['Avg Generation Time','1.8 min',D.teal],['Risk Threshold','≥ 0.95',D.orange]].map(([l,v,c]) => (
                 <div key={l} style={{ background:D.bgCard, border:`1px solid ${D.border}`, borderRadius:3, padding:'10px 14px' }}>
-                  <div style={{ fontSize:10, color:D.textMute, fontFamily:"'Courier New',monospace", textTransform:'uppercase', marginBottom:3 }}>{l}</div>
-                  <div style={{ fontSize:18, fontWeight:700, color:c, fontFamily:"'Courier New',monospace" }}>{v}</div>
+                  <div style={{ fontSize:10, color:D.textMute, fontFamily:"'IBM Plex Mono','Courier New',monospace", textTransform:'uppercase', marginBottom:3 }}>{l}</div>
+                  <div style={{ fontSize:18, fontWeight:700, color:c, fontFamily:"'IBM Plex Mono','Courier New',monospace" }}>{v}</div>
                 </div>
               ))}
             </div>
             <div style={{ border:`1px solid ${D.orange}`, borderRadius:4, padding:'16px 20px', background:D.orangePale, marginBottom:14 }}>
-              <div style={{ fontSize:11, color:D.orange, fontWeight:700, fontFamily:"'Courier New',monospace", marginBottom:8 }}>DEMO: Generate Legal Packet for FRD-2024-11482 (Risk: 97%)</div>
+              <div style={{ fontSize:11, color:D.orange, fontWeight:700, fontFamily:"'IBM Plex Mono','Courier New',monospace", marginBottom:8 }}>DEMO: Generate Legal Packet for FRD-2024-11482 (Risk: 97%)</div>
               <div style={{ fontSize:12, color:'#e0c080', marginBottom:12, lineHeight:1.6 }}>
                 Case: EBT Skimming · Bronx ZIP 10456 · Loss: $18,400 · 47 victims · ISO 8583 confirmed · NIST SI-7 violation. Packet will include transaction logs, geo-tags, packet analysis, NIST audit chain, and affidavit template for ADA submission.
               </div>
               <button onClick={() => generateSubpoena('FRD-2024-11482')} disabled={generatingSubpoena}
-                style={{ background:D.orange, color:'#1a1000', border:'none', borderRadius:3, padding:'9px 20px', fontSize:12, fontWeight:700, cursor:generatingSubpoena?'not-allowed':'pointer', fontFamily:"'Courier New',monospace", opacity:generatingSubpoena?0.7:1 }}>
+                style={{ background:D.orange, color:'#1a1000', border:'none', borderRadius:3, padding:'9px 20px', fontSize:12, fontWeight:700, cursor:generatingSubpoena?'not-allowed':'pointer', fontFamily:"'IBM Plex Mono','Courier New',monospace", opacity:generatingSubpoena?0.7:1 }}>
                 {generatingSubpoena ? '⟳ COMPILING PACKET...' : 'GENERATE LEGAL PACKET → DA'}
               </button>
               {subpoenaStatus === 'complete' && (
-                <div style={{ marginTop:12, fontSize:12, color:D.green, fontFamily:"'Courier New',monospace", fontWeight:700 }}>
+                <div style={{ marginTop:12, fontSize:12, color:D.green, fontFamily:"'IBM Plex Mono','Courier New',monospace", fontWeight:700 }}>
                   ✓ SP-2024-1148 generated — routed to ADA queue. NIST AU-6 event logged. RSA-4096 signed. SHA-256: a9f3...7b21
                 </div>
               )}
@@ -1168,12 +1182,12 @@ function Tab7AdvancedModules() {
 
         {activeModule === 'darkweb' && (
           <div style={{ background:D.bgPanel, border:`1px solid ${D.border}`, borderRadius:4, padding:'18px 22px' }}>
-            <div style={{ fontSize:11, color:D.textMute, textTransform:'uppercase', letterSpacing:1, fontFamily:"'Courier New',monospace", marginBottom:6 }}>DARK WEB PII SENTINEL — NIST SI-7</div>
+            <div style={{ fontSize:11, color:D.textMute, textTransform:'uppercase', letterSpacing:1, fontFamily:"'IBM Plex Mono','Courier New',monospace", marginBottom:6 }}>DARK WEB PII SENTINEL — NIST SI-7</div>
             <div style={{ fontSize:13, color:D.textMid, lineHeight:1.6, marginBottom:14 }}>
               Scraper service that alerts administrators if SSNs or HRA Case IDs associated with current beneficiaries appear on known leak sites or dark web marketplaces. Scan runs every 12 hours via Custom Script RPA bot.
             </div>
             <div style={{ background:D.redPale, border:`1px solid ${D.red}`, borderRadius:4, padding:'12px 18px', marginBottom:14 }}>
-              <div style={{ fontSize:11, color:D.red, fontWeight:700, fontFamily:"'Courier New',monospace" }}>⚑ ACTIVE ALERT — 2 SSNs matched in monitored credential dump — 2025-05-14 07:44 UTC</div>
+              <div style={{ fontSize:11, color:D.red, fontWeight:700, fontFamily:"'IBM Plex Mono','Courier New',monospace" }}>⚑ ACTIVE ALERT — 2 SSNs matched in monitored credential dump — 2025-05-14 07:44 UTC</div>
               <div style={{ fontSize:12, color:'#e0a0a0', marginTop:6 }}>Source: [REDACTED] marketplace. Affected HRA case IDs logged. PIN resets initiated. DOI notified per 18 U.S.C. § 1030.</div>
             </div>
             {[
@@ -1187,8 +1201,8 @@ function Tab7AdvancedModules() {
               return (
                 <div key={i} style={{ background:D.bgCard, border:`1px solid ${sc}44`, borderRadius:4, padding:'12px 16px', marginBottom:8, borderLeft:`3px solid ${sc}` }}>
                   <div style={{ display:'flex', justifyContent:'space-between', flexWrap:'wrap', gap:6, marginBottom:4 }}>
-                    <span style={{ fontFamily:"'Courier New',monospace", fontSize:11, color:D.accent }}>{alert.ts}</span>
-                    <span style={{ background:sc+'22', color:sc, padding:'2px 8px', borderRadius:3, fontSize:10, fontWeight:700, fontFamily:"'Courier New',monospace", border:`1px solid ${sc}44` }}>{alert.severity}</span>
+                    <span style={{ fontFamily:"'IBM Plex Mono','Courier New',monospace", fontSize:11, color:D.accent }}>{alert.ts}</span>
+                    <span style={{ background:sc+'22', color:sc, padding:'2px 8px', borderRadius:3, fontSize:10, fontWeight:700, fontFamily:"'IBM Plex Mono','Courier New',monospace", border:`1px solid ${sc}44` }}>{alert.severity}</span>
                   </div>
                   <div style={{ display:'flex', gap:14, flexWrap:'wrap', fontSize:12 }}>
                     <span style={{ color:D.red, fontWeight:700 }}>{alert.type}</span>
@@ -1204,19 +1218,19 @@ function Tab7AdvancedModules() {
 
         {activeModule === 'nlp' && (
           <div style={{ background:D.bgPanel, border:`1px solid ${D.border}`, borderRadius:4, padding:'18px 22px' }}>
-            <div style={{ fontSize:11, color:D.textMute, textTransform:'uppercase', letterSpacing:1, fontFamily:"'Courier New',monospace", marginBottom:6 }}>NLP CASEWORKER SENTINEL — NIST PS-7</div>
+            <div style={{ fontSize:11, color:D.textMute, textTransform:'uppercase', letterSpacing:1, fontFamily:"'IBM Plex Mono','Courier New',monospace", marginBottom:6 }}>NLP CASEWORKER SENTINEL — NIST PS-7</div>
             <div style={{ fontSize:13, color:D.textMid, lineHeight:1.6, marginBottom:14 }}>
               Analyzes caseworker notes for sentiment and specific red-flag keywords — "urgent bypass," "override requested," "client needs immediate" — to identify potential internal collusion or administrative shortcuts bypassing standard verification protocols.
             </div>
             <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(160px,1fr))', gap:10, marginBottom:14 }}>
               {[['Notes Analyzed Today','8,420',D.accent],['Flag Keywords Detected','23',D.red],['Cases Flagged','4',D.orange],['OIG Referrals','1',D.red],['Caseworkers Reviewed','3',D.orange],['False Positive Rate','8.2%',D.yellow]].map(([l,v,c]) => (
                 <div key={l} style={{ background:D.bgCard, border:`1px solid ${D.border}`, borderRadius:3, padding:'10px 14px' }}>
-                  <div style={{ fontSize:10, color:D.textMute, fontFamily:"'Courier New',monospace", textTransform:'uppercase', marginBottom:3 }}>{l}</div>
-                  <div style={{ fontSize:18, fontWeight:700, color:c, fontFamily:"'Courier New',monospace" }}>{v}</div>
+                  <div style={{ fontSize:10, color:D.textMute, fontFamily:"'IBM Plex Mono','Courier New',monospace", textTransform:'uppercase', marginBottom:3 }}>{l}</div>
+                  <div style={{ fontSize:18, fontWeight:700, color:c, fontFamily:"'IBM Plex Mono','Courier New',monospace" }}>{v}</div>
                 </div>
               ))}
             </div>
-            <div style={{ fontSize:11, color:D.textMute, textTransform:'uppercase', letterSpacing:1, fontFamily:"'Courier New',monospace", marginBottom:8 }}>Flagged Caseworker Note Excerpts (Anonymized)</div>
+            <div style={{ fontSize:11, color:D.textMute, textTransform:'uppercase', letterSpacing:1, fontFamily:"'IBM Plex Mono','Courier New',monospace", marginBottom:8 }}>Flagged Caseworker Note Excerpts (Anonymized)</div>
             {[
               { ts:'2025-05-14 05:12', caseworker:'[REDACTED-1]', excerpt:'"...client needs immediate processing, supervisor override approved without documentation review..."', flags:['urgent bypass','override approved without'], severity:'HIGH', action:'OIG Referral Filed' },
               { ts:'2025-05-13 14:30', caseworker:'[REDACTED-2]', excerpt:'"...expedited approval per verbal instruction, standard verification skipped, supervisor confirmed..."', flags:['expedited','verification skipped'], severity:'HIGH', action:'Administrative Review' },
@@ -1227,12 +1241,12 @@ function Tab7AdvancedModules() {
               return (
                 <div key={i} style={{ background:D.bgCard, border:`1px solid ${sc}44`, borderRadius:4, padding:'12px 16px', marginBottom:8, borderLeft:`3px solid ${sc}` }}>
                   <div style={{ display:'flex', justifyContent:'space-between', flexWrap:'wrap', gap:6, marginBottom:6 }}>
-                    <span style={{ fontFamily:"'Courier New',monospace", fontSize:11, color:D.accent }}>{note.ts} · {note.caseworker}</span>
-                    <span style={{ background:sc+'22', color:sc, padding:'2px 8px', borderRadius:3, fontSize:10, fontWeight:700, fontFamily:"'Courier New',monospace" }}>{note.severity}</span>
+                    <span style={{ fontFamily:"'IBM Plex Mono','Courier New',monospace", fontSize:11, color:D.accent }}>{note.ts} · {note.caseworker}</span>
+                    <span style={{ background:sc+'22', color:sc, padding:'2px 8px', borderRadius:3, fontSize:10, fontWeight:700, fontFamily:"'IBM Plex Mono','Courier New',monospace" }}>{note.severity}</span>
                   </div>
                   <div style={{ fontSize:12, color:D.textMid, lineHeight:1.6, marginBottom:8, fontStyle:'italic' }}>{note.excerpt}</div>
                   <div style={{ display:'flex', gap:6, flexWrap:'wrap', marginBottom:6 }}>
-                    {note.flags.map(f => <span key={f} style={{ background:D.redPale, color:D.red, padding:'2px 8px', borderRadius:3, fontSize:10, fontFamily:"'Courier New',monospace", border:`1px solid ${D.red}44` }}>FLAG: "{f}"</span>)}
+                    {note.flags.map(f => <span key={f} style={{ background:D.redPale, color:D.red, padding:'2px 8px', borderRadius:3, fontSize:10, fontFamily:"'IBM Plex Mono','Courier New',monospace", border:`1px solid ${D.red}44` }}>FLAG: "{f}"</span>)}
                   </div>
                   <div style={{ fontSize:12, color:D.green }}>Action: {note.action}</div>
                 </div>
@@ -1243,15 +1257,15 @@ function Tab7AdvancedModules() {
 
         {activeModule === 'crossstate' && (
           <div style={{ background:D.bgPanel, border:`1px solid ${D.border}`, borderRadius:4, padding:'18px 22px' }}>
-            <div style={{ fontSize:11, color:D.textMute, textTransform:'uppercase', letterSpacing:1, fontFamily:"'Courier New',monospace", marginBottom:6 }}>CROSS-STATE BENEFIT INTERCEPT (NAC) — NIST AC-2</div>
+            <div style={{ fontSize:11, color:D.textMute, textTransform:'uppercase', letterSpacing:1, fontFamily:"'IBM Plex Mono','Courier New',monospace", marginBottom:6 }}>CROSS-STATE BENEFIT INTERCEPT (NAC) — NIST AC-2</div>
             <div style={{ fontSize:13, color:D.textMid, lineHeight:1.6, marginBottom:14 }}>
               Real-time lookup against the National Accuracy Clearinghouse (NAC) to catch "dual-participation" — individuals simultaneously receiving benefits in New York and another state. Batch runs nightly; real-time flags on new enrollments.
             </div>
             <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(160px,1fr))', gap:10, marginBottom:14 }}>
               {[['Records Checked (Batch)','43,200',D.accent],['Dual-Participation Flags','12',D.red],['Confirmed Violations','3',D.red],['Benefits Terminated','3',D.red],['Overpayment Claims','$20,400',D.orange],['NAC Lookup Uptime','99.7%',D.green]].map(([l,v,c]) => (
                 <div key={l} style={{ background:D.bgCard, border:`1px solid ${D.border}`, borderRadius:3, padding:'10px 14px' }}>
-                  <div style={{ fontSize:10, color:D.textMute, fontFamily:"'Courier New',monospace", textTransform:'uppercase', marginBottom:3 }}>{l}</div>
-                  <div style={{ fontSize:18, fontWeight:700, color:c, fontFamily:"'Courier New',monospace" }}>{v}</div>
+                  <div style={{ fontSize:10, color:D.textMute, fontFamily:"'IBM Plex Mono','Courier New',monospace", textTransform:'uppercase', marginBottom:3 }}>{l}</div>
+                  <div style={{ fontSize:18, fontWeight:700, color:c, fontFamily:"'IBM Plex Mono','Courier New',monospace" }}>{v}</div>
                 </div>
               ))}
             </div>
@@ -1259,7 +1273,7 @@ function Tab7AdvancedModules() {
               <thead>
                 <tr style={{ background:D.bgCard }}>
                   {['Case ID (NY)','Other State','NY Case#','Other Case#','Overlap','Amount','Status'].map(h => (
-                    <th key={h} style={{ padding:'8px 12px', textAlign:'left', fontSize:10, fontWeight:700, color:D.textMute, borderBottom:`1px solid ${D.border}`, fontFamily:"'Courier New',monospace", textTransform:'uppercase', whiteSpace:'nowrap' }}>{h}</th>
+                    <th key={h} style={{ padding:'8px 12px', textAlign:'left', fontSize:10, fontWeight:700, color:D.textMute, borderBottom:`1px solid ${D.border}`, fontFamily:"'IBM Plex Mono','Courier New',monospace", textTransform:'uppercase', whiteSpace:'nowrap' }}>{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -1274,13 +1288,13 @@ function Tab7AdvancedModules() {
                   const sc = status==='TERMINATED'?D.green:D.orange;
                   return (
                     <tr key={id} style={{ background:i%2===0?'transparent':D.bg+'66', borderBottom:`1px solid ${D.border}44` }}>
-                      <td style={{ padding:'9px 12px', fontFamily:"'Courier New',monospace", color:D.accent }}>{id}</td>
+                      <td style={{ padding:'9px 12px', fontFamily:"'IBM Plex Mono','Courier New',monospace", color:D.accent }}>{id}</td>
                       <td style={{ padding:'9px 12px', color:D.text }}>{state}</td>
-                      <td style={{ padding:'9px 12px', fontFamily:"'Courier New',monospace", color:D.textMid, fontSize:10 }}>{nyCaseNo}</td>
-                      <td style={{ padding:'9px 12px', fontFamily:"'Courier New',monospace", color:D.textMute, fontSize:10 }}>{otherNo}</td>
+                      <td style={{ padding:'9px 12px', fontFamily:"'IBM Plex Mono','Courier New',monospace", color:D.textMid, fontSize:10 }}>{nyCaseNo}</td>
+                      <td style={{ padding:'9px 12px', fontFamily:"'IBM Plex Mono','Courier New',monospace", color:D.textMute, fontSize:10 }}>{otherNo}</td>
                       <td style={{ padding:'9px 12px', color:D.red }}>{overlap}</td>
-                      <td style={{ padding:'9px 12px', color:D.orange, fontFamily:"'Courier New',monospace", fontWeight:700 }}>{amt}</td>
-                      <td style={{ padding:'9px 12px' }}><span style={{ background:sc+'22', color:sc, padding:'2px 7px', borderRadius:3, fontSize:10, fontWeight:700, fontFamily:"'Courier New',monospace", border:`1px solid ${sc}44` }}>{status}</span></td>
+                      <td style={{ padding:'9px 12px', color:D.orange, fontFamily:"'IBM Plex Mono','Courier New',monospace", fontWeight:700 }}>{amt}</td>
+                      <td style={{ padding:'9px 12px' }}><span style={{ background:sc+'22', color:sc, padding:'2px 7px', borderRadius:3, fontSize:10, fontWeight:700, fontFamily:"'IBM Plex Mono','Courier New',monospace", border:`1px solid ${sc}44` }}>{status}</span></td>
                     </tr>
                   );
                 })}
@@ -1291,11 +1305,11 @@ function Tab7AdvancedModules() {
 
         {activeModule === 'fairhearing' && (
           <div style={{ background:D.bgPanel, border:`1px solid ${D.border}`, borderRadius:4, padding:'18px 22px' }}>
-            <div style={{ fontSize:11, color:D.textMute, textTransform:'uppercase', letterSpacing:1, fontFamily:"'Courier New',monospace", marginBottom:6 }}>FAIR HEARING PREP-BOT — NIST AU-6</div>
+            <div style={{ fontSize:11, color:D.textMute, textTransform:'uppercase', letterSpacing:1, fontFamily:"'IBM Plex Mono','Courier New',monospace", marginBottom:6 }}>FAIR HEARING PREP-BOT — NIST AU-6</div>
             <div style={{ fontSize:13, color:D.textMid, lineHeight:1.6, marginBottom:14 }}>
               AI assistant that compiles a comprehensive "Statement of Fact" for HRA legal teams before a state hearing, summarizing all neutralized anomalies, evidence chains, NIST audit trail, and applicable regulatory citations. Output is formatted for New York State Office of Temporary and Disability Assistance (OTDA) Fair Hearing proceedings.
             </div>
-            <div style={{ background:D.bgCard, border:`1px solid ${D.teal}`, borderRadius:4, padding:'16px 20px', marginBottom:14, fontFamily:"'Courier New',monospace" }}>
+            <div style={{ background:D.bgCard, border:`1px solid ${D.teal}`, borderRadius:4, padding:'16px 20px', marginBottom:14, fontFamily:"'IBM Plex Mono','Courier New',monospace" }}>
               <div style={{ fontSize:10, color:D.teal, textTransform:'uppercase', letterSpacing:1, marginBottom:10 }}>SAMPLE STATEMENT OF FACT — CASE FRD-2024-09831</div>
               <div style={{ fontSize:12, color:D.textMid, lineHeight:1.8 }}>
                 <div style={{ marginBottom:6 }}><strong style={{ color:D.text }}>HEARING DOCKET:</strong> FH-2024-NY-44821</div>
@@ -1331,12 +1345,13 @@ export default function HRAFraudAuditTool() {
   ];
 
   return (
-    <div style={{ width:"100%", maxWidth:1280, minWidth:320, margin:"0 auto", background:D.bg, color:D.text, fontFamily:"'Segoe UI','Helvetica Neue',Arial,sans-serif", minHeight:"100vh" }}>
+    <div style={{ width:"100%", maxWidth:1280, minWidth:320, margin:"0 auto", background:D.bg, color:D.text, fontFamily:"'IBM Plex Sans','Segoe UI',Arial,sans-serif", minHeight:"100vh" }}>
       <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
         * { box-sizing: border-box; }
         ::-webkit-scrollbar { width:5px; height:5px; }
-        ::-webkit-scrollbar-track { background:#0f1117; }
-        ::-webkit-scrollbar-thumb { background:#2a3347; border-radius:3px; }
+        ::-webkit-scrollbar-track { background:#eeecea; }
+        ::-webkit-scrollbar-thumb { background:#b0ada4; border-radius:3px; }
         button { font-family: inherit; }
         @media (max-width:700px) {
           .tab-scroll { overflow-x: auto; white-space: nowrap; }
@@ -1346,26 +1361,26 @@ export default function HRAFraudAuditTool() {
       `}</style>
 
       {/* Header */}
-      <div style={{ background:D.bgPanel, borderBottom:`2px solid ${D.red}`, padding:"18px 28px" }}>
+      <div style={{ background:D.headerBg, borderBottom:`3px solid ${D.primary}`, padding:"18px 28px" }}>
         <div className="header-row" style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", flexWrap:"wrap", gap:12, marginBottom:12 }}>
           <div>
-            <div style={{ fontSize:10, color:D.red, fontWeight:700, letterSpacing:2, textTransform:"uppercase", fontFamily:"'Courier New',monospace", marginBottom:5 }}>NYC HRA · Program & Data Management · Fraud Detection Auditing Tool</div>
-            <h1 style={{ margin:0, fontSize:"clamp(16px,3.2vw,24px)", color:D.text, fontWeight:700, lineHeight:1.2 }}>Sovereign Integrity Engine — SNAP/EBT Fraud Detection System</h1>
-            <div style={{ color:D.textMute, fontSize:12, marginTop:5 }}>WMS · ACCESS HRA · POS · NIST-800-53 Compliant · $7.6B Budget Oversight</div>
+            <div style={{ fontSize:10, color:D.primaryLight, fontWeight:700, letterSpacing:2, textTransform:"uppercase", fontFamily:"'IBM Plex Mono','Courier New',monospace", marginBottom:5 }}>NYC HRA · Program & Data Management · Fraud Detection Auditing Tool</div>
+            <h1 style={{ margin:0, fontSize:"clamp(16px,3.2vw,24px)", color:D.headerText, fontWeight:700, lineHeight:1.2 }}>Sovereign Integrity Engine — SNAP/EBT Fraud Detection System</h1>
+            <div style={{ color:D.headerText+"99", fontSize:12, marginTop:5 }}>WMS · ACCESS HRA · POS · NIST-800-53 Compliant · $7.6B Budget Oversight</div>
           </div>
           <div style={{ textAlign:"right" }}>
-            <div style={{ fontSize:10, color:D.textMute, textTransform:"uppercase", letterSpacing:0.5, marginBottom:2, fontFamily:"'Courier New',monospace" }}>System Status</div>
-            <div style={{ color:D.green, fontWeight:700, fontSize:13, fontFamily:"'Courier New',monospace" }}>● OPERATIONAL — {pulse.uptime} uptime</div>
-            <div style={{ fontSize:11, color:D.textMute, marginTop:4 }}>Compiled by <strong style={{color:D.accent}}>Lancelot Napier-Kane</strong></div>
-            <div style={{ fontSize:10, color:D.textMute }}>HRA Program & Data Manager · Nov 2023–Sep 2024</div>
+            <div style={{ fontSize:10, color:D.headerText+"88", textTransform:"uppercase", letterSpacing:0.5, marginBottom:2, fontFamily:"'IBM Plex Mono','Courier New',monospace" }}>System Status</div>
+            <div style={{ color:"#5da87a", fontWeight:700, fontSize:13, fontFamily:"'IBM Plex Mono','Courier New',monospace" }}>● OPERATIONAL — {pulse.uptime} uptime</div>
+            <div style={{ fontSize:11, color:D.headerText+"88", marginTop:4 }}>Compiled by <strong style={{color:D.primaryLight}}>Lancelot Napier-Kane</strong></div>
+            <div style={{ fontSize:10, color:D.headerText+"77" }}>HRA Program & Data Manager · Nov 2023–Sep 2024</div>
             <button
               onClick={() => setIsLive(v => !v)}
               style={{
                 marginTop: 6, padding: "4px 14px", borderRadius: 3, fontSize: 11,
-                fontFamily: "'Courier New',monospace", fontWeight: 700, cursor: "pointer",
-                background: isLive ? D.redPale : D.greenPale,
-                color: isLive ? D.red : D.green,
-                border: `1px solid ${isLive ? D.red : D.green}44`
+                fontFamily: "'IBM Plex Mono','Courier New',monospace", fontWeight: 700, cursor: "pointer",
+                background: isLive ? "#7a202033" : "#2a5c3a33",
+                color: isLive ? "#e08080" : "#6bbb88",
+                border: `1px solid ${isLive ? "#e0808055" : "#6bbb8855"}`
               }}
             >
               {isLive ? "⬛ KILL FEED" : "▶ RESTORE FEED"}
@@ -1373,23 +1388,39 @@ export default function HRAFraudAuditTool() {
           </div>
         </div>
         <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
-          {[[`${pulse.txProcessed.toLocaleString()} Tx Today`,D.green],[`${pulse.packetsPerSec.toLocaleString()} pkt/s`,D.teal],["NIST-800-53 Aligned",D.accent],["34,306 NYC Fraud Cases Q1 '24",D.red],["$7.6B Budget Managed",D.orange]].map(([l,c])=>(
-            <span key={l} style={{ fontSize:11, color:c, background:c+"18", padding:"3px 10px", borderRadius:3, border:`1px solid ${c}44`, fontFamily:"'Courier New',monospace", fontWeight:700 }}>{l}</span>
+          {[[`${pulse.txProcessed.toLocaleString()} Tx Today`,"#5da87a"],[`${pulse.packetsPerSec.toLocaleString()} pkt/s`,"#3fb899"],["NIST-800-53 Aligned",D.primaryLight],["34,306 NYC Fraud Cases Q1 '24","#e07070"],["$7.6B Budget Managed","#d08050"]].map(([l,c])=>(
+            <span key={l} style={{ fontSize:11, color:c, background:c+"22", padding:"3px 10px", borderRadius:3, border:`1px solid ${c}44`, fontFamily:"'IBM Plex Mono','Courier New',monospace", fontWeight:700 }}>{l}</span>
           ))}
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="tab-scroll" style={{ borderBottom:`1px solid ${D.border}`, background:D.bgPanel, padding:"0 20px" }}>
-        <div style={{ display:"flex" }}>
-          {tabs.map((tab,i)=>(
-            <button key={i} onClick={()=>setActiveTab(i)}
-              style={{ background:"none", border:"none", borderBottom:`2px solid ${activeTab===i?D.red:"transparent"}`, color:activeTab===i?D.text:D.textMute, padding:"12px 16px", cursor:"pointer", textAlign:"left", fontWeight:activeTab===i?700:400, whiteSpace:"nowrap", transition:"color 0.15s" }}>
-              <div style={{ fontSize:12 }}>{tab.label}</div>
-              <div style={{ fontSize:10, color:activeTab===i?D.textMid:D.textMute, marginTop:1, fontFamily:"'Courier New',monospace" }}>{tab.sub}</div>
-            </button>
-          ))}
-        </div>
+      <div style={{ background: D.headerBg, padding: "0 24px", display: "flex", alignItems: "stretch", borderBottom: `3px solid ${D.primary}`, flexWrap: "nowrap", overflowX: "auto", gap: 0 }}>
+        {tabs.map((tab, i) => (
+          <button key={i} onClick={() => setActiveTab(i)}
+            style={{
+              background: activeTab === i ? D.primary : "transparent",
+              color: activeTab === i ? "#ffffff" : D.headerText + "99",
+              border: "none",
+              borderRight: `1px solid #ffffff15`,
+              padding: "10px 14px",
+              cursor: "pointer",
+              fontFamily: "'IBM Plex Sans','Segoe UI',Arial,sans-serif",
+              fontSize: 11,
+              fontWeight: activeTab === i ? 700 : 400,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 2,
+              whiteSpace: "nowrap",
+              transition: "background 0.15s",
+              minWidth: 0,
+              flex: 1,
+            }}>
+            <span style={{ fontSize: 10, opacity: 0.6, fontFamily: "'IBM Plex Mono','Courier New',monospace" }}>0{i+1}</span>
+            <span style={{ fontSize: 11 }}>{tab.label}</span>
+          </button>
+        ))}
       </div>
 
       {/* Content */}
@@ -1405,11 +1436,30 @@ export default function HRAFraudAuditTool() {
 
       {/* Footer */}
       <div style={{ borderTop:`1px solid ${D.border}`, padding:"14px 24px", background:D.bgPanel }}>
-        <div style={{ fontSize:10, color:D.textMute, lineHeight:1.8, fontFamily:"'Courier New',monospace" }}>
+        <div style={{ fontSize:10, color:D.textMute, lineHeight:1.8, fontFamily:"'IBM Plex Mono','Courier New',monospace" }}>
           <strong style={{ color:D.textMid }}>REAL DATA:</strong> NYC DOI Skimming Report (Sep 2025) · NYC Mayor's Office ($48.6M reimbursements) · USDA FNS Q1 2024 SNAP Fraud Data (34,306 NYC cases, 177,000 national) · NYC DSS reimbursement processing stats · USDA FY2023 improper payment rate (11.7%) · 18 U.S.C. § 1030, 7 U.S.C. § 2021, 7 CFR Part 273, 23-ADM-07, OMB M-22-09, NIST SP 800-53 Rev 5 · HRA Fraud Unit: 718-557-1399 ·&nbsp;
           <strong style={{ color:D.orange }}>SAMPLE/SIMULATED:</strong> Individual case files, caseworker names, retailer specifics, device fingerprints, and RPA bot outputs are illustrative sample data. System architecture reflects real HRA tool stack (WMS, POS, Cúram, UiPath, SSIS, dbt, Tableau). ·&nbsp;
           <strong style={{ color:D.accent }}>Compiled by Lancelot Napier-Kane</strong> · HRA Program &amp; Data Manager Nov 2023–Sep 2024
         </div>
+      </div>
+
+      {/* ─── PROJECT FOOTER ────────────────────────────────────── */}
+      <div style={{
+        borderTop: "1px solid #cccccc",
+        marginTop: 40,
+        padding: "18px 24px",
+        background: "#f9f9f7",
+        fontFamily: "'Trebuchet MS','Gill Sans',Tahoma,sans-serif",
+        fontSize: 12,
+        color: "#555550",
+        lineHeight: 1.7,
+      }}>
+        <p style={{ margin: 0 }}>
+          <strong style={{ color: "#1a1a14" }}>Lancelot Napier-Kane</strong> &nbsp;·&nbsp;
+          Tools: React, SVG, NIST 800-53 &nbsp;·&nbsp;
+          Methods: Fraud detection, anomaly scoring, identity graph analysis, EBT transaction monitoring &nbsp;·&nbsp;
+          Sources: HRA/SNAP administrative data models, USDA FNS guidelines, NYC DSS frameworks
+        </p>
       </div>
     </div>
   );

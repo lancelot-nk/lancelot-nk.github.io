@@ -642,7 +642,7 @@ export default function EnterprisePlatform() {
 
       {/* MAIN */}
 
-      <div className="flex-1 flex flex-col overflow-hidden" style={{ transform: 'scale(0.88)', transformOrigin: 'top left', width: '113.6%', height: '113.6%' }}>
+      <div className="flex-1 flex flex-col overflow-hidden" style={{ transform: 'scale(0.78)', transformOrigin: 'top left', width: '128%', height: '128%' }}>
 
         {/* TOP BAR */}
 
@@ -1293,6 +1293,25 @@ export default function EnterprisePlatform() {
             </div>
           )}
         </div>
+      </div>
+
+      {/* ─── PROJECT FOOTER ────────────────────────────────────── */}
+      <div style={{
+        borderTop: "1px solid #cccccc",
+        marginTop: 40,
+        padding: "18px 24px",
+        background: "#f9f9f7",
+        fontFamily: "'Trebuchet MS','Gill Sans',Tahoma,sans-serif",
+        fontSize: 12,
+        color: "#555550",
+        lineHeight: 1.7,
+      }}>
+        <p style={{ margin: 0 }}>
+          <strong style={{ color: "#1a1a14" }}>Lancelot Napier-Kane</strong> &nbsp;·&nbsp;
+          Tools: React, SVG, D3-style layout &nbsp;·&nbsp;
+          Methods: Customer success management, fleet telematics analysis, account health scoring &nbsp;·&nbsp;
+          Sources: Simulated fleet telemetry data, CSM industry frameworks
+        </p>
       </div>
     </div>
   );

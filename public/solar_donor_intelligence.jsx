@@ -1317,7 +1317,7 @@ export default function SolarDonorIntelligence() {
         <div className="header-row" style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", flexWrap:"wrap", gap:14, marginBottom:14 }}>
           <div>
             <div style={{ fontSize:10, color:C.goldLight, fontWeight:700, letterSpacing:2, textTransform:"uppercase", marginBottom:6 }}>Simulated NoSQL Donor Management Database</div>
-            <h1 style={{ margin:0, fontSize:"clamp(18px,3.5vw,26px)", color:"#fff", fontWeight:700, lineHeight:1.2 }}>Solar Cooking NGO — Donor Intelligence System</h1>
+            <h1 style={{ margin:0, fontSize:"clamp(18px,3.5vw,26px)", color:"#fff", fontWeight:700, lineHeight:1.2 }}>NoSQL NGO Donor Intelligence System</h1>
             <div style={{ color:"#a0b898", fontSize:13, marginTop:6 }}>SolarCook International · Azure Cosmos DB + Synapse Analytics · Fundraising CRM</div>
           </div>
           <div style={{ textAlign:"right" }}>
@@ -1363,6 +1363,25 @@ export default function SolarDonorIntelligence() {
           <strong style={{ color:C.textMid }}>Best Practices:</strong> Donor cultivation methodology, scoring model structure, T-SQL queries, and NoSQL schema design reflect current nonprofit fundraising and data engineering practices.&nbsp;·&nbsp;
           <strong>Compiled by Lancelot Napier-Kane</strong>
         </div>
+      </div>
+
+      {/* ─── PROJECT FOOTER ────────────────────────────────────── */}
+      <div style={{
+        borderTop: "1px solid #cccccc",
+        marginTop: 40,
+        padding: "18px 24px",
+        background: "#f9f9f7",
+        fontFamily: "'Trebuchet MS','Gill Sans',Tahoma,sans-serif",
+        fontSize: 12,
+        color: "#555550",
+        lineHeight: 1.7,
+      }}>
+        <p style={{ margin: 0 }}>
+          <strong style={{ color: "#1a1a14" }}>Lancelot Napier-Kane</strong> &nbsp;·&nbsp;
+          Tools: React, NoSQL schema modeling, Azure Blob Storage &nbsp;·&nbsp;
+          Methods: Donor segmentation, hybrid cloud data architecture, NoSQL document modeling &nbsp;·&nbsp;
+          Sources: Kaggle NGO donor datasets, Azure documentation
+        </p>
       </div>
     </div>
   );

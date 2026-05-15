@@ -108,7 +108,7 @@ export const PROJECTS = [
     img: img8,
   },
   {
-    title: 'Solar Donor Intelligence',
+    title: 'NoSQL NGO Donor Intelligence System',
     desc: 'Donor intelligence and prospect research platform for solar/clean energy — verified donor profiles, clout scoring, interest distribution analysis, and geographic targeting.',
     tech: ['React', 'Donor Analytics', 'Clean Energy', 'CRM Intelligence', 'Prospect Research'],
     link: '/solar_donor_intelligence.jsx',

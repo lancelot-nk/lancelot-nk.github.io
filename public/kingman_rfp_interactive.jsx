@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 // ── Inline SVG Line Chart (no external dependency) ──────────────────────────
-function SvgLineChart({ data, xKey, yKey, color = '#67e8f9', yLabel = '' }) {
+function SvgLineChart({ data, xKey, yKey, color = '#86efac', yLabel = '' }) {
   const [tooltip, setTooltip] = useState(null);
   const W = 560, H = 260, PAD = { top: 20, right: 20, bottom: 44, left: 58 };
   const innerW = W - PAD.left - PAD.right;
@@ -63,7 +63,7 @@ function SvgLineChart({ data, xKey, yKey, color = '#67e8f9', yLabel = '' }) {
         {data.map((d, i) => (
           <circle key={i}
             cx={toX(i)} cy={toY(d[yKey])} r={5}
-            fill={color} stroke="rgba(6,16,24,0.9)" strokeWidth={2}
+            fill={color} stroke="rgba(6,26,11,0.9)" strokeWidth={2}
             style={{ cursor: 'pointer' }}
             onMouseEnter={() => setTooltip({ i, x: toX(i), y: toY(d[yKey]), d })}
             onMouseLeave={() => setTooltip(null)}
@@ -76,9 +76,9 @@ function SvgLineChart({ data, xKey, yKey, color = '#67e8f9', yLabel = '' }) {
           return (
             <g>
               <rect x={tx} y={ty} width={108} height={30} rx={6}
-                fill="rgba(9,16,25,0.93)" stroke="rgba(103,232,249,0.35)" strokeWidth={1}
+                fill="rgba(7,20,11,0.93)" stroke="rgba(134,239,172,0.35)" strokeWidth={1}
               />
-              <text x={tx + 54} y={ty + 12} fill="#67e8f9" fontSize={10} textAnchor="middle" fontWeight="600">
+              <text x={tx + 54} y={ty + 12} fill="#86efac" fontSize={10} textAnchor="middle" fontWeight="600">
                 {tooltip.d[xKey]}
               </text>
               <text x={tx + 54} y={ty + 24} fill="#fff" fontSize={10} textAnchor="middle">
@@ -201,9 +201,9 @@ export default function KingmanIslandRFP() {
   ];
 
   const impactMetrics = [
-    { name: 'Participant Training', value: 85, color: '#67e8f9' },
+    { name: 'Participant Training', value: 85, color: '#86efac' },
     { name: 'Employment Placement', value: 70, color: '#34d399' },
-    { name: 'Certification Success', value: 90, color: '#60a5fa' },
+    { name: 'Certification Success', value: 90, color: '#4ade80' },
     { name: 'Retention Rate', value: 75, color: '#a78bfa' },
   ];
 
@@ -265,17 +265,17 @@ export default function KingmanIslandRFP() {
     { year: '2016', agency: 'DOEE', amount: '$19,963', purpose: 'Watershed Experiences for 3rd-8th Grade', status: 'Completed' },
   ];
 
-  const COLORS = ['#67e8f9', '#34d399', '#60a5fa', '#a78bfa', '#f472b6', '#fb923c'];
+  const COLORS = ['#86efac', '#34d399', '#4ade80', '#a78bfa', '#f472b6', '#fb923c'];
 
   return (
-    <div style={{ width:'100%', maxWidth:'100%', background:'#061018', color:'white', overflowX:'hidden', position:'relative' }}>
+    <div style={{ width:'100%', maxWidth:'100%', background:'linear-gradient(180deg, #061a0b 0%, #0a1f10 100%)', color:'white', overflowX:'hidden', position:'relative' }}>
       <style>{`
         * { scroll-behavior: smooth; }
 
         .glass {
-          background: rgba(9,16,25,0.72);
+          background: rgba(7,20,11,0.72);
           backdrop-filter: blur(16px);
-          border: 1px solid rgba(120,190,230,0.16);
+          border: 1px solid rgba(74,222,128,0.16);
           box-shadow: 0 10px 35px rgba(0,0,0,0.34), inset 0 1px 0 rgba(255,255,255,0.03);
         }
 
@@ -287,18 +287,18 @@ export default function KingmanIslandRFP() {
 
         .hero-grid {
           background-image:
-            linear-gradient(rgba(120,180,220,0.06) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(120,180,220,0.06) 1px, transparent 1px);
+            linear-gradient(rgba(74,222,128,0.06) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(74,222,128,0.06) 1px, transparent 1px);
           background-size: 32px 32px;
         }
 
         .gradient-text {
-          background: linear-gradient(90deg, #9fe9ff 0%, #ffffff 45%, #8edcff 100%);
+          background: linear-gradient(90deg, #bbf7d0 0%, #ffffff 45%, #bbf7d0 100%);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
         }
 
-        .cyan-glow { box-shadow: 0 0 80px rgba(56,189,248,0.18); }
+        .cyan-glow { box-shadow: 0 0 80px rgba(74,222,128,0.18); }
 
         .floating {
           animation: float 8s ease-in-out infinite;
@@ -330,13 +330,13 @@ export default function KingmanIslandRFP() {
 
         .card-hover:hover {
           transform: translateY(-4px);
-          border-color: rgba(103,232,249,0.32);
+          border-color: rgba(134,239,172,0.32);
         }
 
         .tab-nav {
           display: flex;
           gap: 0;
-          border-bottom: 1px solid rgba(120,190,230,0.16);
+          border-bottom: 1px solid rgba(74,222,128,0.16);
           overflow-x: auto;
           scrollbar-width: none;
         }
@@ -363,8 +363,8 @@ export default function KingmanIslandRFP() {
         }
 
         .tab-btn.active {
-          color: #67e8f9;
-          border-bottom-color: #67e8f9;
+          color: #86efac;
+          border-bottom-color: #86efac;
         }
 
         .expandable {
@@ -392,7 +392,7 @@ export default function KingmanIslandRFP() {
       <div className="ambient w-[420px] h-[420px] bg-emerald-400 bottom-[5%] right-[-120px]" />
 
       {/* HEADER */}
-      <header className="relative px-6 md:px-14 xl:px-20 pt-12 pb-8 border-b border-cyan-400/10">
+      <header style={{ background: '#0a2012' }} className="relative px-6 md:px-14 xl:px-20 pt-12 pb-8 border-b border-cyan-400/10">
         <div className="flex flex-wrap items-center justify-between gap-6">
           <div>
             <div className="inline-flex items-center gap-3 rounded-full px-5 py-2 glass text-[11px] uppercase tracking-[0.32em] text-cyan-100 mb-4">
@@ -474,9 +474,9 @@ export default function KingmanIslandRFP() {
       <main className="relative">
 
         {/* SECTION 01: OVERVIEW */}
-        <section id="overview" style={{ position:'relative', paddingBottom:'4rem', borderBottom:'1px solid rgba(120,190,230,0.1)' }} className="px-6 md:px-14 xl:px-20 py-12">
-          <div style={{ padding:'2rem 0 1.5rem', borderBottom:'1px solid rgba(120,190,230,0.08)', marginBottom:'2rem' }}>
-            <div style={{ fontSize:'10px', textTransform:'uppercase', letterSpacing:'0.32em', color:'rgba(103,232,249,0.7)', marginBottom:'0.5rem' }}>Section 01</div>
+        <section id="overview" style={{ position:'relative', paddingBottom:'4rem', borderBottom:'1px solid rgba(74,222,128,0.1)' }} className="px-6 md:px-14 xl:px-20 py-12">
+          <div style={{ padding:'2rem 0 1.5rem', borderBottom:'1px solid rgba(74,222,128,0.08)', marginBottom:'2rem' }}>
+            <div style={{ fontSize:'10px', textTransform:'uppercase', letterSpacing:'0.32em', color:'rgba(134,239,172,0.7)', marginBottom:'0.5rem' }}>Section 01</div>
             <div style={{ fontSize:'clamp(1.5rem,3vw,2.5rem)', fontWeight:900, letterSpacing:'-0.04em' }}>Program Overview</div>
           </div>
           <div className="space-y-10">
@@ -489,7 +489,7 @@ export default function KingmanIslandRFP() {
                     className="absolute inset-0 h-full w-full object-cover"
                     alt="Kingman Island Aerial View"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#061018] via-[#061018]/30 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#061a0b] via-[#061a0b]/30 to-transparent" />
                   <div className="absolute bottom-6 left-6 right-6 glass rounded-[2rem] p-6">
                     <div className="text-xs uppercase tracking-[0.28em] text-cyan-200 mb-3">
                       Project Focus Area
@@ -610,9 +610,9 @@ export default function KingmanIslandRFP() {
         </section>
 
         {/* SECTION 02: PROGRAM DETAILS */}
-        <section id="program" style={{ position:'relative', paddingBottom:'4rem', borderBottom:'1px solid rgba(120,190,230,0.1)' }} className="px-6 md:px-14 xl:px-20 py-12">
-          <div style={{ padding:'2rem 0 1.5rem', borderBottom:'1px solid rgba(120,190,230,0.08)', marginBottom:'2rem' }}>
-            <div style={{ fontSize:'10px', textTransform:'uppercase', letterSpacing:'0.32em', color:'rgba(103,232,249,0.7)', marginBottom:'0.5rem' }}>Section 02</div>
+        <section id="program" style={{ position:'relative', paddingBottom:'4rem', borderBottom:'1px solid rgba(74,222,128,0.1)' }} className="px-6 md:px-14 xl:px-20 py-12">
+          <div style={{ padding:'2rem 0 1.5rem', borderBottom:'1px solid rgba(74,222,128,0.08)', marginBottom:'2rem' }}>
+            <div style={{ fontSize:'10px', textTransform:'uppercase', letterSpacing:'0.32em', color:'rgba(134,239,172,0.7)', marginBottom:'0.5rem' }}>Section 02</div>
             <div style={{ fontSize:'clamp(1.5rem,3vw,2.5rem)', fontWeight:900, letterSpacing:'-0.04em' }}>Program Architecture</div>
           </div>
           <div className="space-y-10">
@@ -778,9 +778,9 @@ export default function KingmanIslandRFP() {
         </section>
 
         {/* SECTION 03: BUDGET & TIMELINE */}
-        <section id="budget" style={{ position:'relative', paddingBottom:'4rem', borderBottom:'1px solid rgba(120,190,230,0.1)' }} className="px-6 md:px-14 xl:px-20 py-12">
-          <div style={{ padding:'2rem 0 1.5rem', borderBottom:'1px solid rgba(120,190,230,0.08)', marginBottom:'2rem' }}>
-            <div style={{ fontSize:'10px', textTransform:'uppercase', letterSpacing:'0.32em', color:'rgba(103,232,249,0.7)', marginBottom:'0.5rem' }}>Section 03</div>
+        <section id="budget" style={{ position:'relative', paddingBottom:'4rem', borderBottom:'1px solid rgba(74,222,128,0.1)' }} className="px-6 md:px-14 xl:px-20 py-12">
+          <div style={{ padding:'2rem 0 1.5rem', borderBottom:'1px solid rgba(74,222,128,0.08)', marginBottom:'2rem' }}>
+            <div style={{ fontSize:'10px', textTransform:'uppercase', letterSpacing:'0.32em', color:'rgba(134,239,172,0.7)', marginBottom:'0.5rem' }}>Section 03</div>
             <div style={{ fontSize:'clamp(1.5rem,3vw,2.5rem)', fontWeight:900, letterSpacing:'-0.04em' }}>Budget & Financial Plan</div>
           </div>
           <div className="space-y-10">
@@ -926,9 +926,9 @@ export default function KingmanIslandRFP() {
         </section>
 
         {/* SECTION 04: IMPACT METRICS */}
-        <section id="impact" style={{ position:'relative', paddingBottom:'4rem', borderBottom:'1px solid rgba(120,190,230,0.1)' }} className="px-6 md:px-14 xl:px-20 py-12">
-          <div style={{ padding:'2rem 0 1.5rem', borderBottom:'1px solid rgba(120,190,230,0.08)', marginBottom:'2rem' }}>
-            <div style={{ fontSize:'10px', textTransform:'uppercase', letterSpacing:'0.32em', color:'rgba(103,232,249,0.7)', marginBottom:'0.5rem' }}>Section 04</div>
+        <section id="impact" style={{ position:'relative', paddingBottom:'4rem', borderBottom:'1px solid rgba(74,222,128,0.1)' }} className="px-6 md:px-14 xl:px-20 py-12">
+          <div style={{ padding:'2rem 0 1.5rem', borderBottom:'1px solid rgba(74,222,128,0.08)', marginBottom:'2rem' }}>
+            <div style={{ fontSize:'10px', textTransform:'uppercase', letterSpacing:'0.32em', color:'rgba(134,239,172,0.7)', marginBottom:'0.5rem' }}>Section 04</div>
             <div style={{ fontSize:'clamp(1.5rem,3vw,2.5rem)', fontWeight:900, letterSpacing:'-0.04em' }}>Impact Metrics & Outcomes</div>
           </div>
           <div className="space-y-10">
@@ -943,7 +943,7 @@ export default function KingmanIslandRFP() {
                   data={waterRetentionData}
                   xKey="year"
                   yKey="gallons"
-                  color="#67e8f9"
+                  color="#86efac"
                   yLabel="Million Gallons"
                 />
                 <div className="mt-6 grid grid-cols-2 gap-4">
@@ -1039,9 +1039,9 @@ export default function KingmanIslandRFP() {
         </section>
 
         {/* SECTION 05: PARTNERS & HISTORY */}
-        <section id="partners" style={{ position:'relative', paddingBottom:'4rem', borderBottom:'1px solid rgba(120,190,230,0.1)' }} className="px-6 md:px-14 xl:px-20 py-12">
-          <div style={{ padding:'2rem 0 1.5rem', borderBottom:'1px solid rgba(120,190,230,0.08)', marginBottom:'2rem' }}>
-            <div style={{ fontSize:'10px', textTransform:'uppercase', letterSpacing:'0.32em', color:'rgba(103,232,249,0.7)', marginBottom:'0.5rem' }}>Section 05</div>
+        <section id="partners" style={{ position:'relative', paddingBottom:'4rem', borderBottom:'1px solid rgba(74,222,128,0.1)' }} className="px-6 md:px-14 xl:px-20 py-12">
+          <div style={{ padding:'2rem 0 1.5rem', borderBottom:'1px solid rgba(74,222,128,0.08)', marginBottom:'2rem' }}>
+            <div style={{ fontSize:'10px', textTransform:'uppercase', letterSpacing:'0.32em', color:'rgba(134,239,172,0.7)', marginBottom:'0.5rem' }}>Section 05</div>
             <div style={{ fontSize:'clamp(1.5rem,3vw,2.5rem)', fontWeight:900, letterSpacing:'-0.04em' }}>Strategic Partnerships & History</div>
           </div>
           <div className="space-y-10">
@@ -1167,9 +1167,9 @@ export default function KingmanIslandRFP() {
         </section>
 
         {/* SECTION 06: JUSTIFICATION */}
-        <section id="justification" style={{ position:'relative', paddingBottom:'4rem', borderBottom:'1px solid rgba(120,190,230,0.1)' }} className="px-6 md:px-14 xl:px-20 py-12">
-          <div style={{ padding:'2rem 0 1.5rem', borderBottom:'1px solid rgba(120,190,230,0.08)', marginBottom:'2rem' }}>
-            <div style={{ fontSize:'10px', textTransform:'uppercase', letterSpacing:'0.32em', color:'rgba(103,232,249,0.7)', marginBottom:'0.5rem' }}>Section 06</div>
+        <section id="justification" style={{ position:'relative', paddingBottom:'4rem', borderBottom:'1px solid rgba(74,222,128,0.1)' }} className="px-6 md:px-14 xl:px-20 py-12">
+          <div style={{ padding:'2rem 0 1.5rem', borderBottom:'1px solid rgba(74,222,128,0.08)', marginBottom:'2rem' }}>
+            <div style={{ fontSize:'10px', textTransform:'uppercase', letterSpacing:'0.32em', color:'rgba(134,239,172,0.7)', marginBottom:'0.5rem' }}>Section 06</div>
             <div style={{ fontSize:'clamp(1.5rem,3vw,2.5rem)', fontWeight:900, letterSpacing:'-0.04em' }}>Funding Justification & Policy Alignment</div>
           </div>
           <div className="space-y-10">
@@ -1322,6 +1322,25 @@ export default function KingmanIslandRFP() {
           </div>
         </div>
       </footer>
+
+      {/* ─── PROJECT FOOTER ────────────────────────────────────── */}
+      <div style={{
+        borderTop: "1px solid #cccccc",
+        marginTop: 40,
+        padding: "18px 24px",
+        background: "#f9f9f7",
+        fontFamily: "'Trebuchet MS','Gill Sans',Tahoma,sans-serif",
+        fontSize: 12,
+        color: "#555550",
+        lineHeight: 1.7,
+      }}>
+        <p style={{ margin: 0 }}>
+          <strong style={{ color: "#1a1a14" }}>Lancelot Napier-Kane</strong> &nbsp;·&nbsp;
+          Tools: React, SVG &nbsp;·&nbsp;
+          Methods: RFP documentation, infrastructure planning, cost-benefit analysis &nbsp;·&nbsp;
+          Sources: NYC Parks Department, public infrastructure records
+        </p>
+      </div>
     </div>
   );
 }

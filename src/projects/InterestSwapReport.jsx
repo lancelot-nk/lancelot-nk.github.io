@@ -99,16 +99,16 @@ const POLICY_RECS = [
 // ══════════════════════════════════════════════════════
 
 const C = {
-  bg: "#080808", surface: "#111111", card: "#181818",
-  border: "#222", borderBright: "#2e2e2e",
-  red: "#9B1C1C", redBright: "#EF4444", redDim: "#450a0a",
+  bg: "#f7f5f0", surface: "#ede9e2", card: "#ffffff",
+  border: "#d0ccc4", borderBright: "#b5b0a7",
+  red: "#9B1C1C", redBright: "#6b1a1a", redDim: "#450a0a",
   gold: "#B45309", goldBright: "#FBBF24",
-  blue: "#1D4ED8", blueBright: "#60A5FA",
-  text: "#F5F1EC", muted: "#9CA3AF", dim: "#4B5563",
+  blue: "#1a4a6b", blueBright: "#5b7fa6",
+  text: "#1a2836", muted: "#55606e", dim: "#6b7280",
 };
 const F = {
   head: "'Playfair Display', Georgia, 'Times New Roman', serif",
-  body: "'IBM Plex Sans', 'Helvetica Neue', Arial, sans-serif",
+  body: "'Source Sans 3','Source Sans Pro','Segoe UI',Arial,sans-serif",
   mono: "'IBM Plex Mono', 'Courier New', monospace",
 };
 
@@ -118,7 +118,7 @@ const sevColor = (s) => ({ neutral: C.dim, warn: C.gold, danger: C.red, crisis: 
 const CTooltip = ({ active, payload, label, pre = "", suf = "" }) => {
   if (!active || !payload?.length) return null;
   return (
-    <div style={{ background: "#111", border: `1px solid ${C.borderBright}`, padding: "10px 14px", borderRadius: 4, fontFamily: F.body, fontSize: 12 }}>
+    <div style={{ background: "#ffffff", border: `1px solid ${C.borderBright}`, padding: "10px 14px", borderRadius: 4, fontFamily: F.body, fontSize: 12 }}>
       <div style={{ color: C.muted, marginBottom: 6, fontWeight: 600 }}>{label}</div>
       {payload.map((p, i) => (
         <div key={i} style={{ color: p.color, marginBottom: 2 }}>
@@ -202,11 +202,11 @@ ${petInst || "[Institution]"}${petState ? `, ${petState}` : ""}`
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400&display=swap');
-        *{box-sizing:border-box;} html,body{margin:0;padding:0;background:#080808;}
+        @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Source+Sans+3:wght@400;500;600;700&display=swap');
+        *{box-sizing:border-box;} html,body{margin:0;padding:0;background:#f7f5f0;}
         ::-webkit-scrollbar{width:5px;height:5px;}
-        ::-webkit-scrollbar-track{background:#080808;}
-        ::-webkit-scrollbar-thumb{background:#2e2e2e;border-radius:3px;}
+        ::-webkit-scrollbar-track{background:#f7f5f0;}
+        ::-webkit-scrollbar-thumb{background:#b5b0a7;border-radius:3px;}
         input,textarea,select{outline:none;}
         a.res-link:hover{border-color:#9B1C1C !important;}
         @media(max-width:640px){
@@ -220,22 +220,23 @@ ${petInst || "[Institution]"}${petState ? `, ${petState}` : ""}`
         }
       `}</style>
 
-      <div style={{ background: C.bg, color: C.text, fontFamily: F.body, minHeight: "100vh", width: "100%" }}>
+      <div style={{ background: C.bg, color: C.text, fontFamily: "'Source Sans 3','Source Sans Pro','Segoe UI',Arial,sans-serif", minHeight: "100vh", width: "100%" }}>
+        <style>{`@import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Source+Sans+3:wght@400;500;600;700&display=swap');`}</style>
 
         {/* ╔══════ HEADER ══════╗ */}
-        <div style={{ background: C.surface, borderBottom: `1px solid ${C.border}`, padding: "44px 156px 36px" }} className="sr-header">
-          <div style={eyebrow}>Policy & Financial Analysis · Interest Rate Derivatives · Post-2008</div>
-          <h1 style={{ fontFamily: F.head, fontSize: "clamp(26px,3.8vw,50px)", fontWeight: 900, lineHeight: 1.06, color: C.text, maxWidth: "90%", marginBottom: 20 }}>
+        <div style={{ background: "#1a2836", borderBottom: `1px solid #3a4a5a`, padding: "44px 156px 36px" }} className="sr-header">
+          <div style={{ ...eyebrow, color: "#c09898" }}>Policy & Financial Analysis · Interest Rate Derivatives · Post-2008</div>
+          <h1 style={{ fontFamily: F.head, fontSize: "clamp(26px,3.8vw,50px)", fontWeight: 900, lineHeight: 1.06, color: "#f5f1ec", maxWidth: "90%", marginBottom: 20 }}>
             The Financialization of Higher Education:<br />
             How Interest Rate Swaps Transferred{" "}
-            <em style={{ color: C.redBright, fontStyle: "italic" }}>$2.7 Billion</em>{" "}
+            <em style={{ color: "#ef8585", fontStyle: "italic" }}>$2.7 Billion</em>{" "}
             from Campuses to Wall Street
           </h1>
-          <p style={{ fontSize: 16, color: C.muted, maxWidth: "80%", lineHeight: 1.65 }}>
+          <p style={{ fontSize: 16, color: "#c8c5bf", maxWidth: "80%", lineHeight: 1.65 }}>
             An interactive analysis of post-2008 interest rate swap agreements, their direct impact on college tuition and student debt, and the structural policy reforms required to prevent recurrence.
           </p>
           {/* ── Stat Strip ── */}
-          <div style={{ display: "flex", gap: 0, marginTop: 36, borderTop: `1px solid ${C.border}`, paddingTop: 28, flexWrap: "wrap" }} className="sr-stats">
+          <div style={{ display: "flex", gap: 0, marginTop: 36, borderTop: `1px solid #3a4a5a`, paddingTop: 28, flexWrap: "wrap" }} className="sr-stats">
             {[
               { num: "$2.7B",   sub: "Documented losses by 19 universities in interest rate swap agreements, per Roosevelt Institute" },
               { num: "108,000", sub: "Students whose full tuition could have been covered by those documented institutional losses" },
@@ -243,8 +244,8 @@ ${petInst || "[Institution]"}${petState ? `, ${petState}` : ""}`
               { num: "76%",     sub: "Rise in community college per-student debt interest payments, 2003–2012 (Roosevelt Institute)" },
             ].map((st, i) => (
               <div key={i} style={{ flex: 1, minWidth: 155, paddingRight: 36, marginBottom: 12 }}>
-                <div style={{ fontFamily: F.head, fontSize: "clamp(22px,3vw,40px)", fontWeight: 900, color: C.redBright, lineHeight: 1, marginBottom: 7 }}>{st.num}</div>
-                <div style={{ fontSize: 13, color: C.muted, lineHeight: 1.45 }}>{st.sub}</div>
+                <div style={{ fontFamily: F.head, fontSize: "clamp(22px,3vw,40px)", fontWeight: 900, color: "#ef8585", lineHeight: 1, marginBottom: 7 }}>{st.num}</div>
+                <div style={{ fontSize: 13, color: "#c8c5bf", lineHeight: 1.45 }}>{st.sub}</div>
               </div>
             ))}
           </div>
@@ -357,7 +358,7 @@ ${petInst || "[Institution]"}${petState ? `, ${petState}` : ""}`
                         if (!active || !payload?.length) return null;
                         const d = payload[0].payload;
                         return (
-                          <div style={{ background: "#0e0e0e", border: `1px solid ${C.borderBright}`, padding: "12px 16px", borderRadius: 4, fontFamily: F.body, fontSize: 12, maxWidth: 300 }}>
+                          <div style={{ background: "#ffffff", border: `1px solid ${C.borderBright}`, padding: "12px 16px", borderRadius: 4, fontFamily: F.body, fontSize: 12, maxWidth: 300 }}>
                             <div style={{ color: C.redBright, fontWeight: 600, marginBottom: 4 }}>{d.name} · {d.type}</div>
                             <div style={{ color: C.goldBright, fontSize: 16, fontWeight: 700, marginBottom: 8 }}>${d.loss.toLocaleString()}M</div>
                             <div style={{ color: C.muted, fontSize: 12, lineHeight: 1.55 }}>{d.note}</div>
@@ -568,6 +569,25 @@ ${petInst || "[Institution]"}${petState ? `, ${petState}` : ""}`
           <div style={{ marginTop: 6 }}><span style={{ color: C.muted }}>Disclaimer:</span> For portfolio and policy education purposes. All policy recommendations are drawn from published research and advocacy literature. Not legal or financial advice.</div>
         </div>
 
+      </div>
+
+      {/* ─── PROJECT FOOTER ────────────────────────────────────── */}
+      <div style={{
+        borderTop: "1px solid #cccccc",
+        marginTop: 40,
+        padding: "18px 24px",
+        background: "#f9f9f7",
+        fontFamily: "'Trebuchet MS','Gill Sans',Tahoma,sans-serif",
+        fontSize: 12,
+        color: "#555550",
+        lineHeight: 1.7,
+      }}>
+        <p style={{ margin: 0 }}>
+          <strong style={{ color: "#1a1a14" }}>Lancelot Napier-Kane</strong> &nbsp;·&nbsp;
+          Tools: React, Recharts, financial modeling &nbsp;·&nbsp;
+          Methods: Interest rate swap valuation, sensitivity analysis, fixed-to-floating hedging &nbsp;·&nbsp;
+          Sources: Bloomberg swap curve conventions, ISDA documentation standards
+        </p>
       </div>
     </>
   );

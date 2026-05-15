@@ -280,8 +280,8 @@ const SSIS_PACKAGES = [
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
 const fmtM = n => `$${(n/1e6).toFixed(1)}M`;
 const fmtB = n => `$${(n/1e9).toFixed(2)}B`;
-const fmtK = n => n >= 1000 ? `${(n/1000).toFixed(1)}K` : n.toLocaleString();
-const fmtDollar = n => `$${n.toLocaleString()}`;
+const fmtK = n => n == null || isNaN(n) ? '—' : n >= 1000 ? `${(n/1000).toFixed(1)}K` : n.toLocaleString();
+const fmtDollar = n => n == null || isNaN(n) ? '$—' : `$${Number(n).toLocaleString()}`;
 const pct = (n, d) => d > 0 ? `${(n/d*100).toFixed(1)}%` : "0%";
 
 const varianceColor = v => v > 0 ? T.red : v < 0 ? T.teal : T.green;
@@ -301,7 +301,9 @@ function computeBenefit(hsize, grossIncome, shelterCost, hasEarnedIncome, isElde
   const netIncome = Math.max(0, grossAfter - shelterDed);
   const eligible = grossIncome <= grossLimit && netIncome <= netLimit;
   const benefit = eligible ? Math.max(MIN_BENEFIT, Math.round(maxAllot - netIncome * 0.30)) : 0;
-  return { eligible, grossLimit, netLimit, maxAllot, stdDed, earnedDed, shelterDed, netIncome, benefit, grossAfter };
+  return { eligible, grossLimit, netLimit, maxAllot, stdDed, earnedDed, shelterDed,
+           earnedDeduction: earnedDed, shelterDeduction: shelterDed,
+           netIncome, benefit, grossAfter };
 }
 
 // ─── ETL SIMULATION HOOK ──────────────────────────────────────────────────────
@@ -1198,7 +1200,7 @@ export default function HRABudgetVarianceEngine() {
       `}</style>
 
       {/* Header */}
-      <div style={{ background: T.bgDark, padding: "20px 28px", borderBottom: `3px solid ${T.amberLight}` }}>
+      <div style={{ background: "#0a0a0a", padding: "20px 28px", borderBottom: `3px solid ${T.amberLight}` }}>
         <div className="hdr" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 12, marginBottom: 12 }}>
           <div>
             <div style={{ fontSize: 10, color: T.amberLight, fontWeight: 700, letterSpacing: 2, textTransform: "uppercase", marginBottom: 5 }}>NYC HRA · SNAP/EBT · Benefit Issuance & Budget Variance Engine</div>
@@ -1219,16 +1221,26 @@ export default function HRABudgetVarianceEngine() {
       </div>
 
       {/* Tabs */}
-      <div className="tab-scroll" style={{ borderBottom: `1px solid ${T.border}`, background: T.bgWhite, padding: "0 20px" }}>
-        <div style={{ display: "flex" }}>
-          {tabs.map((tab, i) => (
-            <button key={i} onClick={() => setActiveTab(i)}
-              style={{ background: "none", border: "none", borderBottom: `2px solid ${activeTab === i ? T.amber : "transparent"}`, color: activeTab === i ? T.amber : T.textMute, padding: "12px 16px", cursor: "pointer", textAlign: "left", fontWeight: activeTab === i ? 700 : 400, whiteSpace: "nowrap", transition: "color 0.15s" }}>
-              <div style={{ fontSize: 12 }}>{tab.label}</div>
-              <div style={{ fontSize: 10, color: activeTab === i ? T.amberLight : T.textMute, marginTop: 1 }}>{tab.sub}</div>
-            </button>
-          ))}
-        </div>
+      <div style={{ background: "#ffffff", borderBottom: "2px solid #000000", padding: "12px 20px", display: "flex", gap: 8, flexWrap: "wrap" }}>
+        {tabs.map((tab, i) => (
+          <button key={i} onClick={() => setActiveTab(i)}
+            style={{
+              background: activeTab === i ? "#000000" : "#ffffff",
+              color: activeTab === i ? "#ffffff" : "#000000",
+              border: "2px solid #000000",
+              borderRadius: 0,
+              padding: "8px 16px",
+              cursor: "pointer",
+              fontSize: 12,
+              fontWeight: 600,
+              fontFamily: "inherit",
+              whiteSpace: "nowrap",
+              letterSpacing: "0.02em",
+              transition: "background 0.1s, color 0.1s",
+            }}>
+            {tab.label}
+          </button>
+        ))}
       </div>
 
       {/* Content */}
@@ -1247,6 +1259,25 @@ export default function HRABudgetVarianceEngine() {
           <strong style={{ color: T.orange }}>Simulated/Modeled:</strong> The 100,000-household dataset is synthetic, generated deterministically from real demographic distributions. dbt, SSIS, and T-SQL implementations are architectural simulations reflecting actual HRA tool stack (WMS, POS, Cúram, UiPath, dbt, SSIS, Power Automate, Tableau). No real HRA case records are used.&nbsp;·&nbsp;
           <strong>Compiled by Lancelot Napier-Kane</strong> · HRA Program &amp; Data Manager Nov 2023–Sep 2024
         </div>
+      </div>
+
+      {/* ─── PROJECT FOOTER ────────────────────────────────────── */}
+      <div style={{
+        borderTop: "1px solid #cccccc",
+        marginTop: 40,
+        padding: "18px 24px",
+        background: "#f9f9f7",
+        fontFamily: "'Trebuchet MS','Gill Sans',Tahoma,sans-serif",
+        fontSize: 12,
+        color: "#555550",
+        lineHeight: 1.7,
+      }}>
+        <p style={{ margin: 0 }}>
+          <strong style={{ color: "#1a1a14" }}>Lancelot Napier-Kane</strong> &nbsp;·&nbsp;
+          Tools: React, dbt, SSIS, T-SQL &nbsp;·&nbsp;
+          Methods: SNAP eligibility calculation, benefit variance analysis, ETL pipeline modeling &nbsp;·&nbsp;
+          Sources: USDA FNS FY2025 COLA memo, OTDA GIS 24DC060, NYC HRA WMS data architecture
+        </p>
       </div>
     </div>
   );
