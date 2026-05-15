@@ -30,6 +30,7 @@ const LazyB2BChurn         = lazy(() => import('../../projects/B2BChurn'));
 const LazyGreenWorkforce   = lazy(() => import('../../projects/GREENworkforcetracker'));
 const LazyNGOBudget        = lazy(() => import('../../projects/NGOBudgetTracker'));
 const LazySHEAnnual        = lazy(() => import('../../projects/SHEAnnualInteractive'));
+const LazyFXBInteractive   = lazy(() => import('../../projects/FXBInteractive'));
 
 // ── Image Imports ────────────────────────────────────────────────────────────
 import img1 from '../../assets/project1.jpg';
@@ -62,6 +63,7 @@ import imgHRAIntegrity from '../../assets/project_hra_integrity.jpg';
 import imgGreenWorkforce from '../../assets/project_green_workforce.jpg';
 import imgNGOBudget from '../../assets/project_ngo_budget.jpg';
 import imgSHEAnnual from '../../assets/project_she_annual.jpg';
+import imgFXBInteractive from '../../assets/project_fxb_interactive.jpg';
 
 // ── Brand Colors ─────────────────────────────────────────────────────────────
 const PINK   = '#B8004E';
@@ -233,6 +235,15 @@ export const PROJECTS = [
     type: 'jsx',
     component: LazySHEAnnual,
     img: imgSHEAnnual,
+  },
+  {
+    title: 'FXB Interactive Multi-Company Project Proposal',
+    desc: 'Interactive multi-page proposal document for the Cociner@s Solares program — a SHE + FXB International solar cooking intervention across rural Oaxaca. 14-slide booklet with page-flip animation, budget tables, KPI framework, risk analysis, and partnership structure. Content from the actual March 2020 proposal.',
+    tech: ['React', 'JSX', 'CSS Animations', 'Nonprofit', 'Solar Energy', 'Program Design', 'FXB International', 'Solar Household Energy', 'Oaxaca'],
+    link: '/fxb_interactive.jsx',
+    type: 'jsx',
+    component: LazyFXBInteractive,
+    img: imgFXBInteractive,
   },
   {
     title: 'Lytx Fleet Intelligence Platform',
