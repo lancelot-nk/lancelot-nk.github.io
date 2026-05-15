@@ -2216,22 +2216,6 @@ export default function ResumeSection() {
         />
       </SectionCard>
 
-      {/* ── Technical Projects (moved above Education & Experience) ──────── */}
-      {visibleProjects.length > 0 && (
-        <SectionCard>
-          <div style={sHead}>
-            <Code style={{ width: 15, height: 15, color: PINK }} />
-            <h3 style={sTitle}>Technical Projects</h3>
-          </div>
-          <p style={{ margin: '-0.45rem 0 0.85rem', fontSize: '0.72rem', fontFamily: 'JetBrains Mono, monospace', color: SOFT, fontWeight: 600 }}>
-            Live projects — see Projects tab for full notebook previews
-          </p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '0.8rem' }}>
-            {visibleProjects.map((p, i) => <ProjectCard key={i} project={p} matchSet={matched} />)}
-          </div>
-        </SectionCard>
-      )}
-
       {/* ── Education ────────────────────────────────────────────────────── */}
       <EducationSection visibleEdu={visibleEdu} matched={matched} />
 
@@ -2289,6 +2273,22 @@ export default function ResumeSection() {
         </SectionCard>
       )}
 
+      {/* ── Technical Projects ───────────────────────────────────────────── */}
+      {visibleProjects.length > 0 && (
+        <SectionCard>
+          <div style={sHead}>
+            <Code style={{ width: 15, height: 15, color: PINK }} />
+            <h3 style={sTitle}>Technical Projects</h3>
+          </div>
+          <p style={{ margin: '-0.45rem 0 0.85rem', fontSize: '0.72rem', fontFamily: 'JetBrains Mono, monospace', color: SOFT, fontWeight: 600 }}>
+            Live projects — see Projects tab for full notebook previews
+          </p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '0.8rem' }}>
+            {visibleProjects.map((p, i) => <ProjectCard key={i} project={p} matchSet={matched} />)}
+          </div>
+        </SectionCard>
+      )}
+
       {/* ── Publications, Research & Grants ──────────────────────────────── */}
       {visiblePubs.length > 0 && (
         <SectionCard>
@@ -2301,7 +2301,6 @@ export default function ResumeSection() {
           </div>
         </SectionCard>
       )}
-
       {/* ── Awards, Leadership & Volunteer ───────────────────────────────── */}
       {visibleAwards.length > 0 && (
         <SectionCard>
