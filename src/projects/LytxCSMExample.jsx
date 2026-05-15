@@ -545,7 +545,13 @@ export default function EnterprisePlatform() {
 
   return (
     <div>
-    <div className="w-full bg-[#f3f5f7] text-[#1e293b] flex" style={{height: "760px", minHeight: "600px", overflow: "hidden"}}>
+    <style>{`
+@media (max-width: 640px) {
+  .lytx-root { height: auto !important; min-height: unset !important; overflow: visible !important; flex-direction: column !important; }
+  .lytx-root .w-\[220px\] { width: 100% !important; height: auto !important; max-height: 200px; overflow-y: auto; }
+}
+`}</style>
+    <div className="w-full bg-[#f3f5f7] text-[#1e293b] flex lytx-root" style={{height: "760px", minHeight: "600px", overflow: "hidden"}}>
 
       {/* SIDEBAR */}
 

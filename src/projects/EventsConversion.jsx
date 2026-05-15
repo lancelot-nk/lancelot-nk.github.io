@@ -142,6 +142,12 @@ export default function NYCEventsOutreachSystem() {
       overflow: "hidden"
     }}>
       <style>{`
+@media (max-width: 640px) {
+  .ec-main { padding: 20px 16px !important; }
+  .ec-footer { padding: 16px !important; flex-direction: column !important; gap: 8px; }
+}
+`}</style>
+      <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Work+Sans:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
         
         .hex-nav {
@@ -296,7 +302,7 @@ export default function NYCEventsOutreachSystem() {
       </div>
 
       {/* Main Content Area */}
-      <div style={{ paddingRight: "180px", padding: "40px 180px 40px 40px", minHeight: "100vh" }}>
+      <div className="ec-main" style={{ paddingRight: "180px", padding: "40px 180px 40px 40px", minHeight: "100vh" }}>
         
         {/* Header */}
         <header style={{ marginBottom: "40px" }}>
@@ -1284,7 +1290,7 @@ export default function NYCEventsOutreachSystem() {
       </div>
 
       {/* Footer */}
-      <footer style={{
+      <footer className="ec-footer" style={{
         padding: "32px 180px 32px 40px",
         background: "white",
         borderTop: "2px solid #6B1B47",

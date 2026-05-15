@@ -1364,6 +1364,11 @@ export default function MASIPDashboard() {
 
   return (
     <div className="min-h-screen bg-slate-50">
+      <style>{`
+@media (max-width: 640px) {
+  .masip-main { margin-left: 0 !important; }
+}
+`}</style>
       {/* Hexagon Sidebar */}
       <HexagonSidebar 
         activeSection={activeSection} 
@@ -1371,7 +1376,7 @@ export default function MASIPDashboard() {
       />
 
       {/* Main Content */}
-      <main className="ml-20 min-h-screen">
+      <main className="ml-20 min-h-screen masip-main">
         {/* Header */}
         <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-sm border-b border-slate-200">
           <div className="flex items-center justify-between px-8 py-4">

@@ -1088,6 +1088,12 @@ export default function WAHMISBackendSystem() {
 
   return (
     <div className="min-h-screen bg-[#eef4f7] text-slate-900">
+      <style>{`
+@media (max-width: 640px) {
+  .hsd-layout { flex-direction: column !important; }
+  .hsd-sidebar { width: 100% !important; min-height: unset !important; max-height: 220px; overflow-y: auto; border-right: none !important; border-bottom: 1px solid #dbe5eb; }
+}
+`}</style>
       {/* HEADER */}
       <div className="sticky top-0 z-50 border-b border-[#dbe5eb] bg-white/95 backdrop-blur">
         <div className="flex items-center justify-between px-6 py-4">
@@ -1129,9 +1135,9 @@ export default function WAHMISBackendSystem() {
         </div>
       </div>
 
-      <div className="flex">
+      <div className="flex hsd-layout">
         {/* SIDEBAR */}
-        <div className="w-[270px] border-r border-[#dbe5eb] bg-[#f7fbfd] min-h-screen">
+        <div className="w-[270px] border-r border-[#dbe5eb] bg-[#f7fbfd] min-h-screen hsd-sidebar">
           <div className="p-4">
             <div className="rounded-2xl bg-gradient-to-br from-[#0c557c] to-[#0e6d8f] p-5 text-white shadow-xl">
               <div className="flex items-center gap-3">

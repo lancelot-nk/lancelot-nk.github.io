@@ -258,6 +258,9 @@ const STYLES = `
   .fxb-ws-row { flex-direction: column; }
   .fxb-h2 { font-size: clamp(20px, 5vw, 30px); }
   .fxb-lead { font-size: clamp(14px, 3.5vw, 18px); }
+  .fxb-root { height: auto; min-height: 100svh; }
+  .fxb-book { height: 78vw; min-height: 500px; }
+  .fxb-nav { position: relative; bottom: auto; left: auto; transform: none; width: 100%; padding: 12px 16px; background: rgba(28,25,22,0.85); display: flex; justify-content: space-between; align-items: center; }
 }
 `;
 

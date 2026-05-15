@@ -533,7 +533,14 @@ export default function ArcGISWAStateTool() {
 
   return (
     <>
-    <div className="h-screen w-full bg-stone-100 text-stone-800 flex flex-col overflow-hidden" style={{ fontFamily: "'Inter', -apple-system, sans-serif" }}>
+    <div className="h-screen w-full bg-stone-100 text-stone-800 flex flex-col overflow-hidden arcgis-root" style={{ fontFamily: "'Inter', -apple-system, sans-serif" }}>
+      <style>{`
+@media (max-width: 640px) {
+  .arcgis-root { height: auto !important; overflow: visible !important; min-height: 100vh; }
+  .arcgis-body { flex-direction: column !important; overflow: visible !important; }
+  .arcgis-sidebar { width: 100% !important; flex-shrink: 0; max-height: 200px; overflow-y: auto; }
+}
+`}</style>
       
       {/* HEADER BAR */}
       <header className="h-12 bg-stone-800 text-stone-100 flex items-center justify-between px-4 border-b border-stone-700 flex-shrink-0">
@@ -599,10 +606,10 @@ export default function ArcGISWAStateTool() {
       </nav>
 
       {/* MAIN CONTENT */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex overflow-hidden arcgis-body">
         
         {/* LEFT PANEL - CASE FLOW STREAM */}
-        <aside className="w-72 bg-white border-r border-stone-300 flex flex-col flex-shrink-0">
+        <aside className="w-72 bg-white border-r border-stone-300 flex flex-col flex-shrink-0 arcgis-sidebar">
           <div className="p-3 bg-stone-100 border-b border-stone-300">
             <h2 className="text-xs font-semibold text-stone-700 uppercase tracking-wide">LIVE CASE FLOW</h2>
             <p className="text-xs text-stone-500 mt-0.5">Real-time service events</p>

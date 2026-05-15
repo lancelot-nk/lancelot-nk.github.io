@@ -119,11 +119,17 @@ export default function SovereignOS() {
 
   // --- RENDERERS ---
   return (
-    <div className="flex h-screen bg-[#020408] text-slate-300 font-mono overflow-hidden scanline-effect selection:bg-blue-500/30">
+    <div className="flex h-screen bg-[#020408] text-slate-300 font-mono overflow-hidden scanline-effect selection:bg-blue-500/30 fraud-audit-root">
+      <style>{`
+@media (max-width: 640px) {
+  .fraud-audit-root { flex-direction: column !important; height: auto !important; overflow-y: auto !important; overflow-x: hidden !important; min-height: 100vh; }
+  .fraud-audit-sidebar { width: 100% !important; min-height: unset !important; max-height: 260px; overflow-y: auto; flex-shrink: 0; }
+}
+`}</style>
       <style dangerouslySetInnerHTML={{ __html: STYLES }} />
       
       {/* --- SIDEBAR OPERATING SYSTEM NAV --- */}
-      <aside className="w-80 bg-[#080a0f] border-r border-slate-800 flex flex-col shrink-0 z-20 shadow-2xl">
+      <aside className="w-80 bg-[#080a0f] border-r border-slate-800 flex flex-col shrink-0 z-20 shadow-2xl fraud-audit-sidebar">
         <div className="p-8 flex items-center gap-4 border-b border-slate-800 bg-[#0a0d14]">
           <div className="relative group">
             <div className="absolute -inset-1 bg-blue-600 rounded-lg blur opacity-25 group-hover:opacity-75 transition duration-1000 group-hover:duration-200"></div>

@@ -914,6 +914,12 @@ export default function GreenWorkforceTrackerSimulation() {
   return (
     <>
     <div className="min-h-screen bg-gradient-to-br from-green-200 via-green-100 to-lime-100">
+      <style>{`
+@media (max-width: 640px) {
+  .gwt-layout { flex-direction: column !important; }
+  .gwt-sidebar { width: 100% !important; min-height: unset !important; max-height: 220px; overflow-y: auto; border-right: none !important; border-bottom: 1px solid #86efac; }
+}
+`}</style>
       {/* Top Header Banner */}
       <header className="bg-gradient-to-r from-green-700 via-green-600 to-green-700 text-white py-3 px-6 shadow-lg">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -939,9 +945,9 @@ export default function GreenWorkforceTrackerSimulation() {
         </div>
       </header>
 
-      <div className="flex">
+      <div className="flex gwt-layout">
         {/* Left Sidebar */}
-        <aside className="w-56 min-h-screen bg-gradient-to-b from-green-100 to-green-200 border-r border-green-300 p-4 shadow-lg">
+        <aside className="w-56 min-h-screen bg-gradient-to-b from-green-100 to-green-200 border-r border-green-300 p-4 shadow-lg gwt-sidebar">
           {/* Logo Area */}
           <div className="mb-6 p-3 bg-white rounded-xl shadow-md">
             <div className="flex items-center gap-2">
