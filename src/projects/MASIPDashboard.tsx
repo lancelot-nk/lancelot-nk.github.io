@@ -19,7 +19,7 @@
 
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import {
   Database,
   Shield,
@@ -504,42 +504,60 @@ function ProgressBar({ value, max, color = "slate", showLabel = true }: { value:
 // ============================================================================
 
 function DataFlowVisualization({ agencies, streams }: { agencies: Agency[]; streams: DataStream[] }) {
-  const [particles, setParticles] = useState<{ id: number; progress: number; sourceIdx: number }[]>([])
-  
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [containerW, setContainerW] = useState(600)
+  const [particles, setParticles] = useState<{ id: number; progress: number; sourceIdx: number; targetIdx: number }[]>([])
+
+  useEffect(() => {
+    const update = () => {
+      if (containerRef.current) setContainerW(containerRef.current.clientWidth)
+    }
+    update()
+    window.addEventListener("resize", update)
+    return () => window.removeEventListener("resize", update)
+  }, [])
+
   useEffect(() => {
     const interval = setInterval(() => {
       setParticles(prev => {
         const updated = prev
           .map(p => ({ ...p, progress: p.progress + 2 }))
           .filter(p => p.progress < 100)
-        
+
         // Add new particles randomly
         if (Math.random() > 0.7 && updated.length < 8) {
           updated.push({
             id: Date.now(),
             progress: 0,
-            sourceIdx: Math.floor(Math.random() * 4)
+            sourceIdx: Math.floor(Math.random() * 4),
+            targetIdx: Math.floor(Math.random() * 3)
           })
         }
-        
+
         return updated
       })
     }, 50)
-    
+
     return () => clearInterval(interval)
   }, [])
 
   const connectedAgencies = agencies.filter(a => a.status === "connected" || a.status === "syncing").slice(0, 4)
 
+  // Layout constants derived from container width
+  const leftX = 72               // right edge of agency nodes
+  const centerX = containerW / 2 // horizontal center (Data Lake center)
+  const rightX = containerW - 88 // left edge of output buttons (right-6=24px + w-16=64px)
+  const centerY = 96             // vertical center of 192px (h-48) container
+
   return (
-    <div className="relative h-48 bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl overflow-hidden border border-slate-200">
+    <div ref={containerRef} className="relative h-48 bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl overflow-hidden border border-slate-200">
       {/* Left side - Agency nodes */}
       <div className="absolute left-6 top-0 bottom-0 flex flex-col justify-around py-4">
         {connectedAgencies.map((agency, idx) => (
           <div key={agency.id} className="flex items-center gap-2">
             <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-xs font-bold shadow-sm ${
-              agency.status === "syncing" 
-                ? "bg-amber-100 text-amber-700 border border-amber-200" 
+              agency.status === "syncing"
+                ? "bg-amber-100 text-amber-700 border border-amber-200"
                 : "bg-white text-slate-700 border border-slate-200"
             }`}>
               {agency.acronym}
@@ -588,7 +606,7 @@ function DataFlowVisualization({ agencies, streams }: { agencies: Agency[]; stre
             />
           )
         })}
-        
+
         {/* Output lines */}
         {[0, 1, 2].map((idx) => {
           const yPos = 32 + idx * 64 + 16
@@ -606,13 +624,28 @@ function DataFlowVisualization({ agencies, streams }: { agencies: Agency[]; stre
           )
         })}
 
-        {/* Animated particles */}
+        {/* Animated particles — travel from agency node → Data Lake → output button */}
         {particles.map(particle => {
+          const t = particle.progress / 100
           const yStart = 24 + particle.sourceIdx * 48 + 20
-          const progress = particle.progress / 100
-          const x = 72 + (window.innerWidth * 0.3) * progress
-          const y = yStart + (96 - yStart) * progress
-          
+          const yEnd = 32 + particle.targetIdx * 64 + 16
+
+          let x: number, y: number
+          if (t < 0.5) {
+            // Phase 1: left agency node → Data Lake center
+            const seg = t * 2
+            x = leftX + (centerX - 40 - leftX) * seg
+            y = yStart + (centerY - yStart) * seg
+          } else {
+            // Phase 2: Data Lake center → output button
+            const seg = (t - 0.5) * 2
+            x = (centerX + 40) + (rightX - centerX - 40) * seg
+            y = centerY + (yEnd - centerY) * seg
+          }
+
+          // Fade out as particle is absorbed at destination
+          const opacity = t > 0.85 ? (1 - t) / 0.15 : 1
+
           return (
             <circle
               key={particle.id}
@@ -620,7 +653,7 @@ function DataFlowVisualization({ agencies, streams }: { agencies: Agency[]; stre
               cy={y}
               r="4"
               fill="#10b981"
-              className="animate-pulse"
+              opacity={opacity}
             />
           )
         })}

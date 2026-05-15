@@ -1051,89 +1051,326 @@ export default function GreenWorkforceTrackerSimulation() {
             <KpiCard value={formatCurrency(totalGrantFunding)} label="Total Grant Funding" sublabel="FY2024" />
           </div>
 
-          {/* Main Dashboard Grid */}
-          <div className="grid grid-cols-3 gap-6 mb-6">
-            {/* Bar Chart - Training Costs by Department */}
-            <div className="col-span-1">
-              <GreenBarChart data={departmentData} title="Budget by Department" />
-            </div>
+          {/* ── OVERVIEW ── */}
+          {activeNav === "overview" && (
+            <>
+              {/* Main Dashboard Grid */}
+              <div className="grid grid-cols-3 gap-6 mb-6">
+                <div className="col-span-1">
+                  <GreenBarChart data={departmentData} title="Budget by Department" />
+                </div>
+                <div className="col-span-2">
+                  <SiteMapVisualization sites={sites} />
+                </div>
+              </div>
 
-            {/* Site Map */}
-            <div className="col-span-2">
-              <SiteMapVisualization sites={sites} />
-            </div>
-          </div>
+              {/* Second Row */}
+              <div className="grid grid-cols-3 gap-6 mb-6">
+                <DonutChart data={trainingStatus} title="Participant Status Distribution" />
+                <RadialProgress value={Math.round(avgJobReadiness * 100)} label="Job Readiness Index" />
+                <div className="rounded-xl bg-white p-5 shadow-lg border border-green-200">
+                  <h3 className="text-sm font-semibold text-green-900 mb-4">Top Programs</h3>
+                  <div className="space-y-3">
+                    {programs.slice(0, 4).map(prog => (
+                      <div key={prog.id} className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-green-800 truncate pr-2">{prog.name.split(" ").slice(0, 2).join(" ")}</p>
+                          <div className="flex items-center gap-2 mt-1">
+                            <div className="flex-1 h-2 bg-green-100 rounded-full overflow-hidden">
+                              <div
+                                className="h-full bg-gradient-to-r from-green-600 to-green-400"
+                                style={{ width: `${prog.completionRate * 100}%` }}
+                              />
+                            </div>
+                            <span className="text-xs text-green-600">{formatPercent(prog.completionRate)}</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
 
-          {/* Second Row */}
-          <div className="grid grid-cols-3 gap-6 mb-6">
-            {/* Donut Chart - Training Status */}
-            <DonutChart data={trainingStatus} title="Participant Status Distribution" />
+              {/* Participant Table */}
+              <div className="mb-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-lg font-bold text-green-900">Participant Training Details</h2>
+                  <span className="text-sm text-green-600">{filteredParticipants.length} participants</span>
+                </div>
+                <DataTable participants={filteredParticipants} />
+              </div>
 
-            {/* Radial Progress */}
-            <RadialProgress value={Math.round(avgJobReadiness * 100)} label="Job Readiness Index" />
+              {/* Grant Cards */}
+              <div className="mb-6">
+                <h2 className="text-lg font-bold text-green-900 mb-4">Grant Portfolio</h2>
+                <div className="grid grid-cols-3 gap-4">
+                  {grants.slice(0, 6).map(grant => (
+                    <GrantCard key={grant.id} grant={grant} />
+                  ))}
+                </div>
+              </div>
 
-            {/* Program Performance */}
-            <div className="rounded-xl bg-white p-5 shadow-lg border border-green-200">
-              <h3 className="text-sm font-semibold text-green-900 mb-4">Top Programs</h3>
-              <div className="space-y-3">
-                {programs.slice(0, 4).map(prog => (
-                  <div key={prog.id} className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-green-800 truncate pr-2">{prog.name.split(" ").slice(0, 2).join(" ")}</p>
-                      <div className="flex items-center gap-2 mt-1">
-                        <div className="flex-1 h-2 bg-green-100 rounded-full overflow-hidden">
-                          <div 
-                            className="h-full bg-gradient-to-r from-green-600 to-green-400"
-                            style={{ width: `${prog.completionRate * 100}%` }}
+              {/* Environmental Impact */}
+              <div className="rounded-xl bg-white p-6 shadow-lg border border-green-200">
+                <h2 className="text-lg font-bold text-green-900 mb-4">Environmental Impact Metrics</h2>
+                <div className="grid grid-cols-4 gap-4">
+                  {impacts.slice(0, 4).map((impact, idx) => (
+                    <div key={idx} className="p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-xl border border-green-200">
+                      <p className="text-xs text-green-600 mb-1">{impact.metric}</p>
+                      <p className="text-2xl font-bold text-green-800">{formatNumber(impact.current)}</p>
+                      <p className="text-xs text-green-500">{impact.unit}</p>
+                      <div className="mt-2 flex items-center gap-1">
+                        <TrendingUp className="w-3 h-3 text-green-600" />
+                        <span className="text-xs text-green-600">
+                          {((impact.current - impact.baseline) / impact.baseline * 100).toFixed(0)}% from baseline
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* ── PARTICIPANTS ── */}
+          {activeNav === "participants" && (
+            <>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-bold text-green-900">Participant Training Details</h2>
+                <span className="text-sm text-green-600">{filteredParticipants.length} participants</span>
+              </div>
+              <div className="mb-6">
+                <DataTable participants={filteredParticipants} />
+              </div>
+              <div className="grid grid-cols-3 gap-4">
+                {filteredParticipants.map(p => (
+                  <div key={p.id} className="rounded-xl bg-white p-4 shadow-lg border border-green-200">
+                    <div className="flex items-start justify-between mb-2">
+                      <div>
+                        <p className="font-semibold text-green-900 text-sm">{p.name}</p>
+                        <p className="text-xs text-green-600 capitalize">{p.pathway}</p>
+                      </div>
+                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                        p.placementStatus === "placed" ? "bg-green-100 text-green-700" :
+                        p.placementStatus === "searching" ? "bg-amber-100 text-amber-700" :
+                        p.placementStatus === "graduated" ? "bg-blue-100 text-blue-700" :
+                        "bg-gray-100 text-gray-700"
+                      }`}>
+                        {p.placementStatus}
+                      </span>
+                    </div>
+                    <div className="space-y-2 text-xs">
+                      <div className="flex justify-between text-green-700">
+                        <span>Skill Level</span>
+                        <span className="font-medium">{formatPercent(p.skillLevel)}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-green-600">Job Readiness</span>
+                        <div className="flex-1 h-1.5 bg-green-100 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-gradient-to-r from-green-600 to-green-400 rounded-full"
+                            style={{ width: `${p.jobReadinessIndex * 100}%` }}
                           />
                         </div>
-                        <span className="text-xs text-green-600">{formatPercent(prog.completionRate)}</span>
+                        <span className="font-medium text-green-700">{formatPercent(p.jobReadinessIndex)}</span>
+                      </div>
+                      <div className="flex justify-between text-green-700">
+                        <span>Certifications</span>
+                        <span className="font-medium">{p.certifications.length}</span>
                       </div>
                     </div>
                   </div>
                 ))}
               </div>
-            </div>
-          </div>
+            </>
+          )}
 
-          {/* Participant Table */}
-          <div className="mb-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold text-green-900">Participant Training Details</h2>
-              <span className="text-sm text-green-600">{filteredParticipants.length} participants</span>
-            </div>
-            <DataTable participants={filteredParticipants} />
-          </div>
+          {/* ── PROGRAMS ── */}
+          {activeNav === "programs" && (
+            <>
+              <h2 className="text-lg font-bold text-green-900 mb-4">Program Analysis</h2>
+              <div className="mb-6">
+                <GreenBarChart data={departmentData} title="Budget by Department" />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                {programs.map(prog => (
+                  <div key={prog.id} className="rounded-xl bg-white p-5 shadow-lg border border-green-200">
+                    <div className="flex items-start justify-between mb-3">
+                      <div>
+                        <h4 className="font-semibold text-green-900 text-sm">{prog.name}</h4>
+                        <p className="text-xs text-green-600">{prog.fundingSource}</p>
+                      </div>
+                      <span className="text-xs text-green-700 font-medium">
+                        {prog.currentEnrollment}/{prog.cohortCapacity} enrolled
+                      </span>
+                    </div>
+                    <div className="space-y-3 text-xs">
+                      <div>
+                        <div className="flex justify-between mb-1">
+                          <span className="text-green-700">Completion Rate</span>
+                          <span className="font-medium text-green-800">{formatPercent(prog.completionRate)}</span>
+                        </div>
+                        <div className="h-2 bg-green-100 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-gradient-to-r from-green-600 to-green-400 rounded-full"
+                            style={{ width: `${prog.completionRate * 100}%` }}
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <div className="flex justify-between mb-1">
+                          <span className="text-green-700">Placement Success</span>
+                          <span className="font-medium text-green-800">{formatPercent(prog.placementSuccessRate)}</span>
+                        </div>
+                        <div className="h-2 bg-green-100 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-gradient-to-r from-emerald-600 to-emerald-400 rounded-full"
+                            style={{ width: `${prog.placementSuccessRate * 100}%` }}
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <div className="flex justify-between mb-1">
+                          <span className="text-green-700">Budget Used</span>
+                          <span className="font-medium text-green-800">
+                            {formatCurrency(prog.budgetSpent)} / {formatCurrency(prog.budgetAllocated)}
+                          </span>
+                        </div>
+                        <div className="h-2 bg-green-100 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-gradient-to-r from-lime-600 to-lime-400 rounded-full"
+                            style={{ width: `${(prog.budgetSpent / prog.budgetAllocated) * 100}%` }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
 
-          {/* Grant Cards */}
-          <div className="mb-6">
-            <h2 className="text-lg font-bold text-green-900 mb-4">Grant Portfolio</h2>
-            <div className="grid grid-cols-3 gap-4">
-              {grants.slice(0, 6).map(grant => (
-                <GrantCard key={grant.id} grant={grant} />
-              ))}
-            </div>
-          </div>
+          {/* ── GRANTS ── */}
+          {activeNav === "grants" && (
+            <>
+              <h2 className="text-lg font-bold text-green-900 mb-4">Grant Portfolio</h2>
+              <div className="grid grid-cols-3 gap-4 mb-6">
+                <div className="rounded-xl bg-white p-5 shadow-lg border border-green-200 text-center">
+                  <p className="text-xs text-green-600 mb-1">Total Funding</p>
+                  <p className="text-2xl font-bold text-green-800">{formatCurrency(grants.reduce((s, g) => s + g.totalAmount, 0))}</p>
+                </div>
+                <div className="rounded-xl bg-white p-5 shadow-lg border border-green-200 text-center">
+                  <p className="text-xs text-green-600 mb-1">Total Disbursed</p>
+                  <p className="text-2xl font-bold text-green-800">{formatCurrency(grants.reduce((s, g) => s + g.disbursed, 0))}</p>
+                </div>
+                <div className="rounded-xl bg-white p-5 shadow-lg border border-green-200 text-center">
+                  <p className="text-xs text-green-600 mb-1">Total Remaining</p>
+                  <p className="text-2xl font-bold text-green-800">{formatCurrency(grants.reduce((s, g) => s + g.remaining, 0))}</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-3 gap-4">
+                {grants.map(grant => (
+                  <GrantCard key={grant.id} grant={grant} />
+                ))}
+              </div>
+            </>
+          )}
 
-          {/* Environmental Impact */}
-          <div className="rounded-xl bg-white p-6 shadow-lg border border-green-200">
-            <h2 className="text-lg font-bold text-green-900 mb-4">Environmental Impact Metrics</h2>
-            <div className="grid grid-cols-4 gap-4">
-              {impacts.slice(0, 4).map((impact, idx) => (
-                <div key={idx} className="p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-xl border border-green-200">
-                  <p className="text-xs text-green-600 mb-1">{impact.metric}</p>
-                  <p className="text-2xl font-bold text-green-800">{formatNumber(impact.current)}</p>
-                  <p className="text-xs text-green-500">{impact.unit}</p>
-                  <div className="mt-2 flex items-center gap-1">
-                    <TrendingUp className="w-3 h-3 text-green-600" />
-                    <span className="text-xs text-green-600">
-                      {((impact.current - impact.baseline) / impact.baseline * 100).toFixed(0)}% from baseline
-                    </span>
+          {/* ── SITES ── */}
+          {activeNav === "sites" && (
+            <>
+              <h2 className="text-lg font-bold text-green-900 mb-4">Ecological Site Development</h2>
+              <div className="mb-6">
+                <SiteMapVisualization sites={sites} />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                {sites.map(site => (
+                  <div key={site.id} className="rounded-xl bg-white p-5 shadow-lg border border-green-200">
+                    <div className="flex items-start justify-between mb-3">
+                      <div>
+                        <h4 className="font-semibold text-green-900 text-sm">{site.name}</h4>
+                        <p className="text-xs text-green-600">{site.designation}</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700 capitalize">
+                          {site.typology}
+                        </span>
+                        <span className="text-xs text-green-600">{site.acreage} ac</span>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-3 gap-3 mb-3 text-xs">
+                      <div className="p-2 bg-green-50 rounded-lg text-center">
+                        <p className="text-green-600">Soil Recovery</p>
+                        <p className="font-semibold text-green-800">{formatPercent(site.soilRecoveryIndex)}</p>
+                      </div>
+                      <div className="p-2 bg-green-50 rounded-lg text-center">
+                        <p className="text-green-600">Biodiversity</p>
+                        <p className="font-semibold text-green-800">{formatPercent(site.biodiversityIndex)}</p>
+                      </div>
+                      <div className="p-2 bg-green-50 rounded-lg text-center">
+                        <p className="text-green-600">Climate Resilience</p>
+                        <p className="font-semibold text-green-800">{formatPercent(site.climateResilienceScore)}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between text-xs text-green-700">
+                      <span>Tasks: {site.tasksCompleted} done / {site.tasksPending} pending</span>
+                      <span className="flex items-center gap-1">
+                        <Users className="w-3 h-3" />
+                        {site.workforceDeployed} deployed
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+
+          {/* ── PERFORMANCE ── */}
+          {activeNav === "performance" && (
+            <>
+              <h2 className="text-lg font-bold text-green-900 mb-4">Environmental Impact Metrics</h2>
+              <div className="grid grid-cols-4 gap-4 mb-6">
+                {impacts.map((impact, idx) => (
+                  <div key={idx} className="p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-xl border border-green-200 shadow-lg">
+                    <p className="text-xs text-green-600 mb-1">{impact.metric}</p>
+                    <p className="text-2xl font-bold text-green-800">{formatNumber(impact.current)}</p>
+                    <p className="text-xs text-green-500">{impact.unit}</p>
+                    <div className="mt-2 flex items-center gap-1">
+                      <TrendingUp className="w-3 h-3 text-green-600" />
+                      <span className="text-xs text-green-600">
+                        {((impact.current - impact.baseline) / impact.baseline * 100).toFixed(0)}% from baseline
+                      </span>
+                    </div>
+                    <div className="mt-2 text-xs text-green-500">
+                      Projected: {formatNumber(impact.projected)} {impact.unit}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="grid grid-cols-2 gap-6">
+                <RadialProgress value={Math.round(avgJobReadiness * 100)} label="Job Readiness Index" />
+                <div className="rounded-xl bg-white p-5 shadow-lg border border-green-200">
+                  <h3 className="text-sm font-semibold text-green-900 mb-4">Program Completion Summary</h3>
+                  <div className="space-y-3">
+                    {programs.map(prog => (
+                      <div key={prog.id}>
+                        <div className="flex justify-between text-xs mb-1">
+                          <span className="text-green-800 truncate pr-2">{prog.name.split(" ").slice(0, 3).join(" ")}</span>
+                          <span className="text-green-600 shrink-0">{formatPercent(prog.completionRate)}</span>
+                        </div>
+                        <div className="h-2 bg-green-100 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-gradient-to-r from-green-600 to-green-400 rounded-full"
+                            style={{ width: `${prog.completionRate * 100}%` }}
+                          />
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
+              </div>
+            </>
+          )}
         </main>
       </div>
     </div>

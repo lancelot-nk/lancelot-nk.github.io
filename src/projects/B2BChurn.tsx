@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react"
+import React, { useState, useEffect, useCallback, useMemo, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   TrendingUp,
@@ -445,11 +445,34 @@ function getUrgencyColor(urgency: string): string {
 // MAIN COMPONENT - B2B CHURN PREDICTOR SIMULATION
 // ============================================================================
 
+const WARNING_POOL = [
+  { company: "FleetPro Transport", signal: "NPS score dropped from 8 to 4", type: "nps", severity: "high" },
+  { company: "Mountain Logistics", signal: "Seat count reduced by 30%", type: "seats", severity: "high" },
+  { company: "Eagle Delivery", signal: "Support tickets up 3x this month", type: "support", severity: "medium" },
+  { company: "Pacific Freight", signal: "Champion contact went dark (14 days)", type: "contact", severity: "high" },
+  { company: "Metro Transit", signal: "Login frequency down 60% vs last quarter", type: "usage", severity: "medium" },
+  { company: "Harbor Shipping", signal: "Competitor demo booked (detected via LinkedIn)", type: "competitor", severity: "high" },
+  { company: "Summit Trucking", signal: "Invoice payment 18 days overdue", type: "billing", severity: "medium" },
+  { company: "Valley Express", signal: "Feature adoption stalled at 23%", type: "adoption", severity: "low" },
+  { company: "Coastal Cargo", signal: "Executive sponsor left the company", type: "contact", severity: "high" },
+  { company: "Desert Routes", signal: "Contract amendment requested (reduction)", type: "contract", severity: "high" },
+  { company: "Northern Freight", signal: "Expansion deal stalled 45 days", type: "pipeline", severity: "medium" },
+  { company: "Riverdale Fleet", signal: "DriveCam devices offline 3+ days", type: "usage", severity: "high" },
+]
+
 export default function B2BChurnPredictorSimulation() {
   // State Management
   const [systemTime, setSystemTime] = useState(new Date())
   const [simulationCycle, setSimulationCycle] = useState(0)
-  const [activeSection, setActiveSection] = useState(0)
+  const [activeTab, setActiveTab] = useState("overview")
+  const [signals, setSignals] = useState<Array<{company: string, signal: string, type: string, severity: string, minutesAgo: number}>>([
+    { company: "FleetPro Transport", signal: "NPS score dropped from 8 to 4", type: "nps", severity: "high", minutesAgo: 0 },
+    { company: "Mountain Logistics", signal: "Seat count reduced by 30%", type: "seats", severity: "high", minutesAgo: 1 },
+    { company: "Eagle Delivery", signal: "Support tickets up 3x this month", type: "support", severity: "medium", minutesAgo: 2 },
+    { company: "Pacific Freight", signal: "Champion contact went dark (14 days)", type: "contact", severity: "high", minutesAgo: 4 },
+    { company: "Metro Transit", signal: "Login frequency down 60% vs last quarter", type: "usage", severity: "medium", minutesAgo: 7 },
+  ])
+  const signalPoolIdxRef = useRef(5)
 
   // Core Data State
   const [salesReps, setSalesReps] = useState<SalesRep[]>([])
@@ -528,19 +551,17 @@ export default function B2BChurnPredictorSimulation() {
     }
   }, [accounts, salesReps])
 
-  // Track scroll position for section highlighting
+  // Early warning signal feed cycling
   useEffect(() => {
-    const handleScroll = () => {
-      const sections = document.querySelectorAll("[data-section]")
-      let currentSection = 0
-      sections.forEach((section, idx) => {
-        const rect = section.getBoundingClientRect()
-        if (rect.top <= 200) currentSection = idx
-      })
-      setActiveSection(currentSection)
-    }
-    window.addEventListener("scroll", handleScroll)
-    return () => window.removeEventListener("scroll", handleScroll)
+    const interval = setInterval(() => {
+      const next = WARNING_POOL[signalPoolIdxRef.current % WARNING_POOL.length]
+      signalPoolIdxRef.current += 1
+      setSignals(prev => [
+        { ...next, minutesAgo: 0 },
+        ...prev.map(s => ({ ...s, minutesAgo: s.minutesAgo + 1 })).slice(0, 7),
+      ])
+    }, 3000)
+    return () => clearInterval(interval)
   }, [])
 
   return (
@@ -596,9 +617,36 @@ export default function B2BChurnPredictorSimulation() {
 
         {/* Main Content Container */}
         <main className="mx-auto max-w-7xl px-4 py-6">
+          {/* Tab Navigation */}
+          <div className="mb-6 flex flex-wrap gap-2 border-b border-slate-200 pb-4">
+            {[
+              { id: "overview", label: "Overview" },
+              { id: "health", label: "Account Health" },
+              { id: "churn", label: "Churn Prediction" },
+              { id: "territory", label: "Territory Map" },
+              { id: "intervention", label: "Intervention Queue" },
+              { id: "pipeline", label: "Pipeline Analytics" },
+              { id: "renewal", label: "Renewal Calendar" },
+              { id: "leaderboard", label: "Rep Leaderboard" },
+              { id: "warning", label: "Early Warning" },
+            ].map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                  activeTab === tab.id
+                    ? "bg-blue-600 text-white"
+                    : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
           {/* ================================================================
               SCROLL LAYER 1 — EXECUTIVE SALES OVERVIEW
               ================================================================ */}
+          {activeTab === "overview" && (
           <section data-section className="mb-12">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -687,10 +735,12 @@ export default function B2BChurnPredictorSimulation() {
               </div>
             </motion.div>
           </section>
+          )}
 
           {/* ================================================================
               SCROLL LAYER 2 — SALES REP PERFORMANCE LAYER
               ================================================================ */}
+          {activeTab === "overview" && (
           <section data-section className="mb-12">
             <motion.div
               initial={{ opacity: 0 }}
@@ -729,10 +779,12 @@ export default function B2BChurnPredictorSimulation() {
               </div>
             </motion.div>
           </section>
+          )}
 
           {/* ================================================================
               SCROLL LAYER 3 — ACCOUNT HEALTH MONITORING LAYER
               ================================================================ */}
+          {activeTab === "health" && (
           <section data-section className="mb-12">
             <motion.div
               initial={{ opacity: 0 }}
@@ -787,10 +839,12 @@ export default function B2BChurnPredictorSimulation() {
               </div>
             </motion.div>
           </section>
+          )}
 
           {/* ================================================================
               SCROLL LAYER 4 — RENEWAL TIMELINE INTELLIGENCE LAYER
               ================================================================ */}
+          {activeTab === "churn" && (
           <section data-section className="mb-12">
             <motion.div
               initial={{ opacity: 0 }}
@@ -898,10 +952,12 @@ export default function B2BChurnPredictorSimulation() {
               </div>
             </motion.div>
           </section>
+          )}
 
           {/* ================================================================
               SCROLL LAYER 5 — CHURN FORECASTING LAYER
               ================================================================ */}
+          {activeTab === "churn" && (
           <section data-section className="mb-12">
             <motion.div
               initial={{ opacity: 0 }}
@@ -959,10 +1015,12 @@ export default function B2BChurnPredictorSimulation() {
               </div>
             </motion.div>
           </section>
+          )}
 
           {/* ================================================================
               SCROLL LAYER 6 — SEASONAL TREND ANALYSIS LAYER
               ================================================================ */}
+          {activeTab === "territory" && (
           <section data-section className="mb-12">
             <motion.div
               initial={{ opacity: 0 }}
@@ -1042,10 +1100,12 @@ export default function B2BChurnPredictorSimulation() {
               </div>
             </motion.div>
           </section>
+          )}
 
           {/* ================================================================
               SCROLL LAYER 7 — EXECUTIVE ACTION RECOMMENDATION LAYER
               ================================================================ */}
+          {activeTab === "intervention" && (
           <section data-section className="mb-12">
             <motion.div
               initial={{ opacity: 0 }}
@@ -1060,9 +1120,9 @@ export default function B2BChurnPredictorSimulation() {
               />
 
               {/* Priority Action Queue */}
-              <div className="mb-6 rounded-xl border border-slate-200 bg-gradient-to-br from-gray-900/80 to-gray-900/40 p-6">
+              <div className="mb-6 rounded-xl border border-slate-200 bg-white p-6">
                 <div className="mb-4 flex items-center justify-between">
-                  <h3 className="text-sm font-medium text-slate-100">Priority Intervention Queue</h3>
+                  <h3 className="text-sm font-medium text-slate-800">Priority Intervention Queue</h3>
                   <Badge variant="outline" className="border-red-500/30 bg-red-500/10 text-red-400 text-[10px]">
                     {interventions.filter(i => i.priority === "immediate").length} Immediate Actions
                   </Badge>
@@ -1123,31 +1183,343 @@ export default function B2BChurnPredictorSimulation() {
               </div>
             </motion.div>
           </section>
+          )}
 
-          {/* System Footer */}
-          <footer className="mt-16 border-t border-slate-200 pt-6 pb-8">
-            <div className="flex items-center justify-between text-xs text-slate-500">
-              <div className="flex items-center gap-4">
-                <span className="font-mono">SIMULATION ACTIVE</span>
-                <Separator orientation="vertical" className="h-3 bg-gray-700" />
-                <span>Portfolio Showcase — B2B Sales Operations Intelligence</span>
+          {/* ================================================================
+              RENEWAL CALENDAR SECTION
+              ================================================================ */}
+          {activeTab === "renewal" && (
+            <div className="mb-12">
+              <div className="mb-6">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
+                    <Calendar className="h-5 w-5" />
+                  </div>
+                  <h2 className="text-lg font-semibold text-slate-900">Renewal Calendar</h2>
+                </div>
+                <p className="text-sm text-slate-500 pl-11">Upcoming account renewals color-coded by churn risk level</p>
               </div>
-              <div className="flex items-center gap-4">
-                <span>Simulated Data Sources: Salesforce, Gainsight, Zendesk, HubSpot, Lytx DriveCam API</span>
+
+              {(() => {
+                const renewalCalendarData = [
+                  { day: 3, month: 0, account: "FleetPro Transport", value: 89000, risk: "high" as const },
+                  { day: 7, month: 0, account: "Mountain Logistics", value: 234000, risk: "low" as const },
+                  { day: 12, month: 0, account: "Eagle Delivery", value: 156000, risk: "medium" as const },
+                  { day: 15, month: 0, account: "Pacific Freight", value: 312000, risk: "high" as const },
+                  { day: 22, month: 0, account: "Metro Transit", value: 78000, risk: "low" as const },
+                  { day: 4, month: 1, account: "Harbor Shipping", value: 445000, risk: "medium" as const },
+                  { day: 9, month: 1, account: "Summit Trucking", value: 198000, risk: "high" as const },
+                  { day: 14, month: 1, account: "Valley Express", value: 267000, risk: "low" as const },
+                  { day: 19, month: 1, account: "Coastal Cargo", value: 134000, risk: "medium" as const },
+                  { day: 25, month: 1, account: "Desert Routes", value: 89000, risk: "high" as const },
+                  { day: 2, month: 2, account: "Northern Freight", value: 523000, risk: "low" as const },
+                  { day: 8, month: 2, account: "Riverdale Fleet", value: 178000, risk: "high" as const },
+                  { day: 16, month: 2, account: "Sunrise Logistics", value: 345000, risk: "medium" as const },
+                  { day: 21, month: 2, account: "Lakeside Delivery", value: 92000, risk: "low" as const },
+                  { day: 28, month: 2, account: "Central Transit", value: 412000, risk: "high" as const },
+                ]
+
+                const now = new Date()
+                const months = [0, 1, 2].map(offset => {
+                  const d = new Date(now.getFullYear(), now.getMonth() + offset, 1)
+                  return { name: d.toLocaleString("default", { month: "long", year: "numeric" }), year: d.getFullYear(), month: d.getMonth(), daysInMonth: new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate() }
+                })
+
+                const riskBg: Record<string, string> = { high: "bg-red-500", medium: "bg-amber-500", low: "bg-emerald-500" }
+                const riskText: Record<string, string> = { high: "text-red-600 bg-red-50 border-red-200", medium: "text-amber-600 bg-amber-50 border-amber-200", low: "text-emerald-600 bg-emerald-50 border-emerald-200" }
+
+                return (
+                  <>
+                    <div className="grid gap-6 md:grid-cols-3 mb-8">
+                      {months.map((monthInfo, mIdx) => {
+                        const monthRenewals = renewalCalendarData.filter(r => r.month === mIdx)
+                        return (
+                          <div key={mIdx} className="rounded-xl border border-slate-200 bg-white p-4">
+                            <h3 className="text-sm font-semibold text-slate-900 mb-3 text-center">{monthInfo.name}</h3>
+                            <div className="grid grid-cols-7 gap-1">
+                              {["Su","Mo","Tu","We","Th","Fr","Sa"].map(d => (
+                                <div key={d} className="text-center text-[9px] font-medium text-slate-400 pb-1">{d}</div>
+                              ))}
+                              {Array.from({ length: monthInfo.daysInMonth }, (_, i) => i + 1).map(day => {
+                                const renewals = monthRenewals.filter(r => r.day === day)
+                                return (
+                                  <div key={day} className="relative flex flex-col items-center min-h-[28px]">
+                                    <span className="text-[10px] text-slate-600">{day}</span>
+                                    {renewals.map((r, ri) => (
+                                      <Tooltip key={ri}>
+                                        <TooltipTrigger>
+                                          <div className={`h-2 w-2 rounded-full ${riskBg[r.risk]} mt-0.5`} />
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                          <div className="text-xs">
+                                            <div className="font-medium">{r.account}</div>
+                                            <div>{formatCurrency(r.value)}</div>
+                                            <div className="capitalize">{r.risk} risk</div>
+                                          </div>
+                                        </TooltipContent>
+                                      </Tooltip>
+                                    ))}
+                                  </div>
+                                )
+                              })}
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+
+                    <div className="rounded-xl border border-slate-200 bg-white p-6">
+                      <h3 className="text-sm font-medium text-slate-900 mb-4">All Upcoming Renewals</h3>
+                      <div className="space-y-2">
+                        {renewalCalendarData
+                          .sort((a, b) => a.month !== b.month ? a.month - b.month : a.day - b.day)
+                          .map((r, idx) => {
+                            const monthName = months[r.month]?.name.split(" ")[0]
+                            return (
+                              <div key={idx} className="flex items-center justify-between rounded-lg bg-slate-50 px-4 py-2">
+                                <div className="flex items-center gap-3">
+                                  <div className={`h-2 w-2 rounded-full ${riskBg[r.risk]}`} />
+                                  <span className="text-sm font-medium text-slate-900">{r.account}</span>
+                                </div>
+                                <div className="flex items-center gap-4 text-xs">
+                                  <span className="text-slate-500">{monthName} {r.day}</span>
+                                  <span className="text-blue-600 font-medium">{formatCurrency(r.value)}</span>
+                                  <span className={`px-2 py-0.5 rounded-full border text-[10px] font-medium capitalize ${riskText[r.risk]}`}>{r.risk} risk</span>
+                                </div>
+                              </div>
+                            )
+                          })}
+                      </div>
+                    </div>
+                  </>
+                )
+              })()}
+            </div>
+          )}
+
+          {/* ================================================================
+              REP LEADERBOARD SECTION
+              ================================================================ */}
+          {activeTab === "leaderboard" && (
+            <div className="mb-12">
+              <div className="mb-6">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
+                    <Users className="h-5 w-5" />
+                  </div>
+                  <h2 className="text-lg font-semibold text-slate-900">Rep Performance Leaderboard</h2>
+                </div>
+                <p className="text-sm text-slate-500 pl-11">Ranked by quota attainment with renewal outcomes and commission estimates</p>
+              </div>
+
+              <div className="rounded-xl border border-slate-200 bg-white overflow-hidden mb-8">
+                <table className="w-full text-sm">
+                  <thead className="bg-slate-50 border-b border-slate-200">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wide">Rank</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wide">Rep Name</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wide hidden md:table-cell">Territory</th>
+                      <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wide">Accounts</th>
+                      <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wide">Avg Health</th>
+                      <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wide">Won</th>
+                      <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wide">Lost</th>
+                      <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wide">Commission</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {[...salesReps]
+                      .sort((a, b) => b.quotaAttainment - a.quotaAttainment)
+                      .map((rep, idx) => {
+                        const repAccounts = accounts.filter(a => a.assignedRep === rep.id)
+                        const avgHealth = repAccounts.length > 0
+                          ? repAccounts.reduce((s, a) => s + a.healthScore, 0) / repAccounts.length
+                          : 0
+                        const avgCV = repAccounts.length > 0
+                          ? repAccounts.reduce((s, a) => s + a.contractValue, 0) / repAccounts.length
+                          : 0
+                        const renewalsWon = Math.round(rep.renewalSuccessRate * repAccounts.length * 0.8)
+                        const renewalsLost = Math.max(0, repAccounts.length - renewalsWon)
+                        const commission = renewalsWon * avgCV * 0.05
+                        const medals = ["🥇", "🥈", "🥉"]
+                        return (
+                          <tr key={rep.id} className={idx < 3 ? "bg-amber-50/30" : "hover:bg-slate-50"}>
+                            <td className="px-4 py-3">
+                              <span className="font-bold text-slate-700">
+                                {idx < 3 ? medals[idx] : `#${idx + 1}`}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3">
+                              <div className="font-medium text-slate-900">{rep.name}</div>
+                              <div className="text-[10px] text-slate-500">{formatPercent(rep.quotaAttainment)} quota</div>
+                            </td>
+                            <td className="px-4 py-3 hidden md:table-cell text-xs text-slate-500 max-w-[140px] truncate">{rep.territory}</td>
+                            <td className="px-4 py-3 text-right text-slate-700">{repAccounts.length}</td>
+                            <td className="px-4 py-3 text-right">
+                              <span className={getHealthColor(avgHealth)}>{formatPercent(avgHealth)}</span>
+                            </td>
+                            <td className="px-4 py-3 text-right text-emerald-600 font-medium">{renewalsWon}</td>
+                            <td className="px-4 py-3 text-right text-red-400">{renewalsLost}</td>
+                            <td className="px-4 py-3 text-right text-blue-600 font-medium">{formatCurrency(commission)}</td>
+                          </tr>
+                        )
+                      })}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Cohort Retention Heatmap */}
+              <div className="rounded-xl border border-slate-200 bg-white p-6">
+                <h3 className="text-sm font-medium text-slate-900 mb-4">Cohort Retention Analysis</h3>
+                {(() => {
+                  const cohortData = [
+                    [100, 87, 76, 68, 62, 58],
+                    [100, 91, 82, 74, 69, null],
+                    [100, 88, 79, 71, null, null],
+                    [100, 93, 85, null, null, null],
+                    [100, 90, null, null, null, null],
+                    [100, null, null, null, null, null],
+                  ]
+                  const cohortMonths = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"]
+                  return (
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-xs">
+                        <thead>
+                          <tr>
+                            <th className="px-3 py-2 text-left text-slate-500 font-medium">Cohort</th>
+                            {["Month 0","Month 1","Month 2","Month 3","Month 4","Month 5"].map(m => (
+                              <th key={m} className="px-3 py-2 text-center text-slate-500 font-medium">{m}</th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100">
+                          {cohortData.map((row, rIdx) => (
+                            <tr key={rIdx}>
+                              <td className="px-3 py-2 font-medium text-slate-700">{cohortMonths[rIdx]}</td>
+                              {row.map((val, cIdx) => {
+                                if (val === null) return <td key={cIdx} className="px-3 py-2 text-center text-slate-300">—</td>
+                                const intensity = Math.round(((val - 50) / 50) * 100)
+                                const bg = `rgba(16, 185, 129, ${0.1 + (intensity / 100) * 0.7})`
+                                return (
+                                  <td key={cIdx} className="px-3 py-2 text-center font-medium text-slate-800" style={{ backgroundColor: bg }}>
+                                    {val}%
+                                  </td>
+                                )
+                              })}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )
+                })()}
               </div>
             </div>
-            <div className="mt-4 rounded-lg border border-slate-100 bg-slate-50 p-3">
-              <p className="text-[10px] text-slate-600 leading-relaxed">
-                <span className="text-slate-500 font-medium">SIMULATION DISCLAIMER:</span>{" "}
-                This interface is a portfolio-grade systems design demonstration, not a production deployment.
-                All datasets, metrics, behavioral signals, and operational workflows are artificially generated
-                within the front-end layer. No real customer data, CRM integrations, or backend systems are
-                connected. This simulation demonstrates advanced systems thinking across B2B SaaS analytics,
-                sales operations, retention modeling, and predictive forecasting systems design.
-              </p>
+          )}
+
+          {/* ================================================================
+              EARLY WARNING SECTION
+              ================================================================ */}
+          {activeTab === "warning" && (
+            <div className="mb-12">
+              <div className="mb-6">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-100 text-red-600">
+                    <AlertTriangle className="h-5 w-5" />
+                  </div>
+                  <h2 className="text-lg font-semibold text-slate-900">Early Warning System</h2>
+                </div>
+                <p className="text-sm text-slate-500 pl-11">Real-time churn signals detected across your portfolio</p>
+              </div>
+
+              <div className="grid gap-6 md:grid-cols-2 mb-8">
+                {/* Live Signal Feed */}
+                <div className="rounded-xl border border-slate-200 bg-white p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-sm font-medium text-slate-900">Live Signal Feed</h3>
+                    <div className="flex items-center gap-1.5 text-xs text-emerald-500">
+                      <Signal className="h-3 w-3 animate-pulse" />
+                      <span>Live</span>
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    <AnimatePresence>
+                      {signals.map((sig, idx) => {
+                        const severityConfig: Record<string, { bg: string; text: string; border: string }> = {
+                          high: { bg: "bg-red-50", text: "text-red-600", border: "border-red-200" },
+                          medium: { bg: "bg-amber-50", text: "text-amber-600", border: "border-amber-200" },
+                          low: { bg: "bg-blue-50", text: "text-blue-600", border: "border-blue-200" },
+                        }
+                        const cfg = severityConfig[sig.severity] || severityConfig.low
+                        return (
+                          <motion.div
+                            key={`${sig.company}-${idx}`}
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.3 }}
+                            className={`rounded-lg border p-3 ${cfg.bg} ${cfg.border}`}
+                          >
+                            <div className="flex items-start justify-between gap-2">
+                              <div>
+                                <span className={`text-xs font-semibold ${cfg.text}`}>{sig.company}</span>
+                                <p className="text-xs text-slate-600 mt-0.5">{sig.signal}</p>
+                              </div>
+                              <div className="flex flex-col items-end gap-1 shrink-0">
+                                <span className={`text-[9px] font-medium uppercase px-1.5 py-0.5 rounded-full border ${cfg.bg} ${cfg.text} ${cfg.border}`}>
+                                  {sig.severity}
+                                </span>
+                                <span className="text-[9px] text-slate-400">
+                                  {sig.minutesAgo === 0 ? "just now" : `${sig.minutesAgo}m ago`}
+                                </span>
+                              </div>
+                            </div>
+                          </motion.div>
+                        )
+                      })}
+                    </AnimatePresence>
+                  </div>
+                </div>
+
+                {/* Churn Reason Analysis - SVG Bar Chart */}
+                <div className="rounded-xl border border-slate-200 bg-white p-6">
+                  <h3 className="text-sm font-medium text-slate-900 mb-4">Churn Reason Analysis</h3>
+                  {(() => {
+                    const churnReasons = [
+                      { reason: "Pricing", pct: 32 },
+                      { reason: "Feature Gap", pct: 25 },
+                      { reason: "Competitor", pct: 18 },
+                      { reason: "Support Issues", pct: 15 },
+                      { reason: "Business Closure", pct: 10 },
+                    ]
+                    const svgWidth = 360
+                    const svgHeight = 220
+                    const barHeight = 28
+                    const labelWidth = 110
+                    const barMaxWidth = svgWidth - labelWidth - 50
+                    const rowGap = (svgHeight - barHeight) / (churnReasons.length - 1)
+                    return (
+                      <svg width="100%" viewBox={`0 0 ${svgWidth} ${svgHeight}`} className="overflow-visible">
+                        {churnReasons.map((cr, i) => {
+                          const y = i * rowGap
+                          const barW = (cr.pct / 35) * barMaxWidth
+                          const alpha = 0.5 + (cr.pct / 35) * 0.5
+                          return (
+                            <g key={cr.reason}>
+                              <text x={labelWidth - 8} y={y + barHeight / 2 + 4} textAnchor="end" fontSize={11} fill="#64748b">{cr.reason}</text>
+                              <rect x={labelWidth} y={y} width={barW} height={barHeight} rx={4} fill={`rgba(239,68,68,${alpha})`} />
+                              <text x={labelWidth + barW + 6} y={y + barHeight / 2 + 4} fontSize={11} fontWeight="600" fill="#ef4444">{cr.pct}%</text>
+                            </g>
+                          )
+                        })}
+                      </svg>
+                    )
+                  })()}
+                </div>
+              </div>
             </div>
-          </footer>
-        </main>
+          )}
+
+                  </main>
       </div>
     </TooltipProvider>
     {/* === PROJECT FOOTER === */}

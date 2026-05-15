@@ -206,7 +206,7 @@ export default function PRICASSystem() {
   return (
     <div style={{
       minHeight: "100vh",
-      background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)",
+      background: "linear-gradient(135deg, #0d0018 0%, #1a0530 50%, #3d0066 100%)",
       fontFamily: "'Crimson Pro', 'Georgia', serif",
       color: "#e8d5b7",
       position: "relative",
@@ -431,7 +431,7 @@ export default function PRICASSystem() {
                   onClick={() => setActiveModule(module.id)}
                   style={{
                     padding: "1.5rem",
-                    background: "rgba(26, 26, 46, 0.8)",
+                    background: "rgba(26, 0, 48, 0.8)",
                     border: "1px solid rgba(232, 213, 183, 0.15)",
                     borderRadius: "16px",
                     cursor: "pointer",
@@ -510,7 +510,7 @@ export default function PRICASSystem() {
               display: "flex",
               gap: "2rem",
               padding: "1.5rem 3rem",
-              background: "rgba(26, 26, 46, 0.6)",
+              background: "rgba(26, 0, 48, 0.6)",
               borderRadius: "100px",
               border: "1px solid rgba(232, 213, 183, 0.1)",
               marginTop: "1rem"
@@ -636,7 +636,7 @@ export default function PRICASSystem() {
         
         * {
           scrollbar-width: thin;
-          scrollbar-color: rgba(120, 81, 169, 0.5) rgba(26, 26, 46, 0.5);
+          scrollbar-color: rgba(120, 81, 169, 0.5) rgba(26, 0, 48, 0.5);
         }
         
         *::-webkit-scrollbar {
@@ -644,7 +644,7 @@ export default function PRICASSystem() {
         }
         
         *::-webkit-scrollbar-track {
-          background: rgba(26, 26, 46, 0.5);
+          background: rgba(26, 0, 48, 0.5);
         }
         
         *::-webkit-scrollbar-thumb {
@@ -725,7 +725,7 @@ function DashboardView({ reports, hotspots, complianceMetrics, pulseEffect }: {
         ].map(metric => (
           <div key={metric.label} style={{
             padding: "1.25rem",
-            background: "rgba(26, 26, 46, 0.8)",
+            background: "rgba(26, 0, 48, 0.8)",
             borderRadius: "12px",
             border: "1px solid rgba(232, 213, 183, 0.1)",
             textAlign: "center"
@@ -749,7 +749,7 @@ function DashboardView({ reports, hotspots, complianceMetrics, pulseEffect }: {
       {/* Status Pipeline */}
       <div style={{
         padding: "1.5rem",
-        background: "rgba(26, 26, 46, 0.8)",
+        background: "rgba(26, 0, 48, 0.8)",
         borderRadius: "16px",
         border: "1px solid rgba(232, 213, 183, 0.1)"
       }}>
@@ -773,7 +773,7 @@ function DashboardView({ reports, hotspots, complianceMetrics, pulseEffect }: {
                 background: {
                   new: "#f59e0b",
                   triaged: "#7851a9",
-                  investigating: "#3b82f6",
+                  investigating: "#a21090",
                   escalated: "#ef4444",
                   resolved: "#4ade80"
                 }[status]
@@ -793,7 +793,7 @@ function DashboardView({ reports, hotspots, complianceMetrics, pulseEffect }: {
                   background: {
                     new: "#f59e0b",
                     triaged: "#7851a9",
-                    investigating: "#3b82f6",
+                    investigating: "#a21090",
                     escalated: "#ef4444",
                     resolved: "#4ade80"
                   }[status],
@@ -808,7 +808,7 @@ function DashboardView({ reports, hotspots, complianceMetrics, pulseEffect }: {
       {/* Severity Breakdown */}
       <div style={{
         padding: "1.5rem",
-        background: "rgba(26, 26, 46, 0.8)",
+        background: "rgba(26, 0, 48, 0.8)",
         borderRadius: "16px",
         border: "1px solid rgba(232, 213, 183, 0.1)"
       }}>
@@ -865,7 +865,7 @@ function DashboardView({ reports, hotspots, complianceMetrics, pulseEffect }: {
       {/* Report Type Breakdown */}
       <div style={{
         padding: "1.5rem",
-        background: "rgba(26, 26, 46, 0.8)",
+        background: "rgba(26, 0, 48, 0.8)",
         borderRadius: "16px",
         border: "1px solid rgba(232, 213, 183, 0.1)"
       }}>
@@ -894,7 +894,7 @@ function DashboardView({ reports, hotspots, complianceMetrics, pulseEffect }: {
                 background: {
                   "civil-rights": "#ef4444",
                   "employee-negligence": "#f59e0b",
-                  "ui-bug": "#3b82f6",
+                  "ui-bug": "#a21090",
                   "financial": "#10b981",
                   "safety": "#dc2626",
                   "accessibility": "#8b5cf6"
@@ -914,7 +914,7 @@ function DashboardView({ reports, hotspots, complianceMetrics, pulseEffect }: {
       {/* Compliance Quick View */}
       <div style={{
         padding: "1.5rem",
-        background: "rgba(26, 26, 46, 0.8)",
+        background: "rgba(26, 0, 48, 0.8)",
         borderRadius: "16px",
         border: "1px solid rgba(232, 213, 183, 0.1)"
       }}>
@@ -967,7 +967,7 @@ function DashboardView({ reports, hotspots, complianceMetrics, pulseEffect }: {
       {/* Top Hotspots */}
       <div style={{
         padding: "1.5rem",
-        background: "rgba(26, 26, 46, 0.8)",
+        background: "rgba(26, 0, 48, 0.8)",
         borderRadius: "16px",
         border: "1px solid rgba(232, 213, 183, 0.1)"
       }}>
@@ -1017,7 +1017,7 @@ function DashboardView({ reports, hotspots, complianceMetrics, pulseEffect }: {
       <div style={{
         gridColumn: "1 / -1",
         padding: "1.5rem",
-        background: "rgba(26, 26, 46, 0.8)",
+        background: "rgba(26, 0, 48, 0.8)",
         borderRadius: "16px",
         border: "1px solid rgba(232, 213, 183, 0.1)"
       }}>
@@ -1115,7 +1115,7 @@ function ReportsView({
               flex: 1,
               minWidth: "250px",
               padding: "0.75rem 1rem",
-              background: "rgba(26, 26, 46, 0.8)",
+              background: "rgba(26, 0, 48, 0.8)",
               border: "1px solid rgba(232, 213, 183, 0.2)",
               borderRadius: "8px",
               color: "#e8d5b7",
@@ -1128,7 +1128,7 @@ function ReportsView({
             onChange={(e) => setFilterStatus(e.target.value)}
             style={{
               padding: "0.75rem 1rem",
-              background: "rgba(26, 26, 46, 0.8)",
+              background: "rgba(26, 0, 48, 0.8)",
               border: "1px solid rgba(232, 213, 183, 0.2)",
               borderRadius: "8px",
               color: "#e8d5b7",
@@ -1149,7 +1149,7 @@ function ReportsView({
             onChange={(e) => setFilterSeverity(e.target.value)}
             style={{
               padding: "0.75rem 1rem",
-              background: "rgba(26, 26, 46, 0.8)",
+              background: "rgba(26, 0, 48, 0.8)",
               border: "1px solid rgba(232, 213, 183, 0.2)",
               borderRadius: "8px",
               color: "#e8d5b7",
@@ -1178,7 +1178,7 @@ function ReportsView({
 
         {/* Reports table */}
         <div style={{
-          background: "rgba(26, 26, 46, 0.8)",
+          background: "rgba(26, 0, 48, 0.8)",
           borderRadius: "16px",
           border: "1px solid rgba(232, 213, 183, 0.1)",
           overflow: "hidden"
@@ -1298,7 +1298,7 @@ function ReportsView({
       {selectedReport && (
         <div style={{
           width: "400px",
-          background: "rgba(26, 26, 46, 0.9)",
+          background: "rgba(26, 0, 48, 0.9)",
           borderRadius: "16px",
           border: "1px solid rgba(232, 213, 183, 0.15)",
           padding: "1.5rem",
@@ -1514,7 +1514,7 @@ function TriageView({ queue, onAssign, animatingMetric }: {
         <div style={{
           textAlign: "center",
           padding: "4rem",
-          background: "rgba(26, 26, 46, 0.8)",
+          background: "rgba(26, 0, 48, 0.8)",
           borderRadius: "16px",
           border: "1px solid rgba(232, 213, 183, 0.1)"
         }}>
@@ -1538,7 +1538,7 @@ function TriageView({ queue, onAssign, animatingMetric }: {
               style={{
                 background: animatingMetric === report.id 
                   ? "rgba(74, 222, 128, 0.2)" 
-                  : "rgba(26, 26, 46, 0.8)",
+                  : "rgba(26, 0, 48, 0.8)",
                 borderRadius: "16px",
                 border: "1px solid rgba(232, 213, 183, 0.1)",
                 overflow: "hidden",
@@ -1743,7 +1743,7 @@ function HotspotsView({ hotspots }: { hotspots: HotspotData[] }) {
     }}>
       {/* Map visualization */}
       <div style={{
-        background: "rgba(26, 26, 46, 0.8)",
+        background: "rgba(26, 0, 48, 0.8)",
         borderRadius: "16px",
         border: "1px solid rgba(232, 213, 183, 0.1)",
         padding: "1.5rem",
@@ -1878,7 +1878,7 @@ function HotspotsView({ hotspots }: { hotspots: HotspotData[] }) {
                     transform: "translateX(-50%)",
                     marginTop: "0.5rem",
                     padding: "0.25rem 0.75rem",
-                    background: "rgba(26, 26, 46, 0.95)",
+                    background: "rgba(26, 0, 48, 0.95)",
                     borderRadius: "6px",
                     fontSize: "0.75rem",
                     whiteSpace: "nowrap",
@@ -1917,7 +1917,7 @@ function HotspotsView({ hotspots }: { hotspots: HotspotData[] }) {
 
       {/* Hotspot Details Panel */}
       <div style={{
-        background: "rgba(26, 26, 46, 0.8)",
+        background: "rgba(26, 0, 48, 0.8)",
         borderRadius: "16px",
         border: "1px solid rgba(232, 213, 183, 0.1)",
         padding: "1.5rem"
@@ -2252,7 +2252,7 @@ function ComplianceView({ metrics, reports }: { metrics: Record<string, number>,
         alignItems: "center",
         gap: "2rem",
         padding: "2rem",
-        background: "rgba(26, 26, 46, 0.8)",
+        background: "rgba(26, 0, 48, 0.8)",
         borderRadius: "16px",
         border: "1px solid rgba(232, 213, 183, 0.1)",
         marginBottom: "1.5rem"
@@ -2339,7 +2339,7 @@ function ComplianceView({ metrics, reports }: { metrics: Record<string, number>,
           <div
             key={area.id}
             style={{
-              background: "rgba(26, 26, 46, 0.8)",
+              background: "rgba(26, 0, 48, 0.8)",
               borderRadius: "12px",
               border: "1px solid rgba(232, 213, 183, 0.1)",
               overflow: "hidden"
@@ -2504,7 +2504,7 @@ function AuditLogView({ logs }: { logs: AuditLog[] }) {
 
   const getActionColor = (action: string) => {
     switch (action) {
-      case "STATUS_CHANGE": return "#3b82f6"
+      case "STATUS_CHANGE": return "#a21090"
       case "ESCALATION": return "#ef4444"
       case "ASSIGNMENT": return "#7851a9"
       case "SYNC_COMPLETE": return "#4ade80"
@@ -2564,7 +2564,7 @@ function AuditLogView({ logs }: { logs: AuditLog[] }) {
 
       {/* Timeline */}
       <div style={{
-        background: "rgba(26, 26, 46, 0.8)",
+        background: "rgba(26, 0, 48, 0.8)",
         borderRadius: "16px",
         border: "1px solid rgba(232, 213, 183, 0.1)",
         padding: "1.5rem"
@@ -2595,7 +2595,7 @@ function AuditLogView({ logs }: { logs: AuditLog[] }) {
                 width: "34px",
                 height: "34px",
                 borderRadius: "50%",
-                background: "rgba(26, 26, 46, 1)",
+                background: "rgba(26, 0, 48, 1)",
                 border: `2px solid ${getActionColor(log.action)}`,
                 display: "flex",
                 alignItems: "center",
@@ -2692,7 +2692,7 @@ function IntakeFormView({ onClose }: { onClose: () => void }) {
         margin: "0 auto",
         textAlign: "center",
         padding: "4rem 2rem",
-        background: "rgba(26, 26, 46, 0.8)",
+        background: "rgba(26, 0, 48, 0.8)",
         borderRadius: "16px",
         border: "1px solid rgba(232, 213, 183, 0.1)",
         animation: "slideIn 0.5s ease-out"
@@ -2752,7 +2752,7 @@ function IntakeFormView({ onClose }: { onClose: () => void }) {
       <div style={{
         maxWidth: "800px",
         margin: "0 auto",
-        background: "rgba(26, 26, 46, 0.8)",
+        background: "rgba(26, 0, 48, 0.8)",
         borderRadius: "16px",
         border: "1px solid rgba(232, 213, 183, 0.1)",
         overflow: "hidden"

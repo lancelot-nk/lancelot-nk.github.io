@@ -830,6 +830,65 @@ const getZipcodeStats = () => {
 
 const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
 
+const venueCapacityData = [
+  { venue: "Parks", utilization: 78 },
+  { venue: "Convention Ctr", utilization: 91 },
+  { venue: "Theaters", utilization: 84 },
+  { venue: "Community Halls", utilization: 67 },
+  { venue: "Sports Arenas", utilization: 73 },
+  { venue: "Museums", utilization: 88 },
+];
+
+const registrationData = [
+  { month: "Jan", registrations: 4200, attendance: 3780 },
+  { month: "Feb", registrations: 3800, attendance: 3420 },
+  { month: "Mar", registrations: 5100, attendance: 4590 },
+  { month: "Apr", registrations: 6200, attendance: 5580 },
+  { month: "May", registrations: 7400, attendance: 6660 },
+  { month: "Jun", registrations: 8900, attendance: 8010 },
+  { month: "Jul", registrations: 7600, attendance: 6840 },
+  { month: "Aug", registrations: 8200, attendance: 7380 },
+  { month: "Sep", registrations: 9100, attendance: 8190 },
+  { month: "Oct", registrations: 8700, attendance: 7830 },
+  { month: "Nov", registrations: 6300, attendance: 5670 },
+  { month: "Dec", registrations: 5500, attendance: 4950 },
+];
+
+const seasonalData = [
+  { season: "Winter", outdoor: 1200, indoor: 4800, virtual: 2100 },
+  { season: "Spring", outdoor: 5600, indoor: 3900, virtual: 1800 },
+  { season: "Summer", outdoor: 8900, indoor: 2100, virtual: 1400 },
+  { season: "Fall", outdoor: 6300, indoor: 4200, virtual: 2300 },
+];
+
+const revenueData = [
+  { category: "Concerts", revenue: 2840000 },
+  { category: "Festivals", revenue: 1920000 },
+  { category: "Corporate", revenue: 3100000 },
+  { category: "Community", revenue: 420000 },
+  { category: "Sports", revenue: 1680000 },
+  { category: "Cultural", revenue: 890000 },
+];
+
+const repeatAttendeeData = [
+  { month: "Jan", rate: 31 }, { month: "Feb", rate: 28 },
+  { month: "Mar", rate: 33 }, { month: "Apr", rate: 35 },
+  { month: "May", rate: 38 }, { month: "Jun", rate: 42 },
+  { month: "Jul", rate: 40 }, { month: "Aug", rate: 44 },
+  { month: "Sep", rate: 47 }, { month: "Oct", rate: 45 },
+  { month: "Nov", rate: 43 }, { month: "Dec", rate: 48 },
+];
+
+const ticketPriceData = [
+  { range: "Free", count: 1240 },
+  { range: "$1-$25", count: 980 },
+  { range: "$26-$50", count: 720 },
+  { range: "$51-$100", count: 540 },
+  { range: "$101-$200", count: 310 },
+  { range: "$201-$500", count: 180 },
+  { range: "$500+", count: 90 },
+];
+
 export default function NYCEventsTracker() {
   const [activeTab, setActiveTab] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -1256,6 +1315,145 @@ export default function NYCEventsTracker() {
                       </div>
                     </div>
                   ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Venue Capacity Utilization */}
+            <div className="nyc-card" style={{ marginTop: 24 }}>
+              <div className="nyc-card-header">
+                <div className="nyc-card-title">Venue Capacity Utilization</div>
+              </div>
+              <div className="nyc-card-body">
+                <ResponsiveContainer width="100%" height={260}>
+                  <BarChart data={venueCapacityData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                    <XAxis dataKey="venue" tick={{ fill: 'var(--text-dim)', fontSize: 12 }} />
+                    <YAxis tick={{ fill: 'var(--text-dim)', fontSize: 12 }} tickFormatter={v => `${v}%`} domain={[0, 100]} />
+                    <Tooltip
+                      contentStyle={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 8 }}
+                      labelStyle={{ color: 'var(--text)' }}
+                      formatter={(value) => [`${value}%`, 'Utilization']}
+                    />
+                    <Bar dataKey="utilization" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            {/* Monthly Registration Volume */}
+            <div className="nyc-card" style={{ marginTop: 24 }}>
+              <div className="nyc-card-header">
+                <div className="nyc-card-title">Monthly Registration Volume vs Actual Attendance</div>
+              </div>
+              <div className="nyc-card-body">
+                <ResponsiveContainer width="100%" height={260}>
+                  <LineChart data={registrationData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                    <XAxis dataKey="month" tick={{ fill: 'var(--text-dim)', fontSize: 12 }} />
+                    <YAxis tick={{ fill: 'var(--text-dim)', fontSize: 12 }} tickFormatter={v => v.toLocaleString()} />
+                    <Tooltip
+                      contentStyle={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 8 }}
+                      labelStyle={{ color: 'var(--text)' }}
+                      formatter={(value) => [value.toLocaleString()]}
+                    />
+                    <Legend wrapperStyle={{ color: 'var(--text-dim)', fontSize: 12 }} />
+                    <Line type="monotone" dataKey="registrations" stroke="#2563eb" strokeWidth={2} dot={{ r: 3 }} name="Registrations" />
+                    <Line type="monotone" dataKey="attendance" stroke="#10b981" strokeWidth={2} dot={{ r: 3 }} name="Attendance" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            {/* Seasonal + Revenue side by side */}
+            <div className="nyc-grid nyc-grid-2" style={{ marginTop: 24 }}>
+              <div className="nyc-card">
+                <div className="nyc-card-header">
+                  <div className="nyc-card-title">Seasonal Attendance Trends</div>
+                </div>
+                <div className="nyc-card-body">
+                  <ResponsiveContainer width="100%" height={260}>
+                    <BarChart data={seasonalData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                      <XAxis dataKey="season" tick={{ fill: 'var(--text-dim)', fontSize: 12 }} />
+                      <YAxis tick={{ fill: 'var(--text-dim)', fontSize: 12 }} tickFormatter={v => v.toLocaleString()} />
+                      <Tooltip
+                        contentStyle={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 8 }}
+                        labelStyle={{ color: 'var(--text)' }}
+                        formatter={(value) => [value.toLocaleString()]}
+                      />
+                      <Legend wrapperStyle={{ color: 'var(--text-dim)', fontSize: 12 }} />
+                      <Bar dataKey="outdoor" stackId="a" fill="#10b981" name="Outdoor" />
+                      <Bar dataKey="indoor" stackId="a" fill="#2563eb" name="Indoor" />
+                      <Bar dataKey="virtual" stackId="a" fill="#f59e0b" name="Virtual" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+
+              <div className="nyc-card">
+                <div className="nyc-card-header">
+                  <div className="nyc-card-title">Revenue per Event Category</div>
+                </div>
+                <div className="nyc-card-body">
+                  <ResponsiveContainer width="100%" height={260}>
+                    <BarChart data={revenueData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                      <XAxis dataKey="category" tick={{ fill: 'var(--text-dim)', fontSize: 12 }} />
+                      <YAxis tick={{ fill: 'var(--text-dim)', fontSize: 12 }} tickFormatter={v => `$${(v / 1000000).toFixed(1)}M`} />
+                      <Tooltip
+                        contentStyle={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 8 }}
+                        labelStyle={{ color: 'var(--text)' }}
+                        formatter={(value) => [`$${(value / 1000000).toFixed(2)}M`, 'Revenue']}
+                      />
+                      <Bar dataKey="revenue" fill="#f59e0b" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            </div>
+
+            {/* Repeat Attendee Rate + Ticket Price Distribution side by side */}
+            <div className="nyc-grid nyc-grid-2" style={{ marginTop: 24 }}>
+              <div className="nyc-card">
+                <div className="nyc-card-header">
+                  <div className="nyc-card-title">Repeat Attendee Rate (%)</div>
+                </div>
+                <div className="nyc-card-body">
+                  <ResponsiveContainer width="100%" height={260}>
+                    <LineChart data={repeatAttendeeData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                      <XAxis dataKey="month" tick={{ fill: 'var(--text-dim)', fontSize: 12 }} />
+                      <YAxis tick={{ fill: 'var(--text-dim)', fontSize: 12 }} tickFormatter={v => `${v}%`} domain={[20, 55]} />
+                      <Tooltip
+                        contentStyle={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 8 }}
+                        labelStyle={{ color: 'var(--text)' }}
+                        formatter={(value) => [`${value}%`, 'Repeat Rate']}
+                      />
+                      <Line type="monotone" dataKey="rate" stroke="#ef4444" strokeWidth={2} dot={{ r: 3, fill: '#ef4444' }} name="Repeat Rate" />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+
+              <div className="nyc-card">
+                <div className="nyc-card-header">
+                  <div className="nyc-card-title">Ticket Price Distribution</div>
+                </div>
+                <div className="nyc-card-body">
+                  <ResponsiveContainer width="100%" height={260}>
+                    <BarChart data={ticketPriceData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                      <XAxis dataKey="range" tick={{ fill: 'var(--text-dim)', fontSize: 12 }} />
+                      <YAxis tick={{ fill: 'var(--text-dim)', fontSize: 12 }} />
+                      <Tooltip
+                        contentStyle={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 8 }}
+                        labelStyle={{ color: 'var(--text)' }}
+                        formatter={(value) => [value.toLocaleString(), 'Events']}
+                      />
+                      <Bar dataKey="count" fill="#ec4899" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
                 </div>
               </div>
             </div>
@@ -1691,21 +1889,6 @@ ORDER BY month DESC, borough;`}
         )}
       </div>
 
-      {/* Footer */}
-      <div className="nyc-footer">
-        <div className="nyc-footer-sources">
-          <span className="nyc-data-badge">SAMPLE DATA</span>
-          Event data simulated based on NYC Open Data event structures and Cvent/Eventbrite reporting patterns. 
-          All attendee records, registration flows, and platform conversion metrics are synthetic representations 
-          for portfolio demonstration purposes. Database schema represents production-grade event management system architecture.
-        </div>
-        <div className="nyc-footer-credit">
-          <strong>Analysis & Design</strong><br />
-          Lancelot Naipier-Kane<br />
-          Data Analyst & Systems Architect<br />
-          lancelot-nk.github.io
-        </div>
-      </div>
 
                   {/* ─── PROJECT FOOTER ────────────────────────────────────── */}
       <div style={{
