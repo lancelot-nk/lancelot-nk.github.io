@@ -22,6 +22,7 @@ const LazyPeerReport       = lazy(() => import('../../projects/PeerReportSimulat
 const LazyNYCEventsAnnual  = lazy(() => import('../../projects/NYCEventsAnnualReport'));
 const LazyFedGrant         = lazy(() => import('../../projects/FedGrantAndDataWarehouse'));
 const LazyARCGIS           = lazy(() => import('../../projects/ARCGIScaseviewer'));
+const LazyNISTAudit        = lazy(() => import('../../projects/NISTcyberAudit'));
 
 // ── Image Imports ────────────────────────────────────────────────────────────
 import img1 from '../../assets/project1.jpg';
@@ -75,6 +76,15 @@ export const PROJECTS = [
     link: '/arcgis_case_viewer.jsx',
     type: 'jsx',
     component: LazyARCGIS,
+    img: img11,
+  },
+  {
+    title: 'NIST Cyber Compliance Audit Dashboard',
+    desc: 'Federal contractor compliance monitoring system — NIST 800-53 RMF scoring, audit queue management, SLA breach prediction, contractor risk segmentation, burn rate analytics, and multi-agency program compliance tracking across FedRAMP-authorized infrastructure.',
+    tech: ['React', 'TypeScript', 'NIST 800-53', 'FedRAMP', 'PostgreSQL', 'AWS GovCloud', 'Federal Compliance', 'Risk Management'],
+    link: '/nist_cyber_audit.jsx',
+    type: 'jsx',
+    component: LazyNISTAudit,
     img: img11,
   },
   {

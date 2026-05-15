@@ -33,88 +33,6 @@ import {
 // TYPE DEFINITIONS
 // ═══════════════════════════════════════════════════════════════════════════════
 
-interface AuditEvent {
-  date: string
-  event: string
-  severity: "info" | "warning" | "critical"
-}
-
-interface Project {
-  id: string
-  name: string
-  agency: string
-  program: string
-  contractor: string
-  subcontractors: string[]
-  fundingSource: string
-  awardType: string
-  congressionalDistrict: string
-  totalBudget: number
-  obligatedAmount: number
-  actualSpend: number
-  remainingBudget: number
-  burnRate: number
-  monthlySpendRate: number
-  forecastedTotalSpend: number
-  fundingReallocationFlag: boolean
-  costOverrunIndicator: boolean
-  financialEfficiencyScore: number
-  startDate: string
-  endDate: string
-  daysElapsed: number
-  daysRemaining: number
-  percentTimeUsed: number
-  lifecyclePhase: "Awarded" | "Obligating" | "Executing" | "Closing" | "Closed"
-  nistRmfScore: number
-  complianceFlags: number
-  complianceStage: "Initial Review" | "Mid Compliance Check" | "Final Audit"
-  auditFindings: number
-  lastAuditDate: string
-  nextAuditDue: string
-  reportingCadence: "Monthly" | "Quarterly"
-  lastReportSubmitted: string
-  missingReportsIndicator: boolean
-  riskLevel: "Red" | "Orange" | "Yellow" | "Green"
-  riskTags: string[]
-  slaRemaining: number
-  slaRiskLevel: "High" | "Medium" | "Low"
-  incidentCount: number
-  escalationStatus: boolean
-  priorityScore: number
-  programManager: string
-  complianceOfficer: string
-  lastUpdated: string
-  auditHistory: AuditEvent[]
-  notes: string
-}
-
-interface ContractorMetrics {
-  name: string
-  activeProjects: number
-  avgComplianceScore: number
-  incidentRate: number
-  riskRating: "Low" | "Medium" | "High"
-  totalBudgetManaged: number
-  deliveryEfficiency: number
-}
-
-interface ProgramMetrics {
-  name: string
-  projectCount: number
-  totalBudget: number
-  totalSpend: number
-  avgCompliance: number
-  riskDistribution: { red: number; orange: number; yellow: number; green: number }
-}
-
-interface NavigationModule {
-  id: string
-  label: string
-  icon: React.ElementType
-  description: string
-  category: "operations" | "compliance" | "analytics" | "management"
-  alertCount: number
-  status: "healthy" | "warning" | "critical"
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -130,7 +48,7 @@ const RISK_TAGS = ["Procurement Delay", "Vendor Risk", "Staffing Gap", "Regulato
 const PROGRAM_MANAGERS = ["J. Morrison", "K. Patel", "R. Chen", "M. Williams", "S. Johnson", "A. Garcia", "T. Nguyen", "L. Davis"]
 const COMPLIANCE_OFFICERS = ["D. Thompson", "E. Martinez", "F. Robinson", "G. Anderson", "H. Taylor", "I. Brown", "C. Wilson", "B. Moore"]
 
-function generateProject(index: number): Project {
+function generateProject(index): Project {
   const totalBudget = Math.floor(Math.random() * 45000000) + 5000000
   const percentComplete = Math.random() * 0.85 + 0.1
   const actualSpend = Math.floor(totalBudget * percentComplete * (0.7 + Math.random() * 0.5))
@@ -179,20 +97,20 @@ function generateProject(index: number): Project {
     daysElapsed,
     daysRemaining,
     percentTimeUsed: timeRatio * 100,
-    lifecyclePhase: percentComplete < 0.15 ? "Awarded" : percentComplete < 0.3 ? "Obligating" : percentComplete < 0.85 ? "Executing" : percentComplete < 0.95 ? "Closing" : "Closed",
+    lifecyclePhase: percentComplete < 0.15 ? "Awarded" : percentComplete < 0.3 ? "Obligating" : percentComplete < 0.85 ? "Executing" : percentComplete < 0.95 ? "Closing" ,
     nistRmfScore: nistScore,
     complianceFlags,
-    complianceStage: percentComplete < 0.4 ? "Initial Review" : percentComplete < 0.75 ? "Mid Compliance Check" : "Final Audit",
+    complianceStage: percentComplete < 0.4 ? "Initial Review" : percentComplete < 0.75 ? "Mid Compliance Check" ,
     auditFindings,
     lastAuditDate: "2024-09-15",
     nextAuditDue: "2025-03-15",
-    reportingCadence: Math.random() > 0.5 ? "Monthly" : "Quarterly",
+    reportingCadence: Math.random() > 0.5 ? "Monthly" ,
     lastReportSubmitted: "2024-11-01",
     missingReportsIndicator: Math.random() > 0.8,
     riskLevel,
     riskTags: RISK_TAGS.filter(() => Math.random() > 0.75).slice(0, 3),
     slaRemaining: daysRemaining,
-    slaRiskLevel: daysRemaining < 30 ? "High" : daysRemaining < 90 ? "Medium" : "Low",
+    slaRiskLevel: daysRemaining < 30 ? "High" : daysRemaining < 90 ? "Medium" ,
     incidentCount: Math.floor(Math.random() * 4),
     escalationStatus: riskLevel === "Red",
     priorityScore,
@@ -200,9 +118,9 @@ function generateProject(index: number): Project {
     complianceOfficer: COMPLIANCE_OFFICERS[index % COMPLIANCE_OFFICERS.length],
     lastUpdated: new Date().toISOString(),
     auditHistory: [
-      { date: "2024-03-15", event: "Initial compliance review completed", severity: "info" },
+      { date: "2024-03-15", event, severity: "info" },
       { date: "2024-06-20", event: "Mid-cycle audit performed", severity: "info" },
-      { date: "2024-09-15", event: auditFindings > 0 ? `${auditFindings} findings identified` : "No findings", severity: auditFindings > 2 ? "critical" : auditFindings > 0 ? "warning" : "info" },
+      { date: "2024-09-15", event: auditFindings > 0 ? `${auditFindings} findings identified` , severity: auditFindings > 2 ? "critical" : auditFindings > 0 ? "warning" : "info" },
     ],
     notes: "Standard monitoring protocols in effect. Quarterly review scheduled.",
   }
@@ -212,20 +130,20 @@ function generateProject(index: number): Project {
 // ENGINE CALCULATIONS
 // ═══════════════════════════════════════════════════════════════════════════════
 
-function calculateBurnRate(actualSpend: number, budget: number, daysElapsed: number, totalDays: number): number {
+function calculateBurnRate(actualSpend, budget, daysElapsed, totalDays) {
   const timeRatio = daysElapsed / totalDays
   if (timeRatio === 0) return 0
   return (actualSpend / budget) / timeRatio
 }
 
-function calculateComplianceScore(nistScore: number, flags: number, auditFindings: number): number {
+function calculateComplianceScore(nistScore, flags, auditFindings) {
   const baseScore = nistScore * 0.6
   const flagPenalty = flags * 0.05
   const auditPenalty = auditFindings * 0.08
   return Math.max(0, Math.min(1, baseScore + 0.4 - flagPenalty - auditPenalty))
 }
 
-function calculatePriorityScore(riskLevel: string, complianceScore: number, burnRate: number): number {
+function calculatePriorityScore(riskLevel, complianceScore, burnRate) {
   const riskWeight = riskLevel === "Red" ? 1 : riskLevel === "Orange" ? 0.7 : riskLevel === "Yellow" ? 0.4 : 0.1
   const complianceBreach = complianceScore < 0.7 ? 1 : complianceScore < 0.85 ? 0.5 : 0
   const budgetVariance = Math.abs(burnRate - 1)
@@ -236,13 +154,13 @@ function calculatePriorityScore(riskLevel: string, complianceScore: number, burn
 // FORMAT UTILITIES
 // ═══════════════════════════════════════════════════════════════════════════════
 
-function formatCurrency(value: number): string {
+function formatCurrency(value) {
   if (value >= 1000000) return `$${(value / 1000000).toFixed(1)}M`
   if (value >= 1000) return `$${(value / 1000).toFixed(0)}K`
   return `$${value.toFixed(0)}`
 }
 
-function formatPercent(value: number): string {
+function formatPercent(value) {
   return `${(value * 100).toFixed(1)}%`
 }
 
@@ -251,12 +169,12 @@ function formatPercent(value: number): string {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 export default function SentinelDashboard() {
-  const [projects, setProjects] = useState<Project[]>([])
-  const [activeView, setActiveView] = useState<string | null>(null)
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null)
+  const [projects, setProjects] = useState([])
+  const [activeView, setActiveView] = useState(null)
+  const [selectedProject, setSelectedProject] = useState(null)
   const [isSyncing, setIsSyncing] = useState(false)
-  const [lastSync, setLastSync] = useState<Date>(new Date())
-  const [systemTime, setSystemTime] = useState<Date>(new Date())
+  const [lastSync, setLastSync] = useState(new Date())
+  const [systemTime, setSystemTime] = useState(new Date())
 
   // Initialize projects
   useEffect(() => {
@@ -307,7 +225,7 @@ export default function SentinelDashboard() {
       activeProjects: contractorProjects.length,
       avgComplianceScore: contractorProjects.length > 0 ? contractorProjects.reduce((sum, p) => sum + calculateComplianceScore(p.nistRmfScore, p.complianceFlags, p.auditFindings), 0) / contractorProjects.length : 0,
       incidentRate: contractorProjects.length > 0 ? contractorProjects.reduce((sum, p) => sum + p.incidentCount, 0) / contractorProjects.length : 0,
-      riskRating: contractorProjects.some(p => p.riskLevel === "Red") ? "High" : contractorProjects.some(p => p.riskLevel === "Orange") ? "Medium" : "Low",
+      riskRating: contractorProjects.some(p => p.riskLevel === "Red") ? "High" : contractorProjects.some(p => p.riskLevel === "Orange") ? "Medium" ,
       totalBudgetManaged: contractorProjects.reduce((sum, p) => sum + p.totalBudget, 0),
       deliveryEfficiency: contractorProjects.length > 0 ? contractorProjects.reduce((sum, p) => sum + p.financialEfficiencyScore, 0) / contractorProjects.length : 0,
     }
@@ -335,69 +253,69 @@ export default function SentinelDashboard() {
   // NAVIGATION MODULES CONFIGURATION
   // ═══════════════════════════════════════════════════════════════════════════════
 
-  const navigationModules: NavigationModule[] = [
+  const navigationModules = [
     {
-      id: "projects",
-      label: "Project Portfolio",
+      id,
+      label,
       icon: Layers,
       description: "Active grants, contracts, and task orders",
-      category: "operations",
+      category,
       alertCount: criticalProjects,
-      status: criticalProjects > 0 ? "critical" : atRiskProjects > 0 ? "warning" : "healthy",
+      status: criticalProjects > 0 ? "critical" : atRiskProjects > 0 ? "warning" ,
     },
     {
-      id: "alerts",
-      label: "Risk Alerts",
+      id,
+      label,
       icon: AlertTriangle,
-      description: "Flagged items requiring attention",
-      category: "operations",
+      description,
+      category,
       alertCount: criticalProjects + atRiskProjects,
-      status: criticalProjects > 0 ? "critical" : atRiskProjects > 0 ? "warning" : "healthy",
+      status: criticalProjects > 0 ? "critical" : atRiskProjects > 0 ? "warning" ,
     },
     {
-      id: "analytics",
+      id,
       label: "Analytics & Insights",
       icon: BarChart3,
-      description: "Burn rate analysis and forecasting",
-      category: "analytics",
+      description,
+      category,
       alertCount: projects.filter(p => p.burnRate > 1.1).length,
-      status: projects.filter(p => p.burnRate > 1.1).length > 3 ? "warning" : "healthy",
+      status: projects.filter(p => p.burnRate > 1.1).length > 3 ? "warning" ,
     },
     {
-      id: "compliance",
-      label: "Compliance Tracker",
+      id,
+      label,
       icon: Shield,
       description: "NIST-800-53 scoring and audit status",
-      category: "compliance",
+      category,
       alertCount: projects.filter(p => p.complianceFlags > 2).length,
-      status: projects.filter(p => p.nistRmfScore < 0.6).length > 0 ? "critical" : projects.filter(p => p.complianceFlags > 2).length > 0 ? "warning" : "healthy",
+      status: projects.filter(p => p.nistRmfScore < 0.6).length > 0 ? "critical" : projects.filter(p => p.complianceFlags > 2).length > 0 ? "warning" ,
     },
     {
-      id: "programs",
-      label: "Program Intelligence",
+      id,
+      label,
       icon: Target,
       description: "Cross-project program analytics",
-      category: "analytics",
+      category,
       alertCount: 0,
-      status: "healthy",
+      status,
     },
     {
-      id: "contractors",
-      label: "Contractor Performance",
+      id,
+      label,
       icon: Building2,
-      description: "Vendor metrics and risk ratings",
-      category: "management",
+      description,
+      category,
       alertCount: contractorMetrics.filter(c => c.riskRating === "High").length,
-      status: contractorMetrics.filter(c => c.riskRating === "High").length > 0 ? "warning" : "healthy",
+      status: contractorMetrics.filter(c => c.riskRating === "High").length > 0 ? "warning" ,
     },
     {
-      id: "audit",
-      label: "Audit Queue",
+      id,
+      label,
       icon: FileCheck,
-      description: "Pending reviews and findings",
-      category: "compliance",
+      description,
+      category,
       alertCount: projects.filter(p => p.auditFindings > 0).length,
-      status: projects.filter(p => p.auditFindings > 2).length > 0 ? "critical" : projects.filter(p => p.auditFindings > 0).length > 0 ? "warning" : "healthy",
+      status: projects.filter(p => p.auditFindings > 2).length > 0 ? "critical" : projects.filter(p => p.auditFindings > 0).length > 0 ? "warning" ,
     },
   ]
 
@@ -486,7 +404,7 @@ export default function SentinelDashboard() {
     })
 
     return (
-      <div className="space-y-2" style={{maxHeight: "520px", overflowY: "auto"}}>
+      <div className="space-y-2" style={{maxHeight, overflowY: "auto"}}>
         {sortedByRisk.slice(0, 10).map(project => (
           <div
             key={project.id}
@@ -562,10 +480,10 @@ export default function SentinelDashboard() {
         <h3 className="text-lg font-semibold text-gray-800 mb-4">Risk Distribution</h3>
         <div className="flex items-end gap-3 h-40">
           {[
-            { label: "Critical", count: projects.filter(p => p.riskLevel === "Red").length, color: "bg-red-500" },
-            { label: "At Risk", count: projects.filter(p => p.riskLevel === "Orange").length, color: "bg-amber-500" },
-            { label: "Monitor", count: projects.filter(p => p.riskLevel === "Yellow").length, color: "bg-yellow-500" },
-            { label: "Stable", count: projects.filter(p => p.riskLevel === "Green").length, color: "bg-emerald-500" },
+            { label, count: projects.filter(p => p.riskLevel === "Red").length, color: "bg-red-500" },
+            { label, count: projects.filter(p => p.riskLevel === "Orange").length, color: "bg-amber-500" },
+            { label, count: projects.filter(p => p.riskLevel === "Yellow").length, color: "bg-yellow-500" },
+            { label, count: projects.filter(p => p.riskLevel === "Green").length, color: "bg-emerald-500" },
           ].map(item => (
             <div key={item.label} className="flex-1 flex flex-col items-center gap-2">
               <div
@@ -630,7 +548,7 @@ export default function SentinelDashboard() {
         </div>
       </div>
 
-      <div style={{maxHeight: "520px", overflowY: "auto"}}>
+      <div style={{maxHeight, overflowY: "auto"}}>
       {projects
         .sort((a, b) => calculateComplianceScore(a.nistRmfScore, a.complianceFlags, a.auditFindings) - calculateComplianceScore(b.nistRmfScore, b.complianceFlags, b.auditFindings))
         .slice(0, 10)
@@ -678,7 +596,6 @@ export default function SentinelDashboard() {
             </div>
           )
         })}
-      </div>
     </div>
   )
 
@@ -1089,13 +1006,13 @@ export default function SentinelDashboard() {
 
   const renderCentralHub = () => {
     const categories = {
-      operations: { label: "Operations", color: "blue" },
+      operations: { label, color: "blue" },
       compliance: { label: "Compliance & Audit", color: "emerald" },
       analytics: { label: "Analytics & Intelligence", color: "purple" },
-      management: { label: "Management", color: "amber" },
+      management: { label, color: "amber" },
     }
 
-    const getCategoryModules = (category: string) => 
+    const getCategoryModules = (category) => 
       navigationModules.filter(m => m.category === category)
 
     return (
@@ -1419,7 +1336,7 @@ export default function SentinelDashboard() {
               </div>
               <div className="flex items-center gap-2 text-sm text-gray-500">
                 <Calendar className="w-4 h-4" />
-                {new Date().toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
+                {new Date().toLocaleDateString("en-US", { weekday, year, month, day: "numeric" })}
               </div>
             </div>
 
@@ -1460,7 +1377,7 @@ export default function SentinelDashboard() {
     {/* ─── PROJECT FOOTER ────────────────────────────────────── */}
     <div style={{
       borderTop: "1px solid #cccccc",
-      padding: "20px 28px",
+      padding,
       background: "#f9f9f7",
       fontFamily: "'Trebuchet MS','Gill Sans',Tahoma,sans-serif",
       fontSize: 12,
