@@ -18,6 +18,7 @@ const LazyHRAFraud         = lazy(() => import('../../projects/HRAFraudAuditTool
 const LazyHRABudget        = lazy(() => import('../../projects/HRABudgetVarianceEngine'));
 const LazyEventsConversion = lazy(() => import('../../projects/EventsConversion'));
 const LazyMASIP            = lazy(() => import('../../projects/MASIPDashboard'));
+const LazyPeerReport       = lazy(() => import('../../projects/PeerReportSimulation'));
 
 // ── Image Imports ────────────────────────────────────────────────────────────
 import img1 from '../../assets/project1.jpg';
@@ -116,6 +117,15 @@ export const PROJECTS = [
     link: '/masip_dashboard.jsx',
     type: 'jsx',
     component: LazyMASIP,
+    img: img11,
+  },
+  {
+    title: 'Peer Reporting & Compliance System (PRICAS)',
+    desc: 'Internal agency compliance dashboard — anonymous peer report intake, multi-category triage queue, hotspot heatmap analysis, audit log, and multi-channel report submission workflow.',
+    tech: ['React', 'TypeScript', 'Compliance Systems', 'Government Operations', 'Internal Audit'],
+    link: '/peer_report_simulation.jsx',
+    type: 'jsx',
+    component: LazyPeerReport,
     img: img11,
   },
   {
