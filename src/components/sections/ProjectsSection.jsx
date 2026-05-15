@@ -25,6 +25,8 @@ const LazyARCGIS           = lazy(() => import('../../projects/ARCGIScaseviewer'
 const LazyNISTAudit        = lazy(() => import('../../projects/NISTcyberAudit'));
 const LazyOilTrainReport   = lazy(() => import('../../projects/OilTrainInteractiveReport'));
 const LazyNEPAReview       = lazy(() => import('../../projects/NEPALiteratureReview'));
+const LazySalesMatrix      = lazy(() => import('../../projects/SalesMatrix'));
+const LazyB2BChurn         = lazy(() => import('../../projects/B2BChurn'));
 
 // ── Image Imports ────────────────────────────────────────────────────────────
 import img1 from '../../assets/project1.jpg';
@@ -51,6 +53,8 @@ import imgCompliance from '../../assets/project_compliance.jpg';
 import imgFunnel from '../../assets/project_events_funnel.jpg';
 import imgNEPA from '../../assets/project_nepa.jpg';
 import imgRail from '../../assets/project_rail.jpg';
+import imgSalesMatrix from '../../assets/project_sales_matrix.jpg';
+import imgB2BChurn from '../../assets/project_b2b_churn.jpg';
 
 // ── Brand Colors ─────────────────────────────────────────────────────────────
 const PINK   = '#B8004E';
@@ -204,6 +208,24 @@ export const PROJECTS = [
     type: 'jsx',
     component: LazyLytxCSM,
     img: img13,
+  },
+  {
+    title: 'Sales Team Hardware Compatibility & Need Matrix',
+    desc: 'Interactive fleet telematics sales engineering matrix — J1939/OBD-II/CAN FD hardware compatibility scoring, CRM pipeline simulation, live telemetry event stream, and deal stage analytics for enterprise fleet accounts.',
+    tech: ['React', 'TypeScript', 'Tailwind', 'Fleet Telematics', 'Sales Engineering', 'CRM', 'J1939', 'OBD-II'],
+    link: '/sales_matrix.jsx',
+    type: 'jsx',
+    component: LazySalesMatrix,
+    img: imgSalesMatrix,
+  },
+  {
+    title: 'B2B Target Tracker & Seasonal Churn Predictor',
+    desc: 'Enterprise B2B SaaS churn prediction platform — account health scoring, rep performance matrix, renewal timeline visualization, churn forecasting with driver analysis, seasonal trend modeling, and AI-driven intervention recommendations.',
+    tech: ['React', 'TypeScript', 'Tailwind', 'Framer Motion', 'Churn Modeling', 'B2B SaaS', 'Sales Ops', 'Gainsight', 'Salesforce'],
+    link: '/b2b_churn.jsx',
+    type: 'jsx',
+    component: LazyB2BChurn,
+    img: imgB2BChurn,
   },
   {
     title: 'DC Oil Train Safety Interactive Report',

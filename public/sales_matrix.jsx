@@ -8,104 +8,25 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 
 // --- TYPE DEFINITIONS ---
 
-interface DecisionNode {
-  id: string;
-  label: string;
-  description: string;
-  icon: string;
-  children?: DecisionNode[];
-  isTerminal?: boolean;
-  metadata?: Record<string, string | number>;
-  color?: string;
-}
 
-interface FleetClient {
-  id: string;
-  companyName: string;
-  industry: string;
-  fleetSize: number;
-  avgVehicleAge: number;
-  digitalMaturity: number;
-  telematicsPenetration: number;
-  annualRevenue: string;
-  region: string;
-  riskTier: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
-  crmStage: string;
-  healthScore: number;
-  lastContact: string;
-  primaryContact: string;
-  existingStack: string[];
-}
 
-interface HardwareDevice {
-  id: string;
-  name: string;
-  category: string;
-  compatibilityScore: number;
-  obdSupport: string[];
-  canBusVersion: string;
-  evCompatible: boolean;
-  thermalTolerance: string;
-  gpuInference: boolean;
-  pricePerUnit: number;
-  installationHours: number;
-  warrantyMonths: number;
-}
 
-interface SalesPackage {
-  id: string;
-  name: string;
-  tier: "STARTER" | "PROFESSIONAL" | "ENTERPRISE" | "GOVERNMENT";
-  monthlyBase: number;
-  perDeviceFee: number;
-  includedDevices: string[];
-  features: string[];
-  slaLevel: string;
-  contractMinMonths: number;
-  discountEligible: boolean;
-  marginPercent: number;
-}
 
-interface CompatibilityResult {
-  overallScore: number;
-  hardwareMatch: number;
-  networkReadiness: number;
-  installComplexity: number;
-  retrofitRequired: boolean;
-  estimatedDeploymentDays: number;
-  riskFlags: string[];
-  recommendations: string[];
-}
 
-interface SalesScript {
-  openingPitch: string;
-  technicalJustification: string;
-  objectionHandlers: { objection: string; response: string }[];
+
+
+
+
+
+[];
   roiFraming: string;
   complianceReassurance: string;
   closingStatement: string;
 }
 
-interface CRMSignal {
-  source: string;
-  metric: string;
-  value: number;
-  trend: "UP" | "DOWN" | "STABLE";
-  lastUpdated: string;
-  weight: number;
-}
 
-interface TelematicsEvent {
-  id: string;
-  timestamp: string;
-  vehicleId: string;
-  eventType: string;
-  severity: "INFO" | "WARNING" | "CRITICAL";
-  latitude: number;
-  longitude: number;
-  speed: number;
-  description: string;
-}
+
+
 
 // --- SYNTHETIC DATA GENERATORS ---
 
@@ -177,7 +98,7 @@ const TILE_COLORS = [
   "bg-sky-500",
 ];
 
-const generateFleetClients = (): FleetClient[] => {
+const generateFleetClients = ()=> {
   const companies = [
     "Apex Logistics Corp",
     "BuildRight Construction",
@@ -211,7 +132,7 @@ const generateFleetClients = (): FleetClient[] => {
     telematicsPenetration: Math.floor(Math.random() * 60) + 20,
     annualRevenue: `$${Math.floor(Math.random() * 500) + 10}M`,
     region: ["Northeast", "Southeast", "Midwest", "Southwest", "West Coast", "Pacific Northwest"][i % 6],
-    riskTier: (["LOW", "MEDIUM", "HIGH", "CRITICAL"] as const)[Math.floor(Math.random() * 4)],
+    riskTier: (["LOW", "MEDIUM", "HIGH", "CRITICAL"])[Math.floor(Math.random() * 4)],
     crmStage: CRM_STAGES[Math.floor(Math.random() * CRM_STAGES.length)],
     healthScore: Math.floor(Math.random() * 40) + 60,
     lastContact: `${Math.floor(Math.random() * 14) + 1} days ago`,
@@ -220,7 +141,7 @@ const generateFleetClients = (): FleetClient[] => {
   }));
 };
 
-const generateHardwareDevices = (): HardwareDevice[] => [
+const generateHardwareDevices = ()=> [
   {
     id: "HW-DC-PRO",
     name: "DriveCam AI Pro",
@@ -307,7 +228,7 @@ const generateHardwareDevices = (): HardwareDevice[] => [
   },
 ];
 
-const generateSalesPackages = (): SalesPackage[] => [
+const generateSalesPackages = ()=> [
   {
     id: "PKG-STARTER",
     name: "Fleet Safety Starter",
@@ -382,7 +303,7 @@ const generateSalesPackages = (): SalesPackage[] => [
   },
 ];
 
-const generateTelematicsEvents = (): TelematicsEvent[] => {
+const generateTelematicsEvents = ()=> {
   const eventTypes = [
     "Hard Brake",
     "Rapid Acceleration",
@@ -401,7 +322,7 @@ const generateTelematicsEvents = (): TelematicsEvent[] => {
     timestamp: new Date(Date.now() - Math.random() * 86400000 * 7).toISOString(),
     vehicleId: `VEH-${String(Math.floor(Math.random() * 500) + 1).padStart(4, "0")}`,
     eventType: eventTypes[Math.floor(Math.random() * eventTypes.length)],
-    severity: (["INFO", "WARNING", "CRITICAL"] as const)[Math.floor(Math.random() * 3)],
+    severity: (["INFO", "WARNING", "CRITICAL"])[Math.floor(Math.random() * 3)],
     latitude: 32.7157 + (Math.random() - 0.5) * 2,
     longitude: -117.1611 + (Math.random() - 0.5) * 2,
     speed: Math.floor(Math.random() * 40) + 35,
@@ -409,7 +330,7 @@ const generateTelematicsEvents = (): TelematicsEvent[] => {
   }));
 };
 
-const generateCRMSignals = (): CRMSignal[] => [
+const generateCRMSignals = ()=> [
   { source: "Salesforce", metric: "Pipeline Value", value: 2450000, trend: "UP", lastUpdated: "2 hrs ago", weight: 0.25 },
   { source: "Salesforce", metric: "Win Rate", value: 34, trend: "STABLE", lastUpdated: "1 day ago", weight: 0.2 },
   { source: "Gainsight", metric: "Health Score Avg", value: 78, trend: "UP", lastUpdated: "4 hrs ago", weight: 0.2 },
@@ -421,7 +342,7 @@ const generateCRMSignals = (): CRMSignal[] => [
 
 // --- DECISION TREE STRUCTURE ---
 
-const DECISION_TREE: DecisionNode[] = [
+const DECISION_TREE= [
   {
     id: "fleet-type",
     label: "Fleet Type",
@@ -585,7 +506,7 @@ const DECISION_TREE: DecisionNode[] = [
 
 // --- COMPATIBILITY ENGINE ---
 
-const calculateCompatibility = (selections: string[]): CompatibilityResult => {
+const calculateCompatibility = (selections: string[])=> {
   const baseScore = 85;
   const modifiers = selections.length * 2;
   const hasLegacy = selections.some(s => s.includes("legacy") || s.includes("Legacy"));
@@ -616,7 +537,7 @@ const calculateCompatibility = (selections: string[]): CompatibilityResult => {
 
 // --- SALES SCRIPT GENERATOR ---
 
-const generateSalesScript = (selections: string[], packageName: string): SalesScript => {
+const generateSalesScript = (selections: string[], packageName)=> {
   const isEnterprise = selections.some(s => s.includes("enterprise") || s.includes("Enterprise") || s.includes("500+"));
   const isGovernment = selections.some(s => s.includes("government") || s.includes("Government") || s.includes("Municipal"));
   const hasCompetitor = selections.some(s => s.includes("competitor") || s.includes("Competitor"));
@@ -658,8 +579,8 @@ const generateSalesScript = (selections: string[], packageName: string): SalesSc
 
 // --- ICON COMPONENT ---
 
-const Icon = ({ name, className = "" }: { name: string; className?: string }) => {
-  const icons: Record<string, JSX.Element> = {
+const Icon = ({ name, className = "" }: { name: string; className? }) => {
+  const icons = {
     TRUCK: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0zM13 16V6a1 1 0 00-1-1H3a1 1 0 00-1 1v10h11zm0 0h6a1 1 0 001-1v-4.586a1 1 0 00-.293-.707l-3.414-3.414A1 1 0 0015.586 6H13" />,
     BOX: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />,
     BRIEFCASE: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />,
@@ -703,7 +624,7 @@ const Icon = ({ name, className = "" }: { name: string; className?: string }) =>
 
 // --- MINI CHART COMPONENTS ---
 
-const MiniBarChart = ({ data, height = 60, color = "#3b82f6" }: { data: number[]; height?: number; color?: string }) => {
+const MiniBarChart = ({ data, height = 60, color = "#3b82f6" }: { data: number[]; height?: number; color? }) => {
   const max = Math.max(...data);
   return (
     <div className="flex items-end gap-1" style={{ height }}>
@@ -722,7 +643,7 @@ const MiniBarChart = ({ data, height = 60, color = "#3b82f6" }: { data: number[]
   );
 };
 
-const MiniLineChart = ({ data, height = 60, color = "#3b82f6" }: { data: number[]; height?: number; color?: string }) => {
+const MiniLineChart = ({ data, height = 60, color = "#3b82f6" }: { data: number[]; height?: number; color? }) => {
   const max = Math.max(...data);
   const min = Math.min(...data);
   const range = max - min || 1;
@@ -749,7 +670,7 @@ const MiniLineChart = ({ data, height = 60, color = "#3b82f6" }: { data: number[
   );
 };
 
-const MiniDonutChart = ({ value, size = 48, color = "#3b82f6" }: { value: number; size?: number; color?: string }) => {
+const MiniDonutChart = ({ value, size = 48, color = "#3b82f6" }: { value: number; size?: number; color? }) => {
   const radius = 18;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (value / 100) * circumference;
@@ -779,12 +700,12 @@ const MiniDonutChart = ({ value, size = 48, color = "#3b82f6" }: { value: number
 // --- MAIN COMPONENT ---
 
 export default function FleetSalesMatrixPage() {
-  const [selectionStack, setSelectionStack] = useState<{ nodeId: string; label: string }[]>([]);
-  const [currentNodes, setCurrentNodes] = useState<DecisionNode[]>(DECISION_TREE);
+  const [selectionStack, setSelectionStack] = useState([]);
+  const [currentNodes, setCurrentNodes] = useState(DECISION_TREE);
   const [showResults, setShowResults] = useState(false);
   const [simulationTime, setSimulationTime] = useState(0);
-  const [telematicsEvents, setTelematicsEvents] = useState<TelematicsEvent[]>([]);
-  const [activeTab, setActiveTab] = useState<"matrix" | "pipeline" | "telemetry" | "analytics">("matrix");
+  const [telematicsEvents, setTelematicsEvents] = useState([]);
+  const [activeTab, setActiveTab] = useState("matrix");
   
   const fleetClients = useMemo(() => generateFleetClients(), []);
   const hardwareDevices = useMemo(() => generateHardwareDevices(), []);
@@ -806,12 +727,12 @@ export default function FleetSalesMatrixPage() {
     
     const interval = setInterval(() => {
       setTelematicsEvents(prev => {
-        const newEvent: TelematicsEvent = {
+        const newEvent= {
           id: `EVT-${Date.now()}`,
           timestamp: new Date().toISOString(),
           vehicleId: `VEH-${String(Math.floor(Math.random() * 500) + 1).padStart(4, "0")}`,
           eventType: ["Hard Brake", "Speeding", "Distracted Driving", "Lane Departure"][Math.floor(Math.random() * 4)],
-          severity: (["INFO", "WARNING", "CRITICAL"] as const)[Math.floor(Math.random() * 3)],
+          severity: (["INFO", "WARNING", "CRITICAL"])[Math.floor(Math.random() * 3)],
           latitude: 32.7157 + (Math.random() - 0.5) * 2,
           longitude: -117.1611 + (Math.random() - 0.5) * 2,
           speed: Math.floor(Math.random() * 40) + 35,
@@ -824,7 +745,7 @@ export default function FleetSalesMatrixPage() {
     return () => clearInterval(interval);
   }, []);
   
-  const handleNodeClick = useCallback((node: DecisionNode) => {
+  const handleNodeClick = useCallback((node) => {
     if (node.children && node.children.length > 0) {
       setSelectionStack(prev => [...prev, { nodeId: node.id, label: node.label }]);
       setCurrentNodes(node.children);
@@ -871,9 +792,9 @@ export default function FleetSalesMatrixPage() {
   const recommendedPackage = useMemo(() => {
     const isEnterprise = selectionStack.some(s => s.label.includes("Enterprise") || s.label.includes("500+"));
     const isGovernment = selectionStack.some(s => s.label.includes("Government") || s.label.includes("Municipal"));
-    if (isGovernment) return salesPackages.find(p => p.tier === "GOVERNMENT")!;
-    if (isEnterprise) return salesPackages.find(p => p.tier === "ENTERPRISE")!;
-    return salesPackages.find(p => p.tier === "PROFESSIONAL")!;
+    if (isGovernment) return salesPackages.find(p => p.tier === "GOVERNMENT");
+    if (isEnterprise) return salesPackages.find(p => p.tier === "ENTERPRISE");
+    return salesPackages.find(p => p.tier === "PROFESSIONAL");
   }, [selectionStack, salesPackages]);
   
   const salesScript = useMemo(() => 
@@ -881,7 +802,7 @@ export default function FleetSalesMatrixPage() {
     [selectionStack, recommendedPackage]
   );
   
-  const formatTime = (seconds: number) => {
+  const formatTime = (seconds) => {
     const hrs = Math.floor(seconds / 3600);
     const mins = Math.floor((seconds % 3600) / 60);
     const secs = seconds % 60;
@@ -917,7 +838,7 @@ export default function FleetSalesMatrixPage() {
               ].map((tab) => (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id as typeof activeTab)}
+                  onClick={() => setActiveTab(tab.id activeTab)}
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                     activeTab === tab.id
                       ? "bg-white text-blue-600"

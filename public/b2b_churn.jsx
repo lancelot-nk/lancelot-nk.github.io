@@ -50,106 +50,19 @@ import {
 // TYPE DEFINITIONS - ENTERPRISE SALES OPERATIONS DATA MODEL
 // ============================================================================
 
-interface SalesRep {
-  id: string
-  name: string
-  territory: string
-  accountPortfolioSize: number
-  avgDealSize: number
-  conversionRate: number
-  renewalSuccessRate: number
-  engagementFrequency: number
-  pipelineVelocity: number
-  quotaAttainment: number
-  activityIndex: number
-  calls: number
-  emails: number
-  meetings: number
-  trend: "up" | "down" | "stable"
-  avatarSeed: number
-}
 
-interface Account {
-  id: string
-  name: string
-  industry: string
-  contractValue: number
-  contractStartDate: Date
-  renewalDate: Date
-  productTier: "starter" | "professional" | "enterprise" | "fleet-enterprise"
-  usageIntensity: number
-  supportTicketVolume: number
-  expansionPotential: number
-  churnRiskBaseline: number
-  assignedRep: string
-  healthScore: number
-  loginFrequency: number
-  featureAdoption: number
-  executiveSponsorEngagement: number
-  netRetentionContribution: number
-  lastContactDate: Date
-  fleetSize: number
-  telematicsUtilization: number
-  safetyScore: number
-}
 
-interface Deal {
-  id: string
-  accountId: string
-  accountName: string
-  stage: "prospecting" | "qualified" | "proposal" | "negotiation" | "closed_won" | "closed_lost"
-  value: number
-  velocity: number
-  closeProbability: number
-  stakeholderEngagement: number
-  competitorPresence: number
-  assignedRep: string
-  expectedCloseDate: Date
-  daysInStage: number
-}
 
-interface ChurnPrediction {
-  accountId: string
-  accountName: string
-  probability: number
-  drivers: string[]
-  recommendedAction: string
-  urgency: "critical" | "high" | "medium" | "low"
-  timeToRenewal: number
-  usageDecayRate: number
-  engagementDropRate: number
-  supportEscalationCount: number
-}
 
-interface SeasonalTrend {
-  quarter: string
-  month: string
-  churnRate: number
-  renewalRate: number
-  expansionRate: number
-  budgetImpact: number
-  fiscalAlignment: number
-}
 
-interface TerritoryMetrics {
-  territory: string
-  accountCount: number
-  totalARR: number
-  avgHealthScore: number
-  churnRisk: number
-  coverageGap: number
-  repCount: number
-}
 
-interface InterventionRecommendation {
-  accountId: string
-  accountName: string
-  action: string
-  priority: "immediate" | "soon" | "monitor"
-  expectedImpact: number
-  reasoning: string
-  repReassignment?: string
-}
+
+
+
+
+
+
+
 
 // ============================================================================
 // DATA GENERATION ENGINES - SIMULATED ENTERPRISE FLEET MANAGEMENT DATA
@@ -198,11 +111,11 @@ const REP_NAMES = [
   "Robert Taylor", "Nicole Anderson", "Christopher Lee", "Stephanie Garcia",
 ]
 
-function generateSalesReps(): SalesRep[] {
+function generateSalesReps(){
   return REP_NAMES.map((name, idx) => ({
     id: `REP-${String(idx + 1).padStart(3, "0")}`,
     name,
-    territory: TERRITORIES[idx % TERRITORIES.length],
+    territory % TERRITORIES.length],
     accountPortfolioSize: Math.floor(Math.random() * 15) + 8,
     avgDealSize: Math.floor(Math.random() * 150000) + 50000,
     conversionRate: Math.random() * 0.3 + 0.2,
@@ -219,7 +132,7 @@ function generateSalesReps(): SalesRep[] {
   }))
 }
 
-function generateAccounts(reps: SalesRep[]): Account[] {
+function generateAccounts(reps){
   return COMPANY_NAMES.map((name, idx) => {
     const startDate = new Date()
     startDate.setMonth(startDate.getMonth() - Math.floor(Math.random() * 24) - 6)
@@ -230,7 +143,7 @@ function generateAccounts(reps: SalesRep[]): Account[] {
 
     const tier = ["starter", "professional", "enterprise", "fleet-enterprise"][
       Math.floor(Math.random() * 4)
-    ] as Account["productTier"]
+    ]"productTier"]
 
     const baseValue = tier === "fleet-enterprise" ? 250000 :
       tier === "enterprise" ? 120000 :
@@ -239,7 +152,7 @@ function generateAccounts(reps: SalesRep[]): Account[] {
     return {
       id: `ACC-${String(idx + 1).padStart(4, "0")}`,
       name,
-      industry: INDUSTRIES[idx % INDUSTRIES.length],
+      industry % INDUSTRIES.length],
       contractValue: baseValue + Math.floor(Math.random() * baseValue * 0.5),
       contractStartDate: startDate,
       renewalDate,
@@ -262,7 +175,7 @@ function generateAccounts(reps: SalesRep[]): Account[] {
   })
 }
 
-function generateDeals(accounts: Account[], reps: SalesRep[]): Deal[] {
+function generateDeals(accounts reps){
   const stages: Deal["stage"][] = ["prospecting", "qualified", "proposal", "negotiation", "closed_won", "closed_lost"]
   return accounts.slice(0, 20).map((account, idx) => {
     const stage = stages[Math.floor(Math.random() * 4)]
@@ -288,7 +201,7 @@ function generateDeals(accounts: Account[], reps: SalesRep[]): Deal[] {
   })
 }
 
-function generateChurnPredictions(accounts: Account[]): ChurnPrediction[] {
+function generateChurnPredictions(accounts){
   return accounts
     .filter(a => a.churnRiskBaseline > 0.25 || a.healthScore < 0.6)
     .map(account => {
@@ -332,7 +245,7 @@ function generateChurnPredictions(accounts: Account[]): ChurnPrediction[] {
     .sort((a, b) => b.probability - a.probability)
 }
 
-function generateSeasonalTrends(): SeasonalTrend[] {
+function generateSeasonalTrends(){
   const quarters = ["Q1", "Q2", "Q3", "Q4"]
   const months = [
     "January", "February", "March", "April", "May", "June",
@@ -354,7 +267,7 @@ function generateSeasonalTrends(): SeasonalTrend[] {
   }))
 }
 
-function generateTerritoryMetrics(accounts: Account[], reps: SalesRep[]): TerritoryMetrics[] {
+function generateTerritoryMetrics(accounts reps){
   return TERRITORIES.map(territory => {
     const territoryAccounts = accounts.filter(a =>
       reps.find(r => r.id === a.assignedRep)?.territory === territory
@@ -377,12 +290,9 @@ function generateTerritoryMetrics(accounts: Account[], reps: SalesRep[]): Territ
 }
 
 function generateInterventions(
-  predictions: ChurnPrediction[],
-  accounts: Account[],
-  reps: SalesRep[]
-): InterventionRecommendation[] {
+  predictions accounts reps){
   return predictions.slice(0, 8).map(pred => {
-    const account = accounts.find(a => a.id === pred.accountId)!
+    const account = accounts.find(a => a.id === pred.accountId)
     const currentRep = reps.find(r => r.id === account.assignedRep)
     const betterRep = reps.find(r =>
       r.renewalSuccessRate > (currentRep?.renewalSuccessRate || 0) + 0.1 &&
@@ -401,7 +311,7 @@ function generateInterventions(
         pred.urgency === "high" ? "soon" : "monitor",
       expectedImpact: pred.probability > 0.5 ? account.contractValue * 0.8 : account.contractValue * 0.4,
       reasoning: `${pred.drivers.slice(0, 2).join("; ")}. Contract value at risk: $${account.contractValue.toLocaleString()}.`,
-      repReassignment: betterRep && pred.probability > 0.6 ? betterRep.name : undefined,
+      repReassignment: betterRep && pred.probability > 0.6 ? betterRep.name ,
     }
   })
 }
@@ -410,29 +320,29 @@ function generateInterventions(
 // UTILITY FUNCTIONS
 // ============================================================================
 
-function formatCurrency(value: number): string {
+function formatCurrency(value) {
   if (value >= 1000000) return `$${(value / 1000000).toFixed(1)}M`
   if (value >= 1000) return `$${(value / 1000).toFixed(0)}K`
   return `$${value.toFixed(0)}`
 }
 
-function formatPercent(value: number): string {
+function formatPercent(value) {
   return `${(value * 100).toFixed(1)}%`
 }
 
-function getHealthColor(score: number): string {
+function getHealthColor(score) {
   if (score >= 0.8) return "text-emerald-400"
   if (score >= 0.6) return "text-amber-400"
   return "text-red-400"
 }
 
-function getRiskColor(risk: number): string {
+function getRiskColor(risk) {
   if (risk >= 0.7) return "text-red-400"
   if (risk >= 0.4) return "text-amber-400"
   return "text-emerald-400"
 }
 
-function getUrgencyColor(urgency: string): string {
+function getUrgencyColor(urgency) {
   switch (urgency) {
     case "critical": return "bg-red-500/20 text-red-400 border-red-500/30"
     case "high": return "bg-orange-500/20 text-orange-400 border-orange-500/30"
@@ -452,13 +362,13 @@ export default function B2BChurnPredictorSimulation() {
   const [activeSection, setActiveSection] = useState(0)
 
   // Core Data State
-  const [salesReps, setSalesReps] = useState<SalesRep[]>([])
-  const [accounts, setAccounts] = useState<Account[]>([])
-  const [deals, setDeals] = useState<Deal[]>([])
-  const [churnPredictions, setChurnPredictions] = useState<ChurnPrediction[]>([])
-  const [seasonalTrends, setSeasonalTrends] = useState<SeasonalTrend[]>([])
-  const [territoryMetrics, setTerritoryMetrics] = useState<TerritoryMetrics[]>([])
-  const [interventions, setInterventions] = useState<InterventionRecommendation[]>([])
+  const [salesReps, setSalesReps] = useState([])
+  const [accounts, setAccounts] = useState([])
+  const [deals, setDeals] = useState([])
+  const [churnPredictions, setChurnPredictions] = useState([])
+  const [seasonalTrends, setSeasonalTrends] = useState([])
+  const [territoryMetrics, setTerritoryMetrics] = useState([])
+  const [interventions, setInterventions] = useState([])
 
   // Derived Metrics
   const totalARR = useMemo(() =>
@@ -1016,7 +926,7 @@ export default function B2BChurnPredictorSimulation() {
                   <p className="text-xs text-slate-500">
                     Historical patterns indicate a <span className="text-amber-400">34% increase</span> in churn
                     risk during October-December due to annual budget reconciliation cycles. Fleet management
-                    contracts are particularly susceptible as companies evaluate operational cost centers.
+                    contracts are particularly susceptible evaluate operational cost centers.
                     Proactive renewal discussions should begin 90+ days before year-end.
                   </p>
                 </div>
@@ -1026,8 +936,7 @@ export default function B2BChurnPredictorSimulation() {
                     <span className="text-sm font-medium text-blue-600">Q2 Expansion Opportunity Window</span>
                   </div>
                   <p className="text-xs text-slate-500">
-                    April-June presents a <span className="text-blue-600">22% higher expansion rate</span> as
-                    companies deploy new fiscal year budgets. Fleet expansion decisions typically coincide
+                    April-June presents a <span className="text-blue-600">22% higher expansion rate</span> deploy new fiscal year budgets. Fleet expansion decisions typically coincide
                     with Q2 operational planning. Target high-adoption accounts for upsell campaigns during
                     this period for maximum conversion efficiency.
                   </p>
@@ -1126,7 +1035,7 @@ export default function B2BChurnPredictorSimulation() {
                 <span>Portfolio Showcase — B2B Sales Operations Intelligence</span>
               </div>
               <div className="flex items-center gap-4">
-                <span>Simulated Data Sources: Salesforce, Gainsight, Zendesk, HubSpot, Lytx DriveCam API</span>
+                <span>Simulated Data Sources API</span>
               </div>
             </div>
             <div className="mt-4 rounded-lg border border-slate-100 bg-slate-50 p-3">
@@ -1163,9 +1072,9 @@ function SectionHeader({
   subtitle,
   icon,
 }: {
-  title: string
-  subtitle: string
-  icon: React.ReactNode
+  title
+  subtitle
+  icon
 }) {
   return (
     <div className="mb-6">
@@ -1189,23 +1098,23 @@ function KPICard({
   color,
   inverted = false,
 }: {
-  title: string
-  value: string
-  subtitle: string
-  icon: React.ReactNode
-  trend: number
-  color: string
-  inverted?: boolean
+  title
+  value
+  subtitle
+  icon
+  trend
+  color
+  inverted?
 }) {
   const isPositive = inverted ? trend < 0 : trend > 0
-  const colorMap: Record<string, string> = {
+  const colorMap = {
     cyan: "from-blue-500/20 to-blue-500/5 border-blue-200",
     blue: "from-blue-500/20 to-blue-500/5 border-blue-500/20",
     purple: "from-purple-500/20 to-purple-500/5 border-purple-500/20",
     emerald: "from-emerald-500/20 to-emerald-500/5 border-emerald-500/20",
     amber: "from-amber-500/20 to-amber-500/5 border-amber-500/20",
   }
-  const iconColorMap: Record<string, string> = {
+  const iconColorMap = {
     cyan: "text-blue-600",
     blue: "text-blue-400",
     purple: "text-purple-400",
@@ -1233,9 +1142,8 @@ function RepPerformanceCard({
   rank,
   accounts,
 }: {
-  rep: SalesRep
-  rank: number
-  accounts: Account[]
+  rep rank
+  accounts
 }) {
   const repAccounts = accounts.filter(a => a.assignedRep === rep.id)
   const repARR = repAccounts.reduce((sum, a) => sum + a.contractValue, 0)
@@ -1349,8 +1257,7 @@ function AccountHealthCard({
   account,
   rep,
 }: {
-  account: Account
-  rep?: SalesRep
+  account rep?
 }) {
   const daysToRenewal = Math.ceil(
     (account.renewalDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)
@@ -1359,7 +1266,7 @@ function AccountHealthCard({
     (Date.now() - account.lastContactDate.getTime()) / (1000 * 60 * 60 * 24)
   )
 
-  const tierColors: Record<string, string> = {
+  const tierColors = {
     "fleet-enterprise": "bg-purple-500/20 text-purple-400 border-purple-500/30",
     enterprise: "bg-blue-100 text-blue-600 border-blue-200",
     professional: "bg-blue-500/20 text-blue-400 border-blue-500/30",
@@ -1441,11 +1348,11 @@ function SegmentCard({
   count,
   color,
 }: {
-  label: string
-  count: number
-  color: string
+  label
+  count
+  color
 }) {
-  const colorMap: Record<string, string> = {
+  const colorMap = {
     emerald: "border-emerald-500/30 bg-emerald-500/10 text-emerald-400",
     red: "border-red-500/30 bg-red-500/10 text-red-400",
     cyan: "border-blue-200 bg-blue-50 text-blue-600",
@@ -1461,7 +1368,7 @@ function SegmentCard({
   )
 }
 
-function RenewalTimelineRow({ account }: { account: Account }) {
+function RenewalTimelineRow({ account }: { account }) {
   const daysToRenewal = Math.ceil(
     (account.renewalDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)
   )
@@ -1505,9 +1412,9 @@ function RenewalMetricCard({
   value,
   icon,
 }: {
-  label: string
-  value: string
-  icon: React.ReactNode
+  label
+  value
+  icon
 }) {
   return (
     <div className="rounded-lg border border-slate-200 bg-white p-4">
@@ -1524,8 +1431,7 @@ function ChurnPredictionCard({
   prediction,
   account,
 }: {
-  prediction: ChurnPrediction
-  account?: Account
+  prediction account?
 }) {
   if (!account) return null
 
@@ -1610,8 +1516,7 @@ function SeasonalTrendBar({
   trend,
   isCurrentMonth,
 }: {
-  trend: SeasonalTrend
-  isCurrentMonth: boolean
+  trend isCurrentMonth
 }) {
   return (
     <div className={`flex flex-col items-center ${isCurrentMonth ? "bg-blue-50 rounded-lg p-1 -m-1" : ""}`}>
@@ -1670,10 +1575,9 @@ function InterventionCard({
   intervention,
   index,
 }: {
-  intervention: InterventionRecommendation
-  index: number
+  intervention index
 }) {
-  const priorityColors: Record<string, string> = {
+  const priorityColors = {
     immediate: "border-l-red-500 bg-red-500/5",
     soon: "border-l-amber-500 bg-amber-500/5",
     monitor: "border-l-emerald-500 bg-emerald-500/5",
@@ -1710,7 +1614,7 @@ function InterventionCard({
   )
 }
 
-function TerritoryCard({ territory }: { territory: TerritoryMetrics }) {
+function TerritoryCard({ territory }: { territory }) {
   return (
     <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
       <div className="flex items-center justify-between mb-3">
