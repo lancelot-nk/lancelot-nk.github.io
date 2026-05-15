@@ -320,9 +320,9 @@ function generateChurnPredictions(accounts: Account[]): ChurnPrediction[] {
           : probability > 0.5
             ? "Schedule QBR and success planning session"
             : "Increase proactive engagement cadence",
-        urgency: probability > 0.7 ? "critical" :
+        urgency: (probability > 0.7 ? "critical" :
           probability > 0.5 ? "high" :
-            probability > 0.3 ? "medium" : "low",
+            probability > 0.3 ? "medium" : "low") as "critical" | "high" | "medium" | "low",
         timeToRenewal: daysToRenewal,
         usageDecayRate: usageDecay,
         engagementDropRate: engagementDrop,
