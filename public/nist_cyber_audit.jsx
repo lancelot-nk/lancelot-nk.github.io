@@ -7,14 +7,13 @@ import React, { useState, useEffect } from "react";
 // ============================================================================
 
 // Types & Interfaces
-
 // ============================================================================
 // SIMULATED DATA GENERATORS
 // ============================================================================
 
 const AGENCIES = ["DHS", "DoD", "HUD", "VA", "DOJ", "Treasury", "State", "EPA"];
 const CONTRACTORS = ["Booz Allen Hamilton", "Deloitte Federal", "Lockheed Martin", "Northrop Grumman", "Raytheon", "SAIC", "Leidos", "General Dynamics IT"];
-const CONTROL_FAMILIES: { id; name; baseControls }[] = [
+const CONTROL_FAMILIES: { id: string; name: string; baseControls }[] = [
   { id: "AC", name: "Access Control", baseControls: 25 },
   { id: "AU", name: "Audit & Accountability", baseControls: 16 },
   { id: "CM", name: "Configuration Management", baseControls: 14 },
@@ -29,7 +28,7 @@ const CONTROL_FAMILIES: { id; name; baseControls }[] = [
 
 const INFO_TYPES = ["PII", "Financial", "Operational Intel", "Health Records", "Infrastructure Control", "Law Enforcement", "National Security"];
 
-function generateControlFamilies(): ControlFamily[] {
+function generateControlFamilies() {
   return CONTROL_FAMILIES.map((cf) => {
     const implemented = Math.floor(cf.baseControls * (0.5 + Math.random() * 0.4));
     const partial = Math.floor((cf.baseControls - implemented) * Math.random());
@@ -45,7 +44,7 @@ function generateControlFamilies(): ControlFamily[] {
   });
 }
 
-function generateSystems(): FederalSystem[] {
+function generateSystems() {
   const systemNames = [
     "AEGIS-CORE", "SENTINEL-NET", "GUARDIAN-DB", "CITADEL-AUTH", "BASTION-API",
     "FORTRESS-CRM", "SHIELD-ANALYTICS", "BULWARK-INFRA", "RAMPART-COMMS", "VIGILANT-LOGS",
@@ -60,7 +59,7 @@ function generateSystems(): FederalSystem[] {
     const residualRisk = inherentRisk * (1 - avgEffectiveness / 150);
     const riskLevel = residualRisk < 25 ? "LOW" : residualRisk < 45 ? "MODERATE" : residualRisk < 65 ? "HIGH" : "CRITICAL";
     
-    const rmfPhases: RMFPhase[] = ["PREPARE", "CATEGORIZE", "SELECT", "IMPLEMENT", "ASSESS", "AUTHORIZE", "MONITOR"];
+    const rmfPhases = ["PREPARE", "CATEGORIZE", "SELECT", "IMPLEMENT", "ASSESS", "AUTHORIZE", "MONITOR"];
     
     return {
       id: `SYS-${String(i + 1).padStart(4, "0")}`,
@@ -68,7 +67,7 @@ function generateSystems(): FederalSystem[] {
       fismaId: `FISMA-${AGENCIES[i % AGENCIES.length]}-${String(1000 + i)}`,
       agency: AGENCIES[i % AGENCIES.length],
       contractor: CONTRACTORS[i % CONTRACTORS.length],
-      systemType: ["MISSION_CRITICAL", "BUSINESS_SUPPORT", "PUBLIC_FACING", "CLASSIFIED_ENCLAVE"][i % 4] as FederalSystem["systemType"],
+      systemType: ["MISSION_CRITICAL", "BUSINESS_SUPPORT", "PUBLIC_FACING", "CLASSIFIED_ENCLAVE"][i % 4]["systemType"],
       impactLevel: ["LOW", "MODERATE", "HIGH"][Math.floor(Math.random() * 3)],
       dataSensitivity: ["PUBLIC", "CUI", "SBU", "CLASSIFIED"][Math.floor(Math.random() * 4)],
       informationTypes: INFO_TYPES.slice(0, 2 + Math.floor(Math.random() * 3)),
@@ -89,8 +88,8 @@ function generateSystems(): FederalSystem[] {
   });
 }
 
-function generateVulnerabilities(systems: FederalSystem[]): Vulnerability[] {
-  const vulns: Vulnerability[] = [];
+function generateVulnerabilities(systems) {
+  const vulns = [];
   const cveBase = 2024;
   
   systems.forEach((sys) => {
@@ -99,7 +98,7 @@ function generateVulnerabilities(systems: FederalSystem[]): Vulnerability[] {
       vulns.push({
         id: `VULN-${sys.id}-${i}`,
         cve: `CVE-${cveBase}-${String(Math.floor(Math.random() * 50000)).padStart(5, "0")}`,
-        severity: ["LOW", "MEDIUM", "HIGH", "CRITICAL"][Math.floor(Math.random() * 4)] as Vulnerability["severity"],
+        severity: ["LOW", "MEDIUM", "HIGH", "CRITICAL"][Math.floor(Math.random() * 4)]["severity"],
         system: sys.name,
         exploitProbability: Math.random() * 100,
         daysOpen: Math.floor(Math.random() * 120),
@@ -123,7 +122,7 @@ function generateVulnerabilities(systems: FederalSystem[]): Vulnerability[] {
   });
 }
 
-function generateContractors(): Contractor[] {
+function generateContractors() {
   return CONTRACTORS.map((name, i) => ({
     id: `CONT-${i}`,
     name,
@@ -135,7 +134,7 @@ function generateContractors(): Contractor[] {
   }));
 }
 
-function generateIncident(): Incident {
+function generateIncident() {
   const types = [
     "Unauthorized Access Attempt",
     "Malware Detection",
@@ -151,16 +150,16 @@ function generateIncident(): Incident {
     id: `INC-${Date.now()}`,
     name: types[Math.floor(Math.random() * types.length)],
     phase: ["DETECTION", "ANALYSIS", "CONTAINMENT", "ERADICATION", "RECOVERY", "POST_INCIDENT"][Math.floor(Math.random() * 6)],
-    severity: ["LOW", "MEDIUM", "HIGH", "CRITICAL"][Math.floor(Math.random() * 4)] as Incident["severity"],
+    severity: ["LOW", "MEDIUM", "HIGH", "CRITICAL"][Math.floor(Math.random() * 4)]["severity"],
     affectedSystems: ["AEGIS-CORE", "SENTINEL-NET", "GUARDIAN-DB"].slice(0, 1 + Math.floor(Math.random() * 3)),
     detectionTime: new Date(Date.now() - Math.random() * 48 * 60 * 60 * 1000),
     responseTimeMinutes: Math.floor(Math.random() * 240),
     escalationLevel: 1 + Math.floor(Math.random() * 4),
-    status: ["ACTIVE", "CONTAINED", "RESOLVED"][Math.floor(Math.random() * 3)] as Incident["status"],
+    status: ["ACTIVE", "CONTAINED", "RESOLVED"][Math.floor(Math.random() * 3)]["status"],
   };
 }
 
-function generateCOOPScenarios(): COOPScenario[] {
+function generateCOOPScenarios() {
   return [
     { id: "COOP-1", name: "Nation-State Cyberattack", type: "CYBERATTACK", survivabilityScore: 72, rtoHours: 4, rpoHours: 1, fallbackEfficiency: 85, affectedSystems: 8, status: "PASSED" },
     { id: "COOP-2", name: "Primary Datacenter Loss", type: "DATACENTER_OUTAGE", survivabilityScore: 88, rtoHours: 2, rpoHours: 0.5, fallbackEfficiency: 92, affectedSystems: 15, status: "PASSED" },
@@ -174,7 +173,7 @@ function generateCOOPScenarios(): COOPScenario[] {
 // CALCULATION ENGINES
 // ============================================================================
 
-function calculateThreatExposure(system: FederalSystem, threatLevel: ThreatLevel) {
+function calculateThreatExposure(system, threatLevel) {
   const threatMultipliers: Record<ThreatLevel, number> = {
     MINIMAL: 0.5, ELEVATED: 0.75, HIGH: 1.0, SEVERE: 1.25, CRITICAL: 1.5,
   };
@@ -182,7 +181,7 @@ function calculateThreatExposure(system: FederalSystem, threatLevel: ThreatLevel
   return Math.min(100, baseExposure * threatMultipliers[threatLevel]);
 }
 
-function calculateATOReadiness(system: FederalSystem) {
+function calculateATOReadiness(system) {
   const controlScore = system.controlEffectiveness * 0.35;
   const findingsPenalty = Math.min(30, system.openFindings * 1.5);
   const poamPenalty = Math.min(20, system.poamItems * 2);
@@ -190,7 +189,7 @@ function calculateATOReadiness(system: FederalSystem) {
   return Math.max(0, Math.min(100, controlScore + 50 - findingsPenalty - poamPenalty - riskPenalty));
 }
 
-function calculateSupplyChainRisk(contractors: Contractor[]) {
+function calculateSupplyChainRisk(contractors) {
   const avgTrust = contractors.reduce((a, b) => a + b.trustScore, 0) / contractors.length;
   const avgCompliance = contractors.reduce((a, b) => a + b.complianceScore, 0) / contractors.length;
   const totalIncidents = contractors.reduce((a, b) => a + b.incidentHistory, 0);
@@ -198,7 +197,7 @@ function calculateSupplyChainRisk(contractors: Contractor[]) {
   return Math.min(100, (100 - avgTrust) * 0.3 + (100 - avgCompliance) * 0.3 + totalIncidents * 5 + criticalDeps * 2);
 }
 
-function calculateIREfficiency(incident: Incident) {
+function calculateIREfficiency(incident) {
   const phasePenalties: Record<IRPhase, number> = {
     DETECTION: 0, ANALYSIS: 5, CONTAINMENT: 15, ERADICATION: 25, RECOVERY: 35, POST_INCIDENT: 0,
   };
@@ -207,7 +206,7 @@ function calculateIREfficiency(incident: Incident) {
   return Math.max(0, 100 - phasePenalties[incident.phase] - timePenalty - escalationPenalty);
 }
 
-function calculateCascadeRisk(systems: FederalSystem[]) {
+function calculateCascadeRisk(systems) {
   const criticalSystems = systems.filter((s) => s.systemType === "MISSION_CRITICAL");
   const avgRisk = criticalSystems.length > 0 ? criticalSystems.reduce((a, b) => a + b.residualRisk, 0) / criticalSystems.length : 0;
   const interconnectionFactor = criticalSystems.length * 3;
@@ -217,7 +216,6 @@ function calculateCascadeRisk(systems: FederalSystem[]) {
 // ============================================================================
 // MAIN COMPONENT
 // ============================================================================
-
 
 export default function NISTCyberSimulator() {
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -289,7 +287,7 @@ export default function NISTCyberSimulator() {
       );
 
       if (Math.random() > 0.95) {
-        const levels: ThreatLevel[] = ["MINIMAL", "ELEVATED", "HIGH", "SEVERE", "CRITICAL"];
+        const levels = ["MINIMAL", "ELEVATED", "HIGH", "SEVERE", "CRITICAL"];
         const currentIdx = levels.indexOf(threatLevel);
         const newIdx = Math.max(0, Math.min(4, currentIdx + (Math.random() > 0.5 ? 1 : -1)));
         setThreatLevel(levels[newIdx]);
@@ -308,7 +306,7 @@ export default function NISTCyberSimulator() {
   const cascadeRisk = calculateCascadeRisk(systems);
 
   // Professional color helpers
-  const getRiskColor = (level: RiskLevel | string) => {
+  const getRiskColor = (level | string) => {
     switch (level) {
       case "LOW": return "text-emerald-700";
       case "MODERATE": return "text-amber-600";
@@ -318,7 +316,7 @@ export default function NISTCyberSimulator() {
     }
   };
 
-  const getRiskBg = (level: RiskLevel | string) => {
+  const getRiskBg = (level | string) => {
     switch (level) {
       case "LOW": return "bg-emerald-50 border-emerald-200";
       case "MODERATE": return "bg-amber-50 border-amber-200";
@@ -328,7 +326,7 @@ export default function NISTCyberSimulator() {
     }
   };
 
-  const getThreatColor = (level: ThreatLevel) => {
+  const getThreatColor = (level) => {
     switch (level) {
       case "MINIMAL": return "text-emerald-700 bg-emerald-50 border-emerald-300";
       case "ELEVATED": return "text-amber-700 bg-amber-50 border-amber-300";
@@ -338,7 +336,7 @@ export default function NISTCyberSimulator() {
     }
   };
 
-  const getATOBadge = (status: ATOStatus) => {
+  const getATOBadge = (status) => {
     switch (status) {
       case "APPROVE": return "bg-emerald-100 text-emerald-800 border-emerald-300";
       case "APPROVE_CONDITIONS": return "bg-amber-100 text-amber-800 border-amber-300";
@@ -347,7 +345,7 @@ export default function NISTCyberSimulator() {
     }
   };
 
-  const formatATOStatus = (status: ATOStatus) => {
+  const formatATOStatus = (status) => {
     switch (status) {
       case "APPROVE": return "ATO APPROVED";
       case "APPROVE_CONDITIONS": return "CONDITIONAL";
@@ -572,7 +570,7 @@ export default function NISTCyberSimulator() {
   );
 
   const renderRMFLifecycleView = () => {
-    const phases: { id: RMFPhase; name; description }[] = [
+    const phases: { id: RMFPhase; name: string; description }[] = [
       { id: "PREPARE", name: "Prepare", description: "Asset inventory, boundary definition" },
       { id: "CATEGORIZE", name: "Categorize", description: "FIPS 199 impact level assignment" },
       { id: "SELECT", name: "Select", description: "Control baseline selection" },
@@ -1098,13 +1096,13 @@ export default function NISTCyberSimulator() {
         <strong style={{ color: "#1a1a14", fontSize: 13 }}>Lancelot Napier-Kane</strong>
       </p>
       <p style={{ margin: "0 0 4px 0" }}>
-        <strong style={{ color: "#1a1a14" }}>Stack:</strong> React (TSX), Python (FastAPI, Pandas, SQLAlchemy), PostgreSQL (FISMA system registry, POAM tracker, vulnerability catalog, ATO pipeline), Redis (real-time security event cache), AWS GovCloud (S3, Lambda, RDS, CloudTrail), NIST SP 800-53 Rev. 5 controls engine, NIST SP 800-137 continuous monitoring framework, FedRAMP authorization boundary tooling, Azure Government (COOP failover environment), Splunk (SIEM event correlation), Tenable/Nessus (vulnerability scan pipeline integration), dbt (compliance metric transforms), Tableau Government (ATO status and RMF lifecycle dashboards)
+        <strong style={{ color: "#1a1a14" }}>Stack:</strong> React (TSX), Python (FastAPI, Pandas, SQLAlchemy), PostgreSQL (FISMA system registry, POAM tracking, ATO status schema, contractor records), Redis (live threat event caching), AWS GovCloud (S3 artifact storage, Lambda control drift triggers, RDS audit logs), NIST 800-53 Rev. 5 controls mapping engine, FedRAMP authorization boundary tooling, Elasticsearch (security event indexing, CVE feed integration), CISA Known Exploited Vulnerabilities (KEV) catalog feed, Tenable.io API schema (vulnerability density modeling), dbt (control effectiveness transforms), Splunk SIEM schema (security event normalization)
       </p>
       <p style={{ margin: "0 0 4px 0" }}>
-        <strong style={{ color: "#1a1a14" }}>Methods:</strong> NIST RMF lifecycle simulation across all seven phases (Prepare → Categorize → Select → Implement → Assess → Authorize → Monitor) per federal system; FISMA impact level categorization (LOW/MODERATE/HIGH) using FIPS 199 criteria; ATO authorization decision engine (Authorize / Approve with Conditions / Deny / Remediation Required) based on residual risk, open findings, and POAM velocity; CVE-indexed vulnerability scoring using CVSS v3 base + environmental modifiers; supply chain risk assessment against NIST SP 800-161 third-party dependencies; COOP scenario simulation across four continuity tiers; incident response phase tracking (Detection → Analysis → Containment → Eradication → Recovery → Post-Incident); control family effectiveness drift modeling; all system records, vulnerabilities, contractor profiles, security events, and COOP scenarios are simulated based on NIST SP 800-53, FISMA, and FedRAMP public documentation
+        <strong style={{ color: "#1a1a14" }}>Methods:</strong> Per-system RMF lifecycle tracking across all seven phases (Prepare → Categorize → Select → Implement → Assess → Authorize → Monitor); ATO adjudication scoring using residual risk × control effectiveness × threat exposure composite; FISMA control family implementation scoring across 20 control families (AC, AT, AU, CA, CM, CP, IA, IR, MA, MP, PE, PL, PM, PS, PT, RA, SA, SC, SI, SR); vulnerability prioritization using CVSS × exploitability × days-open decay model; COOP scenario simulation with recovery time objective (RTO/RPO) modeling; supply chain risk scoring via contractor trust score × critical dependency count; incident response phase tracking (Detection → Analysis → Containment → Eradication → Recovery → Post-Incident); all system records, vulnerability data, contractor scores, incident timelines, and COOP scenarios are simulated based on NIST SP 800-53 Rev. 5, FISMA 2014, and FedRAMP documentation
       </p>
       <p style={{ margin: 0 }}>
-        <strong style={{ color: "#1a1a14" }}>Sources:</strong> NIST SP 800-53 Rev. 5 control catalog; NIST SP 800-37 Risk Management Framework; FISMA Implementation Project guidance; OMB Circular A-130 federal information security requirements; FedRAMP System Security Plan (SSP) template schema; CISA Cybersecurity Advisory and Known Exploited Vulnerabilities (KEV) catalog schema; DHS CDM (Continuous Diagnostics and Mitigation) program documentation; NVD/CVE vulnerability database schema; system records, ATO decisions, and security event data simulated from publicly available federal cybersecurity program documentation
+        <strong style={{ color: "#1a1a14" }}>Sources:</strong> NIST SP 800-53 Rev. 5 security control catalog; NIST SP 800-37 Rev. 2 RMF guidance; FISMA 2014 federal information security requirements; CISA Known Exploited Vulnerabilities (KEV) catalog; FedRAMP authorization framework and System Security Plan (SSP) template; OMB Circular A-130 information management policy; NIST SP 800-34 COOP planning guidance; DoD CMMC 2.0 supply chain risk assessment framework; system records, threat events, and compliance metrics simulated based on publicly available NIST, FISMA, and FedRAMP documentation
       </p>
     </div>
     </>

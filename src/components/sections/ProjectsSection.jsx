@@ -21,8 +21,8 @@ const LazyMASIP            = lazy(() => import('../../projects/MASIPDashboard'))
 const LazyPeerReport       = lazy(() => import('../../projects/PeerReportSimulation'));
 const LazyNYCEventsAnnual  = lazy(() => import('../../projects/NYCEventsAnnualReport'));
 const LazyFedGrant         = lazy(() => import('../../projects/FedGrantAndDataWarehouse'));
-const LazyARCGIS           = lazy(() => import('../../projects/REALARCGISWA'));
-const LazyNISTAudit        = lazy(() => import('../../projects/REALNIST'));
+const LazyARCGIS           = lazy(() => import('../../projects/ARCGIScaseviewer'));
+const LazyNISTAudit        = lazy(() => import('../../projects/NISTcyberAudit'));
 const LazyOilTrainReport   = lazy(() => import('../../projects/OilTrainInteractiveReport'));
 const LazyNEPAReview       = lazy(() => import('../../projects/NEPALiteratureReview'));
 

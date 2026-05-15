@@ -9,146 +9,7 @@ import { useState, useEffect, useCallback, useMemo } from "react"
 // TYPE DEFINITIONS
 // ============================================================================
 
-
-// WASHINGTON STATE GEOGRAPHIC DATA
-// ============================================================================
-
-const WA_COUNTIES: CountyData[] = [
-  { name: "King", code: "KC", center: { x: 72, y: 38 }, population: 2269675, clientCount: 12847, shelterCapacity: 4200, shelterOccupancy: 3892, outreachCoverage: 0.87, housingStabilityIndex: 0.72, serviceSaturationIndex: 0.91, dataReportingIntegrity: 0.94, riskLevel: "high", programs: ["FHARP-KC", "DESC", "REACH"] },
-  { name: "Pierce", code: "PC", center: { x: 68, y: 48 }, population: 921130, clientCount: 5234, shelterCapacity: 1800, shelterOccupancy: 1687, outreachCoverage: 0.79, housingStabilityIndex: 0.68, serviceSaturationIndex: 0.82, dataReportingIntegrity: 0.91, riskLevel: "high", programs: ["FHARP-PC", "CLR", "PCHS"] },
-  { name: "Snohomish", code: "SC", center: { x: 74, y: 28 }, population: 827957, clientCount: 3421, shelterCapacity: 1200, shelterOccupancy: 1089, outreachCoverage: 0.74, housingStabilityIndex: 0.71, serviceSaturationIndex: 0.76, dataReportingIntegrity: 0.89, riskLevel: "moderate", programs: ["FHARP-SN", "YWCA", "VOA"] },
-  { name: "Spokane", code: "SP", center: { x: 92, y: 22 }, population: 539339, clientCount: 2876, shelterCapacity: 950, shelterOccupancy: 891, outreachCoverage: 0.71, housingStabilityIndex: 0.69, serviceSaturationIndex: 0.78, dataReportingIntegrity: 0.87, riskLevel: "moderate", programs: ["FHARP-SP", "VOL", "SNAP"] },
-  { name: "Clark", code: "CL", center: { x: 58, y: 82 }, population: 503311, clientCount: 1923, shelterCapacity: 680, shelterOccupancy: 612, outreachCoverage: 0.68, housingStabilityIndex: 0.73, serviceSaturationIndex: 0.71, dataReportingIntegrity: 0.92, riskLevel: "moderate", programs: ["FHARP-CL", "SHARE"] },
-  { name: "Thurston", code: "TH", center: { x: 62, y: 54 }, population: 294793, clientCount: 1456, shelterCapacity: 520, shelterOccupancy: 478, outreachCoverage: 0.76, housingStabilityIndex: 0.74, serviceSaturationIndex: 0.73, dataReportingIntegrity: 0.93, riskLevel: "low", programs: ["FHARP-TH", "IHN"] },
-  { name: "Kitsap", code: "KT", center: { x: 56, y: 38 }, population: 275611, clientCount: 1234, shelterCapacity: 420, shelterOccupancy: 387, outreachCoverage: 0.72, housingStabilityIndex: 0.76, serviceSaturationIndex: 0.69, dataReportingIntegrity: 0.88, riskLevel: "low", programs: ["FHARP-KT", "KRM"] },
-  { name: "Yakima", code: "YK", center: { x: 78, y: 52 }, population: 256035, clientCount: 1678, shelterCapacity: 380, shelterOccupancy: 362, outreachCoverage: 0.58, housingStabilityIndex: 0.61, serviceSaturationIndex: 0.84, dataReportingIntegrity: 0.79, riskLevel: "high", programs: ["FHARP-YK", "OIC"] },
-  { name: "Whatcom", code: "WH", center: { x: 68, y: 8 }, population: 229247, clientCount: 987, shelterCapacity: 340, shelterOccupancy: 298, outreachCoverage: 0.69, housingStabilityIndex: 0.77, serviceSaturationIndex: 0.67, dataReportingIntegrity: 0.91, riskLevel: "low", programs: ["FHARP-WH", "OC"] },
-  { name: "Benton", code: "BN", center: { x: 88, y: 56 }, population: 208100, clientCount: 834, shelterCapacity: 280, shelterOccupancy: 241, outreachCoverage: 0.63, housingStabilityIndex: 0.72, serviceSaturationIndex: 0.64, dataReportingIntegrity: 0.86, riskLevel: "low", programs: ["FHARP-BN"] },
-  { name: "Skagit", code: "SK", center: { x: 70, y: 18 }, population: 129205, clientCount: 623, shelterCapacity: 220, shelterOccupancy: 198, outreachCoverage: 0.65, housingStabilityIndex: 0.74, serviceSaturationIndex: 0.68, dataReportingIntegrity: 0.84, riskLevel: "low", programs: ["FHARP-SK"] },
-  { name: "Cowlitz", code: "CW", center: { x: 54, y: 72 }, population: 110593, clientCount: 712, shelterCapacity: 180, shelterOccupancy: 171, outreachCoverage: 0.54, housingStabilityIndex: 0.59, serviceSaturationIndex: 0.79, dataReportingIntegrity: 0.81, riskLevel: "moderate", programs: ["FHARP-CW"] },
-  { name: "Grant", code: "GR", center: { x: 82, y: 38 }, population: 99123, clientCount: 445, shelterCapacity: 120, shelterOccupancy: 108, outreachCoverage: 0.48, housingStabilityIndex: 0.63, serviceSaturationIndex: 0.71, dataReportingIntegrity: 0.77, riskLevel: "moderate", programs: ["FHARP-GR"] },
-  { name: "Lewis", code: "LW", center: { x: 60, y: 62 }, population: 82149, clientCount: 398, shelterCapacity: 95, shelterOccupancy: 87, outreachCoverage: 0.51, housingStabilityIndex: 0.66, serviceSaturationIndex: 0.72, dataReportingIntegrity: 0.79, riskLevel: "moderate", programs: [] },
-  { name: "Chelan", code: "CH", center: { x: 76, y: 28 }, population: 80435, clientCount: 312, shelterCapacity: 85, shelterOccupancy: 72, outreachCoverage: 0.46, housingStabilityIndex: 0.71, serviceSaturationIndex: 0.62, dataReportingIntegrity: 0.82, riskLevel: "low", programs: [] },
-  { name: "Grays Harbor", code: "GH", center: { x: 42, y: 50 }, population: 75061, clientCount: 534, shelterCapacity: 110, shelterOccupancy: 104, outreachCoverage: 0.43, housingStabilityIndex: 0.54, serviceSaturationIndex: 0.86, dataReportingIntegrity: 0.74, riskLevel: "critical", programs: ["FHARP-GH"] },
-  { name: "Mason", code: "MS", center: { x: 50, y: 48 }, population: 66768, clientCount: 387, shelterCapacity: 80, shelterOccupancy: 76, outreachCoverage: 0.49, housingStabilityIndex: 0.58, serviceSaturationIndex: 0.81, dataReportingIntegrity: 0.76, riskLevel: "moderate", programs: [] },
-  { name: "Walla Walla", code: "WW", center: { x: 94, y: 52 }, population: 62584, clientCount: 267, shelterCapacity: 70, shelterOccupancy: 58, outreachCoverage: 0.52, housingStabilityIndex: 0.73, serviceSaturationIndex: 0.59, dataReportingIntegrity: 0.85, riskLevel: "low", programs: [] },
-  { name: "Franklin", code: "FR", center: { x: 90, y: 52 }, population: 96749, clientCount: 423, shelterCapacity: 90, shelterOccupancy: 82, outreachCoverage: 0.47, housingStabilityIndex: 0.64, serviceSaturationIndex: 0.74, dataReportingIntegrity: 0.78, riskLevel: "moderate", programs: [] },
-  { name: "Clallam", code: "CA", center: { x: 38, y: 26 }, population: 77331, clientCount: 389, shelterCapacity: 95, shelterOccupancy: 88, outreachCoverage: 0.44, housingStabilityIndex: 0.61, serviceSaturationIndex: 0.78, dataReportingIntegrity: 0.73, riskLevel: "moderate", programs: [] },
-]
-
-const WA_CITIES: GeoPoint[] = [
-  { lat: 47.6062, lng: -122.3321, name: "Seattle", county: "King" },
-  { lat: 47.2529, lng: -122.4443, name: "Tacoma", county: "Pierce" },
-  { lat: 47.6588, lng: -117.4260, name: "Spokane", county: "Spokane" },
-  { lat: 45.6387, lng: -122.6615, name: "Vancouver", county: "Clark" },
-  { lat: 47.0379, lng: -122.9007, name: "Olympia", county: "Thurston" },
-  { lat: 47.9790, lng: -122.2021, name: "Everett", county: "Snohomish" },
-  { lat: 48.7519, lng: -122.4787, name: "Bellingham", county: "Whatcom" },
-  { lat: 46.6021, lng: -120.5059, name: "Yakima", county: "Yakima" },
-]
-
-// PROGRAM DATA
-// ============================================================================
-
-const PROGRAMS: ProgramEntity[] = [
-  { id: "FHARP-KC", name: "FHARP King County", type: "Wraparound", agency: "King County DCHS", fundingSource: "State/HUD", capacity: 2400, activeCaseload: 2187, completionRate: 0.67, avgTimeToStability: 142, coverageArea: ["King"], equityScore: 0.78, costPerOutcome: 18420, utilizationRate: 0.91 },
-  { id: "FHARP-PC", name: "FHARP Pierce County", type: "Wraparound", agency: "Pierce County HS", fundingSource: "State/HUD", capacity: 1200, activeCaseload: 1089, completionRate: 0.64, avgTimeToStability: 156, coverageArea: ["Pierce"], equityScore: 0.74, costPerOutcome: 19870, utilizationRate: 0.91 },
-  { id: "DESC", name: "DESC Housing First", type: "Housing First", agency: "DESC", fundingSource: "Federal/Private", capacity: 800, activeCaseload: 756, completionRate: 0.71, avgTimeToStability: 118, coverageArea: ["King"], equityScore: 0.82, costPerOutcome: 16340, utilizationRate: 0.95 },
-  { id: "CLR", name: "Comprehensive Life Resources", type: "Wraparound", agency: "CLR", fundingSource: "State/County", capacity: 650, activeCaseload: 612, completionRate: 0.69, avgTimeToStability: 134, coverageArea: ["Pierce"], equityScore: 0.81, costPerOutcome: 17250, utilizationRate: 0.94 },
-  { id: "REACH", name: "REACH Outreach", type: "Outreach", agency: "REACH", fundingSource: "City/Private", capacity: 1500, activeCaseload: 1342, completionRate: 0.58, avgTimeToStability: 187, coverageArea: ["King"], equityScore: 0.76, costPerOutcome: 12890, utilizationRate: 0.89 },
-  { id: "VOA", name: "Volunteers of America", type: "Shelter/Transitional", agency: "VOA", fundingSource: "Federal/Private", capacity: 420, activeCaseload: 398, completionRate: 0.62, avgTimeToStability: 163, coverageArea: ["Snohomish", "King"], equityScore: 0.79, costPerOutcome: 15670, utilizationRate: 0.95 },
-  { id: "SNAP", name: "SNAP Services", type: "Wraparound", agency: "SNAP", fundingSource: "State/Federal", capacity: 380, activeCaseload: 341, completionRate: 0.66, avgTimeToStability: 148, coverageArea: ["Spokane"], equityScore: 0.77, costPerOutcome: 16890, utilizationRate: 0.90 },
-  { id: "SHARE", name: "SHARE Vancouver", type: "Shelter/Outreach", agency: "SHARE", fundingSource: "City/State", capacity: 320, activeCaseload: 287, completionRate: 0.61, avgTimeToStability: 171, coverageArea: ["Clark"], equityScore: 0.73, costPerOutcome: 18120, utilizationRate: 0.90 },
-]
-
-// UTILITY FUNCTIONS
-// ============================================================================
-
-const generateClientId = () => `CL-${Math.random().toString(36).substr(2, 9).toUpperCase()}`
-const generateEventId = () => `EV-${Math.random().toString(36).substr(2, 9).toUpperCase()}`
-
-const getRandomElement = <T,>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)]
-
-const formatDate = (date) => {
-  return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
-}
-
-const formatTime = (date) => {
-  return date.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", second: "2-digit" })
-}
-
-const getRiskColor = (risk: RiskLevel) => {
-  const colors: Record<RiskLevel, string> = {
-    critical: "#dc2626",
-    high: "#ea580c",
-    moderate: "#ca8a04",
-    low: "#16a34a",
-    stable: "#0891b2"
-  }
-  return colors[risk]
-}
-
-const getStatusColor = (status: HousingStatus) => {
-  const colors: Record<HousingStatus, string> = {
-    unsheltered: "#dc2626",
-    emergency_shelter: "#ea580c",
-    transitional: "#ca8a04",
-    permanent_supportive: "#0891b2",
-    housed: "#16a34a"
-  }
-  return colors[status]
-}
-
-// SIMULATION ENGINES
-// ============================================================================
-
-// 1. CLIENT FLOW ENGINE
-const simulateClientFlow = (clients: ClientEntity[]): ClientEntity[] => {
-  return clients.map(client => {
-    const rand = Math.random()
-    let newStatus = client.housingStatus
-    
-    // Simulate status transitions
-    if (client.housingStatus === "unsheltered" && rand < 0.02) {
-      newStatus = "emergency_shelter"
-    } else if (client.housingStatus === "emergency_shelter" && rand < 0.015) {
-      newStatus = "transitional"
-    } else if (client.housingStatus === "transitional" && rand < 0.01) {
-      newStatus = "permanent_supportive"
-    } else if (client.housingStatus === "permanent_supportive" && rand < 0.008) {
-      newStatus = "housed"
-    } else if (rand < 0.005) {
-      // Regression
-      if (client.housingStatus === "housed") newStatus = "permanent_supportive"
-      else if (client.housingStatus === "permanent_supportive") newStatus = "transitional"
-      else if (client.housingStatus === "transitional") newStatus = "emergency_shelter"
-    }
-    
-    return {
-      ...client,
-      housingStatus: newStatus,
-      housingStabilityScore: Math.max(0, Math.min(1, client.housingStabilityScore + (Math.random() - 0.48) * 0.02)),
-      serviceRetentionRate: Math.max(0, Math.min(1, client.serviceRetentionRate + (Math.random() - 0.5) * 0.01)),
-    }
-  })
-}
-
-// 2. SERVICE CAPACITY ENGINE
-const calculateServiceCapacity = (counties: CountyData[]): { overloaded[], underutilized[] } => {
-  const overloaded[] = []
-  const underutilized[] = []
-  
-  counties.forEach(county => {
-    const occupancyRate = county.shelterOccupancy / county.shelterCapacity
-    if (occupancyRate > 0.92) overloaded.push(county.name)
-    if (occupancyRate < 0.65) underutilized.push(county.name)
-  })
-  
-  return { overloaded, underutilized }
-}
-
-// 3. OUTCOME PREDICTION ENGINE
-const predictOutcome = (client: ClientEntity): { successProbability; timeToStability } => {
+timeToStability } => {
   const baseProb = 0.5
   const historyBonus = client.serviceHistory.length * 0.02
   const stabilityBonus = client.housingStabilityScore * 0.3
@@ -161,7 +22,7 @@ const predictOutcome = (client: ClientEntity): { successProbability; timeToStabi
 }
 
 // 4. GRANT PERFORMANCE ENGINE
-const calculateGrantPerformance = (programs: ProgramEntity[]): { totalUtilization; avgCostPerOutcome; complianceRisk } => {
+const calculateGrantPerformance = (programs): { totalUtilization: number; avgCostPerOutcome: number; complianceRisk } => {
   const totalCapacity = programs.reduce((sum, p) => sum + p.capacity, 0)
   const totalActive = programs.reduce((sum, p) => sum + p.activeCaseload, 0)
   const totalUtilization = totalActive / totalCapacity
@@ -175,7 +36,7 @@ const calculateGrantPerformance = (programs: ProgramEntity[]): { totalUtilizatio
 }
 
 // 5. CASE MANAGER LOAD BALANCING ENGINE
-const calculateCaseloadBalance = (clients: ClientEntity[]): Map<string, number> => {
+const calculateCaseloadBalance = (clients): Map<string, number> => {
   const loads = new Map<string, number>()
   clients.forEach(client => {
     const current = loads.get(client.caseManagerId) || 0
@@ -185,9 +46,9 @@ const calculateCaseloadBalance = (clients: ClientEntity[]): Map<string, number> 
 }
 
 // 6. EQUITY & ACCESS ENGINE
-const calculateEquityMetrics = (counties: CountyData[]): { underserved[], oversaturated[] } => {
-  const underserved[] = []
-  const oversaturated[] = []
+const calculateEquityMetrics = (counties): { underserved: string[], oversaturated: string[] } => {
+  const underserved: string[] = []
+  const oversaturated: string[] = []
   
   counties.forEach(county => {
     if (county.outreachCoverage < 0.55) underserved.push(county.name)
@@ -198,8 +59,8 @@ const calculateEquityMetrics = (counties: CountyData[]): { underserved[], oversa
 }
 
 // 7. ANOMALY DETECTION ENGINE
-const detectAnomalies = (counties: CountyData[], events: CaseEvent[])[] => {
-  const anomalies[] = []
+const detectAnomalies = (counties, events): string[] => {
+  const anomalies: string[] = []
   
   counties.forEach(county => {
     if (county.dataReportingIntegrity < 0.8) {
@@ -221,7 +82,7 @@ const detectAnomalies = (counties: CountyData[], events: CaseEvent[])[] => {
 }
 
 // 8. SEASONAL STRESS ENGINE
-const calculateSeasonalStress = (): { stressLevel; projectedPeakDays; recommendation } => {
+const calculateSeasonalStress = (): { stressLevel: number; projectedPeakDays: number; recommendation } => {
   const month = new Date().getMonth()
   const winterMonths = [10, 11, 0, 1, 2] // Nov-Mar
   const isWinter = winterMonths.includes(month)
@@ -242,8 +103,8 @@ const calculateSeasonalStress = (): { stressLevel; projectedPeakDays; recommenda
 // GENERATE SIMULATED DATA
 // ============================================================================
 
-const generateClients = (count): ClientEntity[] => {
-  const statuses: HousingStatus[] = ["unsheltered", "emergency_shelter", "transitional", "permanent_supportive", "housed"]
+const generateClients = (count) => {
+  const statuses = ["unsheltered", "emergency_shelter", "transitional", "permanent_supportive", "housed"]
   const statusWeights = [0.35, 0.25, 0.2, 0.12, 0.08]
   
   return Array.from({ length: count }, () => {
@@ -260,7 +121,7 @@ const generateClients = (count): ClientEntity[] => {
       }
     }
     
-    const riskLevels: RiskLevel[] = ["critical", "high", "moderate", "low", "stable"]
+    const riskLevels = ["critical", "high", "moderate", "low", "stable"]
     const riskWeights = status === "unsheltered" ? [0.3, 0.35, 0.25, 0.08, 0.02] : [0.05, 0.15, 0.35, 0.3, 0.15]
     let riskRand = Math.random()
     let riskCumulative = 0
@@ -300,8 +161,8 @@ const generateClients = (count): ClientEntity[] => {
   })
 }
 
-const generateCaseEvents = (clients: ClientEntity[], count): CaseEvent[] => {
-  const eventTypes: CaseEventType[] = ["intake", "outreach_contact", "shelter_placement", "housing_referral", "follow_up", "exit"]
+const generateCaseEvents = (clients, count) => {
+  const eventTypes = ["intake", "outreach_contact", "shelter_placement", "housing_referral", "follow_up", "exit"]
   const outcomes = ["successful", "pending", "no_response", "declined", "completed", "in_progress"]
   
   return Array.from({ length: count }, () => {
@@ -416,7 +277,7 @@ export default function ArcGISWAStateTool() {
   const capacityData = useMemo(() => calculateServiceCapacity(WA_COUNTIES), [])
   const equityData = useMemo(() => calculateEquityMetrics(WA_COUNTIES), [])
   
-  const getEventIcon = (type: CaseEventType) => {
+  const getEventIcon = (type) => {
     const icons: Record<CaseEventType, string> = {
       intake: "I",
       outreach_contact: "O",
@@ -428,7 +289,7 @@ export default function ArcGISWAStateTool() {
     return icons[type]
   }
 
-  const getEventColor = (type: CaseEventType) => {
+  const getEventColor = (type) => {
     const colors: Record<CaseEventType, string> = {
       intake: "#3b82f6",
       outreach_contact: "#8b5cf6",
@@ -478,7 +339,7 @@ export default function ArcGISWAStateTool() {
 
       {/* SECONDARY NAV */}
       <nav className="h-10 bg-stone-200 border-b border-stone-300 flex items-center px-4 gap-1 flex-shrink-0">
-        {(["map", "reports", "forecast", "audit"]).map(view => (
+        {(["map", "reports", "forecast", "audit"] as const).map(view => (
           <button
             key={view}
             onClick={() => setActiveView(view)}
@@ -1264,13 +1125,13 @@ export default function ArcGISWAStateTool() {
         <strong style={{ color: "#1a1a14", fontSize: 13 }}>Lancelot Napier-Kane</strong>
       </p>
       <p style={{ margin: "0 0 4px 0" }}>
-        <strong style={{ color: "#1a1a14" }}>Stack:</strong> React (TSX), Python (FastAPI, GeoPandas, Pandas, SQLAlchemy), PostgreSQL (client case schema, program enrollment records, housing stability index), PostGIS (spatial county coverage layers, mobility radius calculations, service zone polygons), ArcGIS Pro / ArcGIS Online (county boundary GIS layers, outreach coverage mapping), Esri REST API (feature service queries, map tile delivery), AWS GovCloud (S3, Lambda for geospatial batch jobs), Tableau Server (program performance dashboards), HUD HMIS data integration schema, WA DSHS Open Data pipeline (simulated), dbt (equity score and utilization rate transforms)
+        <strong style={{ color: "#1a1a14" }}>Stack:</strong> React (TSX), Python (FastAPI, GeoPandas, Pandas, SQLAlchemy), PostgreSQL (HMIS client schema, case event log, program enrollment records), PostGIS (county geometry, service zone polygons, client location indexing), ArcGIS Online (Washington State administrative boundary layers, spatial risk overlays), ESRI ArcGIS REST API (feature service queries, map image exports), Washington State HMIS data integration (SHA homeless management data schema), PRISM case management platform schema, Elasticsearch (client history indexing, outreach event search), Redis (active caseload caching), AWS GovCloud (S3 report archiving, Lambda event triggers), dbt (housing stability and equity score transforms)
       </p>
       <p style={{ margin: "0 0 4px 0" }}>
-        <strong style={{ color: "#1a1a14" }}>Methods:</strong> Housing stability score composite: weighted combination of service retention rate (40%), reengagement probability (30%), and program enrollment breadth (30%); county-level service saturation index derived from active caseload vs. capacity ratios across all program types; equity score calculated from coverage area demographic overlap, cost-per-outcome efficiency, and service desert gap analysis; client risk level tiering (Critical/High/Moderate/Low/Stable) using trailing 90-day contact frequency, housing transition velocity, and program completion rate; outreach coverage modeling using client mobility radius buffers intersected with service zone boundaries; policy impact simulation projecting housing stability changes under funding scenario adjustments; all client records, case events, program metrics, and county data are simulated based on publicly available WA DSHS, HUD HMIS, and Comprehensive Care program documentation
+        <strong style={{ color: "#1a1a14" }}>Methods:</strong> Multi-depth geospatial intelligence layering (State Overview → County Intelligence → Field Operations → Micro Case Layer) with progressive data disclosure at each depth tier; housing stability score composite from service retention rate, reengagement probability, and time-since-last-contact decay; service saturation index per county using active caseload ÷ program capacity with equity-weighted adjustment; client risk classification (critical/high/moderate/low/stable) via multi-factor logistic model on housing status trajectory, service engagement frequency, and program exit outcomes; outreach coverage ratio calculation using worker dispatch records vs. estimated unsheltered population per zone; equity score computation using environmental justice metrics — income decile, transit access, language barrier weighting; all client records, case event histories, program metrics, and county-level statistics are simulated based on Washington State HMIS documentation and SHA Homeless Management public reports
       </p>
       <p style={{ margin: 0 }}>
-        <strong style={{ color: "#1a1a14" }}>Sources:</strong> Washington State Department of Social and Health Services (DSHS) homeless services program documentation; HUD Annual Homeless Assessment Report (AHAR) Washington State data schema; King County Regional Homelessness Authority program metrics; WA State Housing Finance Commission (WSHFC) housing stability indicators; ArcGIS Washington county boundary GIS layer (Esri Living Atlas); Comprehensive Life Resources (CLR) program portfolio schema; service utilization and client outcome data simulated from WA DSHS and HUD public program documentation
+        <strong style={{ color: "#1a1a14" }}>Sources:</strong> Washington State Department of Commerce Homelessness Data; Seattle/King County HMIS public annual reports; Washington State Homeless Management Information System (HMIS) data dictionary; HUD Homeless Data Exchange (HDX) program reporting schema; ESRI ArcGIS Washington State boundary and service area datasets; SHA (Seattle Housing Authority) housing stability outcome data; Washington State PRISM integrated case management platform documentation; client, case, and program data simulated from publicly available Washington State homeless services and HMIS documentation
       </p>
     </div>
     </>
