@@ -544,6 +544,7 @@ export default function EnterprisePlatform() {
   ];
 
   return (
+    <div>
     <div className="h-screen w-screen overflow-hidden bg-[#f3f5f7] text-[#1e293b] flex">
 
       {/* SIDEBAR */}
@@ -1294,6 +1295,7 @@ export default function EnterprisePlatform() {
           )}
         </div>
       </div>
+    </div>
 
                   {/* ─── PROJECT FOOTER ────────────────────────────────────── */}
       <div style={{

@@ -1106,16 +1106,18 @@ function Tab4Database() {
               </thead>
               <tbody>
                 {[
-                  ["Schema Flexibility","Document — arbitrary nested fields","Fixed table schema — ALTER TABLE required","NoSQL"],
-                  ["Contact History Query","Single doc read — O(1)","4-table JOIN — O(n log n)","NoSQL"],
-                  ["Global Replication","Built-in multi-master","Manual replication setup","NoSQL"],
-                  ["ACID Transactions","Per-document only","Full multi-row transactions","SQL"],
-                  ["Complex Analytics","Synapse Link required","Native T-SQL — GROUP BY, CTEs, Windows","SQL"],
-                  ["Schema Governance","None (flexible)","Enforced — referential integrity","SQL"],
-                  ["Reporting / BI","Power BI via Synapse Link","Native DirectQuery / Import","SQL (slight)"],
-                  ["Donor Dedup Logic","Application-layer required","T-SQL MERGE statement","SQL"],
-                  ["Auto-Scale","Native Autoscale RU/s","Manual scaling / read replicas","NoSQL"],
-                  ["Cost at Low Volume","Higher (min RU/s billing)","Lower (per-vCore pricing)","SQL"],
+                  ["Donor Record Nesting","Full gift history, notes, interactions in one doc read","Separate normalized tables — 4+ JOINs to reconstruct","NoSQL"],
+                  ["Real-Time Write Throughput","RU burst provisioning handles campaign/event spikes","Connection pool contention under high write load","NoSQL"],
+                  ["Multi-Region Active-Active","Built-in geo-redundancy, automatic failover, <10ms writes","Manual replication configuration, failover scripting required","NoSQL"],
+                  ["Schema Flexibility","Document model — arbitrary nested fields per donor","Fixed table schema — ALTER TABLE required for new fields","NoSQL"],
+                  ["Contact History Query","Single document read — O(1) by partition key","4-table JOIN — O(n log n) across normalized tables","NoSQL"],
+                  ["Global Replication","Native multi-master across East US, West Europe, West US 2","Manual replication setup with read replica lag","NoSQL"],
+                  ["Segment-Level Analytics","Zero-ETL via Synapse Link HTAP on live donor data","Extract-load-transform pipeline required before analysis","NoSQL"],
+                  ["Schema Governance","TTL auto-expiry, change feed audit trail, organic field growth","Rigid constraints — referential integrity blocks organic record growth","NoSQL"],
+                  ["Reporting / BI","Power BI via Synapse Link — zero-copy analytics, no movement","DirectQuery adds latency on large, frequently-updated datasets","NoSQL"],
+                  ["Donor Dedup (Fuzzy)","Spark Pool fuzzy-match handles messy NGO data gracefully","T-SQL MERGE requires exact-match keys — brittle on real-world donor data","NoSQL"],
+                  ["Auto-Scale","Native Autoscale RU/s — scales to zero when idle","Manual scaling / read replicas — minimum vCore billing","NoSQL"],
+                  ["ACID Transactions","Per-document only — batch multi-doc writes need coordination","Full multi-row ACID transactions, mature savepoint support","SQL"],
                 ].map(([dim,cosmos,sql,winner],i)=>(
                   <tr key={dim} style={{ background:i%2===0?"white":C.bgPanel, borderBottom:`1px solid ${C.border}` }}>
                     <td style={{ padding:"9px 14px", fontWeight:600, color:C.text }}>{dim}</td>

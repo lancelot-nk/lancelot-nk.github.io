@@ -880,8 +880,8 @@ export default function NYCEventsTracker() {
   const zipcodeData = getZipcodeStats();
 
   function projectCoord(lng, lat, svgW = 600, svgH = 500) {
-    const minLng = -74.27, maxLng = -73.68;
-    const minLat = 40.48, maxLat = 40.93;
+    const minLng = -74.26, maxLng = -73.70;
+    const minLat = 40.47, maxLat = 40.92;
     const x = ((lng - minLng) / (maxLng - minLng)) * svgW;
     const y = svgH - ((lat - minLat) / (maxLat - minLat)) * svgH;
     return [x, y];

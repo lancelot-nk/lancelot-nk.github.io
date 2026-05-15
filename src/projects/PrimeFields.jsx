@@ -49,7 +49,7 @@ function zetaPP(s, N = 200) {
 const flr = Math.floor;
 const fra = x => x - Math.floor(x);
 const PRIMES = [2, 3, 5, 7, 11, 13];
-const SERIES_COLORS = ["#dd1100","#b30e00","#ff3322","#991100","#cc2200","#e61500"];
+const SERIES_COLORS = ["#e63946","#2196f3","#2ca02c","#9467bd","#ff7f0e","#17becf"];
 
 // A(p,q)=p, D(p,q)=q (user-defined — interpreted as identity on inputs)
 function computeAll(p, q) {

@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 // ── Inline SVG Line Chart (no external dependency) ──────────────────────────
-function SvgLineChart({ data, xKey, yKey, color = '#86efac', yLabel = '' }) {
+function SvgLineChart({ data, xKey, yKey, color = '#2d7a4f', yLabel = '' }) {
   const [tooltip, setTooltip] = useState(null);
   const W = 560, H = 260, PAD = { top: 20, right: 20, bottom: 44, left: 58 };
   const innerW = W - PAD.left - PAD.right;
@@ -29,27 +29,27 @@ function SvgLineChart({ data, xKey, yKey, color = '#86efac', yLabel = '' }) {
         {yTicks.map((v, i) => (
           <line key={i}
             x1={PAD.left} y1={toY(v)} x2={PAD.left + innerW} y2={toY(v)}
-            stroke="rgba(255,255,255,0.08)" strokeDasharray="4 3"
+            stroke="rgba(45,106,79,0.12)" strokeDasharray="4 3"
           />
         ))}
         {/* Y-axis label */}
         <text
           x={12} y={H / 2}
-          fill="#94a3b8" fontSize={10} textAnchor="middle"
+          fill="#475569" fontSize={10} textAnchor="middle"
           transform={`rotate(-90, 12, ${H / 2})`}
         >{yLabel}</text>
         {/* Y-axis ticks */}
         {yTicks.map((v, i) => (
           <text key={i}
             x={PAD.left - 6} y={toY(v) + 4}
-            fill="#94a3b8" fontSize={10} textAnchor="end"
+            fill="#475569" fontSize={10} textAnchor="end"
           >{v.toFixed(1)}</text>
         ))}
         {/* X-axis labels */}
         {data.map((d, i) => (
           <text key={i}
             x={toX(i)} y={PAD.top + innerH + 18}
-            fill="#94a3b8" fontSize={9} textAnchor="middle"
+            fill="#475569" fontSize={9} textAnchor="middle"
           >{d[xKey]}</text>
         ))}
         {/* Area fill */}
@@ -63,7 +63,7 @@ function SvgLineChart({ data, xKey, yKey, color = '#86efac', yLabel = '' }) {
         {data.map((d, i) => (
           <circle key={i}
             cx={toX(i)} cy={toY(d[yKey])} r={5}
-            fill={color} stroke="rgba(6,26,11,0.9)" strokeWidth={2}
+            fill={color} stroke="rgba(240,250,245,0.9)" strokeWidth={2}
             style={{ cursor: 'pointer' }}
             onMouseEnter={() => setTooltip({ i, x: toX(i), y: toY(d[yKey]), d })}
             onMouseLeave={() => setTooltip(null)}
@@ -76,12 +76,12 @@ function SvgLineChart({ data, xKey, yKey, color = '#86efac', yLabel = '' }) {
           return (
             <g>
               <rect x={tx} y={ty} width={108} height={30} rx={6}
-                fill="rgba(7,20,11,0.93)" stroke="rgba(134,239,172,0.35)" strokeWidth={1}
+                fill="rgba(240,250,245,0.95)" stroke="rgba(45,106,79,0.3)" strokeWidth={1}
               />
-              <text x={tx + 54} y={ty + 12} fill="#86efac" fontSize={10} textAnchor="middle" fontWeight="600">
+              <text x={tx + 54} y={ty + 12} fill="#1a5c3a" fontSize={10} textAnchor="middle" fontWeight="600">
                 {tooltip.d[xKey]}
               </text>
-              <text x={tx + 54} y={ty + 24} fill="#fff" fontSize={10} textAnchor="middle">
+              <text x={tx + 54} y={ty + 24} fill="#0d3b1e" fontSize={10} textAnchor="middle">
                 {tooltip.d[yKey]}M gal
               </text>
             </g>
@@ -201,9 +201,9 @@ export default function KingmanIslandRFP() {
   ];
 
   const impactMetrics = [
-    { name: 'Participant Training', value: 85, color: '#86efac' },
-    { name: 'Employment Placement', value: 70, color: '#34d399' },
-    { name: 'Certification Success', value: 90, color: '#4ade80' },
+    { name: 'Participant Training', value: 85, color: '#1a5c3a' },
+    { name: 'Employment Placement', value: 70, color: '#2d7a4f' },
+    { name: 'Certification Success', value: 90, color: '#2d7a4f' },
     { name: 'Retention Rate', value: 75, color: '#a78bfa' },
   ];
 
@@ -265,40 +265,40 @@ export default function KingmanIslandRFP() {
     { year: '2016', agency: 'DOEE', amount: '$19,963', purpose: 'Watershed Experiences for 3rd-8th Grade', status: 'Completed' },
   ];
 
-  const COLORS = ['#86efac', '#34d399', '#4ade80', '#a78bfa', '#f472b6', '#fb923c'];
+  const COLORS = ['#1a5c3a', '#2d7a4f', '#2d7a4f', '#a78bfa', '#f472b6', '#fb923c'];
 
   return (
-    <div style={{ width:'100%', maxWidth:'100%', background:'linear-gradient(180deg, #061a0b 0%, #0a1f10 100%)', color:'white', overflowX:'hidden', position:'relative' }}>
+    <div style={{ width:'100%', maxWidth:'100%', background:'linear-gradient(180deg, #f0faf5 0%, #ddf2e8 40%, #c8ecda 100%)', color:'#0d3b1e', overflowX:'hidden', position:'relative' }}>
       <style>{`
         * { scroll-behavior: smooth; }
 
         .glass {
-          background: rgba(7,20,11,0.72);
+          background: rgba(255,255,255,0.82);
           backdrop-filter: blur(16px);
-          border: 1px solid rgba(74,222,128,0.16);
-          box-shadow: 0 10px 35px rgba(0,0,0,0.34), inset 0 1px 0 rgba(255,255,255,0.03);
+          border: 1px solid rgba(45,106,79,0.2);
+          box-shadow: 0 4px 24px rgba(0,0,0,0.06);
         }
 
         .glass-soft {
-          background: rgba(255,255,255,0.03);
-          border: 1px solid rgba(255,255,255,0.08);
+          background: rgba(240,250,245,0.7);
+          border: 1px solid rgba(45,106,79,0.12);
           backdrop-filter: blur(12px);
         }
 
         .hero-grid {
           background-image:
-            linear-gradient(rgba(74,222,128,0.06) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(74,222,128,0.06) 1px, transparent 1px);
+            linear-gradient(rgba(45,106,79,0.07) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(45,106,79,0.07) 1px, transparent 1px);
           background-size: 32px 32px;
         }
 
         .gradient-text {
-          background: linear-gradient(90deg, #bbf7d0 0%, #ffffff 45%, #bbf7d0 100%);
+          background: linear-gradient(90deg, #1a5c3a 0%, #0d3b1e 45%, #1a5c3a 100%);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
         }
 
-        .cyan-glow { box-shadow: 0 0 80px rgba(74,222,128,0.18); }
+        .cyan-glow { box-shadow: 0 0 80px rgba(45,106,79,0.18); }
 
         .floating {
           animation: float 8s ease-in-out infinite;
@@ -330,13 +330,13 @@ export default function KingmanIslandRFP() {
 
         .card-hover:hover {
           transform: translateY(-4px);
-          border-color: rgba(134,239,172,0.32);
+          border-color: rgba(45,106,79,0.32);
         }
 
         .tab-nav {
           display: flex;
           gap: 0;
-          border-bottom: 1px solid rgba(74,222,128,0.16);
+          border-bottom: 1px solid rgba(45,106,79,0.2);
           overflow-x: auto;
           scrollbar-width: none;
         }
@@ -351,7 +351,7 @@ export default function KingmanIslandRFP() {
           font-weight: 600;
           border: none;
           background: none;
-          color: rgba(255,255,255,0.5);
+          color: rgba(13,59,30,0.55);
           cursor: pointer;
           border-bottom: 2px solid transparent;
           transition: all 0.3s;
@@ -359,12 +359,12 @@ export default function KingmanIslandRFP() {
         }
 
         .tab-btn:hover {
-          color: rgba(255,255,255,0.8);
+          color: rgba(13,59,30,0.85);
         }
 
         .tab-btn.active {
-          color: #86efac;
-          border-bottom-color: #86efac;
+          color: #1a5c3a;
+          border-bottom-color: #1a5c3a;
         }
 
         .expandable {
@@ -388,53 +388,53 @@ export default function KingmanIslandRFP() {
 
       <div className="absolute inset-0 hero-grid opacity-20 pointer-events-none" />
 
-      <div className="ambient w-[520px] h-[520px] bg-cyan-400 top-[-120px] left-[-100px]" />
-      <div className="ambient w-[420px] h-[420px] bg-emerald-400 bottom-[5%] right-[-120px]" />
+      <div className="ambient w-[520px] h-[520px] bg-teal-400 top-[-120px] left-[-100px]" />
+      <div className="ambient w-[420px] h-[420px] bg-emerald-300 bottom-[5%] right-[-120px]" />
 
       {/* HEADER */}
-      <header style={{ background: '#0a2012' }} className="relative px-6 md:px-14 xl:px-20 pt-12 pb-8 border-b border-cyan-400/10">
+      <header style={{ background: '#1a5c3a' }} className="relative px-6 md:px-14 xl:px-20 pt-12 pb-8 border-b border-emerald-700/20">
         <div className="flex flex-wrap items-center justify-between gap-6">
           <div>
-            <div className="inline-flex items-center gap-3 rounded-full px-5 py-2 glass text-[11px] uppercase tracking-[0.32em] text-cyan-100 mb-4">
+            <div className="inline-flex items-center gap-3 rounded-full px-5 py-2 glass text-[11px] uppercase tracking-[0.32em] text-teal-800 mb-4">
               Living Classrooms Foundation • DOEE Grant Proposal • FY2024-2028
             </div>
-            <h1 className="gradient-text text-[clamp(2.5rem,6vw,4.5rem)] font-black leading-[0.95] tracking-[-0.05em]">
+            <h1 className="text-white text-[clamp(2.5rem,6vw,4.5rem)] font-black leading-[0.95] tracking-[-0.05em]">
               Kingman Island Green Infrastructure<br />
               Workforce Development Program
             </h1>
-            <p className="mt-4 text-slate-400 text-sm uppercase tracking-wider">
+            <p className="mt-4 text-slate-600 text-sm uppercase tracking-wider">
               Watershed Restoration & Education Project
             </p>
           </div>
           <div className="glass rounded-[1.8rem] p-6">
-            <div className="text-xs uppercase tracking-[0.24em] text-cyan-200/70 mb-2">Contact</div>
+            <div className="text-xs uppercase tracking-[0.24em] text-teal-700/80 mb-2">Contact</div>
             <div className="text-lg font-bold">Doug Siglin</div>
-            <div className="text-sm text-slate-300">Regional Director, NCR</div>
-            <div className="text-xs text-slate-400 mt-2">202-997-7399</div>
-            <div className="text-xs text-cyan-300">dsiglin@livingclassroomsdc.org</div>
+            <div className="text-sm text-slate-600">Regional Director, NCR</div>
+            <div className="text-xs text-slate-600 mt-2">202-997-7399</div>
+            <div className="text-xs text-teal-600">dsiglin@livingclassroomsdc.org</div>
           </div>
         </div>
       </header>
 
       {/* HERO METRICS */}
-      <section className="relative px-6 md:px-14 xl:px-20 py-8 border-b border-cyan-400/10">
+      <section className="relative px-6 md:px-14 xl:px-20 py-8 border-b border-emerald-700/15">
         <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-4">
           {metrics.map((item, idx) => (
             <div key={idx} className="glass rounded-[1.8rem] p-6 cyan-glow card-hover">
-              <div className="text-[11px] uppercase tracking-[0.24em] text-cyan-200/70">
+              <div className="text-[11px] uppercase tracking-[0.24em] text-teal-700/80">
                 {item.label}
               </div>
               <div className="mt-3 text-4xl font-black">{item.value}</div>
-              <div className="text-xs text-slate-400 mt-2">{item.subtext}</div>
+              <div className="text-xs text-slate-600 mt-2">{item.subtext}</div>
             </div>
           ))}
         </div>
       </section>
 
       {/* RFP METADATA */}
-      <section id="rfp-metadata" className="relative px-6 md:px-14 xl:px-20 py-8 border-b border-cyan-400/10">
+      <section id="rfp-metadata" className="relative px-6 md:px-14 xl:px-20 py-8 border-b border-emerald-700/15">
         <div className="glass rounded-[2rem] p-8">
-          <div className="text-xs uppercase tracking-[0.28em] text-cyan-200 mb-6">Solicitation Information</div>
+          <div className="text-xs uppercase tracking-[0.28em] text-teal-700 mb-6">Solicitation Information</div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 text-sm">
             {[
               ['Solicitation Number', 'DOEE-OCTO-GI-FY2024-001', 'text-cyan-300'],
@@ -448,7 +448,7 @@ export default function KingmanIslandRFP() {
               ['CFDA Number', '66.460 — Nonpoint Source Implementation', 'text-slate-200'],
             ].map(([label, value, colorClass]) => (
               <div key={label} className="glass-soft rounded-xl p-4">
-                <div className="text-xs text-slate-500 uppercase tracking-wider mb-1">{label}</div>
+                <div className="text-xs text-slate-600 uppercase tracking-wider mb-1">{label}</div>
                 <div className={`font-semibold ${colorClass}`}>{value}</div>
               </div>
             ))}
@@ -457,13 +457,13 @@ export default function KingmanIslandRFP() {
       </section>
 
       {/* SECTION NAV */}
-      <div style={{ position:'sticky', top:0, zIndex:50 }} className="glass border-b border-cyan-400/10">
+      <div style={{ position:'sticky', top:0, zIndex:50 }} className="glass border-b border-emerald-700/20">
         <div className="px-6 md:px-14 xl:px-20">
           <nav style={{ display:'flex', gap:0, borderBottom:'none', overflowX:'auto' }} className="scrollbar-hide">
             {[['#overview','Overview'],['#program','Program'],['#budget','Budget'],['#impact','Impact'],['#partners','Partners'],['#justification','Justification']].map(([href, label]) => (
-              <a key={href} href={href} style={{ padding:'14px 22px', fontSize:'12px', textTransform:'uppercase', letterSpacing:'0.08em', fontWeight:600, border:'none', background:'none', color:'rgba(255,255,255,0.5)', cursor:'pointer', borderBottom:'2px solid transparent', textDecoration:'none', whiteSpace:'nowrap', display:'block', transition:'color 0.3s' }}
-                onMouseEnter={e => { e.target.style.color='rgba(255,255,255,0.8)'; }}
-                onMouseLeave={e => { e.target.style.color='rgba(255,255,255,0.5)'; }}>
+              <a key={href} href={href} style={{ padding:'14px 22px', fontSize:'12px', textTransform:'uppercase', letterSpacing:'0.08em', fontWeight:600, border:'none', background:'none', color:'rgba(13,59,30,0.55)', cursor:'pointer', borderBottom:'2px solid transparent', textDecoration:'none', whiteSpace:'nowrap', display:'block', transition:'color 0.3s' }}
+                onMouseEnter={e => { e.target.style.color='rgba(13,59,30,0.85)'; }}
+                onMouseLeave={e => { e.target.style.color='rgba(13,59,30,0.55)'; }}>
                 {label}
               </a>
             ))}
@@ -474,28 +474,28 @@ export default function KingmanIslandRFP() {
       <main className="relative">
 
         {/* SECTION 01: OVERVIEW */}
-        <section id="overview" style={{ position:'relative', paddingBottom:'4rem', borderBottom:'1px solid rgba(74,222,128,0.1)' }} className="px-6 md:px-14 xl:px-20 py-12">
-          <div style={{ padding:'2rem 0 1.5rem', borderBottom:'1px solid rgba(74,222,128,0.08)', marginBottom:'2rem' }}>
-            <div style={{ fontSize:'10px', textTransform:'uppercase', letterSpacing:'0.32em', color:'rgba(134,239,172,0.7)', marginBottom:'0.5rem' }}>Section 01</div>
+        <section id="overview" style={{ position:'relative', paddingBottom:'4rem', borderBottom:'1px solid rgba(45,106,79,0.15)' }} className="px-6 md:px-14 xl:px-20 py-12">
+          <div style={{ padding:'2rem 0 1.5rem', borderBottom:'1px solid rgba(45,106,79,0.1)', marginBottom:'2rem' }}>
+            <div style={{ fontSize:'10px', textTransform:'uppercase', letterSpacing:'0.32em', color:'rgba(26,92,58,0.8)', marginBottom:'0.5rem' }}>Section 01</div>
             <div style={{ fontSize:'clamp(1.5rem,3vw,2.5rem)', fontWeight:900, letterSpacing:'-0.04em' }}>Program Overview</div>
           </div>
           <div className="space-y-10">
             {/* Hero Image + Summary */}
             <div className="grid xl:grid-cols-[1.2fr_0.8fr] gap-8">
               <div className="relative floating">
-                <div className="relative h-full min-h-[520px] overflow-hidden rounded-[2.5rem] border border-cyan-300/20">
+                <div className="relative h-full min-h-[520px] overflow-hidden rounded-[2.5rem] border border-emerald-700/15">
                   <img
                     src="https://images.squarespace-cdn.com/content/v1/5c365ed8f93fd43123a41bd6/1620402582676-9KDVS9JBX2JMDN2743EJ/Arial+view.jpg?format=1500w"
                     className="absolute inset-0 h-full w-full object-cover"
                     alt="Kingman Island Aerial View"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#061a0b] via-[#061a0b]/30 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0d3b1e]/60 via-[#0d3b1e]/20 to-transparent" />
                   <div className="absolute bottom-6 left-6 right-6 glass rounded-[2rem] p-6">
-                    <div className="text-xs uppercase tracking-[0.28em] text-cyan-200 mb-3">
+                    <div className="text-xs uppercase tracking-[0.28em] text-teal-700 mb-3">
                       Project Focus Area
                     </div>
                     <div className="text-3xl font-black">Kingman & Heritage Islands</div>
-                    <p className="mt-3 text-slate-300 leading-7 text-[15px]">
+                    <p className="mt-3 text-slate-600 leading-7 text-[15px]">
                       120-acre ecological restoration corridor within the Anacostia River system,
                       managed by Living Classrooms since 2009, serving as outdoor classroom for
                       environmental education, workforce development, and watershed stewardship.
@@ -505,11 +505,11 @@ export default function KingmanIslandRFP() {
               </div>
 
               <div className="glass rounded-[2rem] p-8 h-fit">
-                <div className="text-xs uppercase tracking-[0.28em] text-cyan-200 mb-4">
+                <div className="text-xs uppercase tracking-[0.28em] text-teal-700 mb-4">
                   Executive Summary
                 </div>
                 <h2 className="section-title mb-6">Learning By Doing</h2>
-                <div className="space-y-5 text-slate-300 leading-8 text-[15px]">
+                <div className="space-y-5 text-slate-600 leading-8 text-[15px]">
                   <p>
                     Living Classrooms Foundation, in partnership with the University of the District
                     of Columbia, proposes an innovative four-year workforce training program providing
@@ -523,8 +523,8 @@ export default function KingmanIslandRFP() {
                   </p>
                   <div className="grid sm:grid-cols-2 gap-4 pt-4">
                     <div className="glass-soft rounded-3xl p-5">
-                      <div className="text-sm text-cyan-100 mb-2 font-semibold">Target Audience</div>
-                      <ul className="space-y-2 text-sm text-slate-300">
+                      <div className="text-sm text-teal-800 mb-2 font-semibold">Target Audience</div>
+                      <ul className="space-y-2 text-sm text-slate-600">
                         <li>• Ages 18–24</li>
                         <li>• DC Residents (Wards 5-8 focus)</li>
                         <li>• GED / High School Diploma</li>
@@ -532,8 +532,8 @@ export default function KingmanIslandRFP() {
                       </ul>
                     </div>
                     <div className="glass-soft rounded-3xl p-5">
-                      <div className="text-sm text-cyan-100 mb-2 font-semibold">District Outcomes</div>
-                      <ul className="space-y-2 text-sm text-slate-300">
+                      <div className="text-sm text-teal-800 mb-2 font-semibold">District Outcomes</div>
+                      <ul className="space-y-2 text-sm text-slate-600">
                         <li>• 4.2M gallons water captured annually</li>
                         <li>• 160 rain garden maintenance cycles</li>
                         <li>• 1 acre invasive species removal</li>
@@ -548,29 +548,29 @@ export default function KingmanIslandRFP() {
             {/* Quick Stats Visual */}
             <div className="grid md:grid-cols-3 gap-6">
               <div className="glass rounded-[2rem] p-8 text-center">
-                <div className="text-6xl font-black text-cyan-300 mb-3">66</div>
-                <div className="text-sm uppercase tracking-wider text-slate-400">
+                <div className="text-6xl font-black text-teal-600 mb-3">66</div>
+                <div className="text-sm uppercase tracking-wider text-slate-600">
                   Active NGICP Certifications in DC
                 </div>
-                <div className="text-xs text-slate-500 mt-2">
+                <div className="text-xs text-slate-600 mt-2">
                   500+ nationwide through UDC partnership
                 </div>
               </div>
               <div className="glass rounded-[2rem] p-8 text-center">
-                <div className="text-6xl font-black text-emerald-300 mb-3">14+</div>
-                <div className="text-sm uppercase tracking-wider text-slate-400">
+                <div className="text-6xl font-black text-emerald-700 mb-3">14+</div>
+                <div className="text-sm uppercase tracking-wider text-slate-600">
                   Years Managing Kingman Island
                 </div>
-                <div className="text-xs text-slate-500 mt-2">
+                <div className="text-xs text-slate-600 mt-2">
                   Since 2009 under Living Classrooms stewardship
                 </div>
               </div>
               <div className="glass rounded-[2rem] p-8 text-center">
-                <div className="text-6xl font-black text-purple-300 mb-3">4,700+</div>
-                <div className="text-sm uppercase tracking-wider text-slate-400">
+                <div className="text-6xl font-black text-purple-600 mb-3">4,700+</div>
+                <div className="text-sm uppercase tracking-wider text-slate-600">
                   Annual Visitors Served
                 </div>
-                <div className="text-xs text-slate-500 mt-2">
+                <div className="text-xs text-slate-600 mt-2">
                   Through environmental education programs
                 </div>
               </div>
@@ -578,7 +578,7 @@ export default function KingmanIslandRFP() {
 
             {/* Deliverables Grid */}
             <div className="glass rounded-[2rem] p-8">
-              <div className="text-xs uppercase tracking-[0.26em] text-cyan-200 mb-6">
+              <div className="text-xs uppercase tracking-[0.26em] text-teal-700 mb-6">
                 Core Program Deliverables
               </div>
               <div className="grid lg:grid-cols-2 gap-4">
@@ -590,10 +590,10 @@ export default function KingmanIslandRFP() {
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1">
-                        <div className="text-lg font-bold mb-2 text-cyan-100">{item.title}</div>
-                        <div className="text-xs text-emerald-300 font-mono mb-3">▸ {item.metric}</div>
+                        <div className="text-lg font-bold mb-2 text-teal-800">{item.title}</div>
+                        <div className="text-xs text-emerald-700 font-mono mb-3">▸ {item.metric}</div>
                         {expandedDeliverable === idx && (
-                          <div className="text-sm text-slate-300 leading-relaxed mt-3 border-t border-white/10 pt-3">
+                          <div className="text-sm text-slate-600 leading-relaxed mt-3 border-t border-slate-200 pt-3">
                             {item.detail}
                           </div>
                         )}
@@ -610,14 +610,14 @@ export default function KingmanIslandRFP() {
         </section>
 
         {/* SECTION 02: PROGRAM DETAILS */}
-        <section id="program" style={{ position:'relative', paddingBottom:'4rem', borderBottom:'1px solid rgba(74,222,128,0.1)' }} className="px-6 md:px-14 xl:px-20 py-12">
-          <div style={{ padding:'2rem 0 1.5rem', borderBottom:'1px solid rgba(74,222,128,0.08)', marginBottom:'2rem' }}>
-            <div style={{ fontSize:'10px', textTransform:'uppercase', letterSpacing:'0.32em', color:'rgba(134,239,172,0.7)', marginBottom:'0.5rem' }}>Section 02</div>
+        <section id="program" style={{ position:'relative', paddingBottom:'4rem', borderBottom:'1px solid rgba(45,106,79,0.15)' }} className="px-6 md:px-14 xl:px-20 py-12">
+          <div style={{ padding:'2rem 0 1.5rem', borderBottom:'1px solid rgba(45,106,79,0.1)', marginBottom:'2rem' }}>
+            <div style={{ fontSize:'10px', textTransform:'uppercase', letterSpacing:'0.32em', color:'rgba(26,92,58,0.8)', marginBottom:'0.5rem' }}>Section 02</div>
             <div style={{ fontSize:'clamp(1.5rem,3vw,2.5rem)', fontWeight:900, letterSpacing:'-0.04em' }}>Program Architecture</div>
           </div>
           <div className="space-y-10">
             <div className="glass rounded-[2rem] p-8">
-              <div className="text-xs uppercase tracking-[0.26em] text-cyan-200 mb-4">
+              <div className="text-xs uppercase tracking-[0.26em] text-teal-700 mb-4">
                 Program Architecture
               </div>
               <h2 className="section-title mb-10">Three-Phase Implementation Model</h2>
@@ -632,12 +632,12 @@ export default function KingmanIslandRFP() {
                       <div className="flex items-start justify-between gap-4 mb-4">
                         <div className="flex-1">
                           <div className="flex items-center gap-4 mb-2">
-                            <div className="h-10 w-10 rounded-full bg-cyan-300/20 border-2 border-cyan-300 flex items-center justify-center text-cyan-300 font-bold">
+                            <div className="h-10 w-10 rounded-full bg-cyan-300/20 border-2 border-cyan-300 flex items-center justify-center text-teal-600 font-bold">
                               {idx + 1}
                             </div>
                             <div>
                               <div className="text-2xl font-black">{phase.title}</div>
-                              <div className="text-xs text-cyan-300 font-mono mt-1">{phase.weeks}</div>
+                              <div className="text-xs text-teal-600 font-mono mt-1">{phase.weeks}</div>
                             </div>
                           </div>
                           <div className="text-slate-300 leading-7 text-[15px] ml-14">
@@ -650,21 +650,21 @@ export default function KingmanIslandRFP() {
                       </div>
 
                       {expandedPhase === idx && (
-                        <div className="ml-14 border-t border-white/10 pt-6 space-y-4">
+                        <div className="ml-14 border-t border-slate-200 pt-6 space-y-4">
                           <div>
-                            <div className="text-sm font-semibold text-cyan-100 mb-3">Key Activities:</div>
+                            <div className="text-sm font-semibold text-teal-800 mb-3">Key Activities:</div>
                             <div className="grid sm:grid-cols-2 gap-3">
                               {phase.activities.map((activity, i) => (
                                 <div key={i} className="flex items-start gap-3">
                                   <div className="mt-1.5 h-1.5 w-1.5 rounded-full bg-cyan-300 shrink-0" />
-                                  <div className="text-sm text-slate-300">{activity}</div>
+                                  <div className="text-sm text-slate-600">{activity}</div>
                                 </div>
                               ))}
                             </div>
                           </div>
-                          <div className="rounded-xl bg-emerald-400/10 border border-emerald-300/20 p-4">
-                            <div className="text-sm font-semibold text-emerald-100 mb-2">Expected Outcomes:</div>
-                            <div className="text-sm text-slate-300">{phase.outcomes}</div>
+                          <div className="rounded-xl bg-emerald-100/50 border border-emerald-300/20 p-4">
+                            <div className="text-sm font-semibold text-emerald-800 mb-2">Expected Outcomes:</div>
+                            <div className="text-sm text-slate-600">{phase.outcomes}</div>
                           </div>
                         </div>
                       )}
@@ -677,36 +677,36 @@ export default function KingmanIslandRFP() {
             {/* Target Audience Details */}
             <div className="grid lg:grid-cols-2 gap-8">
               <div className="glass rounded-[2rem] p-8">
-                <div className="text-xs uppercase tracking-[0.26em] text-cyan-200 mb-4">
+                <div className="text-xs uppercase tracking-[0.26em] text-teal-700 mb-4">
                   Recruitment Criteria
                 </div>
                 <h3 className="text-3xl font-black mb-6">Candidate Assessment Process</h3>
                 <div className="space-y-6">
                   <div className="glass-soft rounded-xl p-5">
-                    <div className="font-bold mb-2 text-cyan-100">Initial Pool</div>
+                    <div className="font-bold mb-2 text-teal-800">Initial Pool</div>
                     <div className="text-3xl font-black mb-2">~30 Candidates</div>
-                    <div className="text-sm text-slate-300">
+                    <div className="text-sm text-slate-600">
                       Gathered through early interest events, high school senior outreach, and advertised functions
                     </div>
                   </div>
                   <div className="glass-soft rounded-xl p-5">
-                    <div className="font-bold mb-2 text-cyan-100">Information Sessions</div>
+                    <div className="font-bold mb-2 text-teal-800">Information Sessions</div>
                     <div className="text-3xl font-black mb-2">2 Required</div>
-                    <div className="text-sm text-slate-300">
+                    <div className="text-sm text-slate-600">
                       Mandatory attendance at one of two sessions covering program expectations and requirements
                     </div>
                   </div>
                   <div className="glass-soft rounded-xl p-5">
-                    <div className="font-bold mb-2 text-cyan-100">CASA Assessment</div>
+                    <div className="font-bold mb-2 text-teal-800">CASA Assessment</div>
                     <div className="text-3xl font-black mb-2">Math & Reading</div>
-                    <div className="text-sm text-slate-300">
+                    <div className="text-sm text-slate-600">
                       Baseline skills evaluation to ensure participant readiness for technical curriculum
                     </div>
                   </div>
                   <div className="glass-soft rounded-xl p-5 border-2 border-emerald-300/30">
-                    <div className="font-bold mb-2 text-emerald-100">Final Cohort</div>
+                    <div className="font-bold mb-2 text-emerald-800">Final Cohort</div>
                     <div className="text-3xl font-black mb-2">15-20 Selected</div>
-                    <div className="text-sm text-slate-300">
+                    <div className="text-sm text-slate-600">
                       Participants receive case worker, metro cards, wraparound support services
                     </div>
                   </div>
@@ -715,51 +715,51 @@ export default function KingmanIslandRFP() {
 
               <div className="space-y-8">
                 <div className="glass rounded-[2rem] p-8">
-                  <div className="text-xs uppercase tracking-[0.26em] text-cyan-200 mb-4">
+                  <div className="text-xs uppercase tracking-[0.26em] text-teal-700 mb-4">
                     Support Services
                   </div>
                   <h3 className="text-2xl font-black mb-6">Wraparound Model</h3>
                   <div className="space-y-4">
                     <div className="flex gap-4 items-start">
-                      <div className="h-8 w-8 rounded-lg bg-cyan-400/20 flex items-center justify-center shrink-0">
+                      <div className="h-8 w-8 rounded-lg bg-teal-100 flex items-center justify-center shrink-0">
                         <span className="text-cyan-300">🎯</span>
                       </div>
                       <div>
-                        <div className="font-semibold text-cyan-100 mb-1">Case Worker Assignment</div>
-                        <div className="text-sm text-slate-300">
+                        <div className="font-semibold text-teal-800 mb-1">Case Worker Assignment</div>
+                        <div className="text-sm text-slate-600">
                           Individual support from recruitment through post-employment placement
                         </div>
                       </div>
                     </div>
                     <div className="flex gap-4 items-start">
-                      <div className="h-8 w-8 rounded-lg bg-cyan-400/20 flex items-center justify-center shrink-0">
+                      <div className="h-8 w-8 rounded-lg bg-teal-100 flex items-center justify-center shrink-0">
                         <span className="text-cyan-300">🚇</span>
                       </div>
                       <div>
-                        <div className="font-semibold text-cyan-100 mb-1">Transportation Assistance</div>
-                        <div className="text-sm text-slate-300">
+                        <div className="font-semibold text-teal-800 mb-1">Transportation Assistance</div>
+                        <div className="text-sm text-slate-600">
                           Metro cards provided for all program-related activities and field work
                         </div>
                       </div>
                     </div>
                     <div className="flex gap-4 items-start">
-                      <div className="h-8 w-8 rounded-lg bg-cyan-400/20 flex items-center justify-center shrink-0">
+                      <div className="h-8 w-8 rounded-lg bg-teal-100 flex items-center justify-center shrink-0">
                         <span className="text-cyan-300">💼</span>
                       </div>
                       <div>
-                        <div className="font-semibold text-cyan-100 mb-1">Job Readiness Training</div>
-                        <div className="text-sm text-slate-300">
+                        <div className="font-semibold text-teal-800 mb-1">Job Readiness Training</div>
+                        <div className="text-sm text-slate-600">
                           Resume building, interview prep, professional development coaching
                         </div>
                       </div>
                     </div>
                     <div className="flex gap-4 items-start">
-                      <div className="h-8 w-8 rounded-lg bg-cyan-400/20 flex items-center justify-center shrink-0">
+                      <div className="h-8 w-8 rounded-lg bg-teal-100 flex items-center justify-center shrink-0">
                         <span className="text-cyan-300">🌱</span>
                       </div>
                       <div>
-                        <div className="font-semibold text-cyan-100 mb-1">Ongoing Career Support</div>
-                        <div className="text-sm text-slate-300">
+                        <div className="font-semibold text-teal-800 mb-1">Ongoing Career Support</div>
+                        <div className="text-sm text-slate-600">
                           Post-program networking, advancement opportunities, alumni engagement
                         </div>
                       </div>
@@ -769,7 +769,7 @@ export default function KingmanIslandRFP() {
 
                 <img
                   src="https://caseytrees.org/wp-content/uploads/2022/09/kingman-rangers-1024x512.png"
-                  className="rounded-[2rem] object-cover h-[280px] w-full border border-cyan-300/20"
+                  className="rounded-[2rem] object-cover h-[280px] w-full border border-emerald-700/15"
                   alt="Kingman Rangers in training"
                 />
               </div>
@@ -778,16 +778,16 @@ export default function KingmanIslandRFP() {
         </section>
 
         {/* SECTION 03: BUDGET & TIMELINE */}
-        <section id="budget" style={{ position:'relative', paddingBottom:'4rem', borderBottom:'1px solid rgba(74,222,128,0.1)' }} className="px-6 md:px-14 xl:px-20 py-12">
-          <div style={{ padding:'2rem 0 1.5rem', borderBottom:'1px solid rgba(74,222,128,0.08)', marginBottom:'2rem' }}>
-            <div style={{ fontSize:'10px', textTransform:'uppercase', letterSpacing:'0.32em', color:'rgba(134,239,172,0.7)', marginBottom:'0.5rem' }}>Section 03</div>
+        <section id="budget" style={{ position:'relative', paddingBottom:'4rem', borderBottom:'1px solid rgba(45,106,79,0.15)' }} className="px-6 md:px-14 xl:px-20 py-12">
+          <div style={{ padding:'2rem 0 1.5rem', borderBottom:'1px solid rgba(45,106,79,0.1)', marginBottom:'2rem' }}>
+            <div style={{ fontSize:'10px', textTransform:'uppercase', letterSpacing:'0.32em', color:'rgba(26,92,58,0.8)', marginBottom:'0.5rem' }}>Section 03</div>
             <div style={{ fontSize:'clamp(1.5rem,3vw,2.5rem)', fontWeight:900, letterSpacing:'-0.04em' }}>Budget & Financial Plan</div>
           </div>
           <div className="space-y-10">
             <div className="glass rounded-[2rem] p-8">
               <div className="flex flex-wrap items-center justify-between gap-5 mb-8">
                 <div>
-                  <div className="text-xs uppercase tracking-[0.26em] text-cyan-200 mb-3">
+                  <div className="text-xs uppercase tracking-[0.26em] text-teal-700 mb-3">
                     Financial Planning
                   </div>
                   <div className="section-title">Four-Year Budget Allocation</div>
@@ -795,9 +795,9 @@ export default function KingmanIslandRFP() {
                 </div>
               </div>
 
-              <div className="overflow-x-auto rounded-[1.8rem] border border-white/10 mb-8">
+              <div className="overflow-x-auto rounded-[1.8rem] border border-slate-200 mb-8">
                 <table className="w-full min-w-[920px] text-left">
-                  <thead className="bg-cyan-400/10 text-cyan-100 uppercase tracking-[0.2em] text-xs">
+                  <thead className="bg-emerald-100/60 text-teal-800 uppercase tracking-[0.2em] text-xs">
                     <tr>
                       <th className="p-5">Category</th>
                       <th className="p-5">Year 1</th>
@@ -809,22 +809,22 @@ export default function KingmanIslandRFP() {
                   </thead>
                   <tbody className="text-slate-300">
                     {budgetData.map((row, idx) => (
-                      <tr key={idx} className="border-t border-white/5 hover:bg-white/5 transition-colors">
+                      <tr key={idx} className="border-t border-slate-200/70 hover:bg-emerald-100/30 transition-colors">
                         <td className="p-5 font-semibold">{row.category}</td>
                         <td className="p-5">${row.yr1.toLocaleString()}</td>
                         <td className="p-5">${row.yr2.toLocaleString()}</td>
                         <td className="p-5">${row.yr3.toLocaleString()}</td>
                         <td className="p-5">${row.yr4.toLocaleString()}</td>
-                        <td className="p-5 font-bold text-cyan-100">${row.total.toLocaleString()}</td>
+                        <td className="p-5 font-bold text-teal-800">${row.total.toLocaleString()}</td>
                       </tr>
                     ))}
-                    <tr className="border-t-2 border-cyan-300/30 font-bold text-lg">
+                    <tr className="border-t-2 border-emerald-700/20 font-bold text-lg">
                       <td className="p-5">TOTAL</td>
                       <td className="p-5">${budgetData.reduce((sum, r) => sum + r.yr1, 0).toLocaleString()}</td>
                       <td className="p-5">${budgetData.reduce((sum, r) => sum + r.yr2, 0).toLocaleString()}</td>
                       <td className="p-5">${budgetData.reduce((sum, r) => sum + r.yr3, 0).toLocaleString()}</td>
                       <td className="p-5">${budgetData.reduce((sum, r) => sum + r.yr4, 0).toLocaleString()}</td>
-                      <td className="p-5 text-cyan-300">$400,000</td>
+                      <td className="p-5 text-teal-600">$400,000</td>
                     </tr>
                   </tbody>
                 </table>
@@ -832,23 +832,23 @@ export default function KingmanIslandRFP() {
 
               <div className="grid md:grid-cols-3 gap-6">
                 <div className="glass-soft rounded-xl p-6">
-                  <div className="text-xs uppercase tracking-wider text-cyan-200 mb-2">Personnel</div>
+                  <div className="text-xs uppercase tracking-wider text-teal-700 mb-2">Personnel</div>
                   <div className="text-4xl font-black mb-2">$293K</div>
-                  <div className="text-sm text-slate-300">
+                  <div className="text-sm text-slate-600">
                     Program coordinators, field instructors, case workers, admin support (73%)
                   </div>
                 </div>
                 <div className="glass-soft rounded-xl p-6">
-                  <div className="text-xs uppercase tracking-wider text-emerald-200 mb-2">Equipment & Operations</div>
+                  <div className="text-xs uppercase tracking-wider text-emerald-700 mb-2">Equipment & Operations</div>
                   <div className="text-4xl font-black mb-2">$88K</div>
-                  <div className="text-sm text-slate-300">
+                  <div className="text-sm text-slate-600">
                     Field equipment, monitoring tools, maintenance supplies (22%)
                   </div>
                 </div>
                 <div className="glass-soft rounded-xl p-6">
                   <div className="text-xs uppercase tracking-wider text-purple-200 mb-2">Education & Support</div>
                   <div className="text-4xl font-black mb-2">$60K</div>
-                  <div className="text-sm text-slate-300">
+                  <div className="text-sm text-slate-600">
                     NGICP curriculum, certification fees, training materials (15%)
                   </div>
                 </div>
@@ -858,7 +858,7 @@ export default function KingmanIslandRFP() {
             {/* In-Kind Match */}
             <div className="grid lg:grid-cols-2 gap-8">
               <div className="glass rounded-[2rem] p-8">
-                <div className="text-xs uppercase tracking-[0.26em] text-cyan-200 mb-4">
+                <div className="text-xs uppercase tracking-[0.26em] text-teal-700 mb-4">
                   In-Kind Contributions
                 </div>
                 <h3 className="text-3xl font-black mb-6">Non-Cash Match Value</h3>
@@ -872,8 +872,8 @@ export default function KingmanIslandRFP() {
                   ].map((item, idx) => (
                     <div key={idx} className="glass-soft rounded-xl p-4 flex justify-between items-start gap-4">
                       <div>
-                        <div className="font-semibold text-cyan-100 mb-1">{item.item}</div>
-                        <div className="text-sm text-slate-300">{item.value}</div>
+                        <div className="font-semibold text-teal-800 mb-1">{item.item}</div>
+                        <div className="text-sm text-slate-600">{item.value}</div>
                       </div>
                       <div className="text-emerald-300 text-2xl">✓</div>
                     </div>
@@ -883,25 +883,25 @@ export default function KingmanIslandRFP() {
 
               <div className="space-y-6">
                 <div className="glass rounded-[2rem] p-8">
-                  <div className="text-xs uppercase tracking-[0.26em] text-cyan-200 mb-4">
+                  <div className="text-xs uppercase tracking-[0.26em] text-teal-700 mb-4">
                     Annual Timeline
                   </div>
                   <h3 className="text-2xl font-black mb-6">52-Week Program Cycle</h3>
                   <div className="space-y-3">
                     <div className="flex items-center gap-4">
-                      <div className="h-2 w-24 bg-cyan-400/30 rounded-full overflow-hidden">
+                      <div className="h-2 w-24 bg-teal-200/40 rounded-full overflow-hidden">
                         <div className="h-full w-2/3 bg-cyan-400" />
                       </div>
                       <div className="text-sm">
-                        <span className="font-mono text-cyan-300">Weeks 1-4:</span> Recruitment
+                        <span className="font-mono text-teal-600">Weeks 1-4:</span> Recruitment
                       </div>
                     </div>
                     <div className="flex items-center gap-4">
-                      <div className="h-2 w-24 bg-emerald-400/30 rounded-full overflow-hidden">
+                      <div className="h-2 w-24 bg-emerald-200/50 rounded-full overflow-hidden">
                         <div className="h-full w-full bg-emerald-400" />
                       </div>
                       <div className="text-sm">
-                        <span className="font-mono text-emerald-300">Weeks 5-36:</span> Training & Certification
+                        <span className="font-mono text-emerald-700">Weeks 5-36:</span> Training & Certification
                       </div>
                     </div>
                     <div className="flex items-center gap-4">
@@ -909,7 +909,7 @@ export default function KingmanIslandRFP() {
                         <div className="h-full w-3/4 bg-purple-400" />
                       </div>
                       <div className="text-sm">
-                        <span className="font-mono text-purple-300">Weeks 37-52:</span> Employment Integration
+                        <span className="font-mono text-purple-600">Weeks 37-52:</span> Employment Integration
                       </div>
                     </div>
                   </div>
@@ -917,7 +917,7 @@ export default function KingmanIslandRFP() {
 
                 <img
                   src="https://images.squarespace-cdn.com/content/v1/61dca93540574b05602e6466/13daa2bd-a3fe-4f79-8092-a36054c4cb48/20220422_114451.jpg"
-                  className="rounded-[2rem] object-cover h-[240px] w-full border border-cyan-300/20"
+                  className="rounded-[2rem] object-cover h-[240px] w-full border border-emerald-700/15"
                   alt="Field work training"
                 />
               </div>
@@ -926,16 +926,16 @@ export default function KingmanIslandRFP() {
         </section>
 
         {/* SECTION 04: IMPACT METRICS */}
-        <section id="impact" style={{ position:'relative', paddingBottom:'4rem', borderBottom:'1px solid rgba(74,222,128,0.1)' }} className="px-6 md:px-14 xl:px-20 py-12">
-          <div style={{ padding:'2rem 0 1.5rem', borderBottom:'1px solid rgba(74,222,128,0.08)', marginBottom:'2rem' }}>
-            <div style={{ fontSize:'10px', textTransform:'uppercase', letterSpacing:'0.32em', color:'rgba(134,239,172,0.7)', marginBottom:'0.5rem' }}>Section 04</div>
+        <section id="impact" style={{ position:'relative', paddingBottom:'4rem', borderBottom:'1px solid rgba(45,106,79,0.15)' }} className="px-6 md:px-14 xl:px-20 py-12">
+          <div style={{ padding:'2rem 0 1.5rem', borderBottom:'1px solid rgba(45,106,79,0.1)', marginBottom:'2rem' }}>
+            <div style={{ fontSize:'10px', textTransform:'uppercase', letterSpacing:'0.32em', color:'rgba(26,92,58,0.8)', marginBottom:'0.5rem' }}>Section 04</div>
             <div style={{ fontSize:'clamp(1.5rem,3vw,2.5rem)', fontWeight:900, letterSpacing:'-0.04em' }}>Impact Metrics & Outcomes</div>
           </div>
           <div className="space-y-10">
             <div className="grid lg:grid-cols-2 gap-8">
               {/* Water Retention Chart */}
               <div className="glass rounded-[2rem] p-8">
-                <div className="text-xs uppercase tracking-[0.26em] text-cyan-200 mb-4">
+                <div className="text-xs uppercase tracking-[0.26em] text-teal-700 mb-4">
                   Environmental Impact
                 </div>
                 <h3 className="text-3xl font-black mb-6">Annual Water Capture Trends</h3>
@@ -943,26 +943,26 @@ export default function KingmanIslandRFP() {
                   data={waterRetentionData}
                   xKey="year"
                   yKey="gallons"
-                  color="#86efac"
+                  color="#2d7a4f"
                   yLabel="Million Gallons"
                 />
                 <div className="mt-6 grid grid-cols-2 gap-4">
-                  <div className="rounded-xl bg-cyan-400/10 border border-cyan-300/20 p-4">
-                    <div className="text-xs text-cyan-200 uppercase tracking-wider mb-1">Current</div>
+                  <div className="rounded-xl bg-emerald-100/60 border border-emerald-700/20 p-4">
+                    <div className="text-xs text-teal-700 uppercase tracking-wider mb-1">Current</div>
                     <div className="text-3xl font-black">4.2M</div>
-                    <div className="text-xs text-slate-400 mt-1">Gallons/year (2023)</div>
+                    <div className="text-xs text-slate-600 mt-1">Gallons/year (2023)</div>
                   </div>
-                  <div className="rounded-xl bg-emerald-400/10 border border-emerald-300/20 p-4">
-                    <div className="text-xs text-emerald-200 uppercase tracking-wider mb-1">Projected</div>
+                  <div className="rounded-xl bg-emerald-100/50 border border-emerald-300/20 p-4">
+                    <div className="text-xs text-emerald-700 uppercase tracking-wider mb-1">Projected</div>
                     <div className="text-3xl font-black">4.5M</div>
-                    <div className="text-xs text-slate-400 mt-1">Gallons/year (2024)</div>
+                    <div className="text-xs text-slate-600 mt-1">Gallons/year (2024)</div>
                   </div>
                 </div>
               </div>
 
               {/* Program Performance */}
               <div className="glass rounded-[2rem] p-8">
-                <div className="text-xs uppercase tracking-[0.26em] text-cyan-200 mb-4">
+                <div className="text-xs uppercase tracking-[0.26em] text-teal-700 mb-4">
                   Program Performance
                 </div>
                 <h3 className="text-3xl font-black mb-6">Success Metrics</h3>
@@ -975,7 +975,7 @@ export default function KingmanIslandRFP() {
                           {metric.value}%
                         </span>
                       </div>
-                      <div className="h-3 bg-white/5 rounded-full overflow-hidden">
+                      <div className="h-3 bg-emerald-100/30 rounded-full overflow-hidden">
                         <div 
                           className="h-full rounded-full transition-all duration-500"
                           style={{ 
@@ -992,7 +992,7 @@ export default function KingmanIslandRFP() {
 
             {/* Quantifiable Measures */}
             <div className="glass rounded-[2rem] p-8">
-              <div className="text-xs uppercase tracking-[0.26em] text-cyan-200 mb-6">
+              <div className="text-xs uppercase tracking-[0.26em] text-teal-700 mb-6">
                 Annual Measurable Outcomes
               </div>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -1005,13 +1005,13 @@ export default function KingmanIslandRFP() {
                   { label: 'NGICP Certifications', value: '70%+', unit: 'Pass Rate', color: 'orange' },
                 ].map((item, idx) => (
                   <div key={idx} className="glass-soft rounded-xl p-6 text-center">
-                    <div className="text-xs uppercase tracking-wider text-slate-400 mb-3">
+                    <div className="text-xs uppercase tracking-wider text-slate-600 mb-3">
                       {item.label}
                     </div>
                     <div className={`text-5xl font-black mb-2 text-${item.color}-300`}>
                       {item.value}
                     </div>
-                    <div className="text-xs text-slate-400">{item.unit}</div>
+                    <div className="text-xs text-slate-600">{item.unit}</div>
                   </div>
                 ))}
               </div>
@@ -1021,17 +1021,17 @@ export default function KingmanIslandRFP() {
             <div className="grid lg:grid-cols-3 gap-6">
               <img
                 src="https://wtop.com/wp-content/uploads/2020/12/kingman_5-1672x1254.jpg"
-                className="rounded-[2rem] object-cover h-[280px] w-full border border-cyan-300/20"
+                className="rounded-[2rem] object-cover h-[280px] w-full border border-emerald-700/15"
                 alt="Watershed education"
               />
               <img
                 src="https://doee.dc.gov/sites/default/files/dc/sites/ddoe/Kingman%20ariel3.jpg"
-                className="rounded-[2rem] object-cover h-[280px] w-full border border-cyan-300/20"
+                className="rounded-[2rem] object-cover h-[280px] w-full border border-emerald-700/15"
                 alt="Aerial restoration view"
               />
               <img
                 src="https://wtop.com/wp-content/uploads/2020/12/kingman_1-e1606970267753.jpg"
-                className="rounded-[2rem] object-cover h-[280px] w-full border border-cyan-300/20"
+                className="rounded-[2rem] object-cover h-[280px] w-full border border-emerald-700/15"
                 alt="Educational programming"
               />
             </div>
@@ -1039,15 +1039,15 @@ export default function KingmanIslandRFP() {
         </section>
 
         {/* SECTION 05: PARTNERS & HISTORY */}
-        <section id="partners" style={{ position:'relative', paddingBottom:'4rem', borderBottom:'1px solid rgba(74,222,128,0.1)' }} className="px-6 md:px-14 xl:px-20 py-12">
-          <div style={{ padding:'2rem 0 1.5rem', borderBottom:'1px solid rgba(74,222,128,0.08)', marginBottom:'2rem' }}>
-            <div style={{ fontSize:'10px', textTransform:'uppercase', letterSpacing:'0.32em', color:'rgba(134,239,172,0.7)', marginBottom:'0.5rem' }}>Section 05</div>
+        <section id="partners" style={{ position:'relative', paddingBottom:'4rem', borderBottom:'1px solid rgba(45,106,79,0.15)' }} className="px-6 md:px-14 xl:px-20 py-12">
+          <div style={{ padding:'2rem 0 1.5rem', borderBottom:'1px solid rgba(45,106,79,0.1)', marginBottom:'2rem' }}>
+            <div style={{ fontSize:'10px', textTransform:'uppercase', letterSpacing:'0.32em', color:'rgba(26,92,58,0.8)', marginBottom:'0.5rem' }}>Section 05</div>
             <div style={{ fontSize:'clamp(1.5rem,3vw,2.5rem)', fontWeight:900, letterSpacing:'-0.04em' }}>Strategic Partnerships & History</div>
           </div>
           <div className="space-y-10">
             {/* Key Partners */}
             <div className="glass rounded-[2rem] p-8">
-              <div className="text-xs uppercase tracking-[0.26em] text-cyan-200 mb-6">
+              <div className="text-xs uppercase tracking-[0.26em] text-teal-700 mb-6">
                 Strategic Partnerships
               </div>
               <div className="space-y-6">
@@ -1055,16 +1055,16 @@ export default function KingmanIslandRFP() {
                   <div key={idx} className="glass-soft rounded-xl p-6">
                     <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
                       <div>
-                        <h4 className="text-2xl font-bold text-cyan-100 mb-2">{partner.name}</h4>
-                        <div className="text-sm text-emerald-300 font-semibold">{partner.role}</div>
+                        <h4 className="text-2xl font-bold text-teal-800 mb-2">{partner.name}</h4>
+                        <div className="text-sm text-emerald-700 font-semibold">{partner.role}</div>
                       </div>
-                      <div className="text-xs text-slate-400">{partner.contact}</div>
+                      <div className="text-xs text-slate-600">{partner.contact}</div>
                     </div>
                     <div className="grid sm:grid-cols-2 gap-3 mt-4">
                       {partner.responsibilities.map((resp, i) => (
                         <div key={i} className="flex items-start gap-2">
                           <div className="mt-1.5 h-1.5 w-1.5 rounded-full bg-cyan-300 shrink-0" />
-                          <div className="text-sm text-slate-300">{resp}</div>
+                          <div className="text-sm text-slate-600">{resp}</div>
                         </div>
                       ))}
                     </div>
@@ -1075,16 +1075,16 @@ export default function KingmanIslandRFP() {
 
             {/* Grant History */}
             <div className="glass rounded-[2rem] p-8">
-              <div className="text-xs uppercase tracking-[0.26em] text-cyan-200 mb-4">
+              <div className="text-xs uppercase tracking-[0.26em] text-teal-700 mb-4">
                 Track Record
               </div>
               <h3 className="text-3xl font-black mb-6">Recent DC Government Grant History</h3>
-              <div className="text-sm text-slate-300 mb-6">
+              <div className="text-sm text-slate-600 mb-6">
                 All grant requirements have been fulfilled according to agreements. No disputes, investigations, or audits on record.
               </div>
-              <div className="overflow-x-auto rounded-xl border border-white/10">
+              <div className="overflow-x-auto rounded-xl border border-slate-200">
                 <table className="w-full min-w-[800px]">
-                  <thead className="bg-cyan-400/10 text-cyan-100 text-xs uppercase tracking-wider">
+                  <thead className="bg-emerald-100/60 text-teal-800 text-xs uppercase tracking-wider">
                     <tr>
                       <th className="p-4 text-left">Year</th>
                       <th className="p-4 text-left">Agency</th>
@@ -1093,15 +1093,15 @@ export default function KingmanIslandRFP() {
                       <th className="p-4 text-left">Status</th>
                     </tr>
                   </thead>
-                  <tbody className="text-sm text-slate-300">
+                  <tbody className="text-sm text-slate-600">
                     {pastGrants.map((grant, idx) => (
-                      <tr key={idx} className="border-t border-white/5 hover:bg-white/5">
+                      <tr key={idx} className="border-t border-slate-200/70 hover:bg-emerald-100/30">
                         <td className="p-4">{grant.year}</td>
                         <td className="p-4 font-semibold">{grant.agency}</td>
-                        <td className="p-4 text-emerald-300 font-mono">{grant.amount}</td>
+                        <td className="p-4 text-emerald-700 font-mono">{grant.amount}</td>
                         <td className="p-4">{grant.purpose}</td>
                         <td className="p-4">
-                          <span className="px-3 py-1 rounded-full bg-emerald-400/20 text-emerald-300 text-xs">
+                          <span className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs">
                             {grant.status}
                           </span>
                         </td>
@@ -1115,7 +1115,7 @@ export default function KingmanIslandRFP() {
             {/* Key Personnel */}
             <div className="grid lg:grid-cols-2 gap-8">
               <div className="glass rounded-[2rem] p-8">
-                <div className="text-xs uppercase tracking-[0.26em] text-cyan-200 mb-4">
+                <div className="text-xs uppercase tracking-[0.26em] text-teal-700 mb-4">
                   Leadership Team
                 </div>
                 <h3 className="text-2xl font-black mb-6">Key Personnel</h3>
@@ -1128,10 +1128,10 @@ export default function KingmanIslandRFP() {
                     { name: 'Dr. Dwane Jones', title: 'UDC Acting Dean', exp: 'College of Agriculture & Environmental Science' },
                     { name: 'Dr. Kamran Zendehdel', title: 'UDC Professor', exp: 'Center for Sustainable Development' },
                   ].map((person, idx) => (
-                    <div key={idx} className="pb-4 border-b border-white/10 last:border-0">
-                      <div className="font-bold text-cyan-100 mb-1">{person.name}</div>
-                      <div className="text-sm text-emerald-300 mb-1">{person.title}</div>
-                      <div className="text-xs text-slate-400">{person.exp}</div>
+                    <div key={idx} className="pb-4 border-b border-slate-200 last:border-0">
+                      <div className="font-bold text-teal-800 mb-1">{person.name}</div>
+                      <div className="text-sm text-emerald-700 mb-1">{person.title}</div>
+                      <div className="text-xs text-slate-600">{person.exp}</div>
                     </div>
                   ))}
                 </div>
@@ -1139,11 +1139,11 @@ export default function KingmanIslandRFP() {
 
               <div className="space-y-6">
                 <div className="glass rounded-[2rem] p-8">
-                  <div className="text-xs uppercase tracking-[0.26em] text-cyan-200 mb-4">
+                  <div className="text-xs uppercase tracking-[0.26em] text-teal-700 mb-4">
                     Organizational Profile
                   </div>
                   <h3 className="text-2xl font-black mb-6">Living Classrooms Foundation</h3>
-                  <div className="space-y-4 text-sm text-slate-300 leading-relaxed">
+                  <div className="space-y-4 text-sm text-slate-600 leading-relaxed">
                     <p>
                       Founded in Baltimore in 1985, Living Classrooms opened its National Capital Region
                       affiliate in 2001. The organization serves thousands of DC children, youth, and adults
@@ -1158,7 +1158,7 @@ export default function KingmanIslandRFP() {
 
                 <img
                   src="https://images.squarespace-cdn.com/content/v1/61dca93540574b05602e6466/424a4579-2307-4e62-b871-4423e8678584/1000014318.jpg"
-                  className="rounded-[2rem] object-cover h-[240px] w-full border border-cyan-300/20"
+                  className="rounded-[2rem] object-cover h-[240px] w-full border border-emerald-700/15"
                   alt="Living Classrooms programs"
                 />
               </div>
@@ -1167,19 +1167,19 @@ export default function KingmanIslandRFP() {
         </section>
 
         {/* SECTION 06: JUSTIFICATION */}
-        <section id="justification" style={{ position:'relative', paddingBottom:'4rem', borderBottom:'1px solid rgba(74,222,128,0.1)' }} className="px-6 md:px-14 xl:px-20 py-12">
-          <div style={{ padding:'2rem 0 1.5rem', borderBottom:'1px solid rgba(74,222,128,0.08)', marginBottom:'2rem' }}>
-            <div style={{ fontSize:'10px', textTransform:'uppercase', letterSpacing:'0.32em', color:'rgba(134,239,172,0.7)', marginBottom:'0.5rem' }}>Section 06</div>
+        <section id="justification" style={{ position:'relative', paddingBottom:'4rem', borderBottom:'1px solid rgba(45,106,79,0.15)' }} className="px-6 md:px-14 xl:px-20 py-12">
+          <div style={{ padding:'2rem 0 1.5rem', borderBottom:'1px solid rgba(45,106,79,0.1)', marginBottom:'2rem' }}>
+            <div style={{ fontSize:'10px', textTransform:'uppercase', letterSpacing:'0.32em', color:'rgba(26,92,58,0.8)', marginBottom:'0.5rem' }}>Section 06</div>
             <div style={{ fontSize:'clamp(1.5rem,3vw,2.5rem)', fontWeight:900, letterSpacing:'-0.04em' }}>Funding Justification & Policy Alignment</div>
           </div>
           <div className="space-y-10">
             <div className="grid lg:grid-cols-[1.2fr_0.8fr] gap-8">
               <div className="glass rounded-[2rem] p-8">
-                <div className="text-xs uppercase tracking-[0.26em] text-cyan-200 mb-4">
+                <div className="text-xs uppercase tracking-[0.26em] text-teal-700 mb-4">
                   Continuing Funding Justification
                 </div>
                 <h2 className="section-title mb-8">Why This Program Deserves Investment</h2>
-                <div className="space-y-6 text-slate-300 leading-8 text-[15px]">
+                <div className="space-y-6 text-slate-600 leading-8 text-[15px]">
                   <p>
                     Living Classrooms has demonstrated measurable operational success through watershed education,
                     environmental restoration, trail maintenance, workforce training deployments, and DOEE-supported
@@ -1210,10 +1210,10 @@ export default function KingmanIslandRFP() {
               </div>
 
               <div className="space-y-6">
-                <div className="glass rounded-[2rem] p-6 bg-gradient-to-br from-cyan-400/10 to-emerald-400/10 border-cyan-300/30">
-                  <div className="text-xs uppercase tracking-wider text-cyan-200 mb-3">Policy Alignment</div>
+                <div className="glass rounded-[2rem] p-6 bg-gradient-to-br from-cyan-400/10 to-emerald-400/10 border-emerald-700/20">
+                  <div className="text-xs uppercase tracking-wider text-teal-700 mb-3">Policy Alignment</div>
                   <h4 className="text-xl font-black mb-4">Regulatory Support</h4>
-                  <ul className="space-y-3 text-sm text-slate-300">
+                  <ul className="space-y-3 text-sm text-slate-600">
                     <li className="flex items-start gap-3">
                       <span className="text-cyan-300 mt-0.5">✓</span>
                       <span>DOEE Stormwater Management Regulations</span>
@@ -1243,13 +1243,13 @@ export default function KingmanIslandRFP() {
 
                 <img
                   src="https://images.squarespace-cdn.com/content/v1/60300e73eaa16a54d368dfa5/1617369128283-QT2EY2UV51912SP3PLRQ/Kingman+Bridge_newly+built.jpg"
-                  className="rounded-[2rem] object-cover h-[280px] w-full border border-cyan-300/20"
+                  className="rounded-[2rem] object-cover h-[280px] w-full border border-emerald-700/15"
                   alt="Kingman Bridge infrastructure"
                 />
 
                 <img
                   src="https://images.squarespace-cdn.com/content/v1/61dca93540574b05602e6466/5941fbf6-0dec-45e9-ac09-c79a35fe2993/20220610_120233+%281%29.jpg"
-                  className="rounded-[2rem] object-cover h-[280px] w-full border border-cyan-300/20"
+                  className="rounded-[2rem] object-cover h-[280px] w-full border border-emerald-700/15"
                   alt="Field education activities"
                 />
               </div>
@@ -1257,13 +1257,13 @@ export default function KingmanIslandRFP() {
 
             {/* Historical Context */}
             <div className="glass rounded-[2rem] p-8">
-              <div className="text-xs uppercase tracking-[0.26em] text-cyan-200 mb-4">
+              <div className="text-xs uppercase tracking-[0.26em] text-teal-700 mb-4">
                 Historical Context
               </div>
               <h3 className="text-3xl font-black mb-6">
                 From Commercial Development to Ecological Restoration Corridor
               </h3>
-              <div className="space-y-6 text-slate-300 leading-8 text-[15px]">
+              <div className="space-y-6 text-slate-600 leading-8 text-[15px]">
                 <p>
                   Kingman Island evolved from a historically proposed commercial development corridor into one of
                   Washington DC's most important urban ecological restoration landscapes. Environmental advocacy and
@@ -1278,16 +1278,16 @@ export default function KingmanIslandRFP() {
                 </p>
                 <div className="grid md:grid-cols-3 gap-6 mt-8">
                   <div className="glass-soft rounded-xl p-5 text-center">
-                    <div className="text-4xl font-black text-cyan-300 mb-2">120</div>
-                    <div className="text-sm text-slate-400">Acres Under Management</div>
+                    <div className="text-4xl font-black text-teal-600 mb-2">120</div>
+                    <div className="text-sm text-slate-600">Acres Under Management</div>
                   </div>
                   <div className="glass-soft rounded-xl p-5 text-center">
-                    <div className="text-4xl font-black text-emerald-300 mb-2">14+</div>
-                    <div className="text-sm text-slate-400">Years of Stewardship</div>
+                    <div className="text-4xl font-black text-emerald-700 mb-2">14+</div>
+                    <div className="text-sm text-slate-600">Years of Stewardship</div>
                   </div>
                   <div className="glass-soft rounded-xl p-5 text-center">
-                    <div className="text-4xl font-black text-purple-300 mb-2">2009</div>
-                    <div className="text-sm text-slate-400">Management Start Year</div>
+                    <div className="text-4xl font-black text-purple-600 mb-2">2009</div>
+                    <div className="text-sm text-slate-600">Management Start Year</div>
                   </div>
                 </div>
               </div>
@@ -1298,15 +1298,15 @@ export default function KingmanIslandRFP() {
       </main>
 
       {/* FOOTER */}
-      <footer className="relative px-6 md:px-14 xl:px-20 py-12 border-t border-cyan-400/10">
+      <footer className="relative px-6 md:px-14 xl:px-20 py-12 border-t border-emerald-700/20">
         <div className="glass rounded-[2rem] p-8">
           <div className="grid lg:grid-cols-[1fr_auto] gap-8 items-center">
             <div>
-              <div className="text-xs uppercase tracking-wider text-cyan-200 mb-2">Grant Proposal Document</div>
+              <div className="text-xs uppercase tracking-wider text-teal-700 mb-2">Grant Proposal Document</div>
               <div className="text-2xl font-black mb-3">
                 Watershed Restoration & Green Infrastructure Job Training Program
               </div>
-              <div className="text-sm text-slate-400 space-y-1">
+              <div className="text-sm text-slate-600 space-y-1">
                 <div>Living Classrooms Foundation • National Capital Region</div>
                 <div>802 S. Caroline Street, Baltimore, MD 21231-3332</div>
                 <div>Prepared for: DC Department of Energy & Environment (DOEE)</div>
@@ -1314,10 +1314,10 @@ export default function KingmanIslandRFP() {
               </div>
             </div>
             <div className="text-right">
-              <div className="text-xs text-slate-500 mb-2">Analysis & Design</div>
-              <div className="font-bold text-cyan-100">Lancelot Naipier-Kane</div>
-              <div className="text-sm text-slate-400">Data Analyst & Policy Researcher</div>
-              <div className="text-xs text-slate-500 mt-2">lancelot-nk.github.io</div>
+              <div className="text-xs text-slate-600 mb-2">Analysis & Design</div>
+              <div className="font-bold text-teal-800">Lancelot Naipier-Kane</div>
+              <div className="text-sm text-slate-600">Data Analyst & Policy Researcher</div>
+              <div className="text-xs text-slate-600 mt-2">lancelot-nk.github.io</div>
             </div>
           </div>
         </div>
