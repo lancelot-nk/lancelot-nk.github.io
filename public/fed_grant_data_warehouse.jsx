@@ -41,6 +41,7 @@ import {
 
 
 
+}
 
 
 
@@ -57,7 +58,7 @@ const RISK_TAGS = ["Procurement Delay", "Vendor Risk", "Staffing Gap", "Regulato
 const PROGRAM_MANAGERS = ["J. Morrison", "K. Patel", "R. Chen", "M. Williams", "S. Johnson", "A. Garcia", "T. Nguyen", "L. Davis"]
 const COMPLIANCE_OFFICERS = ["D. Thompson", "E. Martinez", "F. Robinson", "G. Anderson", "H. Taylor", "I. Brown", "C. Wilson", "B. Moore"]
 
-function generateProject(index): Project {
+function generateProject(index: number): Project {
   const totalBudget = Math.floor(Math.random() * 45000000) + 5000000
   const percentComplete = Math.random() * 0.85 + 0.1
   const actualSpend = Math.floor(totalBudget * percentComplete * (0.7 + Math.random() * 0.5))
@@ -72,7 +73,7 @@ function generateProject(index): Project {
   const complianceFlags = Math.floor(Math.random() * 8)
   const auditFindings = Math.floor(Math.random() * 5)
 
-  let riskLevel "Orange" | "Yellow" | "Green" = "Green"
+  let riskLevel: "Red" | "Orange" | "Yellow" | "Green" = "Green"
   if (burnRate > 1.3 || nistScore < 0.6 || complianceFlags > 5) riskLevel = "Red"
   else if (burnRate > 1.1 || nistScore < 0.7 || complianceFlags > 3) riskLevel = "Orange"
   else if (burnRate > 0.95 || nistScore < 0.8 || complianceFlags > 1) riskLevel = "Yellow"
@@ -139,20 +140,20 @@ function generateProject(index): Project {
 // ENGINE CALCULATIONS
 // ═══════════════════════════════════════════════════════════════════════════════
 
-function calculateBurnRate(actualSpend, budget, daysElapsed, totalDays) {
+function calculateBurnRate(actualSpend: number, budget: number, daysElapsed: number, totalDays: number): number {
   const timeRatio = daysElapsed / totalDays
   if (timeRatio === 0) return 0
   return (actualSpend / budget) / timeRatio
 }
 
-function calculateComplianceScore(nistScore, flags, auditFindings) {
+function calculateComplianceScore(nistScore: number, flags: number, auditFindings: number): number {
   const baseScore = nistScore * 0.6
   const flagPenalty = flags * 0.05
   const auditPenalty = auditFindings * 0.08
   return Math.max(0, Math.min(1, baseScore + 0.4 - flagPenalty - auditPenalty))
 }
 
-function calculatePriorityScore(riskLevel, complianceScore, burnRate) {
+function calculatePriorityScore(riskLevel: string, complianceScore: number, burnRate: number): number {
   const riskWeight = riskLevel === "Red" ? 1 : riskLevel === "Orange" ? 0.7 : riskLevel === "Yellow" ? 0.4 : 0.1
   const complianceBreach = complianceScore < 0.7 ? 1 : complianceScore < 0.85 ? 0.5 : 0
   const budgetVariance = Math.abs(burnRate - 1)
@@ -163,13 +164,13 @@ function calculatePriorityScore(riskLevel, complianceScore, burnRate) {
 // FORMAT UTILITIES
 // ═══════════════════════════════════════════════════════════════════════════════
 
-function formatCurrency(value) {
+function formatCurrency(value: number): string {
   if (value >= 1000000) return `$${(value / 1000000).toFixed(1)}M`
   if (value >= 1000) return `$${(value / 1000).toFixed(0)}K`
   return `$${value.toFixed(0)}`
 }
 
-function formatPercent(value) {
+function formatPercent(value: number): string {
   return `${(value * 100).toFixed(1)}%`
 }
 
@@ -1019,7 +1020,7 @@ export default function SentinelDashboard() {
       management: { label: "Management", color: "amber" },
     }
 
-    const getCategoryModules = (category) => 
+    const getCategoryModules = (category: string) => 
       navigationModules.filter(m => m.category === category)
 
     return (
@@ -1240,6 +1241,7 @@ export default function SentinelDashboard() {
   // ═══════════════════════════════════════════════════════════════════════════════
 
   return (
+    <>
     <div className="min-h-screen bg-gray-50">
       {/* Top Header Bar */}
       <header className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-40">
@@ -1371,5 +1373,30 @@ export default function SentinelDashboard() {
         </div>
       </footer>
     </div>
+
+    {/* ─── PROJECT FOOTER ────────────────────────────────────── */}
+    <div style={{
+      borderTop: "1px solid #cccccc",
+      padding: "20px 28px",
+      background: "#f9f9f7",
+      fontFamily: "'Trebuchet MS','Gill Sans',Tahoma,sans-serif",
+      fontSize: 12,
+      color: "#555550",
+      lineHeight: 1.9,
+    }}>
+      <p style={{ margin: "0 0 6px 0" }}>
+        <strong style={{ color: "#1a1a14", fontSize: 13 }}>Lancelot Napier-Kane</strong>
+      </p>
+      <p style={{ margin: "0 0 4px 0" }}>
+        <strong style={{ color: "#1a1a14" }}>Stack:</strong> React, TypeScript, Python (Pandas, dbt Core v1.8), PostgreSQL 15, Amazon Redshift (simulated data warehouse), AWS Glue ETL (simulated pipeline orchestration), Azure Data Factory (simulated cross-agency ingest), NIST SP 800-53 Rev. 5 RMF control mapping, FedRAMP authorization boundary modeling, Elasticsearch (simulated audit index), Tableau Server (simulated reporting layer)
+      </p>
+      <p style={{ margin: "0 0 4px 0" }}>
+        <strong style={{ color: "#1a1a14" }}>Methods:</strong> Federal grant lifecycle tracking across obligation, execution, and closeout phases; burn rate analytics and cost overrun forecasting using trailing 90-day spend velocity; NIST RMF audit finding classification and automated compliance stage progression; financial efficiency scoring composite of obligation rate, spend velocity, and reporting cadence adherence; risk flag generation using OMB Uniform Guidance thresholds (2 CFR 200); missing-report indicator triggered by reporting cadence SLA breach; multi-agency project data is simulated based on published federal grant management frameworks
+      </p>
+      <p style={{ margin: 0 }}>
+        <strong style={{ color: "#1a1a14" }}>Sources:</strong> OMB Uniform Guidance (2 CFR Part 200); NIST SP 800-53 Rev. 5 audit and accountability controls; FedRAMP authorization boundary documentation; USDA, HHS, DOT, and EPA grant award structures from USASpending.gov; federal financial management best practices per GAO-21-119G; grant project data simulated based on published federal program parameters
+      </p>
+    </div>
+    </>
   )
 }

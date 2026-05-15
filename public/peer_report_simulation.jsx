@@ -1,42 +1,13 @@
-"use client"
 
 import React, { useState, useEffect, useCallback } from "react"
 
 // Types
-interface Report {
-  id: string
-  type: "ui-bug" | "employee-negligence" | "civil-rights" | "financial" | "safety" | "accessibility"
-  severity: "critical" | "high" | "medium" | "low"
-  status: "new" | "triaged" | "investigating" | "resolved" | "escalated"
-  office: string
-  program: string
-  dateSubmitted: string
-  lastUpdated: string
-  summary: string
-  assignedTo: string | null
-  complianceFlags: string[]
-  anonymous: boolean
-  daysOpen: number
+
+
+
 }
 
-interface HotspotData {
-  office: string
-  region: string
-  totalReports: number
-  criticalCount: number
-  trend: "up" | "down" | "stable"
-  riskScore: number
-  coordinates: { x: number; y: number }
-}
 
-interface AuditLog {
-  id: string
-  timestamp: string
-  action: string
-  user: string
-  details: string
-  reportId?: string
-}
 
 // Mock Data
 const mockReports: Report[] = [
@@ -71,17 +42,17 @@ const mockAuditLog: AuditLog[] = [
 
 // Component
 export default function PRICASSystem() {
-  const [activeModule, setActiveModule] = useState<string | null>(null)
-  const [reports, setReports] = useState<Report[]>(mockReports)
-  const [selectedReport, setSelectedReport] = useState<Report | null>(null)
+  const [activeModule, setActiveModule] = useState(null)
+  const [reports, setReports] = useState(mockReports)
+  const [selectedReport, setSelectedReport] = useState(null)
   const [isSyncing, setIsSyncing] = useState(false)
   const [lastSync, setLastSync] = useState("2024-01-18 14:30:00")
-  const [filterStatus, setFilterStatus] = useState<string>("all")
-  const [filterSeverity, setFilterSeverity] = useState<string>("all")
+  const [filterStatus, setFilterStatus] = useState("all")
+  const [filterSeverity, setFilterSeverity] = useState("all")
   const [searchTerm, setSearchTerm] = useState("")
-  const [triageQueue, setTriageQueue] = useState<Report[]>([])
+  const [triageQueue, setTriageQueue] = useState([])
   const [showNewReportModal, setShowNewReportModal] = useState(false)
-  const [auditLogs] = useState<AuditLog[]>(mockAuditLog)
+  const [auditLogs] = useState(mockAuditLog)
   const [complianceMetrics, setComplianceMetrics] = useState({
     titleVI: 94,
     ada: 87,
@@ -89,7 +60,7 @@ export default function PRICASSystem() {
     serviceStandards: 76,
     duProcess: 91
   })
-  const [animatingMetric, setAnimatingMetric] = useState<string | null>(null)
+  const [animatingMetric, setAnimatingMetric] = useState(null)
   const [pulseEffect, setPulseEffect] = useState(false)
 
   // Filtered reports
@@ -1497,7 +1468,7 @@ function TriageView({ queue, onAssign, animatingMetric }: {
   onAssign: (id: string, assignee: string) => void
   animatingMetric: string | null
 }) {
-  const [selectedForAssign, setSelectedForAssign] = useState<string | null>(null)
+  const [selectedForAssign, setSelectedForAssign] = useState(null)
   
   const investigators = [
     "M. Rodriguez",
@@ -1731,8 +1702,8 @@ function TriageView({ queue, onAssign, animatingMetric }: {
 
 // Hotspots View Component
 function HotspotsView({ hotspots }: { hotspots: HotspotData[] }) {
-  const [selectedHotspot, setSelectedHotspot] = useState<HotspotData | null>(null)
-  const [mapView, setMapView] = useState<"risk" | "volume">("risk")
+  const [selectedHotspot, setSelectedHotspot] = useState(null)
+  const [mapView, setMapView] = useState("risk")
 
   return (
     <div style={{ 
@@ -1798,33 +1769,21 @@ function HotspotsView({ hotspots }: { hotspots: HotspotData[] }) {
         <div style={{
           position: "relative",
           height: "400px",
-          background: "linear-gradient(135deg, rgba(15, 52, 96, 0.5) 0%, rgba(22, 33, 62, 0.5) 100%)",
           borderRadius: "12px",
           overflow: "hidden"
         }}>
-          {/* Grid lines */}
-          {[...Array(10)].map((_, i) => (
-            <div key={`h-${i}`} style={{
-              position: "absolute",
-              left: 0,
-              right: 0,
-              top: `${(i + 1) * 10}%`,
-              height: "1px",
-              background: "rgba(232, 213, 183, 0.05)"
-            }} />
-          ))}
-          {[...Array(10)].map((_, i) => (
-            <div key={`v-${i}`} style={{
-              position: "absolute",
-              top: 0,
-              bottom: 0,
-              left: `${(i + 1) * 10}%`,
-              width: "1px",
-              background: "rgba(232, 213, 183, 0.05)"
-            }} />
-          ))}
-
-          {/* Hotspot markers */}
+          {/* Tacoma, WA satellite base layer */}
+          <img
+            src="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=-122.52,47.20,-122.40,47.32&bboxSR=4326&size=800,400&imageSR=4326&format=png&f=image"
+            alt="Tacoma WA satellite"
+            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", filter: "brightness(0.72) saturate(0.8)" }}
+          />
+          {/* Semi-transparent overlay to blend with theme */}
+          <div style={{ position: "absolute", inset: 0, background: "rgba(22, 20, 48, 0.35)", pointerEvents: "none" }} />
+          {/* Map label */}
+          <div style={{ position: "absolute", bottom: 8, left: 10, fontSize: "0.65rem", color: "rgba(232,213,183,0.55)", fontFamily: "monospace", pointerEvents: "none" }}>
+            Tacoma, WA · ESRI World Imagery
+          </div>
           {hotspots.map(spot => {
             const size = mapView === "risk" 
               ? 20 + (spot.riskScore / 100) * 40
@@ -2254,7 +2213,7 @@ function ComplianceView({ metrics, reports }: { metrics: Record<string, number>,
     }
   ]
 
-  const [expandedArea, setExpandedArea] = useState<string | null>(null)
+  const [expandedArea, setExpandedArea] = useState(null)
 
   return (
     <div style={{ animation: "slideIn 0.5s ease-out" }}>
@@ -2494,7 +2453,7 @@ function ComplianceView({ metrics, reports }: { metrics: Record<string, number>,
 
 // Audit Log View Component
 function AuditLogView({ logs }: { logs: AuditLog[] }) {
-  const [filterAction, setFilterAction] = useState<string>("all")
+  const [filterAction, setFilterAction] = useState("all")
 
   const actionTypes = [...new Set(logs.map(l => l.action))]
 

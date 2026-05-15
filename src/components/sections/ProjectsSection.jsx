@@ -21,6 +21,7 @@ const LazyMASIP            = lazy(() => import('../../projects/MASIPDashboard'))
 const LazyPeerReport       = lazy(() => import('../../projects/PeerReportSimulation'));
 const LazyNYCEventsAnnual  = lazy(() => import('../../projects/NYCEventsAnnualReport'));
 const LazyFedGrant         = lazy(() => import('../../projects/FedGrantAndDataWarehouse'));
+const LazyARCGIS           = lazy(() => import('../../projects/ARCGIScaseviewer'));
 
 // ── Image Imports ────────────────────────────────────────────────────────────
 import img1 from '../../assets/project1.jpg';
@@ -65,6 +66,15 @@ export const PROJECTS = [
     link: '/finops_dashboard.jsx',
     type: 'jsx',
     component: LazyFinOpsDash,
+    img: img11,
+  },
+  {
+    title: 'ArcGIS Mapped Client Data Report Tool',
+    desc: 'ArcGIS-integrated federal client case data management system — spatial risk mapping, grant portfolio tracking, NIST RMF compliance scoring, contractor performance analytics, burn rate forecasting, and audit queue management across multi-agency federal programs.',
+    tech: ['React', 'TypeScript', 'ArcGIS', 'Federal Grants', 'PostGIS', 'NIST 800-53', 'FedRAMP', 'Spatial Analytics'],
+    link: '/arcgis_case_viewer.jsx',
+    type: 'jsx',
+    component: LazyARCGIS,
     img: img11,
   },
   {

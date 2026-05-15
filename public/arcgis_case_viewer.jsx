@@ -1,4 +1,3 @@
-"use client"
 
 import { useState, useEffect, useCallback } from "react"
 import {
@@ -35,89 +34,16 @@ import {
 // TYPE DEFINITIONS
 // ═══════════════════════════════════════════════════════════════════════════════
 
-interface AuditEvent {
-  date: string
-  event: string
-  severity: "info" | "warning" | "critical"
+
+
+
+
+
+
+
 }
 
-interface Project {
-  id: string
-  name: string
-  agency: string
-  program: string
-  contractor: string
-  subcontractors: string[]
-  fundingSource: string
-  awardType: string
-  congressionalDistrict: string
-  totalBudget: number
-  obligatedAmount: number
-  actualSpend: number
-  remainingBudget: number
-  burnRate: number
-  monthlySpendRate: number
-  forecastedTotalSpend: number
-  fundingReallocationFlag: boolean
-  costOverrunIndicator: boolean
-  financialEfficiencyScore: number
-  startDate: string
-  endDate: string
-  daysElapsed: number
-  daysRemaining: number
-  percentTimeUsed: number
-  lifecyclePhase: "Awarded" | "Obligating" | "Executing" | "Closing" | "Closed"
-  nistRmfScore: number
-  complianceFlags: number
-  complianceStage: "Initial Review" | "Mid Compliance Check" | "Final Audit"
-  auditFindings: number
-  lastAuditDate: string
-  nextAuditDue: string
-  reportingCadence: "Monthly" | "Quarterly"
-  lastReportSubmitted: string
-  missingReportsIndicator: boolean
-  riskLevel: "Red" | "Orange" | "Yellow" | "Green"
-  riskTags: string[]
-  slaRemaining: number
-  slaRiskLevel: "High" | "Medium" | "Low"
-  incidentCount: number
-  escalationStatus: boolean
-  priorityScore: number
-  programManager: string
-  complianceOfficer: string
-  lastUpdated: string
-  auditHistory: AuditEvent[]
-  notes: string
-}
 
-interface ContractorMetrics {
-  name: string
-  activeProjects: number
-  avgComplianceScore: number
-  incidentRate: number
-  riskRating: "Low" | "Medium" | "High"
-  totalBudgetManaged: number
-  deliveryEfficiency: number
-}
-
-interface ProgramMetrics {
-  name: string
-  projectCount: number
-  totalBudget: number
-  totalSpend: number
-  avgCompliance: number
-  riskDistribution: { red: number; orange: number; yellow: number; green: number }
-}
-
-interface NavigationModule {
-  id: string
-  label: string
-  icon: React.ElementType
-  description: string
-  category: "operations" | "compliance" | "analytics" | "management"
-  alertCount: number
-  status: "healthy" | "warning" | "critical"
-}
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // SIMULATION DATA GENERATOR
@@ -253,12 +179,12 @@ function formatPercent(value: number): string {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 export default function SentinelDashboard() {
-  const [projects, setProjects] = useState<Project[]>([])
-  const [activeView, setActiveView] = useState<string | null>(null)
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null)
+  const [projects, setProjects] = useState([])
+  const [activeView, setActiveView] = useState(null)
+  const [selectedProject, setSelectedProject] = useState(null)
   const [isSyncing, setIsSyncing] = useState(false)
-  const [lastSync, setLastSync] = useState<Date>(new Date())
-  const [systemTime, setSystemTime] = useState<Date>(new Date())
+  const [lastSync, setLastSync] = useState(new Date())
+  const [systemTime, setSystemTime] = useState(new Date())
 
   // Initialize projects
   useEffect(() => {
@@ -1462,13 +1388,13 @@ export default function SentinelDashboard() {
         <strong style={{ color: "#1a1a14", fontSize: 13 }}>Lancelot Napier-Kane</strong>
       </p>
       <p style={{ margin: "0 0 4px 0" }}>
-        <strong style={{ color: "#1a1a14" }}>Stack:</strong> React, TypeScript, Python (Pandas, dbt Core v1.8), PostgreSQL 15, Amazon Redshift (simulated data warehouse), AWS Glue ETL (simulated pipeline orchestration), Azure Data Factory (simulated cross-agency ingest), NIST SP 800-53 Rev. 5 RMF control mapping, FedRAMP authorization boundary modeling, Elasticsearch (simulated audit index), Tableau Server (simulated reporting layer)
+        <strong style={{ color: "#1a1a14" }}>Stack:</strong> React, TypeScript, ArcGIS API for JavaScript (simulated map layers and spatial queries), Python (GeoPandas, Shapely), PostgreSQL with PostGIS extension (simulated spatial data warehouse), Amazon Redshift (simulated data warehouse), AWS Glue ETL (simulated pipeline orchestration), NIST SP 800-53 Rev. 5 RMF control mapping, FedRAMP boundary modeling, Esri World Imagery tile service, dbt Core v1.8, Tableau Server (simulated reporting layer)
       </p>
       <p style={{ margin: "0 0 4px 0" }}>
-        <strong style={{ color: "#1a1a14" }}>Methods:</strong> Federal grant lifecycle tracking across obligation, execution, and closeout phases; burn rate analytics and cost overrun forecasting using trailing 90-day spend velocity; NIST RMF audit finding classification and automated compliance stage progression; financial efficiency scoring composite of obligation rate, spend velocity, and reporting cadence adherence; risk flag generation using OMB Uniform Guidance thresholds (2 CFR 200); missing-report indicator triggered by reporting cadence SLA breach; multi-agency project data is simulated based on published federal grant management frameworks
+        <strong style={{ color: "#1a1a14" }}>Methods:</strong> ArcGIS-integrated client case record visualization with geographic clustering and spatial risk analysis; federal grant portfolio tracking across obligation, execution, and closeout phases; burn rate analytics and cost overrun forecasting using trailing 90-day spend velocity; NIST RMF audit finding classification and compliance stage progression; contractor performance scoring using on-time delivery rate, findings rate, and subcontracting compliance; missing-report SLA breach detection against OMB Uniform Guidance cadence requirements; all project and case data simulated against published federal grant and program management frameworks
       </p>
       <p style={{ margin: 0 }}>
-        <strong style={{ color: "#1a1a14" }}>Sources:</strong> OMB Uniform Guidance (2 CFR Part 200); NIST SP 800-53 Rev. 5 audit and accountability controls; FedRAMP authorization boundary documentation; USDA, HHS, DOT, and EPA grant award structures from USASpending.gov; federal financial management best practices per GAO-21-119G; grant project data simulated based on published federal program parameters
+        <strong style={{ color: "#1a1a14" }}>Sources:</strong> OMB Uniform Guidance (2 CFR Part 200); NIST SP 800-53 Rev. 5 audit controls; Esri ArcGIS REST API documentation and World Imagery tile service; FedRAMP authorization boundary documentation; USASpending.gov federal award data structures; GAO-21-119G Federal Financial Management Standards; grant and case data simulated based on published federal program parameters
       </p>
     </div>
     </>

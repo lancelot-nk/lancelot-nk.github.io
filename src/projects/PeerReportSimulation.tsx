@@ -1798,33 +1798,21 @@ function HotspotsView({ hotspots }: { hotspots: HotspotData[] }) {
         <div style={{
           position: "relative",
           height: "400px",
-          background: "linear-gradient(135deg, rgba(15, 52, 96, 0.5) 0%, rgba(22, 33, 62, 0.5) 100%)",
           borderRadius: "12px",
           overflow: "hidden"
         }}>
-          {/* Grid lines */}
-          {[...Array(10)].map((_, i) => (
-            <div key={`h-${i}`} style={{
-              position: "absolute",
-              left: 0,
-              right: 0,
-              top: `${(i + 1) * 10}%`,
-              height: "1px",
-              background: "rgba(232, 213, 183, 0.05)"
-            }} />
-          ))}
-          {[...Array(10)].map((_, i) => (
-            <div key={`v-${i}`} style={{
-              position: "absolute",
-              top: 0,
-              bottom: 0,
-              left: `${(i + 1) * 10}%`,
-              width: "1px",
-              background: "rgba(232, 213, 183, 0.05)"
-            }} />
-          ))}
-
-          {/* Hotspot markers */}
+          {/* Tacoma, WA satellite base layer */}
+          <img
+            src="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=-122.52,47.20,-122.40,47.32&bboxSR=4326&size=800,400&imageSR=4326&format=png&f=image"
+            alt="Tacoma WA satellite"
+            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", filter: "brightness(0.72) saturate(0.8)" }}
+          />
+          {/* Semi-transparent overlay to blend with theme */}
+          <div style={{ position: "absolute", inset: 0, background: "rgba(22, 20, 48, 0.35)", pointerEvents: "none" }} />
+          {/* Map label */}
+          <div style={{ position: "absolute", bottom: 8, left: 10, fontSize: "0.65rem", color: "rgba(232,213,183,0.55)", fontFamily: "monospace", pointerEvents: "none" }}>
+            Tacoma, WA · ESRI World Imagery
+          </div>
           {hotspots.map(spot => {
             const size = mapView === "risk" 
               ? 20 + (spot.riskScore / 100) * 40
