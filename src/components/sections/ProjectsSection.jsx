@@ -29,6 +29,7 @@ const LazySalesMatrix      = lazy(() => import('../../projects/SalesMatrix'));
 const LazyB2BChurn         = lazy(() => import('../../projects/B2BChurn'));
 const LazyGreenWorkforce   = lazy(() => import('../../projects/GREENworkforcetracker'));
 const LazyNGOBudget        = lazy(() => import('../../projects/NGOBudgetTracker'));
+const LazySHEAnnual        = lazy(() => import('../../projects/SHEAnnualInteractive'));
 
 // ── Image Imports ────────────────────────────────────────────────────────────
 import img1 from '../../assets/project1.jpg';
@@ -60,6 +61,7 @@ import imgB2BChurn from '../../assets/project_b2b_churn.jpg';
 import imgHRAIntegrity from '../../assets/project_hra_integrity.jpg';
 import imgGreenWorkforce from '../../assets/project_green_workforce.jpg';
 import imgNGOBudget from '../../assets/project_ngo_budget.jpg';
+import imgSHEAnnual from '../../assets/project_she_annual.jpg';
 
 // ── Brand Colors ─────────────────────────────────────────────────────────────
 const PINK   = '#B8004E';
@@ -222,6 +224,15 @@ export const PROJECTS = [
     type: 'jsx',
     component: LazyNGOBudget,
     img: imgNGOBudget,
+  },
+  {
+    title: 'SHE 2019 Annual Report — Interactive Edition',
+    desc: 'Interactive visualization of Solar Household Energy\'s 2019 Annual Report — impact metrics storytelling, donor program highlights, global reach mapping, photovoltaic program data, and nonprofit communications dashboard. Built from actual report content.',
+    tech: ['React', 'TypeScript', 'Tailwind', 'Nonprofit', 'Annual Report', 'Data Visualization', 'Donor Communications', 'Solar Energy'],
+    link: '/she_annual_interactive.jsx',
+    type: 'jsx',
+    component: LazySHEAnnual,
+    img: imgSHEAnnual,
   },
   {
     title: 'Lytx Fleet Intelligence Platform',

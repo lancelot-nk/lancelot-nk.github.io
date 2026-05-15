@@ -83,7 +83,7 @@ const useSimulationEngine = () => {
     return () => clearInterval(interval)
   }, [])
   
-  const fluctuate = (base: number, variance: number) => {
+  const fluctuate = (base, variance) => {
     return Math.round(base + (Math.sin(tick * 0.5) * variance) + (Math.random() - 0.5) * variance * 0.5)
   }
   
@@ -116,7 +116,7 @@ function CircularProgress({
   
   return (
     <div className="flex flex-col items-center">
-      <div className="relative" style={{ width: size, height: size }}>
+      <div className="relative" style={{ width, height: size }}>
         <svg width={size} height={size} className="transform -rotate-90">
           <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke={bgColor} strokeWidth={strokeWidth} />
           <circle
@@ -204,7 +204,7 @@ function PieChart({
 
 // Impact Card with Icon
 function ImpactCircle({ 
-  icon: Icon, 
+  icon, 
   value, 
   label, 
   color,
@@ -292,7 +292,7 @@ function TimelineEvent({
   description, 
   location,
   isLeft,
-  icon: Icon = Calendar
+  icon= Calendar
 }: { 
   date: string
   title: string
@@ -397,7 +397,7 @@ function StatsBlock({
   value, 
   label, 
   sublabel,
-  icon: Icon,
+  icon,
   color = "orange"
 }: { 
   value: string | number
@@ -458,11 +458,11 @@ export default function SHEAnnualReportPage() {
   
   // Program pillars
   const pillars = [
-    { name: "Education & Advocacy", icon: GraduationCap, pct: 25 },
-    { name: "Technology R&D", icon: Beaker, pct: 20 },
-    { name: "Field Work & Programming", icon: Target, pct: 35 },
-    { name: "Monitoring & Evaluation", icon: Scale, pct: 12 },
-    { name: "Program Models", icon: Lightbulb, pct: 8 }
+    { name: "Education & Advocacy", icon, pct: 25 },
+    { name: "Technology R&D", icon, pct: 20 },
+    { name: "Field Work & Programming", icon, pct: 35 },
+    { name: "Monitoring & Evaluation", icon, pct: 12 },
+    { name: "Program Models", icon, pct: 8 }
   ]
   
   // 2019 Events from the report
@@ -636,11 +636,11 @@ export default function SHEAnnualReportPage() {
                 <PieChart 
                   title="Program Focus Distribution"
                   segments={[
-                    { value: 35, color: "#f97316", label: "Field Work" },
-                    { value: 25, color: "#fb923c", label: "Education" },
-                    { value: 20, color: "#fdba74", label: "R&D" },
-                    { value: 12, color: "#fed7aa", label: "Advocacy" },
-                    { value: 8, color: "#ffedd5", label: "M&E" }
+                    { value, color: "#f97316", label: "Field Work" },
+                    { value, color: "#fb923c", label: "Education" },
+                    { value, color: "#fdba74", label: "R&D" },
+                    { value, color: "#fed7aa", label: "Advocacy" },
+                    { value, color: "#ffedd5", label: "M&E" }
                   ]}
                   size={200}
                 />
@@ -650,10 +650,10 @@ export default function SHEAnnualReportPage() {
                 <PieChart 
                   title="Geographic Reach 2019"
                   segments={[
-                    { value: 45, color: "#16a34a", label: "Mexico" },
-                    { value: 25, color: "#22c55e", label: "Uganda" },
-                    { value: 20, color: "#4ade80", label: "Haiti" },
-                    { value: 10, color: "#86efac", label: "Other" }
+                    { value, color: "#16a34a", label: "Mexico" },
+                    { value, color: "#22c55e", label: "Uganda" },
+                    { value, color: "#4ade80", label: "Haiti" },
+                    { value, color: "#86efac", label: "Other" }
                   ]}
                   size={200}
                 />
@@ -706,7 +706,7 @@ export default function SHEAnnualReportPage() {
                 </div>
                 <p className="text-sm text-orange-100">
                   Local families avoided 50% of their normal expenditures on wood and gas through solar 
-                  cookers. This factor grows over time as owners adapt to the product.
+                  cookers. This factor grows over time adapt to the product.
                 </p>
               </div>
               
@@ -804,7 +804,7 @@ export default function SHEAnnualReportPage() {
                   <span className="font-medium">Training Video Created</span>
                 </div>
                 <p className="text-xs text-orange-200 mt-2">
-                  HSC assembly, usage and training video starring Bibiana Hernandez as a cost-effective 
+                  HSC assembly, usage and training video starring Bibiana Hernandez cost-effective 
                   approach to support ambassadors in their training efforts.
                 </p>
               </div>
@@ -850,7 +850,7 @@ export default function SHEAnnualReportPage() {
                   Business Opportunity
                 </div>
                 <p className="text-sm text-gray-600">
-                  They are exploring this avenue as a business opportunity since the sale of plastic 
+                  They are exploring this avenue business opportunity since the sale of plastic 
                   plates + cups was recently banned in the area.
                 </p>
               </div>
@@ -858,7 +858,7 @@ export default function SHEAnnualReportPage() {
             
             <div className="space-y-6">
               <QuoteCard 
-                quote="The social enterprise is growing. SHE, Lorena and her ambassadors are discovering along the way how to improve the social enterprise model, providing more opportunities for ambassadors to thrive, both financially and as environmental leaders in their communities."
+                quote="The social enterprise is growing. SHE, Lorena and her ambassadors are discovering along the way how to improve the social enterprise model, providing more opportunities for ambassadors to thrive, both financially and leaders in their communities."
                 author="SHE Annual Report"
                 role="2019"
               />
@@ -989,7 +989,7 @@ export default function SHEAnnualReportPage() {
               flag="🇲🇽"
               programs={["Ambassador Model", "Earthquake Relief", "Innovation"]}
               beneficiaries={oaxacaSold}
-              highlight="Flagship solar ambassador pilot program in Oaxaca State, training rural women as solar cooking ambassadors and supporting humanitarian efforts."
+              highlight="Flagship solar ambassador pilot program in Oaxaca State, training rural women cooking ambassadors and supporting humanitarian efforts."
               partners={["Xquenda A.C.", "CAMPO", "GIZ", "Anahuac University"]}
               image={SHE_IMAGES.mexicoLandscape}
             />
@@ -1021,7 +1021,7 @@ export default function SHEAnnualReportPage() {
               
               <p className="text-gray-600 mb-6">
                 Paul worked to measure the standard power of the Haines Model 1 and 2 solar cookers 
-                for comparison. He was involved in the work on the ISO standard, as well as on the 
+                for comparison. He was involved in the work on the ISO standard, the 
                 Field Testing standard, <strong>ISO-19869</strong>, contributing to the Safety section.
               </p>
               
@@ -1270,10 +1270,10 @@ export default function SHEAnnualReportPage() {
               <PieChart 
                 title="Donor Type Distribution (Simulated)"
                 segments={[
-                  { value: 40, color: "#059669", label: "Individual" },
-                  { value: 30, color: "#10b981", label: "Foundation" },
-                  { value: 20, color: "#34d399", label: "Corporate" },
-                  { value: 10, color: "#6ee7b7", label: "Government" }
+                  { value, color: "#059669", label: "Individual" },
+                  { value, color: "#10b981", label: "Foundation" },
+                  { value, color: "#34d399", label: "Corporate" },
+                  { value, color: "#6ee7b7", label: "Government" }
                 ]}
                 size={220}
               />
@@ -1365,7 +1365,7 @@ export default function SHEAnnualReportPage() {
       </div>
     </div>
     <div style={{background:"#0f172a",color:"#94a3b8",fontSize:"11px",padding:"18px 32px",borderTop:"2px solid #1e293b",fontFamily:"monospace",lineHeight:1.7}}>
-      <div style={{marginBottom:6,color:"#e2e8f0",fontWeight:700,fontSize:13,letterSpacing:1}}>PROJECT FOOTNOTE</div>
+      <div style={{marginBottom,color:"#e2e8f0",fontWeight,fontSize,letterSpacing:1}}>PROJECT FOOTNOTE</div>
       <div><strong style={{color:"#f1f5f9"}}>Stack:</strong> React, TypeScript, Tailwind CSS, Lucide React, Framer Motion</div>
       <div><strong style={{color:"#f1f5f9"}}>Methods:</strong> Interactive annual report visualization, donor engagement simulation, impact metrics storytelling, data-driven nonprofit communications, program ROI display</div>
       <div><strong style={{color:"#f1f5f9"}}>Sources:</strong> Solar Household Energy (SHE) 2019 Annual Report — role: Assistant Director; publication design, donor outreach, Salesforce CRM, Mailchimp, Google Analytics. Data reflects actual report content.</div>
