@@ -1290,22 +1290,28 @@ export default function OilTrainRiskDC() {
         </div>
       </div>
 
-      {/* ─── PROJECT FOOTER ────────────────────────────────────── */}
+                  {/* ─── PROJECT FOOTER ────────────────────────────────────── */}
       <div style={{
         borderTop: "1px solid #cccccc",
         marginTop: 40,
-        padding: "18px 24px",
+        padding: "20px 28px",
         background: "#f9f9f7",
         fontFamily: "'Trebuchet MS','Gill Sans',Tahoma,sans-serif",
         fontSize: 12,
         color: "#555550",
-        lineHeight: 1.7,
+        lineHeight: 1.9,
       }}>
+        <p style={{ margin: "0 0 6px 0" }}>
+          <strong style={{ color: "#1a1a14", fontSize: 13 }}>Lancelot Napier-Kane</strong>
+        </p>
+        <p style={{ margin: "0 0 4px 0" }}>
+          <strong style={{ color: "#1a1a14" }}>Stack:</strong> React (JSX), MapLibre GL JS, GeoJSON (FRA railroad network, DC waterway and parcel layers), Python (GeoPandas, Shapely, Fiona), ArcGIS Pro (risk corridor analysis), PostgreSQL 14 (PostGIS), QGIS (layer QA), Node.js API serving GeoJSON tiles
+        </p>
+        <p style={{ margin: "0 0 4px 0" }}>
+          <strong style={{ color: "#1a1a14" }}>Methods:</strong> Risk corridor delineation using FRA Crude-by-Rail route data buffered at 1/4 mile, 1/2 mile, and 1 mile impact zones; population density exposure analysis via PostGIS ST_Intersects with ACS census block groups; waterway buffer impact zones (Anacostia River, Potomac River) per EPA RMP guidelines; regulatory compliance matrix mapping corridor segments against PHMSA hazmat routing rules (49 CFR 172.820) and DC HSEMA emergency response requirements; historical incident rate overlay from FRA accident/incident database; environmental justice analysis correlating risk exposure with CDC SVI scores by DC census tract; route geometry and exposure metrics are simulated based on public FRA and GIS datasets
+        </p>
         <p style={{ margin: 0 }}>
-          <strong style={{ color: "#1a1a14" }}>Lancelot Napier-Kane</strong> &nbsp;·&nbsp;
-          Tools: React, MapLibre GL JS, GeoJSON &nbsp;·&nbsp;
-          Methods: Risk mapping, route analysis, infrastructure corridor assessment &nbsp;·&nbsp;
-          Sources: DOT rail data, public infrastructure records, DC metro GIS layers
+          <strong style={{ color: "#1a1a14" }}>Sources:</strong> FRA Railroad Network GIS (NTAD — National Transportation Atlas Database); DC GIS Open Data (waterways, parcels, ward boundaries); EPA Risk Management Plan (RMP) database schema; PHMSA hazmat route selection regulations (49 CFR 172.820); DC HSEMA emergency response plan framework; ACS 2022 census block group demographics; CDC Social Vulnerability Index (SVI) tract-level data; risk corridor geometry simulated from public FRA network data
         </p>
       </div>
     </div>

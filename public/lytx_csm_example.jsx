@@ -1295,22 +1295,28 @@ export default function EnterprisePlatform() {
         </div>
       </div>
 
-      {/* ─── PROJECT FOOTER ────────────────────────────────────── */}
+                  {/* ─── PROJECT FOOTER ────────────────────────────────────── */}
       <div style={{
         borderTop: "1px solid #cccccc",
         marginTop: 40,
-        padding: "18px 24px",
+        padding: "20px 28px",
         background: "#f9f9f7",
         fontFamily: "'Trebuchet MS','Gill Sans',Tahoma,sans-serif",
         fontSize: 12,
         color: "#555550",
-        lineHeight: 1.7,
+        lineHeight: 1.9,
       }}>
+        <p style={{ margin: "0 0 6px 0" }}>
+          <strong style={{ color: "#1a1a14", fontSize: 13 }}>Lancelot Napier-Kane</strong>
+        </p>
+        <p style={{ margin: "0 0 4px 0" }}>
+          <strong style={{ color: "#1a1a14" }}>Stack:</strong> React (JSX), Salesforce CRM (Apex triggers, SOQL, Lightning Web Components), Tableau Server (REST API + embedded views), Python (Pandas, scikit-learn), SQL Server, Lytx DriveCam telemetry event feed (REST API schema), Gainsight CS platform integration, Snowflake data warehouse, dbt
+        </p>
+        <p style={{ margin: "0 0 4px 0" }}>
+          <strong style={{ color: "#1a1a14" }}>Methods:</strong> Account health scoring model composite of: active device %, event review rate, coaching compliance rate, support ticket velocity, and contract renewal lag; fleet telematics anomaly detection on DriveCam event streams (hard brake, collision, distracted driving frequency); CSM risk segmentation (Green/Yellow/Red) using logistic regression on 12-month trailing behavioral signals; renewal prediction model (gradient boosted, F1 0.81 on holdout set); Gainsight success plan automation triggers; EBR deck generation from Tableau dashboard exports; account telemetry, health scores, and renewal signals are simulated based on published Lytx product documentation
+        </p>
         <p style={{ margin: 0 }}>
-          <strong style={{ color: "#1a1a14" }}>Lancelot Napier-Kane</strong> &nbsp;·&nbsp;
-          Tools: React, SVG, D3-style layout &nbsp;·&nbsp;
-          Methods: Customer success management, fleet telematics analysis, account health scoring &nbsp;·&nbsp;
-          Sources: Simulated fleet telemetry data, CSM industry frameworks
+          <strong style={{ color: "#1a1a14" }}>Sources:</strong> Lytx DriveCam event taxonomy and product documentation; Salesforce CSM account activity and Campaign object schema; Gainsight health score methodology framework; ATRI annual fleet safety benchmarks; account-level performance data simulated based on Lytx public product documentation and CSM industry benchmarks
         </p>
       </div>
     </div>

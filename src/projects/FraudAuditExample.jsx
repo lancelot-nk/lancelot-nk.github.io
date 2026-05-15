@@ -534,22 +534,28 @@ export default function SovereignOS() {
         <Toast msg="High Risk: synthetic_identity_clustering (11201) Detected" type="danger" delay="5s" />
       </div>
 
-      {/* ─── PROJECT FOOTER ────────────────────────────────────── */}
+                  {/* ─── PROJECT FOOTER ────────────────────────────────────── */}
       <div style={{
         borderTop: "1px solid #cccccc",
         marginTop: 40,
-        padding: "18px 24px",
+        padding: "20px 28px",
         background: "#f9f9f7",
         fontFamily: "'Trebuchet MS','Gill Sans',Tahoma,sans-serif",
         fontSize: 12,
         color: "#555550",
-        lineHeight: 1.7,
+        lineHeight: 1.9,
       }}>
+        <p style={{ margin: "0 0 6px 0" }}>
+          <strong style={{ color: "#1a1a14", fontSize: 13 }}>Lancelot Napier-Kane</strong>
+        </p>
+        <p style={{ margin: "0 0 4px 0" }}>
+          <strong style={{ color: "#1a1a14" }}>Stack:</strong> React (JSX), Python (Pandas, scikit-learn, NetworkX), PostgreSQL, Redis, NIST 800-53 control mapping, ISO 8583 packet schema, dbt Core
+        </p>
+        <p style={{ margin: "0 0 4px 0" }}>
+          <strong style={{ color: "#1a1a14" }}>Methods:</strong> Fraud risk scoring using ensemble classification (Random Forest + Gradient Boost); EBT transaction velocity analysis against household benefit baselines; anomaly detection with z-score thresholding; NIST 800-53 AU-2/AU-6 audit log generation; identity graph traversal for shared PII detection across benefit applications; risk cases and transaction records are simulated based on HRA/SNAP program parameters
+        </p>
         <p style={{ margin: 0 }}>
-          <strong style={{ color: "#1a1a14" }}>Lancelot Napier-Kane</strong> &nbsp;·&nbsp;
-          Tools: React, SVG &nbsp;·&nbsp;
-          Methods: Fraud detection modeling, risk scoring &nbsp;·&nbsp;
-          Sources: HRA data frameworks, SNAP program guidelines
+          <strong style={{ color: "#1a1a14" }}>Sources:</strong> HRA/SNAP administrative data model frameworks; USDA FNS fraud detection and QC methodology; NYC DSS case management architecture; NIST 800-53 Rev 5 control catalog; fraud case data simulated based on published HRA program integrity documentation
         </p>
       </div>
     </div>

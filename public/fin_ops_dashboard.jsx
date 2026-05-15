@@ -1282,22 +1282,28 @@ export default function FinOpsDashboard() {
       {/* Drill-down modal */}
       {selectedCenter && <CenterModal center={selectedCenter} onClose={()=>setSelected(null)}/>}
 
-      {/* ─── PROJECT FOOTER ────────────────────────────────────── */}
+                  {/* ─── PROJECT FOOTER ────────────────────────────────────── */}
       <div style={{
         borderTop: "1px solid #cccccc",
         marginTop: 40,
-        padding: "18px 24px",
+        padding: "20px 28px",
         background: "#f9f9f7",
         fontFamily: "'Trebuchet MS','Gill Sans',Tahoma,sans-serif",
         fontSize: 12,
         color: "#555550",
-        lineHeight: 1.7,
+        lineHeight: 1.9,
       }}>
+        <p style={{ margin: "0 0 6px 0" }}>
+          <strong style={{ color: "#1a1a14", fontSize: 13 }}>Lancelot Napier-Kane</strong>
+        </p>
+        <p style={{ margin: "0 0 4px 0" }}>
+          <strong style={{ color: "#1a1a14" }}>Stack:</strong> React (JSX), Recharts, Python (Pandas, Boto3, Azure SDK), AWS Cost Explorer API, Azure Cost Management REST API, Terraform (infrastructure tagging schema), Apptio Cloudability, CloudHealth by VMware, Snowflake (cost allocation mart), dbt
+        </p>
+        <p style={{ margin: "0 0 4px 0" }}>
+          <strong style={{ color: "#1a1a14" }}>Methods:</strong> FinOps Framework cost allocation across shared services using proportional tagging and activity-based allocation; cloud unit economics modeling (cost per transaction, cost per user, cost per API call); showback/chargeback report generation by business unit and cost center; reserved instance (RI) and savings plan utilization optimization via coverage/utilization gap analysis; rightsizing recommendations from EC2 and Azure VM utilization data (CPU p95, memory p90); idle resource identification and waste quantification; multi-cloud cost variance trending across AWS and Azure; FinOps crawl/walk/run maturity scoring; all billing data and utilization metrics are simulated based on published cloud pricing models
+        </p>
         <p style={{ margin: 0 }}>
-          <strong style={{ color: "#1a1a14" }}>Lancelot Napier-Kane</strong> &nbsp;·&nbsp;
-          Tools: React, Recharts &nbsp;·&nbsp;
-          Methods: Financial operations modeling, cloud cost allocation, FinOps Framework &nbsp;·&nbsp;
-          Sources: FinOps Foundation standards, simulated cloud billing data
+          <strong style={{ color: "#1a1a14" }}>Sources:</strong> FinOps Foundation framework documentation and maturity model; AWS Cost Explorer API reference and CUR schema; Azure Cost Management and Billing documentation; Apptio/Cloudability unit cost methodology; CNCF FinOps white papers; cloud billing data simulated based on AWS CUR and Azure CCF schema conventions and published pricing
         </p>
       </div>
     </div>

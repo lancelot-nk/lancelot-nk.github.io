@@ -571,22 +571,28 @@ ${petInst || "[Institution]"}${petState ? `, ${petState}` : ""}`
 
       </div>
 
-      {/* ─── PROJECT FOOTER ────────────────────────────────────── */}
+                  {/* ─── PROJECT FOOTER ────────────────────────────────────── */}
       <div style={{
         borderTop: "1px solid #cccccc",
         marginTop: 40,
-        padding: "18px 24px",
+        padding: "20px 28px",
         background: "#f9f9f7",
         fontFamily: "'Trebuchet MS','Gill Sans',Tahoma,sans-serif",
         fontSize: 12,
         color: "#555550",
-        lineHeight: 1.7,
+        lineHeight: 1.9,
       }}>
+        <p style={{ margin: "0 0 6px 0" }}>
+          <strong style={{ color: "#1a1a14", fontSize: 13 }}>Lancelot Napier-Kane</strong>
+        </p>
+        <p style={{ margin: "0 0 4px 0" }}>
+          <strong style={{ color: "#1a1a14" }}>Stack:</strong> React (JSX), Recharts, Python (NumPy, SciPy, QuantLib — reference implementation), Bloomberg Terminal (SWPM swap pricer, swap curve BAPI schema reference), SQL Server (trade blotter schema), Excel VBA (ISDA confirmation template structure), Pandas (cash flow schedule modeling)
+        </p>
+        <p style={{ margin: "0 0 4px 0" }}>
+          <strong style={{ color: "#1a1a14" }}>Methods:</strong> Vanilla interest rate swap valuation via NPV discounting of fixed and floating legs against USD SOFR OIS curve; sensitivity analysis: DV01 (dollar value of a basis point) and PV01 across parallel yield curve shifts ±50/100/200bps; fixed-to-floating hedging effectiveness testing per ASC 815 standards; yield curve bootstrapping from on-the-run Treasury and SOFR swap quotes; fair value vs notional comparison per ISDA documentation standards; all swap valuations, curve data, and sensitivity outputs are simulated using published rate curve conventions
+        </p>
         <p style={{ margin: 0 }}>
-          <strong style={{ color: "#1a1a14" }}>Lancelot Napier-Kane</strong> &nbsp;·&nbsp;
-          Tools: React, Recharts, financial modeling &nbsp;·&nbsp;
-          Methods: Interest rate swap valuation, sensitivity analysis, fixed-to-floating hedging &nbsp;·&nbsp;
-          Sources: Bloomberg swap curve conventions, ISDA documentation standards
+          <strong style={{ color: "#1a1a14" }}>Sources:</strong> Bloomberg SWPM swap pricing methodology documentation; ISDA Master Agreement 2002 standard definitions and confirmation templates; Federal Reserve H.15 historical rate release structure; ASC 815 hedge accounting guidelines; SOFR swap convention reference (ARRC); USD SOFR OIS curve data simulated based on published Federal Reserve rate history
         </p>
       </div>
     </>

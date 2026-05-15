@@ -1753,22 +1753,28 @@ ORDER BY month DESC, borough;`}
         </div>
       </div>
 
-      {/* ─── PROJECT FOOTER ────────────────────────────────────── */}
+                  {/* ─── PROJECT FOOTER ────────────────────────────────────── */}
       <div style={{
         borderTop: "1px solid #cccccc",
         marginTop: 40,
-        padding: "18px 24px",
+        padding: "20px 28px",
         background: "#f9f9f7",
         fontFamily: "'Trebuchet MS','Gill Sans',Tahoma,sans-serif",
         fontSize: 12,
         color: "#555550",
-        lineHeight: 1.7,
+        lineHeight: 1.9,
       }}>
+        <p style={{ margin: "0 0 6px 0" }}>
+          <strong style={{ color: "#1a1a14", fontSize: 13 }}>Lancelot Napier-Kane</strong>
+        </p>
+        <p style={{ margin: "0 0 4px 0" }}>
+          <strong style={{ color: "#1a1a14" }}>Stack:</strong> React (JSX), GeoJSON (NYC borough polygons — NYC Open Data), PostgreSQL 14 (PostGIS ST_Within/ST_Contains), Python (GeoPandas, Shapely), MapLibre GL JS, Cvent API v3, Eventbrite REST API, Partiful API schema, SQL (event lifecycle schema), Node.js backend, Redis caching layer
+        </p>
+        <p style={{ margin: "0 0 4px 0" }}>
+          <strong style={{ color: "#1a1a14" }}>Methods:</strong> Citywide event scheduling with borough-level venue capacity modeling; geospatial permit density analysis by ZIP code using PostGIS spatial queries; platform comparative analysis (Cvent vs Eventbrite vs Partiful) on pricing, feature parity, and API integration depth; SQL schema architecture for event lifecycle (permit → venue → ticketing → outcome); attendance outcome modeling using historical baseline regression; NYC Parks/DOT permit approval workflow simulation; all event records, venue data, and attendance metrics are simulated based on NYC Open Data permit structures
+        </p>
         <p style={{ margin: 0 }}>
-          <strong style={{ color: "#1a1a14" }}>Lancelot Napier-Kane</strong> &nbsp;·&nbsp;
-          Tools: React, GeoJSON, SVG &nbsp;·&nbsp;
-          Methods: Event scheduling, geospatial borough analysis, venue capacity modeling &nbsp;·&nbsp;
-          Sources: NYC Parks/DOT event permits data models, NYC Open Data borough GIS
+          <strong style={{ color: "#1a1a14" }}>Sources:</strong> NYC Parks Department Special Events permit schema (NYC Open Data); NYC DOT street activity permit data; NYC Open Data borough boundary GeoJSON; Cvent and Eventbrite public API documentation; NYC Mayor's Office of Media and Entertainment event guidelines; event and attendance data simulated from published NYC permit and venue datasets
         </p>
       </div>
     </div>

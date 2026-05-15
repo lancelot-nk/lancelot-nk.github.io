@@ -510,22 +510,28 @@ export default function HRAEnterpriseApp() {
         </div>
       )}
 
-      {/* ─── PROJECT FOOTER ────────────────────────────────────── */}
+                  {/* ─── PROJECT FOOTER ────────────────────────────────────── */}
       <div style={{
         borderTop: "1px solid #cccccc",
         marginTop: 40,
-        padding: "18px 24px",
+        padding: "20px 28px",
         background: "#f9f9f7",
         fontFamily: "'Trebuchet MS','Gill Sans',Tahoma,sans-serif",
         fontSize: 12,
         color: "#555550",
-        lineHeight: 1.7,
+        lineHeight: 1.9,
       }}>
+        <p style={{ margin: "0 0 6px 0" }}>
+          <strong style={{ color: "#1a1a14", fontSize: 13 }}>Lancelot Napier-Kane</strong>
+        </p>
+        <p style={{ margin: "0 0 4px 0" }}>
+          <strong style={{ color: "#1a1a14" }}>Stack:</strong> React (JSX), PostgreSQL 14 (case management schema), Python (eligibility rule engine), NYC DSS Welfare Management System (WMS) data architecture, IBM Cúram Social Program Management (case object model), SFTP batch feed interface schema, COBOL-to-SQL extract layer (mainframe bridge), Azure SQL Database
+        </p>
+        <p style={{ margin: "0 0 4px 0" }}>
+          <strong style={{ color: "#1a1a14" }}>Methods:</strong> HRA case lifecycle workflow simulation: application intake → eligibility determination → benefit issuance → case maintenance → closure; SNAP and Cash Assistance eligibility rule application per NY Social Services Law and 7 CFR 273; WMS transaction code simulation (REAP, CAAP, SNAP program codes); Cúram case object modeling (client, household, application, program, evidence entities); mainframe EBCDIC extract parsing to relational schema; Fair Hearing workflow: adverse action notice → hearing request → ALJ decision entry; all case records, eligibility determinations, and benefit figures are simulated against real HRA program structure
+        </p>
         <p style={{ margin: 0 }}>
-          <strong style={{ color: "#1a1a14" }}>Lancelot Napier-Kane</strong> &nbsp;·&nbsp;
-          Tools: React &nbsp;·&nbsp;
-          Methods: HRA case management prototyping &nbsp;·&nbsp;
-          Sources: NYC HRA administrative frameworks
+          <strong style={{ color: "#1a1a14" }}>Sources:</strong> NYC HRA administrative policy manuals and program directives; NY OTDA program directive library; 7 CFR 273 (SNAP federal regulations); IBM Cúram SPM data model documentation; NYC DSS WMS transaction code reference guide; HRA Fair Hearing procedures (18 NYCRR 358); case data simulated based on published HRA program structures and OTDA policy frameworks
         </p>
       </div>
     </div>

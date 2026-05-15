@@ -16,6 +16,8 @@ const LazyLytxCSM          = lazy(() => import('../../projects/LytxCSMExample'))
 const LazyKingmanRFP       = lazy(() => import('../../projects/KingmanRFPInteractive'));
 const LazyHRAFraud         = lazy(() => import('../../projects/HRAFraudAuditTool'));
 const LazyHRABudget        = lazy(() => import('../../projects/HRABudgetVarianceEngine'));
+const LazyEventsConversion = lazy(() => import('../../projects/EventsConversion'));
+const LazyMASIP            = lazy(() => import('../../projects/MASIPDashboard'));
 
 // ── Image Imports ────────────────────────────────────────────────────────────
 import img1 from '../../assets/project1.jpg';
@@ -97,6 +99,24 @@ export const PROJECTS = [
     type: 'jsx',
     component: LazyNYCEvents,
     img: img9,
+  },
+  {
+    title: 'NYC Events Outreach & Conversion Funnel',
+    desc: 'Automated multi-channel outreach system for NYC event promotion — conversion funnel analytics, campaign performance tracking, lead management, channel attribution, and live attendee simulation.',
+    tech: ['React', 'Recharts', 'CRM', 'Email Automation', 'Funnel Analytics', 'NYC Events'],
+    link: '/events_conversion.jsx',
+    type: 'jsx',
+    component: LazyEventsConversion,
+    img: img9,
+  },
+  {
+    title: 'Multi-Agency Situational Intelligence Pipeline',
+    desc: 'Federal-grade multi-agency data fusion platform — real-time agency sync dashboards, classified data stream monitoring, compliance scoring, pipeline architecture visualization, and cross-agency intelligence reporting.',
+    tech: ['React', 'TypeScript', 'Federal Intelligence', 'Data Fusion', 'Compliance', 'API Integration'],
+    link: '/masip_dashboard.jsx',
+    type: 'jsx',
+    component: LazyMASIP,
+    img: img11,
   },
   {
     title: 'DC Oil Train Environmental Risk',

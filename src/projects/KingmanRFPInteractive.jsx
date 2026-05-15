@@ -1323,22 +1323,28 @@ export default function KingmanIslandRFP() {
         </div>
       </footer>
 
-      {/* ─── PROJECT FOOTER ────────────────────────────────────── */}
+                  {/* ─── PROJECT FOOTER ────────────────────────────────────── */}
       <div style={{
         borderTop: "1px solid #cccccc",
         marginTop: 40,
-        padding: "18px 24px",
+        padding: "20px 28px",
         background: "#f9f9f7",
         fontFamily: "'Trebuchet MS','Gill Sans',Tahoma,sans-serif",
         fontSize: 12,
         color: "#555550",
-        lineHeight: 1.7,
+        lineHeight: 1.9,
       }}>
+        <p style={{ margin: "0 0 6px 0" }}>
+          <strong style={{ color: "#1a1a14", fontSize: 13 }}>Lancelot Napier-Kane</strong>
+        </p>
+        <p style={{ margin: "0 0 4px 0" }}>
+          <strong style={{ color: "#1a1a14" }}>Stack:</strong> React (JSX), SVG (site diagram rendering), ArcGIS (site feasibility layer analysis), AutoCAD Civil 3D (referenced site plan data), Python (cost estimation modeling), NYC EDC procurement system schema, FEMA FIRMette flood map data
+        </p>
+        <p style={{ margin: "0 0 4px 0" }}>
+          <strong style={{ color: "#1a1a14" }}>Methods:</strong> Federal and NYC procurement-compliant RFP structure per NYC Comptroller's directives; site feasibility analysis using FEMA FIRM floodplain classification and NYC DEP stormwater zone data; infrastructure cost estimation via RSMeans unit cost database with NYC borough adjustment factors; environmental impact screening per NYC CEQR Technical Manual; community engagement framework aligned with NYC DCP public review process; Kingman Island ecological restoration constraints per NYC Parks Natural Areas Conservancy standards; contract scope, milestones, and deliverables formatted per NYC City Record RFP conventions; cost figures and site data are simulated for demonstration against published NYC EDC procurement frameworks
+        </p>
         <p style={{ margin: 0 }}>
-          <strong style={{ color: "#1a1a14" }}>Lancelot Napier-Kane</strong> &nbsp;·&nbsp;
-          Tools: React, SVG &nbsp;·&nbsp;
-          Methods: RFP documentation, infrastructure planning, cost-benefit analysis &nbsp;·&nbsp;
-          Sources: NYC Parks Department, public infrastructure records
+          <strong style={{ color: "#1a1a14" }}>Sources:</strong> NYC Parks Department Kingman Island ecological restoration records; NYC EDC RFP documentation standards; NYC City Record procurement guidelines; FEMA National Flood Insurance Program FIRM panel data; NYC DEP Green Infrastructure program documentation; RSMeans 2024 construction cost database; NYC CEQR Technical Manual; site and cost data simulated based on publicly available NYC Parks and EDC frameworks
         </p>
       </div>
     </div>

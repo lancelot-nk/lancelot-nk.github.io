@@ -1261,22 +1261,28 @@ export default function HRABudgetVarianceEngine() {
         </div>
       </div>
 
-      {/* ─── PROJECT FOOTER ────────────────────────────────────── */}
+                  {/* ─── PROJECT FOOTER ────────────────────────────────────── */}
       <div style={{
         borderTop: "1px solid #cccccc",
         marginTop: 40,
-        padding: "18px 24px",
+        padding: "20px 28px",
         background: "#f9f9f7",
         fontFamily: "'Trebuchet MS','Gill Sans',Tahoma,sans-serif",
         fontSize: 12,
         color: "#555550",
-        lineHeight: 1.7,
+        lineHeight: 1.9,
       }}>
+        <p style={{ margin: "0 0 6px 0" }}>
+          <strong style={{ color: "#1a1a14", fontSize: 13 }}>Lancelot Napier-Kane</strong>
+        </p>
+        <p style={{ margin: "0 0 4px 0" }}>
+          <strong style={{ color: "#1a1a14" }}>Stack:</strong> React (JSX), dbt Core v1.8, SQL Server 2019 (T-SQL stored procedures), SSIS (.dtsx packages), Power Automate flow triggers, Azure SQL Database, Python (Pandas, SQLAlchemy), Power BI DirectQuery, OTDA WMS mainframe EBCDIC extraction via AS/400 SFTP
+        </p>
+        <p style={{ margin: "0 0 4px 0" }}>
+          <strong style={{ color: "#1a1a14" }}>Methods:</strong> SNAP eligibility calculation per 7 CFR 273.9–273.10: gross income test at NY BBCE 200% FPL, earned income deduction (20%), shelter deduction capped at $712, net income test at 100% FPL, benefit formula; dbt 10-model DAG across staging/intermediate/mart/reporting layers with 44 data tests; SCD Type 1 household dimension modeling; SSIS package orchestration for WMS extract → benefit calc → variance flag → WMS write-back cycle; Power Automate alerting on pipeline completion; benefit variance analysis by borough, household profile, and root cause; 100,000-household dataset simulated deterministically from real NYC demographic distributions
+        </p>
         <p style={{ margin: 0 }}>
-          <strong style={{ color: "#1a1a14" }}>Lancelot Napier-Kane</strong> &nbsp;·&nbsp;
-          Tools: React, dbt, SSIS, T-SQL &nbsp;·&nbsp;
-          Methods: SNAP eligibility calculation, benefit variance analysis, ETL pipeline modeling &nbsp;·&nbsp;
-          Sources: USDA FNS FY2025 COLA memo, OTDA GIS 24DC060, NYC HRA WMS data architecture
+          <strong style={{ color: "#1a1a14" }}>Sources:</strong> USDA FNS FY2025 COLA memo (effective Oct 1 2024, OTDA GIS 24DC060); NYC HRA WMS mainframe extract schema documentation; dbt project model structure and test conventions; ACS 2023 NYC household income distribution (used to calibrate simulated caseload); SSIS catalog log structure; household data simulated based on published USDA FNS QC sampling and NYC DSS caseload demographics
         </p>
       </div>
     </div>

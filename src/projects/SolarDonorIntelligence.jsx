@@ -1365,22 +1365,28 @@ export default function SolarDonorIntelligence() {
         </div>
       </div>
 
-      {/* ─── PROJECT FOOTER ────────────────────────────────────── */}
+                  {/* ─── PROJECT FOOTER ────────────────────────────────────── */}
       <div style={{
         borderTop: "1px solid #cccccc",
         marginTop: 40,
-        padding: "18px 24px",
+        padding: "20px 28px",
         background: "#f9f9f7",
         fontFamily: "'Trebuchet MS','Gill Sans',Tahoma,sans-serif",
         fontSize: 12,
         color: "#555550",
-        lineHeight: 1.7,
+        lineHeight: 1.9,
       }}>
+        <p style={{ margin: "0 0 6px 0" }}>
+          <strong style={{ color: "#1a1a14", fontSize: 13 }}>Lancelot Napier-Kane</strong>
+        </p>
+        <p style={{ margin: "0 0 4px 0" }}>
+          <strong style={{ color: "#1a1a14" }}>Stack:</strong> React (JSX), Azure Cosmos DB (NoSQL — Core API, JSON document store, simulated), Azure Blob Storage (cold-tier archival, simulated), Azure SQL Database (relational reporting layer, simulated), Azure Data Factory (ELT pipeline architecture), Node.js (API layer), Python (Pandas, Azure SDK), Power BI DirectQuery on Cosmos DB via Azure Synapse Link
+        </p>
+        <p style={{ margin: "0 0 4px 0" }}>
+          <strong style={{ color: "#1a1a14" }}>Methods:</strong> Hybrid NoSQL/BLOB architecture design: hot donor profiles stored in simulated Cosmos DB (partition key: donor_region), cold transaction archives in simulated Azure Blob (Parquet, hierarchical namespace), relational aggregates in Azure SQL for Power BI reporting layer; donor RFM segmentation (Recency, Frequency, Monetary) computed in Python; Cosmos DB partition key design optimized for read-heavy geographic query pattern; Azure Data Factory pipeline simulating Kaggle ingestion → Blob landing zone → Cosmos DB upsert → SQL reporting mart; document schema designed per Cosmos DB Core API JSON conventions
+        </p>
         <p style={{ margin: 0 }}>
-          <strong style={{ color: "#1a1a14" }}>Lancelot Napier-Kane</strong> &nbsp;·&nbsp;
-          Tools: React, NoSQL schema modeling, Azure Blob Storage &nbsp;·&nbsp;
-          Methods: Donor segmentation, hybrid cloud data architecture, NoSQL document modeling &nbsp;·&nbsp;
-          Sources: Kaggle NGO donor datasets, Azure documentation
+          <strong style={{ color: "#1a1a14" }}>Sources:</strong> Kaggle NGO donor transaction dataset (public); Azure Cosmos DB technical architecture documentation; Azure Blob Storage data lake design patterns; Microsoft nonprofit cloud architecture guides; FinOps Foundation cloud cost allocation standards; donor transaction data sourced from Kaggle NGO dataset, adapted for NoSQL document store simulation
         </p>
       </div>
     </div>

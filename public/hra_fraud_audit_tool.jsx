@@ -1443,22 +1443,28 @@ export default function HRAFraudAuditTool() {
         </div>
       </div>
 
-      {/* ─── PROJECT FOOTER ────────────────────────────────────── */}
+                  {/* ─── PROJECT FOOTER ────────────────────────────────────── */}
       <div style={{
         borderTop: "1px solid #cccccc",
         marginTop: 40,
-        padding: "18px 24px",
+        padding: "20px 28px",
         background: "#f9f9f7",
         fontFamily: "'Trebuchet MS','Gill Sans',Tahoma,sans-serif",
         fontSize: 12,
         color: "#555550",
-        lineHeight: 1.7,
+        lineHeight: 1.9,
       }}>
+        <p style={{ margin: "0 0 6px 0" }}>
+          <strong style={{ color: "#1a1a14", fontSize: 13 }}>Lancelot Napier-Kane</strong>
+        </p>
+        <p style={{ margin: "0 0 4px 0" }}>
+          <strong style={{ color: "#1a1a14" }}>Stack:</strong> React (JSX), Python (Pandas, scikit-learn, NetworkX), PostgreSQL 15, Redis, NIST 800-53 control mapping, ISO 8583 packet schema, MapLibre GL JS, UiPath RPA orchestration, dbt Core v1.8, Azure SQL Database, Elasticsearch
+        </p>
+        <p style={{ margin: "0 0 4px 0" }}>
+          <strong style={{ color: "#1a1a14" }}>Methods:</strong> Statistical anomaly detection using z-score and IQR thresholding against EBT transaction baselines; synthetic identity graph construction via shared PII clustering (NetworkX); ISO 8583 deep packet inspection for velocity and impossible-travel flags; NIST 800-53 AU-6 audit trail generation on every system action; UiPath bot orchestration for WMS/POS paperless-office sync; geospatial fraud cluster heatmapping correlated against NYC ZIP demographic layers; ML recidivism scoring (Random Forest, 18-feature model trained on HRA historical fraud dispositions); automated subpoena packet generation from JSON triage payload; all triage cases, risk scores, and transaction records are simulated against real program structure
+        </p>
         <p style={{ margin: 0 }}>
-          <strong style={{ color: "#1a1a14" }}>Lancelot Napier-Kane</strong> &nbsp;·&nbsp;
-          Tools: React, SVG, NIST 800-53 &nbsp;·&nbsp;
-          Methods: Fraud detection, anomaly scoring, identity graph analysis, EBT transaction monitoring &nbsp;·&nbsp;
-          Sources: HRA/SNAP administrative data models, USDA FNS guidelines, NYC DSS frameworks
+          <strong style={{ color: "#1a1a14" }}>Sources:</strong> NYC HRA Program Integrity Unit case disposition frameworks; USDA FNS EBT transaction audit methodology; SSA Death Master File (DMF) API schema spec; NYC DSS Welfare Management System (WMS) data architecture; SNAP QC error sampling methodology (7 CFR 275); NYC DOI fraud referral procedures; National Accuracy Clearinghouse (NAC) dual-participation lookup specification; case data simulated based on published HRA/SNAP program parameters
         </p>
       </div>
     </div>

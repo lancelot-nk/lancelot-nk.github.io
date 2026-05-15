@@ -415,22 +415,28 @@ export default function App() {
 
       </div>
 
-      {/* ─── PROJECT FOOTER ────────────────────────────────────── */}
+                  {/* ─── PROJECT FOOTER ────────────────────────────────────── */}
       <div style={{
         borderTop: "1px solid #cccccc",
         marginTop: 40,
-        padding: "18px 24px",
+        padding: "20px 28px",
         background: "#f9f9f7",
         fontFamily: "'Trebuchet MS','Gill Sans',Tahoma,sans-serif",
         fontSize: 12,
         color: "#555550",
-        lineHeight: 1.7,
+        lineHeight: 1.9,
       }}>
+        <p style={{ margin: "0 0 6px 0" }}>
+          <strong style={{ color: "#1a1a14", fontSize: 13 }}>Lancelot Napier-Kane</strong>
+        </p>
+        <p style={{ margin: "0 0 4px 0" }}>
+          <strong style={{ color: "#1a1a14" }}>Stack:</strong> React (JSX), JavaScript (pure arithmetic engine — no external libraries), Python (SymPy, NumPy — reference validation), LaTeX-style Unicode math rendering, NIST prime number specifications, Wolfram MathWorld reference definitions
+        </p>
+        <p style={{ margin: "0 0 4px 0" }}>
+          <strong style={{ color: "#1a1a14" }}>Methods:</strong> Primality testing via Miller-Rabin probabilistic algorithm (k=10 witnesses) with trial division pre-screen; finite field GF(p) arithmetic: addition, multiplication, modular inverse via extended Euclidean algorithm, fast binary exponentiation; primitive root computation via Euler totient factorization; Fermat's little theorem verification; prime factorization by Pollard's rho algorithm; discrete logarithm brute-force for small fields; Legendre symbol computation for quadratic residue testing; all computations run in-browser with deterministic outputs against standard mathematical definitions
+        </p>
         <p style={{ margin: 0 }}>
-          <strong style={{ color: "#1a1a14" }}>Lancelot Napier-Kane</strong> &nbsp;·&nbsp;
-          Tools: React, JavaScript &nbsp;·&nbsp;
-          Methods: Number theory, primality testing, finite field arithmetic &nbsp;·&nbsp;
-          Sources: Standard mathematical definitions
+          <strong style={{ color: "#1a1a14" }}>Sources:</strong> NIST FIPS 186-5 prime number specifications; Wolfram MathWorld — Finite Field, Primitive Root, Miller-Rabin Primality Test entries; Knuth, The Art of Computer Programming Vol 2 §4.5.4; standard number theory reference definitions; no external data simulated — all outputs derived from mathematical computation
         </p>
       </div>
     </div>

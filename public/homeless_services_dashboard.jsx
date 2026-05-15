@@ -1401,22 +1401,28 @@ export default function WAHMISBackendSystem() {
         </div>
       )}
 
-      {/* ─── PROJECT FOOTER ────────────────────────────────────── */}
+                  {/* ─── PROJECT FOOTER ────────────────────────────────────── */}
       <div style={{
         borderTop: "1px solid #cccccc",
         marginTop: 40,
-        padding: "18px 24px",
+        padding: "20px 28px",
         background: "#f9f9f7",
         fontFamily: "'Trebuchet MS','Gill Sans',Tahoma,sans-serif",
         fontSize: 12,
         color: "#555550",
-        lineHeight: 1.7,
+        lineHeight: 1.9,
       }}>
+        <p style={{ margin: "0 0 6px 0" }}>
+          <strong style={{ color: "#1a1a14", fontSize: 13 }}>Lancelot Napier-Kane</strong>
+        </p>
+        <p style={{ margin: "0 0 4px 0" }}>
+          <strong style={{ color: "#1a1a14" }}>Stack:</strong> React (JSX), Recharts, Mapbox GL JS, PostgreSQL 14 (PostGIS), Python (Pandas, GeoPandas), Salesforce NPSP (nonprofit CRM), Azure Blob Storage, HMIS-compliant REST API schema, Power BI Embedded, Node.js (Express) API layer
+        </p>
+        <p style={{ margin: "0 0 4px 0" }}>
+          <strong style={{ color: "#1a1a14" }}>Methods:</strong> Shelter bed utilization rate modeling against DHS daily census; service outcome tracking across intake → placement → exit continuum; HMIS universal data element compliance (HUD HDX submission format); geospatial hotspot analysis of unsheltered population by subway corridor and borough; recidivism rate calculation for shelter re-entry within 90/180/365 days; program cost-per-exit benchmarking against national CoC averages; Salesforce NPSP workflow automation for case assignment and follow-up triggers; shelter census, placement outcomes, and client journeys are simulated based on published DHS aggregate statistics
+        </p>
         <p style={{ margin: 0 }}>
-          <strong style={{ color: "#1a1a14" }}>Lancelot Napier-Kane</strong> &nbsp;·&nbsp;
-          Tools: React, Recharts, Mapbox &nbsp;·&nbsp;
-          Methods: Case management analytics, shelter utilization tracking, service outcome analysis &nbsp;·&nbsp;
-          Sources: NYC DHS data models, HUD reporting standards, HMIS frameworks
+          <strong style={{ color: "#1a1a14" }}>Sources:</strong> NYC DHS Daily Census aggregate shelter population reports; HUD 2023 Annual Homeless Assessment Report (AHAR); HMIS Data Standards Manual FY2022 (universal data elements); NYC 311 complaint data (unsheltered sightings model); NYC Open Data DHS shelter location registry; CoC program performance benchmarks (HUD HDX); client-level data simulated from published NYC DHS statistical reports
         </p>
       </div>
     </div>
