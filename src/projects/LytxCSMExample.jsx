@@ -545,7 +545,7 @@ export default function EnterprisePlatform() {
 
   return (
     <div>
-    <div className="w-full bg-[#f3f5f7] text-[#1e293b] flex" style={{height: "750px", overflow: "hidden"}}>
+    <div className="w-full bg-[#f3f5f7] text-[#1e293b] flex" style={{height: "760px", minHeight: "600px", overflow: "hidden"}}>
 
       {/* SIDEBAR */}
 
@@ -693,7 +693,7 @@ export default function EnterprisePlatform() {
 
         {/* CONTENT */}
 
-        <div className="flex-1 overflow-auto">
+        <div className="flex-1 overflow-auto" style={{minHeight: 0}}>
 
           {/* DECISION */}
 

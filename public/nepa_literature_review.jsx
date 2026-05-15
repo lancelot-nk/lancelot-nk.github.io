@@ -8,121 +8,16 @@ import React, { useState, useEffect, useCallback, useMemo } from "react"
 
 // --- TYPE DEFINITIONS ---
 
-type NEPACategory = "CE" | "EA" | "EIS"
-type DocumentType = "technical_report" | "peer_reviewed" | "policy_memo" | "modeling_paper" | "guidance_document"
-type TransportMode = "rail" | "road" | "freight" | "urban_transit" | "intermodal"
-type ImpactDomain = "air_quality" | "noise" | "displacement" | "safety" | "congestion" | "land_use" | "environmental_justice"
-type MethodologyType = "gis_modeling" | "econometric" | "traffic_simulation" | "exposure_modeling" | "meta_analysis" | "case_study"
-type AuthoringBody = "DOT" | "FTA" | "FRA" | "EPA" | "academic" | "consultancy" | "NGO"
 
-interface LiteratureEntity {
-  id: string
-  title: string
-  authoringBody: AuthoringBody
-  institution: string
-  year: number
-  nepaCategory: NEPACategory
-  documentType: DocumentType
-  researchQuestion: string
-  methodology: MethodologyType
-  keyFindings: string[]
-  limitations: string[]
-  transportModes: TransportMode[]
-  impactDomains: ImpactDomain[]
-  evidenceStrength: number
-  citations: number
-  policyImplications: string[]
-  nepaAlignment: {
-    purposeNeed: number
-    alternatives: number
-    consequences: number
-    mitigation: number
-  }
   spatialRelevance: {
-    corridorType: string
+    corridorType
     urbanDensity: "high" | "medium" | "low"
-    exposureRadius: number
+    exposureRadius
   }
-  ejRelevance: number
-  sampleSize?: number
-  studyDuration?: string
-  peerReviewed: boolean
-}
-
-interface ThematicCluster {
-  id: string
-  name: string
-  description: string
-  literatureIds: string[]
-  consensusLevel: number
-  policyMaturity: number
-  researchGaps: string[]
-  color: string
-  keyMetrics: { label: string; value: string; trend: "up" | "down" | "stable" }[]
-}
-
-interface ContradictionField {
-  id: string
-  topic: string
-  studyA: string
-  studyB: string
-  nature: string
-  resolutionStatus: "unresolved" | "partial" | "resolved"
-  implications: string
-  methodologicalDifference: string
-}
-
-interface PolicySynthesis {
-  id: string
-  statement: string
-  supportingEvidence: number
-  regulatoryAlignment: string[]
-  actionability: "immediate" | "near_term" | "long_term"
-  confidence: number
-  implementationCost: "low" | "medium" | "high"
-  stakeholders: string[]
-}
-
-interface KnowledgeGap {
-  id: string
-  domain: string
-  description: string
-  priority: "critical" | "high" | "medium"
-  recommendedApproach: string
-  estimatedCost: string
-  timeframe: string
-}
-
-interface TemporalTrend {
-  year: number
-  focus: string
-  policyShift: string
-  evidenceStrength: number
-  publications: number
-  fundingMillion: number
-}
-
-interface EmissionsData {
-  pollutant: string
-  railFreight: number
-  roadFreight: number
-  urbanTransit: number
-  unit: string
-}
-
-interface SafetyMetric {
-  category: string
-  incidents2019: number
-  incidents2023: number
-  trend: number
-  severity: "high" | "medium" | "low"
-}
-
-interface EJMetric {
-  indicator: string
-  ejCommunity: number
-  nonEjCommunity: number
-  disparity: number
+  ejRelevance
+  sampleSize?
+  studyDuration?
+  peerReviewed
 }
 
 // --- SYNTHETIC DATA GENERATORS ---
@@ -166,7 +61,7 @@ const generateLiteratureCorpus = (): LiteratureEntity[] => {
     "Multi-Jurisdictional NEPA Coordination Best Practices"
   ]
 
-  const institutions: Record<AuthoringBody, string[]> = {
+  const institutions = {
     DOT: ["Office of the Secretary", "Volpe National Transportation Center", "Bureau of Transportation Statistics", "Office of Policy"],
     FTA: ["Office of Planning and Environment", "Office of Civil Rights", "Office of Research", "Office of Program Management"],
     FRA: ["Office of Railroad Safety", "Office of Railroad Policy and Development", "Hazardous Materials Division", "Office of Research"],
@@ -198,7 +93,7 @@ const generateLiteratureCorpus = (): LiteratureEntity[] => {
     "PM2.5 exposure peaks occur during early morning freight switching operations",
     "Community engagement effectiveness increases with multilingual outreach strategies",
     "Climate vulnerability assessments remain inconsistent across state DOT practices",
-    "Health impact assessments identify respiratory conditions as primary concern within 300m buffer",
+    "Health impact assessments identify respiratory conditions concern within 300m buffer",
     "NEPA review timelines have decreased 23% under streamlining provisions without measurable environmental degradation",
     "Displacement risk indicators show strongest correlation with housing cost burden metrics",
     "Air quality conformity determinations increasingly challenged in nonattainment areas",
@@ -234,12 +129,12 @@ const generateLiteratureCorpus = (): LiteratureEntity[] => {
     "Advocates for interagency coordination on air quality conformity"
   ]
 
-  const bodies: AuthoringBody[] = ["DOT", "FTA", "FRA", "EPA", "academic", "consultancy", "NGO"]
-  const nepaCategories: NEPACategory[] = ["CE", "EA", "EIS"]
-  const docTypes: DocumentType[] = ["technical_report", "peer_reviewed", "policy_memo", "modeling_paper", "guidance_document"]
-  const modes: TransportMode[] = ["rail", "road", "freight", "urban_transit", "intermodal"]
-  const domains: ImpactDomain[] = ["air_quality", "noise", "displacement", "safety", "congestion", "land_use", "environmental_justice"]
-  const methodologies: MethodologyType[] = ["gis_modeling", "econometric", "traffic_simulation", "exposure_modeling", "meta_analysis", "case_study"]
+  const bodies = ["DOT", "FTA", "FRA", "EPA", "academic", "consultancy", "NGO"]
+  const nepaCategories = ["CE", "EA", "EIS"]
+  const docTypes = ["technical_report", "peer_reviewed", "policy_memo", "modeling_paper", "guidance_document"]
+  const modes = ["rail", "road", "freight", "urban_transit", "intermodal"]
+  const domains = ["air_quality", "noise", "displacement", "safety", "congestion", "land_use", "environmental_justice"]
+  const methodologies = ["gis_modeling", "econometric", "traffic_simulation", "exposure_modeling", "meta_analysis", "case_study"]
   const corridorTypes = ["freight mainline", "commuter rail", "light rail", "intermodal connector", "grade crossing zone", "rail yard adjacent"]
   const densities: ("high" | "medium" | "low")[] = ["high", "medium", "low"]
   const durations = ["6 months", "12 months", "18 months", "24 months", "36 months", "5 years", "10 years"]
@@ -294,8 +189,8 @@ const generateLiteratureCorpus = (): LiteratureEntity[] => {
   })
 }
 
-const generateThematicClusters = (literature: LiteratureEntity[]): ThematicCluster[] => {
-  const clusters: ThematicCluster[] = [
+const generateThematicClusters = (literature): ThematicCluster[] => {
+  const clusters = [
     {
       id: "CLU-001",
       name: "Urban Freight Emissions Cluster",
@@ -375,7 +270,7 @@ const generateThematicClusters = (literature: LiteratureEntity[]): ThematicClust
   return clusters
 }
 
-const generateContradictions = (literature: LiteratureEntity[]): ContradictionField[] => {
+const generateContradictions = (literature): ContradictionField[] => {
   return [
     {
       id: "CON-001",
@@ -503,7 +398,7 @@ const generatePolicySyntheses = (): PolicySynthesis[] => {
     },
     {
       id: "POL-002",
-      statement: "NEPA categorical exclusion thresholds for urban contexts may require recalibration, as cumulative impact studies demonstrate that individually minor actions can aggregate to significant environmental effects in dense environments.",
+      statement: "NEPA categorical exclusion thresholds for urban contexts may require recalibration, impact studies demonstrate that individually minor actions can aggregate to significant environmental effects in dense environments.",
       supportingEvidence: 62,
       regulatoryAlignment: ["40 CFR 1501.4", "FRA NEPA Procedures", "CEQ Guidance"],
       actionability: "near_term",
@@ -601,12 +496,12 @@ const generateEJMetrics = (): EJMetric[] => {
 
 // --- UTILITY FUNCTIONS ---
 
-const formatLabel = (str: string): string => {
+const formatLabel = (str) => {
   return str.split("_").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")
 }
 
-const getBodyColor = (body: AuthoringBody): string => {
-  const colors: Record<AuthoringBody, string> = {
+const getBodyColor = (body) => {
+  const colors = {
     DOT: "#1e3a5f",
     FTA: "#0c4a6e",
     FRA: "#134e4a",
@@ -618,8 +513,8 @@ const getBodyColor = (body: AuthoringBody): string => {
   return colors[body]
 }
 
-const getNEPABadgeStyle = (category: NEPACategory): string => {
-  const styles: Record<NEPACategory, string> = {
+const getNEPABadgeStyle = (category) => {
+  const styles = {
     CE: "bg-slate-200 text-slate-700",
     EA: "bg-amber-100 text-amber-800",
     EIS: "bg-sky-100 text-sky-800"
@@ -629,7 +524,7 @@ const getNEPABadgeStyle = (category: NEPACategory): string => {
 
 // --- CHART COMPONENTS ---
 
-const BarChart: React.FC<{ data: { label: string; value: number; color?: string }[]; maxValue?: number; height?: number }> = ({ 
+const BarChart = ({ 
   data, 
   maxValue, 
   height = 200 
@@ -698,7 +593,7 @@ const BarChart: React.FC<{ data: { label: string; value: number; color?: string 
   )
 }
 
-const LineChart: React.FC<{ data: { x: number; y: number; y2?: number }[]; xLabels?: string[]; height?: number }> = ({ 
+const LineChart = ({ 
   data, 
   xLabels,
   height = 220 
@@ -707,8 +602,8 @@ const LineChart: React.FC<{ data: { x: number; y: number; y2?: number }[]; xLabe
   const minX = Math.min(...data.map(d => d.x))
   const maxX = Math.max(...data.map(d => d.x))
   
-  const scaleX = (x: number) => 60 + ((x - minX) / (maxX - minX)) * 540
-  const scaleY = (y: number) => height - 50 - ((y / maxY) * (height - 70))
+  const scaleX = (x) => 60 + ((x - minX) / (maxX - minX)) * 540
+  const scaleY = (y) => height - 50 - ((y / maxY) * (height - 70))
   
   const pathD = data.map((d, i) => `${i === 0 ? 'M' : 'L'} ${scaleX(d.x)} ${scaleY(d.y)}`).join(' ')
   const pathD2 = data.filter(d => d.y2 !== undefined).map((d, i) => `${i === 0 ? 'M' : 'L'} ${scaleX(d.x)} ${scaleY(d.y2!)}`).join(' ')
@@ -757,7 +652,7 @@ const LineChart: React.FC<{ data: { x: number; y: number; y2?: number }[]; xLabe
   )
 }
 
-const DonutChart: React.FC<{ data: { label: string; value: number; color: string }[]; size?: number }> = ({ 
+const DonutChart = ({ 
   data, 
   size = 180 
 }) => {
@@ -773,12 +668,12 @@ const DonutChart: React.FC<{ data: { label: string; value: number; color: string
     return { ...d, startAngle, angle }
   })
   
-  const polarToCartesian = (cx: number, cy: number, r: number, angleDeg: number) => {
+  const polarToCartesian = (cx, cy, r, angleDeg) => {
     const angleRad = (angleDeg * Math.PI) / 180
     return { x: cx + r * Math.cos(angleRad), y: cy + r * Math.sin(angleRad) }
   }
   
-  const describeArc = (cx: number, cy: number, r: number, startAngle: number, endAngle: number) => {
+  const describeArc = (cx, cy, r, startAngle, endAngle) => {
     const start = polarToCartesian(cx, cy, r, endAngle)
     const end = polarToCartesian(cx, cy, r, startAngle)
     const largeArcFlag = endAngle - startAngle <= 180 ? 0 : 1
@@ -820,7 +715,7 @@ const DonutChart: React.FC<{ data: { label: string; value: number; color: string
 
 // --- COMPONENT DEFINITIONS ---
 
-const SystemHeader: React.FC = () => (
+const SystemHeader = () => (
   <header className="sticky top-0 z-50 bg-slate-50/95 backdrop-blur-sm border-b border-slate-300 px-6 py-4">
     <div className="max-w-5xl mx-auto">
       <div className="flex items-start justify-between gap-4">
@@ -846,7 +741,7 @@ const SystemHeader: React.FC = () => (
   </header>
 )
 
-const ExecutiveSummary: React.FC<{ literature: LiteratureEntity[] }> = ({ literature }) => {
+const ExecutiveSummary = ({ literature }) => {
   const avgEvidence = Math.round(literature.reduce((acc, l) => acc + l.evidenceStrength, 0) / literature.length)
   const peerReviewedCount = literature.filter(l => l.peerReviewed).length
   const ejFocusCount = literature.filter(l => l.ejRelevance > 60).length
@@ -921,7 +816,7 @@ const ExecutiveSummary: React.FC<{ literature: LiteratureEntity[] }> = ({ litera
   )
 }
 
-const ResearchFieldIntroduction: React.FC = () => (
+const ResearchFieldIntroduction = () => (
   <section className="px-6 py-12 border-b border-slate-200">
     <div className="max-w-5xl mx-auto">
       <div className="mb-8">
@@ -984,7 +879,7 @@ const ResearchFieldIntroduction: React.FC = () => (
   </section>
 )
 
-const EmissionsComparisonSection: React.FC<{ emissionsData: EmissionsData[] }> = ({ emissionsData }) => (
+const EmissionsComparisonSection = ({ emissionsData }) => (
   <section className="px-6 py-12 border-b border-slate-200 bg-slate-50/50">
     <div className="max-w-5xl mx-auto">
       <div className="mb-8">
@@ -1061,7 +956,7 @@ const EmissionsComparisonSection: React.FC<{ emissionsData: EmissionsData[] }> =
   </section>
 )
 
-const SafetyAnalyticsSection: React.FC<{ safetyData: SafetyMetric[] }> = ({ safetyData }) => (
+const SafetyAnalyticsSection = ({ safetyData }) => (
   <section className="px-6 py-12 border-b border-slate-200">
     <div className="max-w-5xl mx-auto">
       <div className="mb-8">
@@ -1163,7 +1058,7 @@ const SafetyAnalyticsSection: React.FC<{ safetyData: SafetyMetric[] }> = ({ safe
   </section>
 )
 
-const EJAnalyticsSection: React.FC<{ ejData: EJMetric[] }> = ({ ejData }) => (
+const EJAnalyticsSection = ({ ejData }) => (
   <section className="px-6 py-12 border-b border-slate-200 bg-sky-50/30">
     <div className="max-w-5xl mx-auto">
       <div className="mb-8">
@@ -1244,13 +1139,7 @@ const EJAnalyticsSection: React.FC<{ ejData: EJMetric[] }> = ({ ejData }) => (
   </section>
 )
 
-interface LiteratureEntityCardProps {
-  entity: LiteratureEntity
-  isExpanded: boolean
-  onToggle: () => void
-}
-
-const LiteratureEntityCard: React.FC<LiteratureEntityCardProps> = ({ entity, isExpanded, onToggle }) => (
+const LiteratureEntityCard = ({ entity, isExpanded, onToggle }) => (
   <article 
     className="bg-white border border-slate-200 hover:border-slate-300 transition-colors cursor-pointer"
     onClick={onToggle}
@@ -1366,14 +1255,7 @@ const LiteratureEntityCard: React.FC<LiteratureEntityCardProps> = ({ entity, isE
   </article>
 )
 
-interface LiteratureSurfaceProps {
-  literature: LiteratureEntity[]
-  expandedIds: Set<string>
-  onToggle: (id: string) => void
-  visibleCount: number
-}
-
-const LiteratureSurface: React.FC<LiteratureSurfaceProps> = ({ literature, expandedIds, onToggle, visibleCount }) => (
+const LiteratureSurface = ({ literature, expandedIds, onToggle, visibleCount }) => (
   <section className="px-6 py-12 border-b border-slate-200 bg-slate-50/30">
     <div className="max-w-5xl mx-auto">
       <div className="mb-8">
@@ -1408,11 +1290,7 @@ const LiteratureSurface: React.FC<LiteratureSurfaceProps> = ({ literature, expan
   </section>
 )
 
-interface ThematicClusterLayerProps {
-  clusters: ThematicCluster[]
-}
-
-const ThematicClusterLayer: React.FC<ThematicClusterLayerProps> = ({ clusters }) => (
+const ThematicClusterLayer = ({ clusters }) => (
   <section className="px-6 py-12 border-b border-slate-200">
     <div className="max-w-5xl mx-auto">
       <div className="mb-8">
@@ -1506,13 +1384,8 @@ const ThematicClusterLayer: React.FC<ThematicClusterLayerProps> = ({ clusters })
   </section>
 )
 
-interface ContradictionLayerProps {
-  contradictions: ContradictionField[]
-  literature: LiteratureEntity[]
-}
-
-const ContradictionLayer: React.FC<ContradictionLayerProps> = ({ contradictions, literature }) => {
-  const getTitle = (id: string) => literature.find(l => l.id === id)?.title || id
+const ContradictionLayer = ({ contradictions, literature }) => {
+  const getTitle = (id) => literature.find(l => l.id === id)?.title || id
 
   return (
     <section className="px-6 py-12 border-b border-slate-200 bg-red-50/20">
@@ -1573,11 +1446,7 @@ const ContradictionLayer: React.FC<ContradictionLayerProps> = ({ contradictions,
   )
 }
 
-interface PolicyTranslationLayerProps {
-  syntheses: PolicySynthesis[]
-}
-
-const PolicyTranslationLayer: React.FC<PolicyTranslationLayerProps> = ({ syntheses }) => (
+const PolicyTranslationLayer = ({ syntheses }) => (
   <section className="px-6 py-12 border-b border-slate-200 bg-sky-50/20">
     <div className="max-w-5xl mx-auto">
       <div className="mb-8">
@@ -1669,7 +1538,7 @@ const PolicyTranslationLayer: React.FC<PolicyTranslationLayerProps> = ({ synthes
   </section>
 )
 
-const TemporalAnalysisSection: React.FC<{ trends: TemporalTrend[] }> = ({ trends }) => (
+const TemporalAnalysisSection = ({ trends }) => (
   <section className="px-6 py-12 border-b border-slate-200">
     <div className="max-w-5xl mx-auto">
       <div className="mb-8">
@@ -1740,11 +1609,7 @@ const TemporalAnalysisSection: React.FC<{ trends: TemporalTrend[] }> = ({ trends
   </section>
 )
 
-interface KnowledgeGapLayerProps {
-  gaps: KnowledgeGap[]
-}
-
-const KnowledgeGapLayer: React.FC<KnowledgeGapLayerProps> = ({ gaps }) => (
+const KnowledgeGapLayer = ({ gaps }) => (
   <section className="px-6 py-12 bg-amber-50/30">
     <div className="max-w-5xl mx-auto">
       <div className="mb-8">
@@ -1823,7 +1688,7 @@ const KnowledgeGapLayer: React.FC<KnowledgeGapLayerProps> = ({ gaps }) => (
   </section>
 )
 
-const MethodologySection: React.FC = () => (
+const MethodologySection = () => (
   <section className="px-6 py-12 border-b border-slate-200">
     <div className="max-w-5xl mx-auto">
       <div className="mb-8">
@@ -1898,7 +1763,7 @@ const MethodologySection: React.FC = () => (
   </section>
 )
 
-const SystemFooter: React.FC = () => (
+const SystemFooter = () => (
   <footer className="px-6 py-8 bg-slate-100 border-t border-slate-200">
     <div className="max-w-5xl mx-auto">
       <div className="flex items-center justify-between text-xs text-slate-500">
@@ -1934,11 +1799,11 @@ export default function NEPALiteratureReviewApplet() {
   const safetyData = useMemo(() => generateSafetyMetrics(), [])
   const ejData = useMemo(() => generateEJMetrics(), [])
 
-  const [expandedLiterature, setExpandedLiterature] = useState<Set<string>>(new Set())
+  const [expandedLiterature, setExpandedLiterature] = useState>(new Set())
   const [visibleLiteratureCount, setVisibleLiteratureCount] = useState(6)
   const [scrollProgress, setScrollProgress] = useState(0)
 
-  const toggleLiterature = useCallback((id: string) => {
+  const toggleLiterature = useCallback((id) => {
     setExpandedLiterature(prev => {
       const next = new Set(prev)
       if (next.has(id)) {

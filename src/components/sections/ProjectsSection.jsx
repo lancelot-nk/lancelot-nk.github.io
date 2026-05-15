@@ -23,6 +23,8 @@ const LazyNYCEventsAnnual  = lazy(() => import('../../projects/NYCEventsAnnualRe
 const LazyFedGrant         = lazy(() => import('../../projects/FedGrantAndDataWarehouse'));
 const LazyARCGIS           = lazy(() => import('../../projects/ARCGIScaseviewer'));
 const LazyNISTAudit        = lazy(() => import('../../projects/NISTcyberAudit'));
+const LazyOilTrainReport   = lazy(() => import('../../projects/OilTrainInteractiveReport'));
+const LazyNEPAReview       = lazy(() => import('../../projects/NEPALiteratureReview'));
 
 // ── Image Imports ────────────────────────────────────────────────────────────
 import img1 from '../../assets/project1.jpg';
@@ -193,6 +195,24 @@ export const PROJECTS = [
     link: '/lytx_csm_example.jsx',
     type: 'jsx',
     component: LazyLytxCSM,
+    img: img13,
+  },
+  {
+    title: 'DC Oil Train Safety Interactive Report',
+    desc: 'Continuous-scroll civic risk intelligence report — real-time rail corridor hazmat monitoring, tank car risk classification, community exposure modeling, weather-adjusted risk scoring, and incident tracking across DC-area rail infrastructure.',
+    tech: ['React', 'TypeScript', 'FRA Data', 'PHMSA', 'Risk Modeling', 'Public Safety', 'Hazmat', 'Rail Safety'],
+    link: '/oil_train_interactive_report.jsx',
+    type: 'jsx',
+    component: LazyOilTrainReport,
+    img: img13,
+  },
+  {
+    title: 'NEPA Urban Transport Literature Review',
+    desc: 'Federal environmental research synthesis system — NEPA alignment scoring, thematic clustering, contradiction detection, evidence strength analysis, environmental justice metrics, and policy translation across FRA/FTA/EPA literature.',
+    tech: ['React', 'TypeScript', 'NEPA', 'FRA', 'Environmental Justice', 'Literature Analysis', 'Policy Synthesis', 'DOT'],
+    link: '/nepa_literature_review.jsx',
+    type: 'jsx',
+    component: LazyNEPAReview,
     img: img13,
   },
   {

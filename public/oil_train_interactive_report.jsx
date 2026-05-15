@@ -7,59 +7,10 @@ import { useState, useEffect, useRef } from "react"
 // ============================================================================
 
 // --- TYPE DEFINITIONS ---
-interface TrainMovement {
-  id: string
-  cargoType: "crude_oil" | "refined_petroleum" | "mixed_hazmat"
-  routeSegment: string
-  speed: number
-  frequency: number
-  riskClass: string
-  position: number // 0-100 along corridor
-  tankCarType: "DOT-111" | "CPC-1232" | "DOT-117"
-}
-
-interface RailSegment {
-  id: string
-  name: string
-  zone: string
-  populationAdjacency: number
-  infrastructureCondition: number
-  accidentLikelihood: number
-  inspectionCompliance: number
-  lastInspection: string
-}
-
-interface CommunityExposure {
-  id: string
-  name: string
-  type: "school" | "hospital" | "housing" | "federal" | "transit"
-  population: number
-  distanceToRail: number
-  evacuationScore: number
-  vulnerabilityIndex: number
-  coordinates: { x: number; y: number }
-}
-
-interface Incident {
-  id: string
-  type: "derailment" | "leak" | "inspection_failure" | "near_miss"
-  date: string
-  severity: "minor" | "moderate" | "severe"
-  responseTime: number
-  environmentalImpact: number
-  description: string
-  segment: string
-}
-
-interface WeatherCondition {
-  temperature: number
-  precipitation: "none" | "light" | "heavy"
-  wind: number
-  inversionLayer: boolean
 }
 
 // --- SIMULATED DATA ---
-const RAIL_SEGMENTS: RailSegment[] = [
+const RAIL_SEGMENTS = [
   { id: "SEG-01", name: "Virginia Avenue Tunnel Approach", zone: "Southwest DC", populationAdjacency: 0.89, infrastructureCondition: 0.72, accidentLikelihood: 0.18, inspectionCompliance: 0.91, lastInspection: "2024-01-15" },
   { id: "SEG-02", name: "Anacostia River Crossing", zone: "Southeast DC", populationAdjacency: 0.76, infrastructureCondition: 0.68, accidentLikelihood: 0.22, inspectionCompliance: 0.85, lastInspection: "2024-02-03" },
   { id: "SEG-03", name: "Union Station Rail Yard", zone: "Northeast DC", populationAdjacency: 0.94, infrastructureCondition: 0.81, accidentLikelihood: 0.12, inspectionCompliance: 0.95, lastInspection: "2024-01-28" },
@@ -68,7 +19,7 @@ const RAIL_SEGMENTS: RailSegment[] = [
   { id: "SEG-06", name: "CSX Metropolitan Branch", zone: "Northwest DC", populationAdjacency: 0.88, infrastructureCondition: 0.77, accidentLikelihood: 0.14, inspectionCompliance: 0.92, lastInspection: "2024-02-01" },
 ]
 
-const COMMUNITY_EXPOSURES: CommunityExposure[] = [
+const COMMUNITY_EXPOSURES = [
   { id: "CE-01", name: "Amidon-Bowen Elementary", type: "school", population: 420, distanceToRail: 180, evacuationScore: 0.72, vulnerabilityIndex: 0.81, coordinates: { x: 35, y: 42 } },
   { id: "CE-02", name: "Providence Hospital", type: "hospital", population: 1200, distanceToRail: 340, evacuationScore: 0.58, vulnerabilityIndex: 0.89, coordinates: { x: 62, y: 28 } },
   { id: "CE-03", name: "Capitol Hill Towers", type: "housing", population: 890, distanceToRail: 220, evacuationScore: 0.65, vulnerabilityIndex: 0.74, coordinates: { x: 48, y: 55 } },
@@ -79,7 +30,7 @@ const COMMUNITY_EXPOSURES: CommunityExposure[] = [
   { id: "CE-08", name: "Ivy City Residential Complex", type: "housing", population: 2200, distanceToRail: 150, evacuationScore: 0.54, vulnerabilityIndex: 0.88, coordinates: { x: 68, y: 35 } },
 ]
 
-const HISTORICAL_INCIDENTS: Incident[] = [
+const HISTORICAL_INCIDENTS = [
   { id: "INC-2019-04", type: "near_miss", date: "2019-04-12", severity: "moderate", responseTime: 0, environmentalImpact: 0, description: "Bearing overheat detected 200m before residential zone. Train halted successfully.", segment: "SEG-05" },
   { id: "INC-2020-08", type: "inspection_failure", date: "2020-08-23", severity: "minor", responseTime: 0, environmentalImpact: 0, description: "Track geometry deviation identified during routine FRA inspection.", segment: "SEG-02" },
   { id: "INC-2021-02", type: "leak", date: "2021-02-15", severity: "minor", responseTime: 42, environmentalImpact: 0.12, description: "Minor valve leak on tank car. Contained within 45 minutes.", segment: "SEG-04" },
@@ -90,7 +41,7 @@ const HISTORICAL_INCIDENTS: Incident[] = [
 // --- CALCULATION ENGINES ---
 
 // Engine 1: Hazmat Risk Propagation
-function calculateHazmatRiskPropagation(segment: RailSegment, cargoType: string, weather: WeatherCondition): number {
+function calculateHazmatRiskPropagation(segment, cargoType, weather) {
   const baseRisk = segment.accidentLikelihood
   const cargoMultiplier = cargoType === "crude_oil" ? 1.4 : cargoType === "refined_petroleum" ? 1.2 : 1.0
   const weatherMultiplier = weather.precipitation === "heavy" ? 1.3 : weather.precipitation === "light" ? 1.1 : 1.0
@@ -100,7 +51,7 @@ function calculateHazmatRiskPropagation(segment: RailSegment, cargoType: string,
 }
 
 // Engine 2: Train Frequency Exposure
-function calculateFrequencyExposure(trains: TrainMovement[], segment: RailSegment): number {
+function calculateFrequencyExposure(trains, segment) {
   const trainsInSegment = trains.filter(t => t.routeSegment === segment.id).length
   const frequencySum = trains.reduce((sum, t) => sum + t.frequency, 0)
   const exposureIndex = (trainsInSegment * 0.4) + (frequencySum / 100 * 0.6)
@@ -108,7 +59,7 @@ function calculateFrequencyExposure(trains: TrainMovement[], segment: RailSegmen
 }
 
 // Engine 3: Population Impact
-function calculatePopulationImpact(community: CommunityExposure, riskLevel: number): number {
+function calculatePopulationImpact(community, riskLevel) {
   const distanceFactor = Math.max(0, 1 - (community.distanceToRail / 1000))
   const vulnerabilityWeight = community.vulnerabilityIndex
   const populationScale = Math.log10(community.population + 1) / 5
@@ -116,7 +67,7 @@ function calculatePopulationImpact(community: CommunityExposure, riskLevel: numb
 }
 
 // Engine 4: Infrastructure Failure Probability
-function calculateInfrastructureFailure(segment: RailSegment, daysSinceInspection: number): number {
+function calculateInfrastructureFailure(segment, daysSinceInspection) {
   const conditionBase = 1 - segment.infrastructureCondition
   const inspectionDecay = Math.min(daysSinceInspection / 365, 1) * 0.3
   const compliancePenalty = (1 - segment.inspectionCompliance) * 0.25
@@ -124,7 +75,7 @@ function calculateInfrastructureFailure(segment: RailSegment, daysSinceInspectio
 }
 
 // Engine 5: Emergency Response Timing
-function calculateResponseTiming(community: CommunityExposure, segment: RailSegment): { responseTime: number; feasibility: number } {
+function calculateResponseTiming(community, segment): { responseTime; feasibility } {
   const baseTime = 8 + (community.distanceToRail / 50)
   const infrastructurePenalty = (1 - segment.infrastructureCondition) * 5
   const evacuationFactor = community.evacuationScore
@@ -134,7 +85,7 @@ function calculateResponseTiming(community: CommunityExposure, segment: RailSegm
 }
 
 // Engine 6: Incident Forecast (FRA-style)
-function calculateIncidentForecast(segment: RailSegment, weather: WeatherCondition, historicalIncidents: Incident[]): number {
+function calculateIncidentForecast(segment, weather, historicalIncidents) {
   const segmentIncidents = historicalIncidents.filter(i => i.segment === segment.id).length
   const historicalWeight = segmentIncidents * 0.08
   const conditionRisk = (1 - segment.infrastructureCondition) * 0.35
@@ -143,7 +94,7 @@ function calculateIncidentForecast(segment: RailSegment, weather: WeatherConditi
 }
 
 // Engine 7: NEPA Environmental Impact
-function calculateEnvironmentalImpact(segment: RailSegment, community: CommunityExposure, spillProbability: number): { airQuality: number; soilRisk: number; waterRisk: number } {
+function calculateEnvironmentalImpact(segment, community, spillProbability): { airQuality; soilRisk; waterRisk } {
   const baseImpact = spillProbability * 0.7
   const proximityFactor = Math.max(0, 1 - (community.distanceToRail / 800))
   return {
@@ -154,8 +105,8 @@ function calculateEnvironmentalImpact(segment: RailSegment, community: Community
 }
 
 // Engine 8: Regulatory Compliance (FRA Alignment)
-function calculateRegulatoryCompliance(segment: RailSegment): { score: number; status: string; findings: string[] } {
-  const findings: string[] = []
+function calculateRegulatoryCompliance(segment): { score; status; findings[] } {
+  const findings[] = []
   let score = segment.inspectionCompliance * 100
   
   if (segment.infrastructureCondition < 0.7) {
@@ -172,7 +123,7 @@ function calculateRegulatoryCompliance(segment: RailSegment): { score: number; s
 }
 
 // Engine 9: Systemic Risk Amplification
-function calculateSystemicRisk(segments: RailSegment[], primaryFailure: string): number {
+function calculateSystemicRisk(segments, primaryFailure) {
   const failedSegment = segments.find(s => s.id === primaryFailure)
   if (!failedSegment) return 0
   
@@ -185,20 +136,20 @@ function calculateSystemicRisk(segments: RailSegment[], primaryFailure: string):
 }
 
 // Engine 10: Tank Car Fleet Risk
-function calculateTankCarRisk(train: TrainMovement): number {
+function calculateTankCarRisk(train) {
   const tankCarRisk = { "DOT-111": 0.35, "CPC-1232": 0.18, "DOT-117": 0.08 }
   return tankCarRisk[train.tankCarType] || 0.2
 }
 
 // Engine 11: Environmental Justice Index
-function calculateEnvironmentalJustice(community: CommunityExposure, cumulativeExposure: number): number {
+function calculateEnvironmentalJustice(community, cumulativeExposure) {
   const socioeconomicWeight = community.type === "housing" ? 1.3 : community.type === "school" ? 1.5 : 1.0
   const proximityBurden = Math.max(0, 1 - (community.distanceToRail / 500)) * 1.2
   return Math.min(cumulativeExposure * socioeconomicWeight * proximityBurden * community.vulnerabilityIndex, 1.0)
 }
 
 // Engine 12: Vapor Cloud Ignition Model (Bakken Crude)
-function calculateVaporIgnitionRisk(weather: WeatherCondition, distanceFromSource: number): number {
+function calculateVaporIgnitionRisk(weather, distanceFromSource) {
   const baseVolatility = 0.42 // Bakken crude high vapor pressure
   const windDispersion = weather.wind > 15 ? 0.7 : weather.wind > 5 ? 0.85 : 1.0
   const temperatureEffect = weather.temperature > 80 ? 1.3 : weather.temperature > 60 ? 1.1 : 1.0
@@ -210,15 +161,15 @@ function calculateVaporIgnitionRisk(weather: WeatherCondition, distanceFromSourc
 export default function DCOilTrainSafetyNewsletter() {
   const [scrollProgress, setScrollProgress] = useState(0)
   const [activeLayer, setActiveLayer] = useState(1)
-  const [weather, setWeather] = useState<WeatherCondition>({ temperature: 68, precipitation: "none", wind: 8, inversionLayer: false })
-  const [trains, setTrains] = useState<TrainMovement[]>([
+  const [weather, setWeather] = useState({ temperature: 68, precipitation: "none", wind: 8, inversionLayer: false })
+  const [trains, setTrains] = useState([
     { id: "HM-4471", cargoType: "crude_oil", routeSegment: "SEG-01", speed: 35, frequency: 12, riskClass: "Class 3", position: 15, tankCarType: "DOT-117" },
     { id: "HM-4472", cargoType: "refined_petroleum", routeSegment: "SEG-03", speed: 28, frequency: 8, riskClass: "Class 3", position: 45, tankCarType: "CPC-1232" },
     { id: "HM-4473", cargoType: "crude_oil", routeSegment: "SEG-05", speed: 32, frequency: 15, riskClass: "Class 3", position: 72, tankCarType: "DOT-111" },
   ])
-  const [selectedIncident, setSelectedIncident] = useState<Incident | null>(null)
+  const [selectedIncident, setSelectedIncident] = useState(null)
   const [systemTime, setSystemTime] = useState(new Date())
-  const containerRef = useRef<HTMLDivElement>(null)
+  const containerRef = useRef(null)
 
   // Scroll tracking
   useEffect(() => {
@@ -325,7 +276,7 @@ export default function DCOilTrainSafetyNewsletter() {
         </div>
       </header>
 
-      {/* =========== SCROLL LAYER 1: INTRODUCTION =========== */}
+      {/* =========== SCROLL LAYER 1=========== */}
       <section className="min-h-screen pt-24 px-6 flex flex-col justify-center bg-gradient-to-b from-neutral-50 to-white">
         <div className="max-w-4xl mx-auto">
           <div className="mb-8">
@@ -1147,7 +1098,7 @@ export default function DCOilTrainSafetyNewsletter() {
 
             <div className="mt-8 p-4 bg-white/5 border border-white/10 rounded-lg">
               <p className="text-xs text-neutral-500 leading-relaxed">
-                This interactive public safety intelligence report was produced as a demonstration of 
+                This interactive public safety intelligence report was produced demonstration of 
                 FRA-aligned hazardous materials risk communication methodology. All data presented is 
                 simulated for illustrative purposes and does not represent actual operational conditions. 
                 For official rail safety information, consult FRA.gov and PHMSA.dot.gov.
