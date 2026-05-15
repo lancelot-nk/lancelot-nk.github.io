@@ -557,7 +557,7 @@ export default function B2BChurnPredictorSimulation() {
                     <Truck className="h-5 w-5 text-white" />
                   </div>
                   <div>
-                    <h1 className="text-sm font-semibold text-white">Lytx Fleet Intelligence</h1>
+                    <h1 className="text-sm font-semibold text-slate-900">Lytx Fleet Intelligence</h1>
                     <p className="text-[10px] text-slate-500">B2B Target Tracker & Churn Predictor</p>
                   </div>
                 </div>
@@ -707,7 +707,7 @@ export default function B2BChurnPredictorSimulation() {
               {/* Performance Summary Narrative */}
               <div className="mt-6 rounded-lg border border-slate-200 bg-white p-4">
                 <p className="text-sm text-slate-500">
-                  <span className="text-white font-medium">Performance Analysis:</span>{" "}
+                  <span className="text-slate-900 font-medium">Performance Analysis:</span>{" "}
                   The top quartile of representatives maintains an average quota attainment of{" "}
                   <span className="text-emerald-400 font-medium">
                     {formatPercent(salesReps.slice(0, 3).reduce((sum, r) => sum + r.quotaAttainment, 0) / 3)}
@@ -921,7 +921,7 @@ export default function B2BChurnPredictorSimulation() {
 
               {/* Churn Distribution Summary */}
               <div className="mt-6 rounded-xl border border-slate-200 bg-white p-6">
-                <h3 className="mb-4 text-sm font-medium text-white">Portfolio Churn Risk Distribution</h3>
+                <h3 className="mb-4 text-sm font-medium text-slate-900">Portfolio Churn Risk Distribution</h3>
                 <div className="flex items-end justify-between gap-2">
                   {[
                     { range: "0-20%", label: "Low", color: "bg-emerald-500" },
@@ -1070,7 +1070,7 @@ export default function B2BChurnPredictorSimulation() {
 
               {/* Territory Rebalancing Analysis */}
               <div className="rounded-xl border border-slate-200 bg-white p-6">
-                <h3 className="mb-4 text-sm font-medium text-white">Territory Performance & Coverage Analysis</h3>
+                <h3 className="mb-4 text-sm font-medium text-slate-900">Territory Performance & Coverage Analysis</h3>
                 <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
                   {territoryMetrics.map(territory => (
                     <TerritoryCard key={territory.territory} territory={territory} />
@@ -1082,11 +1082,11 @@ export default function B2BChurnPredictorSimulation() {
               <div className="mt-6 rounded-xl border border-blue-200 bg-gradient-to-r from-cyan-500/5 to-blue-500/5 p-6">
                 <div className="mb-3 flex items-center gap-2">
                   <Shield className="h-5 w-5 text-blue-600" />
-                  <h3 className="text-sm font-semibold text-white">Executive Summary — Recommended Actions</h3>
+                  <h3 className="text-sm font-semibold text-slate-900">Executive Summary — Recommended Actions</h3>
                 </div>
                 <div className="space-y-2 text-sm text-slate-500">
                   <p>
-                    <span className="text-white font-medium">1. Immediate Retention Focus:</span>{" "}
+                    <span className="text-slate-900 font-medium">1. Immediate Retention Focus:</span>{" "}
                     {churnPredictions.filter(p => p.probability > 0.6).length} accounts require immediate intervention,
                     representing <span className="text-red-400 font-medium">
                       {formatCurrency(accounts.filter(a =>
@@ -1095,12 +1095,12 @@ export default function B2BChurnPredictorSimulation() {
                     </span> in at-risk ARR.
                   </p>
                   <p>
-                    <span className="text-white font-medium">2. Territory Optimization:</span>{" "}
+                    <span className="text-slate-900 font-medium">2. Territory Optimization:</span>{" "}
                     {territoryMetrics.filter(t => t.coverageGap > 0.2).length} territories show coverage gaps
                     exceeding 20%. Consider rep reallocation to balance workload distribution.
                   </p>
                   <p>
-                    <span className="text-white font-medium">3. Expansion Opportunity:</span>{" "}
+                    <span className="text-slate-900 font-medium">3. Expansion Opportunity:</span>{" "}
                     <span className="text-emerald-400 font-medium">
                       {formatCurrency(accounts.filter(a => a.expansionPotential > 0.6)
                         .reduce((sum, a) => sum + a.contractValue * a.expansionPotential * 0.3, 0))}
@@ -1108,7 +1108,7 @@ export default function B2BChurnPredictorSimulation() {
                     in identified upsell pipeline across {accounts.filter(a => a.expansionPotential > 0.6).length} expansion-ready accounts.
                   </p>
                   <p>
-                    <span className="text-white font-medium">4. Seasonal Preparation:</span>{" "}
+                    <span className="text-slate-900 font-medium">4. Seasonal Preparation:</span>{" "}
                     Q4 budget compression begins in 6 weeks. Accelerate renewal conversations for all accounts
                     with December-February renewal dates.
                   </p>
@@ -1272,7 +1272,7 @@ function RepPerformanceCard({
           <Tooltip>
             <TooltipTrigger>
               <div className="text-center">
-                <div className="text-white font-medium">{formatPercent(rep.quotaAttainment)}</div>
+                <div className="text-slate-900 font-medium">{formatPercent(rep.quotaAttainment)}</div>
                 <div className="text-[10px] text-slate-500">Quota</div>
               </div>
             </TooltipTrigger>
@@ -1281,7 +1281,7 @@ function RepPerformanceCard({
           <Tooltip>
             <TooltipTrigger>
               <div className="text-center">
-                <div className="text-white font-medium">{formatPercent(rep.renewalSuccessRate)}</div>
+                <div className="text-slate-900 font-medium">{formatPercent(rep.renewalSuccessRate)}</div>
                 <div className="text-[10px] text-slate-500">Renewal</div>
               </div>
             </TooltipTrigger>
@@ -1290,7 +1290,7 @@ function RepPerformanceCard({
           <Tooltip>
             <TooltipTrigger>
               <div className="text-center">
-                <div className="text-white font-medium">{repAccounts.length}</div>
+                <div className="text-slate-900 font-medium">{repAccounts.length}</div>
                 <div className="text-[10px] text-slate-500">Accounts</div>
               </div>
             </TooltipTrigger>
@@ -1472,7 +1472,7 @@ function RenewalTimelineRow({ account }: { account: Account }) {
   return (
     <div className="flex items-center gap-4 rounded-lg bg-slate-50 p-3">
       <div className={`h-2 w-2 rounded-full ${riskColor}`} />
-      <div className="w-48 truncate text-sm text-white">{account.name}</div>
+      <div className="w-48 truncate text-sm text-slate-900">{account.name}</div>
       <div className="flex-1">
         <div className="relative h-2 rounded-full bg-slate-200">
           <div
@@ -1683,11 +1683,11 @@ function InterventionCard({
     <div className={`rounded-r-lg border-l-4 border border-slate-200 p-4 ${priorityColors[intervention.priority]}`}>
       <div className="flex items-start justify-between mb-2">
         <div className="flex items-center gap-3">
-          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-200 text-xs font-bold text-white">
+          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-700 text-xs font-bold text-white">
             {index}
           </div>
           <div>
-            <h4 className="font-medium text-white">{intervention.accountName}</h4>
+            <h4 className="font-medium text-slate-900">{intervention.accountName}</h4>
             <p className="text-xs text-slate-500">{intervention.action}</p>
           </div>
         </div>
@@ -1714,7 +1714,7 @@ function TerritoryCard({ territory }: { territory: TerritoryMetrics }) {
   return (
     <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
       <div className="flex items-center justify-between mb-3">
-        <h4 className="text-sm font-medium text-white truncate">{territory.territory}</h4>
+        <h4 className="text-sm font-medium text-slate-900 truncate">{territory.territory}</h4>
         <Badge variant="outline" className="text-[10px] border-slate-300 text-slate-500">
           {territory.repCount} reps
         </Badge>
@@ -1722,7 +1722,7 @@ function TerritoryCard({ territory }: { territory: TerritoryMetrics }) {
       <div className="space-y-2">
         <div className="flex items-center justify-between text-xs">
           <span className="text-slate-500">Accounts</span>
-          <span className="text-white">{territory.accountCount}</span>
+          <span className="text-slate-900">{territory.accountCount}</span>
         </div>
         <div className="flex items-center justify-between text-xs">
           <span className="text-slate-500">Total ARR</span>

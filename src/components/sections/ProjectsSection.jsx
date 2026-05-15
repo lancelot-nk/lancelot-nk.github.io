@@ -27,6 +27,7 @@ const LazyOilTrainReport   = lazy(() => import('../../projects/OilTrainInteracti
 const LazyNEPAReview       = lazy(() => import('../../projects/NEPALiteratureReview'));
 const LazySalesMatrix      = lazy(() => import('../../projects/SalesMatrix'));
 const LazyB2BChurn         = lazy(() => import('../../projects/B2BChurn'));
+const LazyGreenWorkforce   = lazy(() => import('../../projects/GREENworkforcetracker'));
 
 // ── Image Imports ────────────────────────────────────────────────────────────
 import img1 from '../../assets/project1.jpg';
@@ -55,6 +56,8 @@ import imgNEPA from '../../assets/project_nepa.jpg';
 import imgRail from '../../assets/project_rail.jpg';
 import imgSalesMatrix from '../../assets/project_sales_matrix.jpg';
 import imgB2BChurn from '../../assets/project_b2b_churn.jpg';
+import imgHRAIntegrity from '../../assets/project_hra_integrity.jpg';
+import imgGreenWorkforce from '../../assets/project_green_workforce.jpg';
 
 // ── Brand Colors ─────────────────────────────────────────────────────────────
 const PINK   = '#B8004E';
@@ -126,7 +129,7 @@ export const PROJECTS = [
     link: '/hra_fraud_audit_tool.jsx',
     type: 'jsx',
     component: LazyHRAFraud,
-    img: img15,
+    img: imgHRAIntegrity,
   },
   {
     title: 'HRA SNAP Budget Variance Engine',
@@ -199,6 +202,15 @@ export const PROJECTS = [
     type: 'jsx',
     component: LazySolarDonor,
     img: img10,
+  },
+  {
+    title: 'Green Workforce & Ecological Restoration Tracker',
+    desc: 'Civic workforce development platform simulating Living Classrooms / DC DOEE green jobs program — participant pathway tracking, ecological site recovery metrics, grant disbursement monitoring, job readiness index scoring, and AmeriCorps cross-program integration.',
+    tech: ['React', 'TypeScript', 'Tailwind', 'Radix UI', 'Workforce Development', 'Civic Tech', 'Environmental Justice', 'AmeriCorps'],
+    link: '/green_workforce_tracker.jsx',
+    type: 'jsx',
+    component: LazyGreenWorkforce,
+    img: imgGreenWorkforce,
   },
   {
     title: 'Lytx Fleet Intelligence Platform',

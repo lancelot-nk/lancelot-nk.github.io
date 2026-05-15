@@ -111,11 +111,11 @@ const REP_NAMES = [
   "Robert Taylor", "Nicole Anderson", "Christopher Lee", "Stephanie Garcia",
 ]
 
-function generateSalesReps(){
+function generateSalesReps(): SalesRep[] {
   return REP_NAMES.map((name, idx) => ({
     id: `REP-${String(idx + 1).padStart(3, "0")}`,
     name,
-    territory % TERRITORIES.length],
+    territory: TERRITORIES[idx % TERRITORIES.length],
     accountPortfolioSize: Math.floor(Math.random() * 15) + 8,
     avgDealSize: Math.floor(Math.random() * 150000) + 50000,
     conversionRate: Math.random() * 0.3 + 0.2,
@@ -132,7 +132,7 @@ function generateSalesReps(){
   }))
 }
 
-function generateAccounts(reps){
+function generateAccounts(reps: SalesRep[]): Account[] {
   return COMPANY_NAMES.map((name, idx) => {
     const startDate = new Date()
     startDate.setMonth(startDate.getMonth() - Math.floor(Math.random() * 24) - 6)
@@ -143,7 +143,7 @@ function generateAccounts(reps){
 
     const tier = ["starter", "professional", "enterprise", "fleet-enterprise"][
       Math.floor(Math.random() * 4)
-    ]"productTier"]
+    ] ["productTier"]
 
     const baseValue = tier === "fleet-enterprise" ? 250000 :
       tier === "enterprise" ? 120000 :
@@ -152,7 +152,7 @@ function generateAccounts(reps){
     return {
       id: `ACC-${String(idx + 1).padStart(4, "0")}`,
       name,
-      industry % INDUSTRIES.length],
+      industry: INDUSTRIES[idx % INDUSTRIES.length],
       contractValue: baseValue + Math.floor(Math.random() * baseValue * 0.5),
       contractStartDate: startDate,
       renewalDate,
@@ -175,7 +175,7 @@ function generateAccounts(reps){
   })
 }
 
-function generateDeals(accounts reps){
+function generateDeals(accounts: Account[], reps: SalesRep[]): Deal[] {
   const stages: Deal["stage"][] = ["prospecting", "qualified", "proposal", "negotiation", "closed_won", "closed_lost"]
   return accounts.slice(0, 20).map((account, idx) => {
     const stage = stages[Math.floor(Math.random() * 4)]
@@ -201,7 +201,7 @@ function generateDeals(accounts reps){
   })
 }
 
-function generateChurnPredictions(accounts){
+function generateChurnPredictions(accounts: Account[]): ChurnPrediction[] {
   return accounts
     .filter(a => a.churnRiskBaseline > 0.25 || a.healthScore < 0.6)
     .map(account => {
@@ -245,7 +245,7 @@ function generateChurnPredictions(accounts){
     .sort((a, b) => b.probability - a.probability)
 }
 
-function generateSeasonalTrends(){
+function generateSeasonalTrends(): SeasonalTrend[] {
   const quarters = ["Q1", "Q2", "Q3", "Q4"]
   const months = [
     "January", "February", "March", "April", "May", "June",
@@ -267,7 +267,7 @@ function generateSeasonalTrends(){
   }))
 }
 
-function generateTerritoryMetrics(accounts reps){
+function generateTerritoryMetrics(accounts: Account[], reps: SalesRep[]): TerritoryMetrics[] {
   return TERRITORIES.map(territory => {
     const territoryAccounts = accounts.filter(a =>
       reps.find(r => r.id === a.assignedRep)?.territory === territory
@@ -290,9 +290,12 @@ function generateTerritoryMetrics(accounts reps){
 }
 
 function generateInterventions(
-  predictions accounts reps){
+  predictions: ChurnPrediction[],
+  accounts: Account[],
+  reps: SalesRep[]
+): InterventionRecommendation[] {
   return predictions.slice(0, 8).map(pred => {
-    const account = accounts.find(a => a.id === pred.accountId)
+    const account = accounts.find(a => a.id === pred.accountId)!
     const currentRep = reps.find(r => r.id === account.assignedRep)
     const betterRep = reps.find(r =>
       r.renewalSuccessRate > (currentRep?.renewalSuccessRate || 0) + 0.1 &&
@@ -320,29 +323,29 @@ function generateInterventions(
 // UTILITY FUNCTIONS
 // ============================================================================
 
-function formatCurrency(value) {
+function formatCurrency(value): string {
   if (value >= 1000000) return `$${(value / 1000000).toFixed(1)}M`
   if (value >= 1000) return `$${(value / 1000).toFixed(0)}K`
   return `$${value.toFixed(0)}`
 }
 
-function formatPercent(value) {
+function formatPercent(value): string {
   return `${(value * 100).toFixed(1)}%`
 }
 
-function getHealthColor(score) {
+function getHealthColor(score): string {
   if (score >= 0.8) return "text-emerald-400"
   if (score >= 0.6) return "text-amber-400"
   return "text-red-400"
 }
 
-function getRiskColor(risk) {
+function getRiskColor(risk): string {
   if (risk >= 0.7) return "text-red-400"
   if (risk >= 0.4) return "text-amber-400"
   return "text-emerald-400"
 }
 
-function getUrgencyColor(urgency) {
+function getUrgencyColor(urgency): string {
   switch (urgency) {
     case "critical": return "bg-red-500/20 text-red-400 border-red-500/30"
     case "high": return "bg-orange-500/20 text-orange-400 border-orange-500/30"
@@ -467,7 +470,7 @@ export default function B2BChurnPredictorSimulation() {
                     <Truck className="h-5 w-5 text-white" />
                   </div>
                   <div>
-                    <h1 className="text-sm font-semibold text-white">Lytx Fleet Intelligence</h1>
+                    <h1 className="text-sm font-semibold text-slate-900">Lytx Fleet Intelligence</h1>
                     <p className="text-[10px] text-slate-500">B2B Target Tracker & Churn Predictor</p>
                   </div>
                 </div>
@@ -617,7 +620,7 @@ export default function B2BChurnPredictorSimulation() {
               {/* Performance Summary Narrative */}
               <div className="mt-6 rounded-lg border border-slate-200 bg-white p-4">
                 <p className="text-sm text-slate-500">
-                  <span className="text-white font-medium">Performance Analysis:</span>{" "}
+                  <span className="text-slate-900 font-medium">Performance Analysis:</span>{" "}
                   The top quartile of representatives maintains an average quota attainment of{" "}
                   <span className="text-emerald-400 font-medium">
                     {formatPercent(salesReps.slice(0, 3).reduce((sum, r) => sum + r.quotaAttainment, 0) / 3)}
@@ -831,7 +834,7 @@ export default function B2BChurnPredictorSimulation() {
 
               {/* Churn Distribution Summary */}
               <div className="mt-6 rounded-xl border border-slate-200 bg-white p-6">
-                <h3 className="mb-4 text-sm font-medium text-white">Portfolio Churn Risk Distribution</h3>
+                <h3 className="mb-4 text-sm font-medium text-slate-900">Portfolio Churn Risk Distribution</h3>
                 <div className="flex items-end justify-between gap-2">
                   {[
                     { range: "0-20%", label: "Low", color: "bg-emerald-500" },
@@ -926,7 +929,7 @@ export default function B2BChurnPredictorSimulation() {
                   <p className="text-xs text-slate-500">
                     Historical patterns indicate a <span className="text-amber-400">34% increase</span> in churn
                     risk during October-December due to annual budget reconciliation cycles. Fleet management
-                    contracts are particularly susceptible evaluate operational cost centers.
+                    contracts are particularly susceptible  evaluate operational cost centers.
                     Proactive renewal discussions should begin 90+ days before year-end.
                   </p>
                 </div>
@@ -936,7 +939,7 @@ export default function B2BChurnPredictorSimulation() {
                     <span className="text-sm font-medium text-blue-600">Q2 Expansion Opportunity Window</span>
                   </div>
                   <p className="text-xs text-slate-500">
-                    April-June presents a <span className="text-blue-600">22% higher expansion rate</span> deploy new fiscal year budgets. Fleet expansion decisions typically coincide
+                    April-June presents a <span className="text-blue-600">22% higher expansion rate</span>  deploy new fiscal year budgets. Fleet expansion decisions typically coincide
                     with Q2 operational planning. Target high-adoption accounts for upsell campaigns during
                     this period for maximum conversion efficiency.
                   </p>
@@ -979,7 +982,7 @@ export default function B2BChurnPredictorSimulation() {
 
               {/* Territory Rebalancing Analysis */}
               <div className="rounded-xl border border-slate-200 bg-white p-6">
-                <h3 className="mb-4 text-sm font-medium text-white">Territory Performance & Coverage Analysis</h3>
+                <h3 className="mb-4 text-sm font-medium text-slate-900">Territory Performance & Coverage Analysis</h3>
                 <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
                   {territoryMetrics.map(territory => (
                     <TerritoryCard key={territory.territory} territory={territory} />
@@ -991,11 +994,11 @@ export default function B2BChurnPredictorSimulation() {
               <div className="mt-6 rounded-xl border border-blue-200 bg-gradient-to-r from-cyan-500/5 to-blue-500/5 p-6">
                 <div className="mb-3 flex items-center gap-2">
                   <Shield className="h-5 w-5 text-blue-600" />
-                  <h3 className="text-sm font-semibold text-white">Executive Summary — Recommended Actions</h3>
+                  <h3 className="text-sm font-semibold text-slate-900">Executive Summary — Recommended Actions</h3>
                 </div>
                 <div className="space-y-2 text-sm text-slate-500">
                   <p>
-                    <span className="text-white font-medium">1. Immediate Retention Focus:</span>{" "}
+                    <span className="text-slate-900 font-medium">1. Immediate Retention Focus:</span>{" "}
                     {churnPredictions.filter(p => p.probability > 0.6).length} accounts require immediate intervention,
                     representing <span className="text-red-400 font-medium">
                       {formatCurrency(accounts.filter(a =>
@@ -1004,12 +1007,12 @@ export default function B2BChurnPredictorSimulation() {
                     </span> in at-risk ARR.
                   </p>
                   <p>
-                    <span className="text-white font-medium">2. Territory Optimization:</span>{" "}
+                    <span className="text-slate-900 font-medium">2. Territory Optimization:</span>{" "}
                     {territoryMetrics.filter(t => t.coverageGap > 0.2).length} territories show coverage gaps
                     exceeding 20%. Consider rep reallocation to balance workload distribution.
                   </p>
                   <p>
-                    <span className="text-white font-medium">3. Expansion Opportunity:</span>{" "}
+                    <span className="text-slate-900 font-medium">3. Expansion Opportunity:</span>{" "}
                     <span className="text-emerald-400 font-medium">
                       {formatCurrency(accounts.filter(a => a.expansionPotential > 0.6)
                         .reduce((sum, a) => sum + a.contractValue * a.expansionPotential * 0.3, 0))}
@@ -1017,7 +1020,7 @@ export default function B2BChurnPredictorSimulation() {
                     in identified upsell pipeline across {accounts.filter(a => a.expansionPotential > 0.6).length} expansion-ready accounts.
                   </p>
                   <p>
-                    <span className="text-white font-medium">4. Seasonal Preparation:</span>{" "}
+                    <span className="text-slate-900 font-medium">4. Seasonal Preparation:</span>{" "}
                     Q4 budget compression begins in 6 weeks. Accelerate renewal conversations for all accounts
                     with December-February renewal dates.
                   </p>
@@ -1035,7 +1038,7 @@ export default function B2BChurnPredictorSimulation() {
                 <span>Portfolio Showcase — B2B Sales Operations Intelligence</span>
               </div>
               <div className="flex items-center gap-4">
-                <span>Simulated Data Sources API</span>
+                <span>Simulated Data Sources: Salesforce, Gainsight, Zendesk, HubSpot, Lytx DriveCam API</span>
               </div>
             </div>
             <div className="mt-4 rounded-lg border border-slate-100 bg-slate-50 p-3">
@@ -1107,14 +1110,14 @@ function KPICard({
   inverted?
 }) {
   const isPositive = inverted ? trend < 0 : trend > 0
-  const colorMap = {
+  const colorMap: Record<string, string> = {
     cyan: "from-blue-500/20 to-blue-500/5 border-blue-200",
     blue: "from-blue-500/20 to-blue-500/5 border-blue-500/20",
     purple: "from-purple-500/20 to-purple-500/5 border-purple-500/20",
     emerald: "from-emerald-500/20 to-emerald-500/5 border-emerald-500/20",
     amber: "from-amber-500/20 to-amber-500/5 border-amber-500/20",
   }
-  const iconColorMap = {
+  const iconColorMap: Record<string, string> = {
     cyan: "text-blue-600",
     blue: "text-blue-400",
     purple: "text-purple-400",
@@ -1142,8 +1145,9 @@ function RepPerformanceCard({
   rank,
   accounts,
 }: {
-  rep rank
-  accounts
+  rep: SalesRep
+  rank
+  accounts: Account[]
 }) {
   const repAccounts = accounts.filter(a => a.assignedRep === rep.id)
   const repARR = repAccounts.reduce((sum, a) => sum + a.contractValue, 0)
@@ -1180,7 +1184,7 @@ function RepPerformanceCard({
           <Tooltip>
             <TooltipTrigger>
               <div className="text-center">
-                <div className="text-white font-medium">{formatPercent(rep.quotaAttainment)}</div>
+                <div className="text-slate-900 font-medium">{formatPercent(rep.quotaAttainment)}</div>
                 <div className="text-[10px] text-slate-500">Quota</div>
               </div>
             </TooltipTrigger>
@@ -1189,7 +1193,7 @@ function RepPerformanceCard({
           <Tooltip>
             <TooltipTrigger>
               <div className="text-center">
-                <div className="text-white font-medium">{formatPercent(rep.renewalSuccessRate)}</div>
+                <div className="text-slate-900 font-medium">{formatPercent(rep.renewalSuccessRate)}</div>
                 <div className="text-[10px] text-slate-500">Renewal</div>
               </div>
             </TooltipTrigger>
@@ -1198,7 +1202,7 @@ function RepPerformanceCard({
           <Tooltip>
             <TooltipTrigger>
               <div className="text-center">
-                <div className="text-white font-medium">{repAccounts.length}</div>
+                <div className="text-slate-900 font-medium">{repAccounts.length}</div>
                 <div className="text-[10px] text-slate-500">Accounts</div>
               </div>
             </TooltipTrigger>
@@ -1257,7 +1261,8 @@ function AccountHealthCard({
   account,
   rep,
 }: {
-  account rep?
+  account: Account
+  rep?: SalesRep
 }) {
   const daysToRenewal = Math.ceil(
     (account.renewalDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)
@@ -1266,7 +1271,7 @@ function AccountHealthCard({
     (Date.now() - account.lastContactDate.getTime()) / (1000 * 60 * 60 * 24)
   )
 
-  const tierColors = {
+  const tierColors: Record<string, string> = {
     "fleet-enterprise": "bg-purple-500/20 text-purple-400 border-purple-500/30",
     enterprise: "bg-blue-100 text-blue-600 border-blue-200",
     professional: "bg-blue-500/20 text-blue-400 border-blue-500/30",
@@ -1352,7 +1357,7 @@ function SegmentCard({
   count
   color
 }) {
-  const colorMap = {
+  const colorMap: Record<string, string> = {
     emerald: "border-emerald-500/30 bg-emerald-500/10 text-emerald-400",
     red: "border-red-500/30 bg-red-500/10 text-red-400",
     cyan: "border-blue-200 bg-blue-50 text-blue-600",
@@ -1368,7 +1373,7 @@ function SegmentCard({
   )
 }
 
-function RenewalTimelineRow({ account }: { account }) {
+function RenewalTimelineRow({ account }: { account: Account }) {
   const daysToRenewal = Math.ceil(
     (account.renewalDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)
   )
@@ -1379,7 +1384,7 @@ function RenewalTimelineRow({ account }: { account }) {
   return (
     <div className="flex items-center gap-4 rounded-lg bg-slate-50 p-3">
       <div className={`h-2 w-2 rounded-full ${riskColor}`} />
-      <div className="w-48 truncate text-sm text-white">{account.name}</div>
+      <div className="w-48 truncate text-sm text-slate-900">{account.name}</div>
       <div className="flex-1">
         <div className="relative h-2 rounded-full bg-slate-200">
           <div
@@ -1431,7 +1436,8 @@ function ChurnPredictionCard({
   prediction,
   account,
 }: {
-  prediction account?
+  prediction: ChurnPrediction
+  account?: Account
 }) {
   if (!account) return null
 
@@ -1516,7 +1522,8 @@ function SeasonalTrendBar({
   trend,
   isCurrentMonth,
 }: {
-  trend isCurrentMonth
+  trend: SeasonalTrend
+  isCurrentMonth
 }) {
   return (
     <div className={`flex flex-col items-center ${isCurrentMonth ? "bg-blue-50 rounded-lg p-1 -m-1" : ""}`}>
@@ -1575,9 +1582,10 @@ function InterventionCard({
   intervention,
   index,
 }: {
-  intervention index
+  intervention: InterventionRecommendation
+  index
 }) {
-  const priorityColors = {
+  const priorityColors: Record<string, string> = {
     immediate: "border-l-red-500 bg-red-500/5",
     soon: "border-l-amber-500 bg-amber-500/5",
     monitor: "border-l-emerald-500 bg-emerald-500/5",
@@ -1587,11 +1595,11 @@ function InterventionCard({
     <div className={`rounded-r-lg border-l-4 border border-slate-200 p-4 ${priorityColors[intervention.priority]}`}>
       <div className="flex items-start justify-between mb-2">
         <div className="flex items-center gap-3">
-          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-200 text-xs font-bold text-white">
+          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-700 text-xs font-bold text-white">
             {index}
           </div>
           <div>
-            <h4 className="font-medium text-white">{intervention.accountName}</h4>
+            <h4 className="font-medium text-slate-900">{intervention.accountName}</h4>
             <p className="text-xs text-slate-500">{intervention.action}</p>
           </div>
         </div>
@@ -1614,11 +1622,11 @@ function InterventionCard({
   )
 }
 
-function TerritoryCard({ territory }: { territory }) {
+function TerritoryCard({ territory }: { territory: TerritoryMetrics }) {
   return (
     <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
       <div className="flex items-center justify-between mb-3">
-        <h4 className="text-sm font-medium text-white truncate">{territory.territory}</h4>
+        <h4 className="text-sm font-medium text-slate-900 truncate">{territory.territory}</h4>
         <Badge variant="outline" className="text-[10px] border-slate-300 text-slate-500">
           {territory.repCount} reps
         </Badge>
@@ -1626,7 +1634,7 @@ function TerritoryCard({ territory }: { territory }) {
       <div className="space-y-2">
         <div className="flex items-center justify-between text-xs">
           <span className="text-slate-500">Accounts</span>
-          <span className="text-white">{territory.accountCount}</span>
+          <span className="text-slate-900">{territory.accountCount}</span>
         </div>
         <div className="flex items-center justify-between text-xs">
           <span className="text-slate-500">Total ARR</span>

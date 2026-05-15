@@ -45,105 +45,20 @@ import { Progress } from "@/components/ui/progress"
 // TYPE DEFINITIONS - CIVIC ENVIRONMENTAL WORKFORCE DATA MODEL
 // ============================================================================
 
-interface WorkforceParticipant {
-  id: string
-  name: string
-  enrollmentDate: Date
-  pathway: "horticulture" | "hydrology" | "restoration" | "infrastructure" | "conservation"
-  trainingStage: number
-  certifications: string[]
-  skillLevel: number
-  jobReadinessIndex: number
-  retentionProbability: number
-  crossProgramDensity: number
-  engagementScore: number
-  civicImpactScore: number
-  hoursCompleted: number
-  placementStatus: "training" | "placed" | "searching" | "graduated"
-  cohortId: string
-  department: string
+
+
+
+
+
 }
 
-interface GreenProgram {
-  id: string
-  name: string
-  fundingSource: string
-  curriculumComplexity: number
-  cohortCapacity: number
-  currentEnrollment: number
-  completionRate: number
-  placementSuccessRate: number
-  integrationScore: number
-  budgetAllocated: number
-  budgetSpent: number
-  startDate: Date
-  endDate: Date
-}
 
-interface EcologicalSite {
-  id: string
-  name: string
-  designation: string
-  typology: "wetland" | "rain-garden" | "urban-canopy" | "shoreline" | "meadow"
-  soilRecoveryIndex: number
-  hydrologicalCapacity: number
-  biodiversityIndex: number
-  vegetationDensity: number
-  climateResilienceScore: number
-  acreage: number
-  restorationPhase: number
-  workforceDeployed: number
-  tasksCompleted: number
-  tasksPending: number
-  lastAssessmentDate: Date
-  location: { lat: number; lng: number }
-}
 
-interface Grant {
-  id: string
-  name: string
-  source: string
-  totalAmount: number
-  disbursed: number
-  remaining: number
-  lifecycleStage: "application" | "awarded" | "active" | "reporting" | "closeout"
-  complianceScore: number
-  reportingCadence: "monthly" | "quarterly" | "annual"
-  nextDeadline: Date
-  deliverables: number
-  deliverablesComplete: number
-  auditReadiness: number
-}
 
-interface DeploymentTask {
-  id: string
-  siteId: string
-  siteName: string
-  classification: "planting" | "soil-remediation" | "infrastructure" | "monitoring" | "maintenance"
-  assignedParticipants: number
-  durationDays: number
-  completionPercent: number
-  ecologicalImpact: number
-  dependencies: string[]
-  seasonalConstraint: string | null
-}
 
-interface EnvironmentalImpact {
-  metric: string
-  baseline: number
-  current: number
-  projected: number
-  unit: string
-  trend: "improving" | "stable" | "declining"
-}
 
-interface ProgramIntegration {
-  fromProgram: string
-  toProgram: string
-  participantFlow: number
-  skillTransferRate: number
-  synergyScore: number
-}
+
+
 
 // ============================================================================
 // DATA GENERATION ENGINES
@@ -191,14 +106,14 @@ const PROGRAM_NAMES = [
 ]
 
 const SITE_DATA = [
-  { name: "Kingman Island Wetland", designation: "Anacostia Watershed", typology: "wetland" as const, acreage: 45, lat: 38.89, lng: -76.97 },
-  { name: "Kenilworth Rain Gardens", designation: "DOEE Demo Site", typology: "rain-garden" as const, acreage: 3.2, lat: 38.91, lng: -76.94 },
-  { name: "Anacostia Riverwalk", designation: "Urban Forestry", typology: "urban-canopy" as const, acreage: 12, lat: 38.87, lng: -76.99 },
-  { name: "Bladensburg Shoreline", designation: "Erosion Control", typology: "shoreline" as const, acreage: 8.5, lat: 38.93, lng: -76.93 },
-  { name: "Capitol Hill Meadow", designation: "Community Space", typology: "meadow" as const, acreage: 2.1, lat: 38.88, lng: -77.00 },
-  { name: "Marvin Gaye Park", designation: "Park Partnership", typology: "urban-canopy" as const, acreage: 18, lat: 38.90, lng: -76.95 },
-  { name: "Watts Branch Buffer", designation: "Stream Restoration", typology: "wetland" as const, acreage: 6.3, lat: 38.92, lng: -76.96 },
-  { name: "Langston Golf Rain Capture", designation: "Green Infra Pilot", typology: "rain-garden" as const, acreage: 4.7, lat: 38.89, lng: -76.98 },
+  { name: "Kingman Island Wetland", designation: "Anacostia Watershed", typology: "wetland" , acreage: 45, lat: 38.89, lng: -76.97 },
+  { name: "Kenilworth Rain Gardens", designation: "DOEE Demo Site", typology: "rain-garden" , acreage: 3.2, lat: 38.91, lng: -76.94 },
+  { name: "Anacostia Riverwalk", designation: "Urban Forestry", typology: "urban-canopy" , acreage: 12, lat: 38.87, lng: -76.99 },
+  { name: "Bladensburg Shoreline", designation: "Erosion Control", typology: "shoreline" , acreage: 8.5, lat: 38.93, lng: -76.93 },
+  { name: "Capitol Hill Meadow", designation: "Community Space", typology: "meadow" , acreage: 2.1, lat: 38.88, lng: -77.00 },
+  { name: "Marvin Gaye Park", designation: "Park Partnership", typology: "urban-canopy" , acreage: 18, lat: 38.90, lng: -76.95 },
+  { name: "Watts Branch Buffer", designation: "Stream Restoration", typology: "wetland" , acreage: 6.3, lat: 38.92, lng: -76.96 },
+  { name: "Langston Golf Rain Capture", designation: "Green Infra Pilot", typology: "rain-garden" , acreage: 4.7, lat: 38.89, lng: -76.98 },
 ]
 
 const GRANT_SOURCES = [
@@ -312,7 +227,7 @@ function generateGrants(): Grant[] {
       remaining: total - disbursed,
       lifecycleStage: stages[Math.min(Math.floor(Math.random() * 3) + 1, 4)],
       complianceScore: Math.random() * 0.25 + 0.7,
-      reportingCadence: ["monthly", "quarterly", "annual"][Math.floor(Math.random() * 3)] as Grant["reportingCadence"],
+      reportingCadence: ["monthly", "quarterly", "annual"][Math.floor(Math.random() * 3)] ["reportingCadence"],
       nextDeadline: deadline,
       deliverables,
       deliverablesComplete: Math.floor(deliverables * (Math.random() * 0.6 + 0.2)),
@@ -340,7 +255,7 @@ function generateDeploymentTasks(sites: EcologicalSite[]): DeploymentTask[] {
         completionPercent: Math.random() * 0.8 + 0.1,
         ecologicalImpact: Math.random() * 0.5 + 0.3,
         dependencies: [],
-        seasonalConstraint: Math.random() > 0.6 ? ["Spring planting window", "Fall seeding period", "Summer maintenance"][Math.floor(Math.random() * 3)] : null,
+        seasonalConstraint: Math.random() > 0.6 ? ["Spring planting window", "Fall seeding period", "Summer maintenance"][Math.floor(Math.random() * 3)] ,
       })
     }
   })
@@ -381,19 +296,19 @@ function generateProgramIntegrations(programs: GreenProgram[]): ProgramIntegrati
 // UTILITY FUNCTIONS
 // ============================================================================
 
-function formatCurrency(value: number): string {
+function formatCurrency(value): string {
   if (value >= 1000000) return `$${(value / 1000000).toFixed(2)}M`
   if (value >= 1000) return `$${(value / 1000).toFixed(0)}K`
   return `$${value.toFixed(0)}`
 }
 
-function formatNumber(value: number): string {
+function formatNumber(value): string {
   if (value >= 1000000) return `${(value / 1000000).toFixed(2)}M`
   if (value >= 1000) return `${(value / 1000).toFixed(2)}K`
   return value.toFixed(0)
 }
 
-function formatPercent(value: number): string {
+function formatPercent(value): string {
   return `${(value * 100).toFixed(1)}%`
 }
 
@@ -401,12 +316,7 @@ function formatPercent(value: number): string {
 // SIDEBAR NAVIGATION COMPONENT
 // ============================================================================
 
-interface NavItemProps {
-  icon: React.ReactNode
-  label: string
-  active?: boolean
-  onClick?: () => void
-}
+
 
 function NavItem({ icon, label, active, onClick }: NavItemProps) {
   return (
@@ -428,11 +338,7 @@ function NavItem({ icon, label, active, onClick }: NavItemProps) {
 // KPI CARD COMPONENT (Training Dashboard Style)
 // ============================================================================
 
-interface KpiCardProps {
-  value: string | number
-  label: string
-  sublabel?: string
-}
+
 
 function KpiCard({ value, label, sublabel }: KpiCardProps) {
   return (
@@ -448,10 +354,7 @@ function KpiCard({ value, label, sublabel }: KpiCardProps) {
 // BAR CHART COMPONENT (Green Gradient Style)
 // ============================================================================
 
-interface BarChartData {
-  label: string
-  value: number
-}
+
 
 function GreenBarChart({ data, title }: { data: BarChartData[]; title: string }) {
   const maxValue = Math.max(...data.map(d => d.value))
@@ -481,11 +384,7 @@ function GreenBarChart({ data, title }: { data: BarChartData[]; title: string })
 // DONUT CHART COMPONENT
 // ============================================================================
 
-interface DonutData {
-  label: string
-  value: number
-  color: string
-}
+
 
 function DonutChart({ data, title }: { data: DonutData[]; title: string }) {
   const total = data.reduce((sum, d) => sum + d.value, 0)
@@ -538,7 +437,7 @@ function DonutChart({ data, title }: { data: DonutData[]; title: string }) {
 // RADIAL PROGRESS COMPONENT
 // ============================================================================
 
-function RadialProgress({ value, label }: { value: number; label: string }) {
+function RadialProgress({ value, label }: { value; label: string }) {
   const circumference = 2 * Math.PI * 45
   const strokeDashoffset = circumference - (value / 100) * circumference
   
@@ -651,10 +550,10 @@ function SiteMapVisualization({ sites }: { sites: EcologicalSite[] }) {
 // ============================================================================
 
 function FilterDropdown({ label, options, value, onChange }: { 
-  label: string
+  label
   options: string[]
-  value: string
-  onChange: (val: string) => void
+  value
+  onChange: (val) => void
 }) {
   return (
     <div className="flex flex-col gap-1">
@@ -802,13 +701,13 @@ export default function GreenWorkforceTrackerSimulation() {
   const [statusFilter, setStatusFilter] = useState("All")
 
   // Core Data State
-  const [participants, setParticipants] = useState<WorkforceParticipant[]>([])
-  const [programs, setPrograms] = useState<GreenProgram[]>([])
-  const [sites, setSites] = useState<EcologicalSite[]>([])
-  const [grants, setGrants] = useState<Grant[]>([])
-  const [tasks, setTasks] = useState<DeploymentTask[]>([])
-  const [impacts, setImpacts] = useState<EnvironmentalImpact[]>([])
-  const [integrations, setIntegrations] = useState<ProgramIntegration[]>([])
+  const [participants, setParticipants] = useState([])
+  const [programs, setPrograms] = useState([])
+  const [sites, setSites] = useState([])
+  const [grants, setGrants] = useState([])
+  const [tasks, setTasks] = useState([])
+  const [impacts, setImpacts] = useState([])
+  const [integrations, setIntegrations] = useState([])
 
   // Derived Metrics
   const totalParticipants = participants.length
