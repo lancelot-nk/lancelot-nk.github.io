@@ -94,15 +94,15 @@ const STYLES = `
   flex-shrink: 0;
 }
 
-.fxb-doc { font-family: 'Crimson Pro', serif; font-size: 10.5px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: #4A403A; }
-.fxb-pnum { font-family: 'Cormorant Garamond', serif; font-size: 11px; font-style: italic; color: #4A403A; letter-spacing: 0.08em; }
+.fxb-doc { font-family: 'Crimson Pro', serif; font-size: 13px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: #4A403A; }
+.fxb-pnum { font-family: 'Cormorant Garamond', serif; font-size: 13px; font-style: italic; color: #4A403A; letter-spacing: 0.08em; }
 
-.fxb-kicker { font-family: 'Crimson Pro', serif; font-size: 9.5px; font-weight: 600; letter-spacing: 0.3em; text-transform: uppercase; color: #3D5E42; margin-bottom: 12px; }
+.fxb-kicker { font-family: 'Crimson Pro', serif; font-size: 12px; font-weight: 600; letter-spacing: 0.28em; text-transform: uppercase; color: #3D5E42; margin-bottom: 12px; }
 
 .fxb-h2 {
   font-family: 'Cormorant Garamond', serif;
   font-weight: 400;
-  font-size: clamp(24px, 3.2vw, 40px);
+  font-size: clamp(26px, 3.4vw, 44px);
   line-height: 1.1;
   color: #1C1916;
   letter-spacing: -0.01em;
@@ -111,7 +111,7 @@ const STYLES = `
 
 .fxb-lead {
   font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(16px, 2vw, 21px);
+  font-size: clamp(17px, 2.1vw, 22px);
   font-weight: 400;
   font-style: italic;
   line-height: 1.55;
@@ -122,7 +122,7 @@ const STYLES = `
 
 .fxb-body {
   font-family: 'Crimson Pro', serif;
-  font-size: 15.5px;
+  font-size: 17px;
   font-weight: 400;
   line-height: 1.72;
   color: #1C1916;
@@ -139,8 +139,8 @@ const STYLES = `
   padding: 10px 0 10px 22px;
   margin: 20px 0;
 }
-.fxb-pq p { font-family: 'Cormorant Garamond', serif; font-size: clamp(14px, 1.7vw, 18px); font-style: italic; line-height: 1.5; color: #1C1916; margin: 0; }
-.fxb-pq cite { display: block; font-family: 'Crimson Pro', serif; font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: #4A403A; margin-top: 8px; font-style: normal; }
+.fxb-pq p { font-family: 'Cormorant Garamond', serif; font-size: clamp(16px, 1.9vw, 20px); font-style: italic; line-height: 1.5; color: #1C1916; margin: 0; }
+.fxb-pq cite { display: block; font-family: 'Crimson Pro', serif; font-size: 13px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: #4A403A; margin-top: 8px; font-style: normal; }
 
 .fxb-scroll { overflow-y: auto; overflow-x: hidden; scrollbar-width: none; flex: 1; }
 .fxb-scroll::-webkit-scrollbar { display: none; }
@@ -149,23 +149,23 @@ const STYLES = `
 
 .fxb-data-row { display: flex; gap: 28px; flex-wrap: wrap; margin: 18px 0; }
 .fxb-dc { display: flex; flex-direction: column; gap: 4px; min-width: 110px; }
-.fxb-dc .num { font-family: 'Cormorant Garamond', serif; font-size: clamp(26px, 3.2vw, 42px); font-weight: 300; color: #3D5E42; line-height: 1; letter-spacing: -0.02em; }
-.fxb-dc .lbl { font-family: 'Crimson Pro', serif; font-size: 11px; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; color: #4A403A; }
+.fxb-dc .num { font-family: 'Cormorant Garamond', serif; font-size: clamp(28px, 3.4vw, 44px); font-weight: 300; color: #3D5E42; line-height: 1; letter-spacing: -0.02em; }
+.fxb-dc .lbl { font-family: 'Crimson Pro', serif; font-size: 13px; font-weight: 600; letter-spacing: 0.13em; text-transform: uppercase; color: #4A403A; }
 
 .fxb-role-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px 30px; margin-top: 12px; }
 .fxb-rc { border-top: 2px solid #DDD3BE; padding-top: 14px; }
-.fxb-rc .ag { font-family: 'Crimson Pro', serif; font-size: 10.5px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: #1B3A5C; margin-bottom: 6px; }
-.fxb-rc .rn { font-family: 'Cormorant Garamond', serif; font-size: 17px; font-weight: 400; color: #1C1916; margin-bottom: 6px; line-height: 1.2; }
-.fxb-rc .rd { font-family: 'Crimson Pro', serif; font-size: 13px; font-weight: 400; line-height: 1.55; color: #1C1916; }
+.fxb-rc .ag { font-family: 'Crimson Pro', serif; font-size: 12px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: #1B3A5C; margin-bottom: 6px; }
+.fxb-rc .rn { font-family: 'Cormorant Garamond', serif; font-size: 19px; font-weight: 400; color: #1C1916; margin-bottom: 6px; line-height: 1.2; }
+.fxb-rc .rd { font-family: 'Crimson Pro', serif; font-size: 15px; font-weight: 400; line-height: 1.55; color: #1C1916; }
 
 .fxb-ws-row { display: flex; gap: 20px; margin-top: 12px; }
 .fxb-wc { flex: 1; background: #DDD3BE; padding: 18px 20px; border-top: 3px solid #3D5E42; }
 .fxb-wc .wn { font-family: 'Cormorant Garamond', serif; font-size: 36px; font-weight: 300; color: #3D5E42; line-height: 1; margin-bottom: 6px; }
-.fxb-wc .wt { font-family: 'Crimson Pro', serif; font-size: 10.5px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: #1C1916; margin-bottom: 10px; }
-.fxb-wc .wd { font-family: 'Crimson Pro', serif; font-size: 13px; font-weight: 400; color: #1C1916; line-height: 1.55; }
+.fxb-wc .wt { font-family: 'Crimson Pro', serif; font-size: 13px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: #1C1916; margin-bottom: 10px; }
+.fxb-wc .wd { font-family: 'Crimson Pro', serif; font-size: 15px; font-weight: 400; color: #1C1916; line-height: 1.55; }
 
-.fxb-budget { width: 100%; border-collapse: collapse; font-family: 'Crimson Pro', serif; font-size: 13.5px; margin-top: 8px; }
-.fxb-budget thead th { font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: #4A403A; text-align: left; padding: 0 12px 10px 0; border-bottom: 1.5px solid #C8BAA6; font-weight: 400; }
+.fxb-budget { width: 100%; border-collapse: collapse; font-family: 'Crimson Pro', serif; font-size: 15px; margin-top: 8px; }
+.fxb-budget thead th { font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: #4A403A; text-align: left; padding: 0 12px 10px 0; border-bottom: 1.5px solid #C8BAA6; font-weight: 600; }
 .fxb-budget tbody td { padding: 8px 12px 8px 0; border-bottom: 1px solid #EAE2D2; color: #1C1916; vertical-align: top; line-height: 1.4; }
 .fxb-budget tbody tr:last-child td, .fxb-budget tbody tr:nth-last-child(2) td { border-bottom: 1px solid #C8BAA6; }
 .fxb-budget tbody tr:last-child td { font-weight: 600; color: #1C1916; padding-top: 12px; border-bottom: none; }
@@ -177,27 +177,27 @@ const STYLES = `
 .fxb-rind.hi { background: #7A2E2E; }
 .fxb-rind.me { background: #9A7B2E; }
 .fxb-rind.lo { background: #3D5E42; }
-.fxb-rname { font-family: 'Cormorant Garamond', serif; font-size: 16px; font-weight: 500; color: #1C1916; margin-bottom: 4px; }
-.fxb-rmit { font-family: 'Crimson Pro', serif; font-size: 12.5px; font-weight: 400; color: #4A403A; line-height: 1.5; }
+.fxb-rname { font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 500; color: #1C1916; margin-bottom: 4px; }
+.fxb-rmit { font-family: 'Crimson Pro', serif; font-size: 14.5px; font-weight: 400; color: #4A403A; line-height: 1.55; }
 
 .fxb-kpi-list { list-style: none; margin-top: 8px; }
 .fxb-ki { display: flex; justify-content: space-between; align-items: baseline; padding: 11px 0; border-bottom: 1px solid #EAE2D2; gap: 14px; }
-.fxb-kn { font-family: 'Crimson Pro', serif; font-size: 14px; font-weight: 500; color: #1C1916; line-height: 1.3; }
-.fxb-kt { font-family: 'Cormorant Garamond', serif; font-size: 15px; font-weight: 500; color: #3D5E42; white-space: nowrap; flex-shrink: 0; }
+.fxb-kn { font-family: 'Crimson Pro', serif; font-size: 16px; font-weight: 500; color: #1C1916; line-height: 1.3; }
+.fxb-kt { font-family: 'Cormorant Garamond', serif; font-size: 17px; font-weight: 500; color: #3D5E42; white-space: nowrap; flex-shrink: 0; }
 
 .fxb-tl { display: flex; margin-top: 20px; position: relative; }
 .fxb-tl::before { content: ''; position: absolute; top: 18px; left: 12px; right: 12px; height: 1px; background: #C8BAA6; z-index: 0; }
 .fxb-ti { flex: 1; display: flex; flex-direction: column; align-items: center; position: relative; z-index: 1; }
 .fxb-td { width: 12px; height: 12px; border-radius: 50%; background: #DDD3BE; border: 2px solid #C8BAA6; margin-bottom: 12px; flex-shrink: 0; }
 .fxb-td.on { background: #3D5E42; border-color: #3D5E42; }
-.fxb-tlabel { font-family: 'Crimson Pro', serif; font-size: 11px; font-weight: 600; text-align: center; color: #1C1916; line-height: 1.4; padding: 0 4px; }
-.fxb-tsub { font-size: 10px; color: #4A403A; font-weight: 500; letter-spacing: 0.06em; }
+.fxb-tlabel { font-family: 'Crimson Pro', serif; font-size: 13px; font-weight: 600; text-align: center; color: #1C1916; line-height: 1.4; padding: 0 4px; }
+.fxb-tsub { font-size: 12px; color: #4A403A; font-weight: 500; letter-spacing: 0.06em; }
 
 .fxb-steps { margin-top: 12px; }
 .fxb-step { display: flex; gap: 18px; padding: 13px 0; border-bottom: 1px solid #EAE2D2; align-items: flex-start; }
 .fxb-snum { font-family: 'Cormorant Garamond', serif; font-size: 30px; font-weight: 300; color: #DDD3BE; line-height: 1; flex-shrink: 0; width: 36px; }
-.fxb-stitle { font-family: 'Cormorant Garamond', serif; font-size: 17px; font-weight: 500; color: #1C1916; margin-bottom: 4px; }
-.fxb-sdesc { font-family: 'Crimson Pro', serif; font-size: 13px; font-weight: 400; color: #1C1916; line-height: 1.5; }
+.fxb-stitle { font-family: 'Cormorant Garamond', serif; font-size: 19px; font-weight: 500; color: #1C1916; margin-bottom: 4px; }
+.fxb-sdesc { font-family: 'Crimson Pro', serif; font-size: 15px; font-weight: 400; color: #1C1916; line-height: 1.5; }
 
 /* ── COVER ── */
 .fxb-cv { display: flex; height: 100%; }
@@ -207,25 +207,25 @@ const STYLES = `
 .fxb-sun { position: absolute; top: -80px; right: -80px; width: 420px; height: 420px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.08); background: radial-gradient(circle at 60% 40%, rgba(202,168,76,0.18) 0%, transparent 70%); }
 .fxb-sun::after { content: ''; position: absolute; top: 60px; left: 60px; right: 60px; bottom: 60px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.05); }
 .fxb-crt { position: relative; z-index: 1; color: rgba(255,255,255,0.9); }
-.fxb-crl { font-family: 'Crimson Pro', serif; font-size: 9px; font-weight: 600; letter-spacing: 0.3em; text-transform: uppercase; color: rgba(255,255,255,0.45); margin-bottom: 4px; margin-top: 20px; }
+.fxb-crl { font-family: 'Crimson Pro', serif; font-size: 12px; font-weight: 600; letter-spacing: 0.25em; text-transform: uppercase; color: rgba(255,255,255,0.55); margin-bottom: 4px; margin-top: 20px; }
 .fxb-crl:first-child { margin-top: 0; }
-.fxb-crs { font-family: 'Cormorant Garamond', serif; font-size: clamp(34px, 4.5vw, 58px); font-weight: 300; color: white; line-height: 1; margin-bottom: 4px; }
-.fxb-crd { font-family: 'Crimson Pro', serif; font-size: 12.5px; font-weight: 300; color: rgba(255,255,255,0.55); line-height: 1.45; max-width: 200px; }
-.fxb-cvtitle { font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: clamp(40px, 5.2vw, 68px); line-height: 1.0; color: #1C1916; letter-spacing: -0.02em; margin: 22px 0 8px; }
+.fxb-crs { font-family: 'Cormorant Garamond', serif; font-size: clamp(36px, 4.8vw, 60px); font-weight: 300; color: white; line-height: 1; margin-bottom: 4px; }
+.fxb-crd { font-family: 'Crimson Pro', serif; font-size: 14px; font-weight: 400; color: rgba(255,255,255,0.7); line-height: 1.45; max-width: 200px; }
+.fxb-cvtitle { font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: clamp(42px, 5.5vw, 70px); line-height: 1.0; color: #1C1916; letter-spacing: -0.02em; margin: 22px 0 8px; }
 .fxb-cvtitle em { font-style: italic; color: #3D5E42; }
-.fxb-cvsub { font-family: 'Cormorant Garamond', serif; font-size: 15px; font-style: italic; font-weight: 400; color: #3A342D; line-height: 1.45; max-width: 360px; margin-bottom: 22px; }
-.fxb-cvey { font-family: 'Crimson Pro', serif; font-size: 10px; font-weight: 600; letter-spacing: 0.3em; text-transform: uppercase; color: #3D5E42; }
-.fxb-cvdr { font-family: 'Crimson Pro', serif; font-size: 11px; font-weight: 500; color: #4A403A; letter-spacing: 0.08em; margin-top: 4px; }
-.fxb-cvgeo { display: flex; align-items: center; gap: 12px; font-family: 'Crimson Pro', serif; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: #9A7B2E; }
+.fxb-cvsub { font-family: 'Cormorant Garamond', serif; font-size: 17px; font-style: italic; font-weight: 400; color: #3A342D; line-height: 1.45; max-width: 360px; margin-bottom: 22px; }
+.fxb-cvey { font-family: 'Crimson Pro', serif; font-size: 12px; font-weight: 600; letter-spacing: 0.28em; text-transform: uppercase; color: #3D5E42; }
+.fxb-cvdr { font-family: 'Crimson Pro', serif; font-size: 13px; font-weight: 500; color: #4A403A; letter-spacing: 0.08em; margin-top: 4px; }
+.fxb-cvgeo { display: flex; align-items: center; gap: 12px; font-family: 'Crimson Pro', serif; font-size: 14px; letter-spacing: 0.1em; text-transform: uppercase; color: #9A7B2E; }
 .fxb-cvgeo::before { content: ''; display: block; width: 28px; height: 1px; background: #9A7B2E; }
 .fxb-partners { display: flex; align-items: center; gap: 12px; margin-top: 16px; }
-.fxb-pbadge { font-family: 'Crimson Pro', serif; font-size: 10.5px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: #3D5040; }
+.fxb-pbadge { font-family: 'Crimson Pro', serif; font-size: 13px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: #3D5040; }
 .fxb-psep { color: #C8BAA6; }
 
 /* ── CLOSING PAGE ── */
 .fxb-ask { margin-top: 24px; border-top: 1px solid rgba(255,255,255,0.15); padding-top: 24px; }
 .fxb-askamt { font-family: 'Cormorant Garamond', serif; font-size: clamp(44px, 5.5vw, 78px); font-weight: 300; color: #C9A84C; letter-spacing: -0.02em; line-height: 1; margin-bottom: 8px; }
-.fxb-asklbl { font-family: 'Crimson Pro', serif; font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(255,255,255,0.4); }
+.fxb-asklbl { font-family: 'Crimson Pro', serif; font-size: 14px; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.55); }
 .fxb-cpbadge { border: 1px solid rgba(255,255,255,0.2); padding: 8px 16px; font-family: 'Crimson Pro', serif; font-size: 11px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.5); }
 
 /* ── NAV ── */
@@ -248,7 +248,7 @@ const STYLES = `
 .fxb-dots { display: flex; gap: 5px; }
 .fxb-dot { width: 5px; height: 5px; border-radius: 50%; background: rgba(255,255,255,0.25); cursor: pointer; transition: all 0.2s ease; border: none; padding: 0; }
 .fxb-dot.on { background: rgba(255,255,255,0.8); transform: scale(1.3); }
-.fxb-navlbl { font-family: 'Crimson Pro', serif; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.35); }
+.fxb-navlbl { font-family: 'Crimson Pro', serif; font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(255,255,255,0.45); }
 
 @media (max-width: 768px) {
   .fxb-inner { padding: 28px 28px 24px 36px; }
@@ -329,7 +329,7 @@ export default function CocinerosSolares() {
 
   const risks = [
     { lv:"hi", name:"Cultural Resistance to Technology Change",    mit:"Mitigation: Immersive live cooking demonstrations with traditional Oaxacan dishes; community scouting prior to all workshops; promoter selection from within the community; complementary (not replacement) framing. Social proof architecture embedded throughout curriculum." },
-    { lv:"me", name:"Seasonal + Climatic Variation",               mit:"Mitigation: Program explicitly frames solar cooking as a seasonal complement. Rainy season and low-insolation periods acknowledged in training. Usage monitored quarterly with dynamic adjustments to expectations and metrics." },
+    { lv:"me", name:"Seasonal + Climatic Variation",               mit:"Mitigation: Program explicitly frames solar cooking seasonal complement. Rainy season and low-insolation periods acknowledged in training. Usage monitored quarterly with dynamic adjustments to expectations and metrics." },
     { lv:"me", name:"Logistical Complexity — Remote Regions",      mit:"Mitigation: Two-day workshop format consolidates travel costs for coastal and Istmo communities. Vehicle insurance and maintenance budgeted. Project Director holds 14 years of established community relationships across Oaxaca's regions." },
     { lv:"lo", name:"Equipment Durability + Supply Chain",         mit:"Mitigation: Years 2–3 provisions include parts replacement. SHE R&D pipeline may introduce enhanced designs. Import tax and assembly already in Year 1 per-unit pricing ($58/unit). Local fabrication initiative underway as long-term supply alternative." },
     { lv:"lo", name:"Data Quality + Measurement Accuracy",         mit:"Mitigation: Analyst site visit deepens on-the-ground understanding. Quarterly data cycles allow methodology refinement. Evaluation aligned with Clean Cooking Alliance standards. Surveys designed collaboratively by Project Director and Technical Analyst." },
@@ -446,7 +446,7 @@ export default function CocinerosSolares() {
             <HDR num="2" section="Strategic Framework" />
             <div className="fxb-kicker">Strategic Architecture</div>
             <h2 className="fxb-h2">Technology deployed<br />within a system<br />of sustained adoption.</h2>
-            <p className="fxb-lead">Distributing solar ovens alone does not produce lasting change. This program is structured as a three-layer intervention: equipment, education, and embedded community support.</p>
+            <p className="fxb-lead">Distributing solar ovens alone does not produce lasting change. This program is structured three-layer intervention: equipment, education, and embedded community support.</p>
             <div className="fxb-tl">
               {[
                 { lbl: ["Equipment","Deployment"],  sub: "100 Haines Units", on: true },
@@ -466,7 +466,7 @@ export default function CocinerosSolares() {
             <hr className="fxb-rule" style={{ marginTop:"28px" }} />
             <div className="fxb-body" style={{ marginTop:"16px" }}>
               <p>The Haines solar oven requires only 2–3 hours of direct sunlight to cook a full meal — available to every rural household with an exterior courtyard. Slow-cooking preserves nutrients, prevents burning, and frees women from fire-tending, enabling productive activity outside the home during cooking hours.</p>
-              <p>The program is explicitly designed as a <strong>complement</strong> to traditional cooking, not a replacement — reducing dependency on firewood during peak solar hours while respecting seasonal, cultural, and climatic realities.</p>
+              <p>The program is explicitly designed <strong>complement</strong> to traditional cooking, not a replacement — reducing dependency on firewood during peak solar hours while respecting seasonal, cultural, and climatic realities.</p>
             </div>
           </div>
         </div>
@@ -507,7 +507,7 @@ export default function CocinerosSolares() {
               {[
                 { n:"I",   t:"Learning to Use My Solar Oven",       d:"Participants assemble their own Haines oven with promoter guidance. Five groups prepare traditional Oaxacan dishes. Health, economic, and environmental benefits presented alongside practical technique. Myths vs. realities addressed. Duration: 6 hours." },
                 { n:"II",  t:"Preserves, Pastries & Income",         d:"Each woman brings her oven and assembles independently. Teams prepare conserves, sauces, and pastries with direct income potential. Cost accounting and profit margin instruction enables small business launch. Duration: 6 hours." },
-                { n:"III", t:"Medicinal Salves & Organic Products",  d:"Advanced application of solar heat for herbal tinctures and medicinal pomades. Introduces traditional plant knowledge as viable small-enterprise sector. Products are topical, non-prescription, and commercially viable. Duration: 6 hours." },
+                { n:"III", t:"Medicinal Salves & Organic Products",  d:"Advanced application of solar heat for herbal tinctures and medicinal pomades. Introduces traditional plant knowledge small-enterprise sector. Products are topical, non-prescription, and commercially viable. Duration: 6 hours." },
               ].map((w, i) => (
                 <div key={i} className="fxb-wc">
                   <div className="wn">{w.n}</div>
@@ -536,7 +536,7 @@ export default function CocinerosSolares() {
                 <p><strong>The Taste Test Strategy:</strong> The most effective proof is flavor. Workshops demonstrate that traditional Oaxacan dishes — mole, tamales, frijoles — taste identical or better when solar-cooked. A woman who experiences this firsthand becomes the strongest possible advocate within her social network.</p>
               </div>
               <div className="fxb-body">
-                <p><strong>Complementary Framing:</strong> The program never asks women to abandon traditional cooking. It positions solar cooking as an addition — active during 9am–4pm solar hours — while gas, wood, and traditional fogones remain available for evening cooking, rainy seasons, and cultural occasions where fire is ceremonially appropriate.</p>
+                <p><strong>Complementary Framing:</strong> The program never asks women to abandon traditional cooking. It positions solar cooking addition — active during 9am–4pm solar hours — while gas, wood, and traditional fogones remain available for evening cooking, rainy seasons, and cultural occasions where fire is ceremonially appropriate.</p>
                 <p><strong>Social Proof Architecture:</strong> Promoters are recruited from within the communities they serve — familiar faces with established trust. Year 1 graduates become facilitators in Years 2–3, amplifying peer-to-peer adoption. Community leaders, not external technicians, drive behavioral change.</p>
               </div>
             </div>
@@ -628,7 +628,7 @@ export default function CocinerosSolares() {
             <HDR num="9" section="Scalability Model" />
             <div className="fxb-kicker">Expansion Architecture</div>
             <h2 className="fxb-h2">From 100 families<br />to a state-wide<br />solar movement.</h2>
-            <p className="fxb-lead">Oaxaca's exceptional insolation conditions make it a natural proving ground for replication across Mexico and the broader Latin American solar belt. This pilot is designed as a scalable template.</p>
+            <p className="fxb-lead">Oaxaca's exceptional insolation conditions make it a natural proving ground for replication across Mexico and the broader Latin American solar belt. This pilot is designed scalable template.</p>
             <div className="fxb-steps">
               {[
                 { n:"01", t:"Year 1 — Pilot Validation",        d:"100 households across near and remote Oaxacan communities. Data collected quarterly. Program model refined. Community leader network seeded. Local fabrication scoping initiated." },
@@ -689,7 +689,7 @@ export default function CocinerosSolares() {
                 </div>
                 <hr className="fxb-rule" />
                 <div className="fxb-body">
-                  <p><strong>For funders:</strong> This program offers a rare combination — proven technology, experienced field leadership, institutional infrastructure, and a three-year data commitment. The cost-per-household of approximately <strong>$527</strong> in Year 1 positions this as a high-impact, cost-competitive clean energy intervention relative to comparable programs globally.</p>
+                  <p><strong>For funders:</strong> This program offers a rare combination — proven technology, experienced field leadership, institutional infrastructure, and a three-year data commitment. The cost-per-household of approximately <strong>$527</strong> in Year 1 positions this high-impact, cost-competitive clean energy intervention relative to comparable programs globally.</p>
                 </div>
               </div>
             </div>
@@ -713,7 +713,7 @@ export default function CocinerosSolares() {
             </div>
             <div className="fxb-body" style={{ marginTop: "22px", color: "rgba(244,239,228,0.75)" }}>
               <p>A projected investment of $52,695 enables deployment of 100 Haines solar ovens, 4 structured training workshops, 12 months of community promoter support, quarterly evaluation cycles, and a full Year 1 impact report — reaching approximately 100 households and reducing an estimated 35–50% of their annual solid fuel consumption.</p>
-              <p>We invite your organization to participate as a named partner in a program that is simultaneously a public health intervention, an environmental program, an economic empowerment initiative, and a cultural bridge — all delivered through one beautifully simple technology: the sun.</p>
+              <p>We invite your organization to participate named partner in a program that is simultaneously a public health intervention, an environmental program, an economic empowerment initiative, and a cultural bridge — all delivered through one beautifully simple technology: the sun.</p>
             </div>
             <div style={{ display:"flex", gap:"16px", marginTop:"24px", flexWrap:"wrap" }}>
               {["Solar Household Energy, Inc.", "FXB International", "Oaxaca, México — 2020"].map((b, i) => (

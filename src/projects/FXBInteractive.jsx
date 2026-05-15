@@ -94,15 +94,15 @@ const STYLES = `
   flex-shrink: 0;
 }
 
-.fxb-doc { font-family: 'Crimson Pro', serif; font-size: 10.5px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: #4A403A; }
-.fxb-pnum { font-family: 'Cormorant Garamond', serif; font-size: 11px; font-style: italic; color: #4A403A; letter-spacing: 0.08em; }
+.fxb-doc { font-family: 'Crimson Pro', serif; font-size: 13px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: #4A403A; }
+.fxb-pnum { font-family: 'Cormorant Garamond', serif; font-size: 13px; font-style: italic; color: #4A403A; letter-spacing: 0.08em; }
 
-.fxb-kicker { font-family: 'Crimson Pro', serif; font-size: 9.5px; font-weight: 600; letter-spacing: 0.3em; text-transform: uppercase; color: #3D5E42; margin-bottom: 12px; }
+.fxb-kicker { font-family: 'Crimson Pro', serif; font-size: 12px; font-weight: 600; letter-spacing: 0.28em; text-transform: uppercase; color: #3D5E42; margin-bottom: 12px; }
 
 .fxb-h2 {
   font-family: 'Cormorant Garamond', serif;
   font-weight: 400;
-  font-size: clamp(24px, 3.2vw, 40px);
+  font-size: clamp(26px, 3.4vw, 44px);
   line-height: 1.1;
   color: #1C1916;
   letter-spacing: -0.01em;
@@ -111,7 +111,7 @@ const STYLES = `
 
 .fxb-lead {
   font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(16px, 2vw, 21px);
+  font-size: clamp(17px, 2.1vw, 22px);
   font-weight: 400;
   font-style: italic;
   line-height: 1.55;
@@ -122,7 +122,7 @@ const STYLES = `
 
 .fxb-body {
   font-family: 'Crimson Pro', serif;
-  font-size: 15.5px;
+  font-size: 17px;
   font-weight: 400;
   line-height: 1.72;
   color: #1C1916;
@@ -139,8 +139,8 @@ const STYLES = `
   padding: 10px 0 10px 22px;
   margin: 20px 0;
 }
-.fxb-pq p { font-family: 'Cormorant Garamond', serif; font-size: clamp(14px, 1.7vw, 18px); font-style: italic; line-height: 1.5; color: #1C1916; margin: 0; }
-.fxb-pq cite { display: block; font-family: 'Crimson Pro', serif; font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: #4A403A; margin-top: 8px; font-style: normal; }
+.fxb-pq p { font-family: 'Cormorant Garamond', serif; font-size: clamp(16px, 1.9vw, 20px); font-style: italic; line-height: 1.5; color: #1C1916; margin: 0; }
+.fxb-pq cite { display: block; font-family: 'Crimson Pro', serif; font-size: 13px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: #4A403A; margin-top: 8px; font-style: normal; }
 
 .fxb-scroll { overflow-y: auto; overflow-x: hidden; scrollbar-width: none; flex: 1; }
 .fxb-scroll::-webkit-scrollbar { display: none; }
@@ -149,23 +149,23 @@ const STYLES = `
 
 .fxb-data-row { display: flex; gap: 28px; flex-wrap: wrap; margin: 18px 0; }
 .fxb-dc { display: flex; flex-direction: column; gap: 4px; min-width: 110px; }
-.fxb-dc .num { font-family: 'Cormorant Garamond', serif; font-size: clamp(26px, 3.2vw, 42px); font-weight: 300; color: #3D5E42; line-height: 1; letter-spacing: -0.02em; }
-.fxb-dc .lbl { font-family: 'Crimson Pro', serif; font-size: 11px; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; color: #4A403A; }
+.fxb-dc .num { font-family: 'Cormorant Garamond', serif; font-size: clamp(28px, 3.4vw, 44px); font-weight: 300; color: #3D5E42; line-height: 1; letter-spacing: -0.02em; }
+.fxb-dc .lbl { font-family: 'Crimson Pro', serif; font-size: 13px; font-weight: 600; letter-spacing: 0.13em; text-transform: uppercase; color: #4A403A; }
 
 .fxb-role-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px 30px; margin-top: 12px; }
 .fxb-rc { border-top: 2px solid #DDD3BE; padding-top: 14px; }
-.fxb-rc .ag { font-family: 'Crimson Pro', serif; font-size: 10.5px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: #1B3A5C; margin-bottom: 6px; }
-.fxb-rc .rn { font-family: 'Cormorant Garamond', serif; font-size: 17px; font-weight: 400; color: #1C1916; margin-bottom: 6px; line-height: 1.2; }
-.fxb-rc .rd { font-family: 'Crimson Pro', serif; font-size: 13px; font-weight: 400; line-height: 1.55; color: #1C1916; }
+.fxb-rc .ag { font-family: 'Crimson Pro', serif; font-size: 12px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: #1B3A5C; margin-bottom: 6px; }
+.fxb-rc .rn { font-family: 'Cormorant Garamond', serif; font-size: 19px; font-weight: 400; color: #1C1916; margin-bottom: 6px; line-height: 1.2; }
+.fxb-rc .rd { font-family: 'Crimson Pro', serif; font-size: 15px; font-weight: 400; line-height: 1.55; color: #1C1916; }
 
 .fxb-ws-row { display: flex; gap: 20px; margin-top: 12px; }
 .fxb-wc { flex: 1; background: #DDD3BE; padding: 18px 20px; border-top: 3px solid #3D5E42; }
 .fxb-wc .wn { font-family: 'Cormorant Garamond', serif; font-size: 36px; font-weight: 300; color: #3D5E42; line-height: 1; margin-bottom: 6px; }
-.fxb-wc .wt { font-family: 'Crimson Pro', serif; font-size: 10.5px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: #1C1916; margin-bottom: 10px; }
-.fxb-wc .wd { font-family: 'Crimson Pro', serif; font-size: 13px; font-weight: 400; color: #1C1916; line-height: 1.55; }
+.fxb-wc .wt { font-family: 'Crimson Pro', serif; font-size: 13px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: #1C1916; margin-bottom: 10px; }
+.fxb-wc .wd { font-family: 'Crimson Pro', serif; font-size: 15px; font-weight: 400; color: #1C1916; line-height: 1.55; }
 
-.fxb-budget { width: 100%; border-collapse: collapse; font-family: 'Crimson Pro', serif; font-size: 13.5px; margin-top: 8px; }
-.fxb-budget thead th { font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: #4A403A; text-align: left; padding: 0 12px 10px 0; border-bottom: 1.5px solid #C8BAA6; font-weight: 400; }
+.fxb-budget { width: 100%; border-collapse: collapse; font-family: 'Crimson Pro', serif; font-size: 15px; margin-top: 8px; }
+.fxb-budget thead th { font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: #4A403A; text-align: left; padding: 0 12px 10px 0; border-bottom: 1.5px solid #C8BAA6; font-weight: 600; }
 .fxb-budget tbody td { padding: 8px 12px 8px 0; border-bottom: 1px solid #EAE2D2; color: #1C1916; vertical-align: top; line-height: 1.4; }
 .fxb-budget tbody tr:last-child td, .fxb-budget tbody tr:nth-last-child(2) td { border-bottom: 1px solid #C8BAA6; }
 .fxb-budget tbody tr:last-child td { font-weight: 600; color: #1C1916; padding-top: 12px; border-bottom: none; }
@@ -177,27 +177,27 @@ const STYLES = `
 .fxb-rind.hi { background: #7A2E2E; }
 .fxb-rind.me { background: #9A7B2E; }
 .fxb-rind.lo { background: #3D5E42; }
-.fxb-rname { font-family: 'Cormorant Garamond', serif; font-size: 16px; font-weight: 500; color: #1C1916; margin-bottom: 4px; }
-.fxb-rmit { font-family: 'Crimson Pro', serif; font-size: 12.5px; font-weight: 400; color: #4A403A; line-height: 1.5; }
+.fxb-rname { font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 500; color: #1C1916; margin-bottom: 4px; }
+.fxb-rmit { font-family: 'Crimson Pro', serif; font-size: 14.5px; font-weight: 400; color: #4A403A; line-height: 1.55; }
 
 .fxb-kpi-list { list-style: none; margin-top: 8px; }
 .fxb-ki { display: flex; justify-content: space-between; align-items: baseline; padding: 11px 0; border-bottom: 1px solid #EAE2D2; gap: 14px; }
-.fxb-kn { font-family: 'Crimson Pro', serif; font-size: 14px; font-weight: 500; color: #1C1916; line-height: 1.3; }
-.fxb-kt { font-family: 'Cormorant Garamond', serif; font-size: 15px; font-weight: 500; color: #3D5E42; white-space: nowrap; flex-shrink: 0; }
+.fxb-kn { font-family: 'Crimson Pro', serif; font-size: 16px; font-weight: 500; color: #1C1916; line-height: 1.3; }
+.fxb-kt { font-family: 'Cormorant Garamond', serif; font-size: 17px; font-weight: 500; color: #3D5E42; white-space: nowrap; flex-shrink: 0; }
 
 .fxb-tl { display: flex; margin-top: 20px; position: relative; }
 .fxb-tl::before { content: ''; position: absolute; top: 18px; left: 12px; right: 12px; height: 1px; background: #C8BAA6; z-index: 0; }
 .fxb-ti { flex: 1; display: flex; flex-direction: column; align-items: center; position: relative; z-index: 1; }
 .fxb-td { width: 12px; height: 12px; border-radius: 50%; background: #DDD3BE; border: 2px solid #C8BAA6; margin-bottom: 12px; flex-shrink: 0; }
 .fxb-td.on { background: #3D5E42; border-color: #3D5E42; }
-.fxb-tlabel { font-family: 'Crimson Pro', serif; font-size: 11px; font-weight: 600; text-align: center; color: #1C1916; line-height: 1.4; padding: 0 4px; }
-.fxb-tsub { font-size: 10px; color: #4A403A; font-weight: 500; letter-spacing: 0.06em; }
+.fxb-tlabel { font-family: 'Crimson Pro', serif; font-size: 13px; font-weight: 600; text-align: center; color: #1C1916; line-height: 1.4; padding: 0 4px; }
+.fxb-tsub { font-size: 12px; color: #4A403A; font-weight: 500; letter-spacing: 0.06em; }
 
 .fxb-steps { margin-top: 12px; }
 .fxb-step { display: flex; gap: 18px; padding: 13px 0; border-bottom: 1px solid #EAE2D2; align-items: flex-start; }
 .fxb-snum { font-family: 'Cormorant Garamond', serif; font-size: 30px; font-weight: 300; color: #DDD3BE; line-height: 1; flex-shrink: 0; width: 36px; }
-.fxb-stitle { font-family: 'Cormorant Garamond', serif; font-size: 17px; font-weight: 500; color: #1C1916; margin-bottom: 4px; }
-.fxb-sdesc { font-family: 'Crimson Pro', serif; font-size: 13px; font-weight: 400; color: #1C1916; line-height: 1.5; }
+.fxb-stitle { font-family: 'Cormorant Garamond', serif; font-size: 19px; font-weight: 500; color: #1C1916; margin-bottom: 4px; }
+.fxb-sdesc { font-family: 'Crimson Pro', serif; font-size: 15px; font-weight: 400; color: #1C1916; line-height: 1.5; }
 
 /* ── COVER ── */
 .fxb-cv { display: flex; height: 100%; }
@@ -207,25 +207,25 @@ const STYLES = `
 .fxb-sun { position: absolute; top: -80px; right: -80px; width: 420px; height: 420px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.08); background: radial-gradient(circle at 60% 40%, rgba(202,168,76,0.18) 0%, transparent 70%); }
 .fxb-sun::after { content: ''; position: absolute; top: 60px; left: 60px; right: 60px; bottom: 60px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.05); }
 .fxb-crt { position: relative; z-index: 1; color: rgba(255,255,255,0.9); }
-.fxb-crl { font-family: 'Crimson Pro', serif; font-size: 9px; font-weight: 600; letter-spacing: 0.3em; text-transform: uppercase; color: rgba(255,255,255,0.45); margin-bottom: 4px; margin-top: 20px; }
+.fxb-crl { font-family: 'Crimson Pro', serif; font-size: 12px; font-weight: 600; letter-spacing: 0.25em; text-transform: uppercase; color: rgba(255,255,255,0.55); margin-bottom: 4px; margin-top: 20px; }
 .fxb-crl:first-child { margin-top: 0; }
-.fxb-crs { font-family: 'Cormorant Garamond', serif; font-size: clamp(34px, 4.5vw, 58px); font-weight: 300; color: white; line-height: 1; margin-bottom: 4px; }
-.fxb-crd { font-family: 'Crimson Pro', serif; font-size: 12.5px; font-weight: 300; color: rgba(255,255,255,0.55); line-height: 1.45; max-width: 200px; }
-.fxb-cvtitle { font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: clamp(40px, 5.2vw, 68px); line-height: 1.0; color: #1C1916; letter-spacing: -0.02em; margin: 22px 0 8px; }
+.fxb-crs { font-family: 'Cormorant Garamond', serif; font-size: clamp(36px, 4.8vw, 60px); font-weight: 300; color: white; line-height: 1; margin-bottom: 4px; }
+.fxb-crd { font-family: 'Crimson Pro', serif; font-size: 14px; font-weight: 400; color: rgba(255,255,255,0.7); line-height: 1.45; max-width: 200px; }
+.fxb-cvtitle { font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: clamp(42px, 5.5vw, 70px); line-height: 1.0; color: #1C1916; letter-spacing: -0.02em; margin: 22px 0 8px; }
 .fxb-cvtitle em { font-style: italic; color: #3D5E42; }
-.fxb-cvsub { font-family: 'Cormorant Garamond', serif; font-size: 15px; font-style: italic; font-weight: 400; color: #3A342D; line-height: 1.45; max-width: 360px; margin-bottom: 22px; }
-.fxb-cvey { font-family: 'Crimson Pro', serif; font-size: 10px; font-weight: 600; letter-spacing: 0.3em; text-transform: uppercase; color: #3D5E42; }
-.fxb-cvdr { font-family: 'Crimson Pro', serif; font-size: 11px; font-weight: 500; color: #4A403A; letter-spacing: 0.08em; margin-top: 4px; }
-.fxb-cvgeo { display: flex; align-items: center; gap: 12px; font-family: 'Crimson Pro', serif; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: #9A7B2E; }
+.fxb-cvsub { font-family: 'Cormorant Garamond', serif; font-size: 17px; font-style: italic; font-weight: 400; color: #3A342D; line-height: 1.45; max-width: 360px; margin-bottom: 22px; }
+.fxb-cvey { font-family: 'Crimson Pro', serif; font-size: 12px; font-weight: 600; letter-spacing: 0.28em; text-transform: uppercase; color: #3D5E42; }
+.fxb-cvdr { font-family: 'Crimson Pro', serif; font-size: 13px; font-weight: 500; color: #4A403A; letter-spacing: 0.08em; margin-top: 4px; }
+.fxb-cvgeo { display: flex; align-items: center; gap: 12px; font-family: 'Crimson Pro', serif; font-size: 14px; letter-spacing: 0.1em; text-transform: uppercase; color: #9A7B2E; }
 .fxb-cvgeo::before { content: ''; display: block; width: 28px; height: 1px; background: #9A7B2E; }
 .fxb-partners { display: flex; align-items: center; gap: 12px; margin-top: 16px; }
-.fxb-pbadge { font-family: 'Crimson Pro', serif; font-size: 10.5px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: #3D5040; }
+.fxb-pbadge { font-family: 'Crimson Pro', serif; font-size: 13px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: #3D5040; }
 .fxb-psep { color: #C8BAA6; }
 
 /* ── CLOSING PAGE ── */
 .fxb-ask { margin-top: 24px; border-top: 1px solid rgba(255,255,255,0.15); padding-top: 24px; }
 .fxb-askamt { font-family: 'Cormorant Garamond', serif; font-size: clamp(44px, 5.5vw, 78px); font-weight: 300; color: #C9A84C; letter-spacing: -0.02em; line-height: 1; margin-bottom: 8px; }
-.fxb-asklbl { font-family: 'Crimson Pro', serif; font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(255,255,255,0.4); }
+.fxb-asklbl { font-family: 'Crimson Pro', serif; font-size: 14px; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.55); }
 .fxb-cpbadge { border: 1px solid rgba(255,255,255,0.2); padding: 8px 16px; font-family: 'Crimson Pro', serif; font-size: 11px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.5); }
 
 /* ── NAV ── */
@@ -248,7 +248,7 @@ const STYLES = `
 .fxb-dots { display: flex; gap: 5px; }
 .fxb-dot { width: 5px; height: 5px; border-radius: 50%; background: rgba(255,255,255,0.25); cursor: pointer; transition: all 0.2s ease; border: none; padding: 0; }
 .fxb-dot.on { background: rgba(255,255,255,0.8); transform: scale(1.3); }
-.fxb-navlbl { font-family: 'Crimson Pro', serif; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.35); }
+.fxb-navlbl { font-family: 'Crimson Pro', serif; font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(255,255,255,0.45); }
 
 @media (max-width: 768px) {
   .fxb-inner { padding: 28px 28px 24px 36px; }
