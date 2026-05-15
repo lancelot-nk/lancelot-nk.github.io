@@ -545,7 +545,7 @@ export default function EnterprisePlatform() {
 
   return (
     <div>
-    <div className="h-screen w-screen overflow-hidden bg-[#f3f5f7] text-[#1e293b] flex">
+    <div className="w-full bg-[#f3f5f7] text-[#1e293b] flex" style={{height: "750px", overflow: "hidden"}}>
 
       {/* SIDEBAR */}
 
@@ -643,7 +643,7 @@ export default function EnterprisePlatform() {
 
       {/* MAIN */}
 
-      <div className="flex-1 flex flex-col overflow-hidden" style={{ transform: 'scale(0.78)', transformOrigin: 'top left', width: '128%', height: '128%' }}>
+      <div className="flex-1 flex flex-col overflow-hidden">
 
         {/* TOP BAR */}
 
@@ -1300,7 +1300,7 @@ export default function EnterprisePlatform() {
                   {/* ─── PROJECT FOOTER ────────────────────────────────────── */}
       <div style={{
         borderTop: "1px solid #cccccc",
-        marginTop: 40,
+        
         padding: "20px 28px",
         background: "#f9f9f7",
         fontFamily: "'Trebuchet MS','Gill Sans',Tahoma,sans-serif",

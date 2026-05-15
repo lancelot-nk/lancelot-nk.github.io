@@ -380,7 +380,7 @@ export default function KingmanIslandRFP() {
                 {item.label}
               </div>
               <div className="mt-3 text-4xl font-black">{item.value}</div>
-              <div className="text-xs text-slate-600 mt-2">{item.subtext}</div>
+              <div className="text-xs text-slate-800 mt-2">{item.subtext}</div>
             </div>
           ))}
         </div>
@@ -392,18 +392,18 @@ export default function KingmanIslandRFP() {
           <div className="text-xs uppercase tracking-[0.28em] text-teal-700 mb-6">Solicitation Information</div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 text-sm">
             {[
-              ['Solicitation Number', 'DOEE-OCTO-GI-FY2024-001', 'text-cyan-300'],
-              ['Issuing Agency', 'DC Dept. of Energy & Environment (DOEE)', 'text-slate-200'],
-              ['Program Title', 'Stormwater GI Workforce Development Grant', 'text-slate-200'],
-              ['Submission Deadline', 'March 31, 2024 — 5:00 PM EST', 'text-amber-300'],
-              ['Grant Period', 'October 1, 2024 – September 30, 2028', 'text-slate-200'],
-              ['Total Funding Available', '$400,000 (Four-Year Award)', 'text-emerald-300'],
-              ['Eligible Applicants', 'DC-based 501(c)(3) Nonprofits', 'text-slate-200'],
-              ['Point of Contact', 'DOEE Office of Contracts & Procurement', 'text-slate-200'],
-              ['CFDA Number', '66.460 — Nonpoint Source Implementation', 'text-slate-200'],
+              ['Solicitation Number', 'DOEE-OCTO-GI-FY2024-001', 'text-teal-700'],
+              ['Issuing Agency', 'DC Dept. of Energy & Environment (DOEE)', 'text-slate-800'],
+              ['Program Title', 'Stormwater GI Workforce Development Grant', 'text-slate-800'],
+              ['Submission Deadline', 'March 31, 2024 — 5:00 PM EST', 'text-amber-700'],
+              ['Grant Period', 'October 1, 2024 – September 30, 2028', 'text-slate-800'],
+              ['Total Funding Available', '$400,000 (Four-Year Award)', 'text-emerald-700'],
+              ['Eligible Applicants', 'DC-based 501(c)(3) Nonprofits', 'text-slate-800'],
+              ['Point of Contact', 'DOEE Office of Contracts & Procurement', 'text-slate-800'],
+              ['CFDA Number', '66.460 — Nonpoint Source Implementation', 'text-slate-800'],
             ].map(([label, value, colorClass]) => (
               <div key={label} className="glass-soft rounded-xl p-4">
-                <div className="text-xs text-slate-600 uppercase tracking-wider mb-1">{label}</div>
+                <div className="text-xs text-slate-800 uppercase tracking-wider mb-1">{label}</div>
                 <div className={`font-semibold ${colorClass}`}>{value}</div>
               </div>
             ))}
@@ -450,7 +450,7 @@ export default function KingmanIslandRFP() {
                       Project Focus Area
                     </div>
                     <div className="text-3xl font-black">Kingman & Heritage Islands</div>
-                    <p className="mt-3 text-slate-600 leading-7 text-[15px]">
+                    <p className="mt-3 text-slate-800 leading-7 text-[15px]">
                       120-acre ecological restoration corridor within the Anacostia River system,
                       managed by Living Classrooms since 2009, serving as outdoor classroom for
                       environmental education, workforce development, and watershed stewardship.
@@ -464,7 +464,7 @@ export default function KingmanIslandRFP() {
                   Executive Summary
                 </div>
                 <h2 className="section-title mb-6">Learning By Doing</h2>
-                <div className="space-y-5 text-slate-600 leading-8 text-[15px]">
+                <div className="space-y-5 text-slate-800 leading-8 text-[15px]">
                   <p>
                     Living Classrooms Foundation, in partnership with the University of the District
                     of Columbia, proposes an innovative four-year workforce training program providing
@@ -479,7 +479,7 @@ export default function KingmanIslandRFP() {
                   <div className="grid sm:grid-cols-2 gap-4 pt-4">
                     <div className="glass-soft rounded-3xl p-5">
                       <div className="text-sm text-teal-800 mb-2 font-semibold">Target Audience</div>
-                      <ul className="space-y-2 text-sm text-slate-600">
+                      <ul className="space-y-2 text-sm text-slate-800">
                         <li>• Ages 18–24</li>
                         <li>• DC Residents (Wards 5-8 focus)</li>
                         <li>• GED / High School Diploma</li>
@@ -488,7 +488,7 @@ export default function KingmanIslandRFP() {
                     </div>
                     <div className="glass-soft rounded-3xl p-5">
                       <div className="text-sm text-teal-800 mb-2 font-semibold">District Outcomes</div>
-                      <ul className="space-y-2 text-sm text-slate-600">
+                      <ul className="space-y-2 text-sm text-slate-800">
                         <li>• 4.2M gallons water captured annually</li>
                         <li>• 160 rain garden maintenance cycles</li>
                         <li>• 1 acre invasive species removal</li>
@@ -504,28 +504,28 @@ export default function KingmanIslandRFP() {
             <div className="grid md:grid-cols-3 gap-6">
               <div className="glass rounded-[2rem] p-8 text-center">
                 <div className="text-6xl font-black text-teal-600 mb-3">66</div>
-                <div className="text-sm uppercase tracking-wider text-slate-600">
+                <div className="text-sm uppercase tracking-wider text-slate-800">
                   Active NGICP Certifications in DC
                 </div>
-                <div className="text-xs text-slate-600 mt-2">
+                <div className="text-xs text-slate-800 mt-2">
                   500+ nationwide through UDC partnership
                 </div>
               </div>
               <div className="glass rounded-[2rem] p-8 text-center">
                 <div className="text-6xl font-black text-emerald-700 mb-3">14+</div>
-                <div className="text-sm uppercase tracking-wider text-slate-600">
+                <div className="text-sm uppercase tracking-wider text-slate-800">
                   Years Managing Kingman Island
                 </div>
-                <div className="text-xs text-slate-600 mt-2">
+                <div className="text-xs text-slate-800 mt-2">
                   Since 2009 under Living Classrooms stewardship
                 </div>
               </div>
               <div className="glass rounded-[2rem] p-8 text-center">
                 <div className="text-6xl font-black text-purple-600 mb-3">4,700+</div>
-                <div className="text-sm uppercase tracking-wider text-slate-600">
+                <div className="text-sm uppercase tracking-wider text-slate-800">
                   Annual Visitors Served
                 </div>
-                <div className="text-xs text-slate-600 mt-2">
+                <div className="text-xs text-slate-800 mt-2">
                   Through environmental education programs
                 </div>
               </div>
@@ -548,7 +548,7 @@ export default function KingmanIslandRFP() {
                         <div className="text-lg font-bold mb-2 text-teal-800">{item.title}</div>
                         <div className="text-xs text-emerald-700 font-mono mb-3">▸ {item.metric}</div>
                         {expandedDeliverable === idx && (
-                          <div className="text-sm text-slate-600 leading-relaxed mt-3 border-t border-slate-200 pt-3">
+                          <div className="text-sm text-slate-800 leading-relaxed mt-3 border-t border-slate-200 pt-3">
                             {item.detail}
                           </div>
                         )}
@@ -595,7 +595,7 @@ export default function KingmanIslandRFP() {
                               <div className="text-xs text-teal-600 font-mono mt-1">{phase.weeks}</div>
                             </div>
                           </div>
-                          <div className="text-slate-300 leading-7 text-[15px] ml-14">
+                          <div className="text-slate-700 leading-7 text-[15px] ml-14">
                             {phase.body}
                           </div>
                         </div>
@@ -612,14 +612,14 @@ export default function KingmanIslandRFP() {
                               {phase.activities.map((activity, i) => (
                                 <div key={i} className="flex items-start gap-3">
                                   <div className="mt-1.5 h-1.5 w-1.5 rounded-full bg-cyan-300 shrink-0" />
-                                  <div className="text-sm text-slate-600">{activity}</div>
+                                  <div className="text-sm text-slate-800">{activity}</div>
                                 </div>
                               ))}
                             </div>
                           </div>
                           <div className="rounded-xl bg-emerald-100/50 border border-emerald-300/20 p-4">
                             <div className="text-sm font-semibold text-emerald-800 mb-2">Expected Outcomes:</div>
-                            <div className="text-sm text-slate-600">{phase.outcomes}</div>
+                            <div className="text-sm text-slate-800">{phase.outcomes}</div>
                           </div>
                         </div>
                       )}
@@ -640,28 +640,28 @@ export default function KingmanIslandRFP() {
                   <div className="glass-soft rounded-xl p-5">
                     <div className="font-bold mb-2 text-teal-800">Initial Pool</div>
                     <div className="text-3xl font-black mb-2">~30 Candidates</div>
-                    <div className="text-sm text-slate-600">
+                    <div className="text-sm text-slate-800">
                       Gathered through early interest events, high school senior outreach, and advertised functions
                     </div>
                   </div>
                   <div className="glass-soft rounded-xl p-5">
                     <div className="font-bold mb-2 text-teal-800">Information Sessions</div>
                     <div className="text-3xl font-black mb-2">2 Required</div>
-                    <div className="text-sm text-slate-600">
+                    <div className="text-sm text-slate-800">
                       Mandatory attendance at one of two sessions covering program expectations and requirements
                     </div>
                   </div>
                   <div className="glass-soft rounded-xl p-5">
                     <div className="font-bold mb-2 text-teal-800">CASA Assessment</div>
                     <div className="text-3xl font-black mb-2">Math & Reading</div>
-                    <div className="text-sm text-slate-600">
+                    <div className="text-sm text-slate-800">
                       Baseline skills evaluation to ensure participant readiness for technical curriculum
                     </div>
                   </div>
                   <div className="glass-soft rounded-xl p-5 border-2 border-emerald-300/30">
                     <div className="font-bold mb-2 text-emerald-800">Final Cohort</div>
                     <div className="text-3xl font-black mb-2">15-20 Selected</div>
-                    <div className="text-sm text-slate-600">
+                    <div className="text-sm text-slate-800">
                       Participants receive case worker, metro cards, wraparound support services
                     </div>
                   </div>
@@ -681,7 +681,7 @@ export default function KingmanIslandRFP() {
                       </div>
                       <div>
                         <div className="font-semibold text-teal-800 mb-1">Case Worker Assignment</div>
-                        <div className="text-sm text-slate-600">
+                        <div className="text-sm text-slate-800">
                           Individual support from recruitment through post-employment placement
                         </div>
                       </div>
@@ -692,7 +692,7 @@ export default function KingmanIslandRFP() {
                       </div>
                       <div>
                         <div className="font-semibold text-teal-800 mb-1">Transportation Assistance</div>
-                        <div className="text-sm text-slate-600">
+                        <div className="text-sm text-slate-800">
                           Metro cards provided for all program-related activities and field work
                         </div>
                       </div>
@@ -703,7 +703,7 @@ export default function KingmanIslandRFP() {
                       </div>
                       <div>
                         <div className="font-semibold text-teal-800 mb-1">Job Readiness Training</div>
-                        <div className="text-sm text-slate-600">
+                        <div className="text-sm text-slate-800">
                           Resume building, interview prep, professional development coaching
                         </div>
                       </div>
@@ -714,7 +714,7 @@ export default function KingmanIslandRFP() {
                       </div>
                       <div>
                         <div className="font-semibold text-teal-800 mb-1">Ongoing Career Support</div>
-                        <div className="text-sm text-slate-600">
+                        <div className="text-sm text-slate-800">
                           Post-program networking, advancement opportunities, alumni engagement
                         </div>
                       </div>
@@ -746,7 +746,7 @@ export default function KingmanIslandRFP() {
                     Financial Planning
                   </div>
                   <div className="section-title">Four-Year Budget Allocation</div>
-                  <div className="text-slate-400 text-sm mt-2">Total Request: $400,000</div>
+                  <div className="text-slate-700 text-sm mt-2">Total Request: $400,000</div>
                 </div>
               </div>
 
@@ -762,7 +762,7 @@ export default function KingmanIslandRFP() {
                       <th className="p-5">Total</th>
                     </tr>
                   </thead>
-                  <tbody className="text-slate-300">
+                  <tbody className="text-slate-700">
                     {budgetData.map((row, idx) => (
                       <tr key={idx} className="border-t border-slate-200/70 hover:bg-emerald-100/30 transition-colors">
                         <td className="p-5 font-semibold">{row.category}</td>
@@ -789,21 +789,21 @@ export default function KingmanIslandRFP() {
                 <div className="glass-soft rounded-xl p-6">
                   <div className="text-xs uppercase tracking-wider text-teal-700 mb-2">Personnel</div>
                   <div className="text-4xl font-black mb-2">$293K</div>
-                  <div className="text-sm text-slate-600">
+                  <div className="text-sm text-slate-800">
                     Program coordinators, field instructors, case workers, admin support (73%)
                   </div>
                 </div>
                 <div className="glass-soft rounded-xl p-6">
                   <div className="text-xs uppercase tracking-wider text-emerald-700 mb-2">Equipment & Operations</div>
                   <div className="text-4xl font-black mb-2">$88K</div>
-                  <div className="text-sm text-slate-600">
+                  <div className="text-sm text-slate-800">
                     Field equipment, monitoring tools, maintenance supplies (22%)
                   </div>
                 </div>
                 <div className="glass-soft rounded-xl p-6">
                   <div className="text-xs uppercase tracking-wider text-purple-200 mb-2">Education & Support</div>
                   <div className="text-4xl font-black mb-2">$60K</div>
-                  <div className="text-sm text-slate-600">
+                  <div className="text-sm text-slate-800">
                     NGICP curriculum, certification fees, training materials (15%)
                   </div>
                 </div>
@@ -828,9 +828,9 @@ export default function KingmanIslandRFP() {
                     <div key={idx} className="glass-soft rounded-xl p-4 flex justify-between items-start gap-4">
                       <div>
                         <div className="font-semibold text-teal-800 mb-1">{item.item}</div>
-                        <div className="text-sm text-slate-600">{item.value}</div>
+                        <div className="text-sm text-slate-800">{item.value}</div>
                       </div>
-                      <div className="text-emerald-300 text-2xl">✓</div>
+                      <div className="text-emerald-600 text-2xl">✓</div>
                     </div>
                   ))}
                 </div>
@@ -905,12 +905,12 @@ export default function KingmanIslandRFP() {
                   <div className="rounded-xl bg-emerald-100/60 border border-emerald-700/20 p-4">
                     <div className="text-xs text-teal-700 uppercase tracking-wider mb-1">Current</div>
                     <div className="text-3xl font-black">4.2M</div>
-                    <div className="text-xs text-slate-600 mt-1">Gallons/year (2023)</div>
+                    <div className="text-xs text-slate-800 mt-1">Gallons/year (2023)</div>
                   </div>
                   <div className="rounded-xl bg-emerald-100/50 border border-emerald-300/20 p-4">
                     <div className="text-xs text-emerald-700 uppercase tracking-wider mb-1">Projected</div>
                     <div className="text-3xl font-black">4.5M</div>
-                    <div className="text-xs text-slate-600 mt-1">Gallons/year (2024)</div>
+                    <div className="text-xs text-slate-800 mt-1">Gallons/year (2024)</div>
                   </div>
                 </div>
               </div>
@@ -960,13 +960,13 @@ export default function KingmanIslandRFP() {
                   { label: 'NGICP Certifications', value: '70%+', unit: 'Pass Rate', color: 'orange' },
                 ].map((item, idx) => (
                   <div key={idx} className="glass-soft rounded-xl p-6 text-center">
-                    <div className="text-xs uppercase tracking-wider text-slate-600 mb-3">
+                    <div className="text-xs uppercase tracking-wider text-slate-800 mb-3">
                       {item.label}
                     </div>
                     <div className={`text-5xl font-black mb-2 text-${item.color}-300`}>
                       {item.value}
                     </div>
-                    <div className="text-xs text-slate-600">{item.unit}</div>
+                    <div className="text-xs text-slate-800">{item.unit}</div>
                   </div>
                 ))}
               </div>
@@ -1013,13 +1013,13 @@ export default function KingmanIslandRFP() {
                         <h4 className="text-2xl font-bold text-teal-800 mb-2">{partner.name}</h4>
                         <div className="text-sm text-emerald-700 font-semibold">{partner.role}</div>
                       </div>
-                      <div className="text-xs text-slate-600">{partner.contact}</div>
+                      <div className="text-xs text-slate-800">{partner.contact}</div>
                     </div>
                     <div className="grid sm:grid-cols-2 gap-3 mt-4">
                       {partner.responsibilities.map((resp, i) => (
                         <div key={i} className="flex items-start gap-2">
                           <div className="mt-1.5 h-1.5 w-1.5 rounded-full bg-cyan-300 shrink-0" />
-                          <div className="text-sm text-slate-600">{resp}</div>
+                          <div className="text-sm text-slate-800">{resp}</div>
                         </div>
                       ))}
                     </div>
@@ -1034,7 +1034,7 @@ export default function KingmanIslandRFP() {
                 Track Record
               </div>
               <h3 className="text-3xl font-black mb-6">Recent DC Government Grant History</h3>
-              <div className="text-sm text-slate-600 mb-6">
+              <div className="text-sm text-slate-800 mb-6">
                 All grant requirements have been fulfilled according to agreements. No disputes, investigations, or audits on record.
               </div>
               <div className="overflow-x-auto rounded-xl border border-slate-200">
@@ -1048,7 +1048,7 @@ export default function KingmanIslandRFP() {
                       <th className="p-4 text-left">Status</th>
                     </tr>
                   </thead>
-                  <tbody className="text-sm text-slate-600">
+                  <tbody className="text-sm text-slate-800">
                     {pastGrants.map((grant, idx) => (
                       <tr key={idx} className="border-t border-slate-200/70 hover:bg-emerald-100/30">
                         <td className="p-4">{grant.year}</td>
@@ -1086,7 +1086,7 @@ export default function KingmanIslandRFP() {
                     <div key={idx} className="pb-4 border-b border-slate-200 last:border-0">
                       <div className="font-bold text-teal-800 mb-1">{person.name}</div>
                       <div className="text-sm text-emerald-700 mb-1">{person.title}</div>
-                      <div className="text-xs text-slate-600">{person.exp}</div>
+                      <div className="text-xs text-slate-800">{person.exp}</div>
                     </div>
                   ))}
                 </div>
@@ -1098,7 +1098,7 @@ export default function KingmanIslandRFP() {
                     Organizational Profile
                   </div>
                   <h3 className="text-2xl font-black mb-6">Living Classrooms Foundation</h3>
-                  <div className="space-y-4 text-sm text-slate-600 leading-relaxed">
+                  <div className="space-y-4 text-sm text-slate-800 leading-relaxed">
                     <p>
                       Founded in Baltimore in 1985, Living Classrooms opened its National Capital Region
                       affiliate in 2001. The organization serves thousands of DC children, youth, and adults
@@ -1134,7 +1134,7 @@ export default function KingmanIslandRFP() {
                   Continuing Funding Justification
                 </div>
                 <h2 className="section-title mb-8">Why This Program Deserves Investment</h2>
-                <div className="space-y-6 text-slate-600 leading-8 text-[15px]">
+                <div className="space-y-6 text-slate-800 leading-8 text-[15px]">
                   <p>
                     Living Classrooms has demonstrated measurable operational success through watershed education,
                     environmental restoration, trail maintenance, workforce training deployments, and DOEE-supported
@@ -1168,29 +1168,29 @@ export default function KingmanIslandRFP() {
                 <div className="glass rounded-[2rem] p-6 bg-gradient-to-br from-cyan-400/10 to-emerald-400/10 border-emerald-700/20">
                   <div className="text-xs uppercase tracking-wider text-teal-700 mb-3">Policy Alignment</div>
                   <h4 className="text-xl font-black mb-4">Regulatory Support</h4>
-                  <ul className="space-y-3 text-sm text-slate-600">
+                  <ul className="space-y-3 text-sm text-slate-800">
                     <li className="flex items-start gap-3">
-                      <span className="text-cyan-300 mt-0.5">✓</span>
+                      <span className="text-teal-600 mt-0.5">✓</span>
                       <span>DOEE Stormwater Management Regulations</span>
                     </li>
                     <li className="flex items-start gap-3">
-                      <span className="text-cyan-300 mt-0.5">✓</span>
+                      <span className="text-teal-600 mt-0.5">✓</span>
                       <span>Clean Water Act Objectives</span>
                     </li>
                     <li className="flex items-start gap-3">
-                      <span className="text-cyan-300 mt-0.5">✓</span>
+                      <span className="text-teal-600 mt-0.5">✓</span>
                       <span>Sustainable DC 2.0 Goals</span>
                     </li>
                     <li className="flex items-start gap-3">
-                      <span className="text-cyan-300 mt-0.5">✓</span>
+                      <span className="text-teal-600 mt-0.5">✓</span>
                       <span>Anacostia River Restoration Strategy</span>
                     </li>
                     <li className="flex items-start gap-3">
-                      <span className="text-cyan-300 mt-0.5">✓</span>
+                      <span className="text-teal-600 mt-0.5">✓</span>
                       <span>MS4 Permit Compliance Support</span>
                     </li>
                     <li className="flex items-start gap-3">
-                      <span className="text-cyan-300 mt-0.5">✓</span>
+                      <span className="text-teal-600 mt-0.5">✓</span>
                       <span>Environmental Justice Expansion</span>
                     </li>
                   </ul>
@@ -1218,7 +1218,7 @@ export default function KingmanIslandRFP() {
               <h3 className="text-3xl font-black mb-6">
                 From Commercial Development to Ecological Restoration Corridor
               </h3>
-              <div className="space-y-6 text-slate-600 leading-8 text-[15px]">
+              <div className="space-y-6 text-slate-800 leading-8 text-[15px]">
                 <p>
                   Kingman Island evolved from a historically proposed commercial development corridor into one of
                   Washington DC's most important urban ecological restoration landscapes. Environmental advocacy and
@@ -1234,15 +1234,15 @@ export default function KingmanIslandRFP() {
                 <div className="grid md:grid-cols-3 gap-6 mt-8">
                   <div className="glass-soft rounded-xl p-5 text-center">
                     <div className="text-4xl font-black text-teal-600 mb-2">120</div>
-                    <div className="text-sm text-slate-600">Acres Under Management</div>
+                    <div className="text-sm text-slate-800">Acres Under Management</div>
                   </div>
                   <div className="glass-soft rounded-xl p-5 text-center">
                     <div className="text-4xl font-black text-emerald-700 mb-2">14+</div>
-                    <div className="text-sm text-slate-600">Years of Stewardship</div>
+                    <div className="text-sm text-slate-800">Years of Stewardship</div>
                   </div>
                   <div className="glass-soft rounded-xl p-5 text-center">
                     <div className="text-4xl font-black text-purple-600 mb-2">2009</div>
-                    <div className="text-sm text-slate-600">Management Start Year</div>
+                    <div className="text-sm text-slate-800">Management Start Year</div>
                   </div>
                 </div>
               </div>
@@ -1261,7 +1261,7 @@ export default function KingmanIslandRFP() {
               <div className="text-2xl font-black mb-3">
                 Watershed Restoration & Green Infrastructure Job Training Program
               </div>
-              <div className="text-sm text-slate-600 space-y-1">
+              <div className="text-sm text-slate-800 space-y-1">
                 <div>Living Classrooms Foundation • National Capital Region</div>
                 <div>802 S. Caroline Street, Baltimore, MD 21231-3332</div>
                 <div>Prepared for: DC Department of Energy & Environment (DOEE)</div>
@@ -1269,10 +1269,10 @@ export default function KingmanIslandRFP() {
               </div>
             </div>
             <div className="text-right">
-              <div className="text-xs text-slate-600 mb-2">Analysis & Design</div>
+              <div className="text-xs text-slate-800 mb-2">Analysis & Design</div>
               <div className="font-bold text-teal-800">Lancelot Naipier-Kane</div>
-              <div className="text-sm text-slate-600">Data Analyst & Policy Researcher</div>
-              <div className="text-xs text-slate-600 mt-2">lancelot-nk.github.io</div>
+              <div className="text-sm text-slate-800">Data Analyst & Policy Researcher</div>
+              <div className="text-xs text-slate-800 mt-2">lancelot-nk.github.io</div>
             </div>
           </div>
         </div>
