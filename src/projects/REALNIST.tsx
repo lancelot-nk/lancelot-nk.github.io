@@ -7,6 +7,103 @@ import React, { useState, useEffect } from "react";
 // ============================================================================
 
 // Types & Interfaces
+type ImpactLevel = "LOW" | "MODERATE" | "HIGH";
+type DataSensitivity = "PUBLIC" | "CUI" | "SBU" | "CLASSIFIED";
+type RiskLevel = "LOW" | "MODERATE" | "HIGH" | "CRITICAL";
+type ATOStatus = "APPROVE" | "APPROVE_CONDITIONS" | "DENY" | "REMEDIATION_REQUIRED";
+type RMFPhase = "PREPARE" | "CATEGORIZE" | "SELECT" | "IMPLEMENT" | "ASSESS" | "AUTHORIZE" | "MONITOR";
+type ThreatLevel = "MINIMAL" | "ELEVATED" | "HIGH" | "SEVERE" | "CRITICAL";
+type IRPhase = "DETECTION" | "ANALYSIS" | "CONTAINMENT" | "ERADICATION" | "RECOVERY" | "POST_INCIDENT";
+
+interface ControlFamily {
+  id: string;
+  name: string;
+  controlCount: number;
+  implemented: number;
+  partial: number;
+  effectiveness: number;
+  drift: number;
+}
+
+interface Vulnerability {
+  id: string;
+  cve: string;
+  severity: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+  system: string;
+  exploitProbability: number;
+  daysOpen: number;
+  description: string;
+}
+
+interface SecurityEvent {
+  id: string;
+  timestamp: Date;
+  type: "CONTROL_FAILURE" | "ACCESS_ANOMALY" | "CONFIG_CHANGE" | "THREAT_DETECTED" | "AUDIT_FINDING" | "PATCH_LAG" | "INCIDENT";
+  severity: "INFO" | "WARNING" | "CRITICAL";
+  system: string;
+  description: string;
+  controlFamily?: string;
+}
+
+interface FederalSystem {
+  id: string;
+  name: string;
+  fismaId: string;
+  agency: string;
+  contractor: string;
+  systemType: "MISSION_CRITICAL" | "BUSINESS_SUPPORT" | "PUBLIC_FACING" | "CLASSIFIED_ENCLAVE";
+  impactLevel: ImpactLevel;
+  dataSensitivity: DataSensitivity;
+  informationTypes: string[];
+  controlFamilies: ControlFamily[];
+  residualRisk: number;
+  inherentRisk: number;
+  controlEffectiveness: number;
+  vulnerabilityDensity: number;
+  threatExposure: number;
+  riskLevel: RiskLevel;
+  atoStatus: ATOStatus;
+  rmfPhase: RMFPhase;
+  lastAssessment: Date;
+  nextAssessment: Date;
+  openFindings: number;
+  poamItems: number;
+}
+
+interface Contractor {
+  id: string;
+  name: string;
+  trustScore: number;
+  systemsManaged: number;
+  criticalDependencies: number;
+  complianceScore: number;
+  incidentHistory: number;
+}
+
+interface Incident {
+  id: string;
+  name: string;
+  phase: IRPhase;
+  severity: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+  affectedSystems: string[];
+  detectionTime: Date;
+  containmentTime?: Date;
+  responseTimeMinutes: number;
+  escalationLevel: number;
+  status: "ACTIVE" | "CONTAINED" | "RESOLVED";
+}
+
+interface COOPScenario {
+  id: string;
+  name: string;
+  type: "CYBERATTACK" | "DATACENTER_OUTAGE" | "RANSOMWARE" | "CLOUD_FAILURE" | "INSIDER_SABOTAGE";
+  survivabilityScore: number;
+  rtoHours: number;
+  rpoHours: number;
+  fallbackEfficiency: number;
+  affectedSystems: number;
+  status: "SIMULATING" | "PASSED" | "FAILED" | "PARTIAL";
+}
 
 // ============================================================================
 // SIMULATED DATA GENERATORS
@@ -14,7 +111,7 @@ import React, { useState, useEffect } from "react";
 
 const AGENCIES = ["DHS", "DoD", "HUD", "VA", "DOJ", "Treasury", "State", "EPA"];
 const CONTRACTORS = ["Booz Allen Hamilton", "Deloitte Federal", "Lockheed Martin", "Northrop Grumman", "Raytheon", "SAIC", "Leidos", "General Dynamics IT"];
-const CONTROL_FAMILIES: { id; name; baseControls }[] = [
+const CONTROL_FAMILIES: { id: string; name: string; baseControls: number }[] = [
   { id: "AC", name: "Access Control", baseControls: 25 },
   { id: "AU", name: "Audit & Accountability", baseControls: 16 },
   { id: "CM", name: "Configuration Management", baseControls: 14 },
@@ -58,7 +155,7 @@ function generateSystems(): FederalSystem[] {
     const avgDrift = controlFamilies.reduce((a, b) => a + b.drift, 0) / controlFamilies.length;
     const inherentRisk = 20 + Math.random() * 60;
     const residualRisk = inherentRisk * (1 - avgEffectiveness / 150);
-    const riskLevel = residualRisk < 25 ? "LOW" : residualRisk < 45 ? "MODERATE" : residualRisk < 65 ? "HIGH" : "CRITICAL";
+    const riskLevel: RiskLevel = residualRisk < 25 ? "LOW" : residualRisk < 45 ? "MODERATE" : residualRisk < 65 ? "HIGH" : "CRITICAL";
     
     const rmfPhases: RMFPhase[] = ["PREPARE", "CATEGORIZE", "SELECT", "IMPLEMENT", "ASSESS", "AUTHORIZE", "MONITOR"];
     
@@ -69,8 +166,8 @@ function generateSystems(): FederalSystem[] {
       agency: AGENCIES[i % AGENCIES.length],
       contractor: CONTRACTORS[i % CONTRACTORS.length],
       systemType: ["MISSION_CRITICAL", "BUSINESS_SUPPORT", "PUBLIC_FACING", "CLASSIFIED_ENCLAVE"][i % 4] as FederalSystem["systemType"],
-      impactLevel: ["LOW", "MODERATE", "HIGH"][Math.floor(Math.random() * 3)],
-      dataSensitivity: ["PUBLIC", "CUI", "SBU", "CLASSIFIED"][Math.floor(Math.random() * 4)],
+      impactLevel: ["LOW", "MODERATE", "HIGH"][Math.floor(Math.random() * 3)] as ImpactLevel,
+      dataSensitivity: ["PUBLIC", "CUI", "SBU", "CLASSIFIED"][Math.floor(Math.random() * 4)] as DataSensitivity,
       informationTypes: INFO_TYPES.slice(0, 2 + Math.floor(Math.random() * 3)),
       controlFamilies,
       residualRisk,
@@ -150,7 +247,7 @@ function generateIncident(): Incident {
   return {
     id: `INC-${Date.now()}`,
     name: types[Math.floor(Math.random() * types.length)],
-    phase: ["DETECTION", "ANALYSIS", "CONTAINMENT", "ERADICATION", "RECOVERY", "POST_INCIDENT"][Math.floor(Math.random() * 6)],
+    phase: ["DETECTION", "ANALYSIS", "CONTAINMENT", "ERADICATION", "RECOVERY", "POST_INCIDENT"][Math.floor(Math.random() * 6)] as IRPhase,
     severity: ["LOW", "MEDIUM", "HIGH", "CRITICAL"][Math.floor(Math.random() * 4)] as Incident["severity"],
     affectedSystems: ["AEGIS-CORE", "SENTINEL-NET", "GUARDIAN-DB"].slice(0, 1 + Math.floor(Math.random() * 3)),
     detectionTime: new Date(Date.now() - Math.random() * 48 * 60 * 60 * 1000),
@@ -174,7 +271,7 @@ function generateCOOPScenarios(): COOPScenario[] {
 // CALCULATION ENGINES
 // ============================================================================
 
-function calculateThreatExposure(system: FederalSystem, threatLevel: ThreatLevel) {
+function calculateThreatExposure(system: FederalSystem, threatLevel: ThreatLevel): number {
   const threatMultipliers: Record<ThreatLevel, number> = {
     MINIMAL: 0.5, ELEVATED: 0.75, HIGH: 1.0, SEVERE: 1.25, CRITICAL: 1.5,
   };
@@ -182,7 +279,7 @@ function calculateThreatExposure(system: FederalSystem, threatLevel: ThreatLevel
   return Math.min(100, baseExposure * threatMultipliers[threatLevel]);
 }
 
-function calculateATOReadiness(system: FederalSystem) {
+function calculateATOReadiness(system: FederalSystem): number {
   const controlScore = system.controlEffectiveness * 0.35;
   const findingsPenalty = Math.min(30, system.openFindings * 1.5);
   const poamPenalty = Math.min(20, system.poamItems * 2);
@@ -190,7 +287,7 @@ function calculateATOReadiness(system: FederalSystem) {
   return Math.max(0, Math.min(100, controlScore + 50 - findingsPenalty - poamPenalty - riskPenalty));
 }
 
-function calculateSupplyChainRisk(contractors: Contractor[]) {
+function calculateSupplyChainRisk(contractors: Contractor[]): number {
   const avgTrust = contractors.reduce((a, b) => a + b.trustScore, 0) / contractors.length;
   const avgCompliance = contractors.reduce((a, b) => a + b.complianceScore, 0) / contractors.length;
   const totalIncidents = contractors.reduce((a, b) => a + b.incidentHistory, 0);
@@ -198,7 +295,7 @@ function calculateSupplyChainRisk(contractors: Contractor[]) {
   return Math.min(100, (100 - avgTrust) * 0.3 + (100 - avgCompliance) * 0.3 + totalIncidents * 5 + criticalDeps * 2);
 }
 
-function calculateIREfficiency(incident: Incident) {
+function calculateIREfficiency(incident: Incident): number {
   const phasePenalties: Record<IRPhase, number> = {
     DETECTION: 0, ANALYSIS: 5, CONTAINMENT: 15, ERADICATION: 25, RECOVERY: 35, POST_INCIDENT: 0,
   };
@@ -207,7 +304,7 @@ function calculateIREfficiency(incident: Incident) {
   return Math.max(0, 100 - phasePenalties[incident.phase] - timePenalty - escalationPenalty);
 }
 
-function calculateCascadeRisk(systems: FederalSystem[]) {
+function calculateCascadeRisk(systems: FederalSystem[]): number {
   const criticalSystems = systems.filter((s) => s.systemType === "MISSION_CRITICAL");
   const avgRisk = criticalSystems.length > 0 ? criticalSystems.reduce((a, b) => a + b.residualRisk, 0) / criticalSystems.length : 0;
   const interconnectionFactor = criticalSystems.length * 3;
@@ -218,18 +315,19 @@ function calculateCascadeRisk(systems: FederalSystem[]) {
 // MAIN COMPONENT
 // ============================================================================
 
+type ViewMode = "OPERATIONS" | "RMF_LIFECYCLE" | "INCIDENT_RESPONSE" | "COOP_SIMULATION" | "AUDIT_REPORTS" | "SUPPLY_CHAIN";
 
 export default function NISTCyberSimulator() {
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [viewMode, setViewMode] = useState("OPERATIONS");
-  const [systems, setSystems] = useState([]);
-  const [vulnerabilities, setVulnerabilities] = useState([]);
-  const [contractors, setContractors] = useState([]);
-  const [incidents, setIncidents] = useState([]);
-  const [coopScenarios, setCOOPScenarios] = useState([]);
-  const [securityEvents, setSecurityEvents] = useState([]);
-  const [threatLevel, setThreatLevel] = useState("ELEVATED");
-  const [selectedSystem, setSelectedSystem] = useState(null);
+  const [viewMode, setViewMode] = useState<ViewMode>("OPERATIONS");
+  const [systems, setSystems] = useState<FederalSystem[]>([]);
+  const [vulnerabilities, setVulnerabilities] = useState<Vulnerability[]>([]);
+  const [contractors, setContractors] = useState<Contractor[]>([]);
+  const [incidents, setIncidents] = useState<Incident[]>([]);
+  const [coopScenarios, setCOOPScenarios] = useState<COOPScenario[]>([]);
+  const [securityEvents, setSecurityEvents] = useState<SecurityEvent[]>([]);
+  const [threatLevel, setThreatLevel] = useState<ThreatLevel>("ELEVATED");
+  const [selectedSystem, setSelectedSystem] = useState<FederalSystem | null>(null);
   const [simulationTick, setSimulationTick] = useState(0);
 
   useEffect(() => {
@@ -264,7 +362,7 @@ export default function NISTCyberSimulator() {
           "Network anomaly in segmented zone",
         ];
         
-        const newEvent = {
+        const newEvent: SecurityEvent = {
           id: `EVT-${Date.now()}`,
           timestamp: new Date(),
           type: eventTypes[Math.floor(Math.random() * eventTypes.length)],
@@ -572,7 +670,7 @@ export default function NISTCyberSimulator() {
   );
 
   const renderRMFLifecycleView = () => {
-    const phases: { id: RMFPhase; name; description }[] = [
+    const phases: { id: RMFPhase; name: string; description: string }[] = [
       { id: "PREPARE", name: "Prepare", description: "Asset inventory, boundary definition" },
       { id: "CATEGORIZE", name: "Categorize", description: "FIPS 199 impact level assignment" },
       { id: "SELECT", name: "Select", description: "Control baseline selection" },
@@ -1027,7 +1125,7 @@ export default function NISTCyberSimulator() {
         ].map((tab) => (
           <button
             key={tab.id}
-            onClick={() => setViewMode(tab.id)}
+            onClick={() => setViewMode(tab.id as ViewMode)}
             className={`px-4 py-2 text-sm font-medium rounded transition-all ${
               viewMode === tab.id
                 ? "bg-neutral-900 text-white"

@@ -9,6 +9,90 @@ import { useState, useEffect, useCallback, useMemo } from "react"
 // TYPE DEFINITIONS
 // ============================================================================
 
+type HousingStatus = "unsheltered" | "emergency_shelter" | "transitional" | "permanent_supportive" | "housed"
+type CaseEventType = "intake" | "outreach_contact" | "shelter_placement" | "housing_referral" | "follow_up" | "exit"
+type RiskLevel = "critical" | "high" | "moderate" | "low" | "stable"
+type DepthLayer = 1 | 2 | 3 | 4
+
+interface GeoPoint {
+  lat: number
+  lng: number
+  name: string
+  county: string
+}
+
+interface ClientEntity {
+  id: string
+  housingStatus: HousingStatus
+  location: GeoPoint
+  serviceZone: string
+  mobilityRadius: number
+  intakeDate: string
+  caseManagerId: string
+  programEnrollments: string[]
+  housingStabilityScore: number
+  serviceRetentionRate: number
+  reengagementProbability: number
+  lastContact: string
+  riskLevel: RiskLevel
+  serviceHistory: CaseEvent[]
+}
+
+interface CaseEvent {
+  id: string
+  clientId: string
+  type: CaseEventType
+  timestamp: string
+  location: GeoPoint
+  workerId: string
+  outcome: string
+  notes: string
+}
+
+interface ProgramEntity {
+  id: string
+  name: string
+  type: string
+  agency: string
+  fundingSource: string
+  capacity: number
+  activeCaseload: number
+  completionRate: number
+  avgTimeToStability: number
+  coverageArea: string[]
+  equityScore: number
+  costPerOutcome: number
+  utilizationRate: number
+}
+
+interface CountyData {
+  name: string
+  code: string
+  center: { x: number; y: number }
+  population: number
+  clientCount: number
+  shelterCapacity: number
+  shelterOccupancy: number
+  outreachCoverage: number
+  housingStabilityIndex: number
+  serviceSaturationIndex: number
+  dataReportingIntegrity: number
+  riskLevel: RiskLevel
+  programs: string[]
+}
+
+interface SystemMetrics {
+  totalActiveClients: number
+  housedRatio: number
+  systemThroughput: number
+  caseBacklog: number
+  avgDaysToHousing: number
+  outreachContactsToday: number
+  shelterOccupancyRate: number
+  grantUtilization: number
+  dataCompletenessScore: number
+  complianceRiskScore: number
+}
 
 // WASHINGTON STATE GEOGRAPHIC DATA
 // ============================================================================
@@ -69,15 +153,15 @@ const generateEventId = () => `EV-${Math.random().toString(36).substr(2, 9).toUp
 
 const getRandomElement = <T,>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)]
 
-const formatDate = (date) => {
+const formatDate = (date: Date): string => {
   return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
 }
 
-const formatTime = (date) => {
+const formatTime = (date: Date): string => {
   return date.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", second: "2-digit" })
 }
 
-const getRiskColor = (risk: RiskLevel) => {
+const getRiskColor = (risk: RiskLevel): string => {
   const colors: Record<RiskLevel, string> = {
     critical: "#dc2626",
     high: "#ea580c",
@@ -88,7 +172,7 @@ const getRiskColor = (risk: RiskLevel) => {
   return colors[risk]
 }
 
-const getStatusColor = (status: HousingStatus) => {
+const getStatusColor = (status: HousingStatus): string => {
   const colors: Record<HousingStatus, string> = {
     unsheltered: "#dc2626",
     emergency_shelter: "#ea580c",
@@ -134,9 +218,9 @@ const simulateClientFlow = (clients: ClientEntity[]): ClientEntity[] => {
 }
 
 // 2. SERVICE CAPACITY ENGINE
-const calculateServiceCapacity = (counties: CountyData[]): { overloaded[], underutilized[] } => {
-  const overloaded[] = []
-  const underutilized[] = []
+const calculateServiceCapacity = (counties: CountyData[]): { overloaded: string[], underutilized: string[] } => {
+  const overloaded: string[] = []
+  const underutilized: string[] = []
   
   counties.forEach(county => {
     const occupancyRate = county.shelterOccupancy / county.shelterCapacity
@@ -148,7 +232,7 @@ const calculateServiceCapacity = (counties: CountyData[]): { overloaded[], under
 }
 
 // 3. OUTCOME PREDICTION ENGINE
-const predictOutcome = (client: ClientEntity): { successProbability; timeToStability } => {
+const predictOutcome = (client: ClientEntity): { successProbability: number; timeToStability: number } => {
   const baseProb = 0.5
   const historyBonus = client.serviceHistory.length * 0.02
   const stabilityBonus = client.housingStabilityScore * 0.3
@@ -161,7 +245,7 @@ const predictOutcome = (client: ClientEntity): { successProbability; timeToStabi
 }
 
 // 4. GRANT PERFORMANCE ENGINE
-const calculateGrantPerformance = (programs: ProgramEntity[]): { totalUtilization; avgCostPerOutcome; complianceRisk } => {
+const calculateGrantPerformance = (programs: ProgramEntity[]): { totalUtilization: number; avgCostPerOutcome: number; complianceRisk: number } => {
   const totalCapacity = programs.reduce((sum, p) => sum + p.capacity, 0)
   const totalActive = programs.reduce((sum, p) => sum + p.activeCaseload, 0)
   const totalUtilization = totalActive / totalCapacity
@@ -185,9 +269,9 @@ const calculateCaseloadBalance = (clients: ClientEntity[]): Map<string, number> 
 }
 
 // 6. EQUITY & ACCESS ENGINE
-const calculateEquityMetrics = (counties: CountyData[]): { underserved[], oversaturated[] } => {
-  const underserved[] = []
-  const oversaturated[] = []
+const calculateEquityMetrics = (counties: CountyData[]): { underserved: string[], oversaturated: string[] } => {
+  const underserved: string[] = []
+  const oversaturated: string[] = []
   
   counties.forEach(county => {
     if (county.outreachCoverage < 0.55) underserved.push(county.name)
@@ -198,8 +282,8 @@ const calculateEquityMetrics = (counties: CountyData[]): { underserved[], oversa
 }
 
 // 7. ANOMALY DETECTION ENGINE
-const detectAnomalies = (counties: CountyData[], events: CaseEvent[])[] => {
-  const anomalies[] = []
+const detectAnomalies = (counties: CountyData[], events: CaseEvent[]): string[] => {
+  const anomalies: string[] = []
   
   counties.forEach(county => {
     if (county.dataReportingIntegrity < 0.8) {
@@ -221,7 +305,7 @@ const detectAnomalies = (counties: CountyData[], events: CaseEvent[])[] => {
 }
 
 // 8. SEASONAL STRESS ENGINE
-const calculateSeasonalStress = (): { stressLevel; projectedPeakDays; recommendation } => {
+const calculateSeasonalStress = (): { stressLevel: number; projectedPeakDays: number; recommendation: string } => {
   const month = new Date().getMonth()
   const winterMonths = [10, 11, 0, 1, 2] // Nov-Mar
   const isWinter = winterMonths.includes(month)
@@ -242,7 +326,7 @@ const calculateSeasonalStress = (): { stressLevel; projectedPeakDays; recommenda
 // GENERATE SIMULATED DATA
 // ============================================================================
 
-const generateClients = (count): ClientEntity[] => {
+const generateClients = (count: number): ClientEntity[] => {
   const statuses: HousingStatus[] = ["unsheltered", "emergency_shelter", "transitional", "permanent_supportive", "housed"]
   const statusWeights = [0.35, 0.25, 0.2, 0.12, 0.08]
   
@@ -250,7 +334,7 @@ const generateClients = (count): ClientEntity[] => {
     const county = getRandomElement(WA_COUNTIES)
     const rand = Math.random()
     let cumulative = 0
-    let status = "unsheltered"
+    let status: HousingStatus = "unsheltered"
     
     for (let i = 0; i < statusWeights.length; i++) {
       cumulative += statusWeights[i]
@@ -264,7 +348,7 @@ const generateClients = (count): ClientEntity[] => {
     const riskWeights = status === "unsheltered" ? [0.3, 0.35, 0.25, 0.08, 0.02] : [0.05, 0.15, 0.35, 0.3, 0.15]
     let riskRand = Math.random()
     let riskCumulative = 0
-    let risk = "moderate"
+    let risk: RiskLevel = "moderate"
     
     for (let i = 0; i < riskWeights.length; i++) {
       riskCumulative += riskWeights[i]
@@ -300,7 +384,7 @@ const generateClients = (count): ClientEntity[] => {
   })
 }
 
-const generateCaseEvents = (clients: ClientEntity[], count): CaseEvent[] => {
+const generateCaseEvents = (clients: ClientEntity[], count: number): CaseEvent[] => {
   const eventTypes: CaseEventType[] = ["intake", "outreach_contact", "shelter_placement", "housing_referral", "follow_up", "exit"]
   const outcomes = ["successful", "pending", "no_response", "declined", "completed", "in_progress"]
   
@@ -324,12 +408,12 @@ const generateCaseEvents = (clients: ClientEntity[], count): CaseEvent[] => {
 
 export default function ArcGISWAStateTool() {
   const [currentTime, setCurrentTime] = useState(new Date())
-  const [depthLayer, setDepthLayer] = useState(1)
-  const [selectedCounty, setSelectedCounty] = useState(null)
-  const [selectedProgram, setSelectedProgram] = useState(null)
-  const [clients, setClients] = useState([])
-  const [caseEvents, setCaseEvents] = useState([])
-  const [systemMetrics, setSystemMetrics] = useState({
+  const [depthLayer, setDepthLayer] = useState<DepthLayer>(1)
+  const [selectedCounty, setSelectedCounty] = useState<CountyData | null>(null)
+  const [selectedProgram, setSelectedProgram] = useState<ProgramEntity | null>(null)
+  const [clients, setClients] = useState<ClientEntity[]>([])
+  const [caseEvents, setCaseEvents] = useState<CaseEvent[]>([])
+  const [systemMetrics, setSystemMetrics] = useState<SystemMetrics>({
     totalActiveClients: 0,
     housedRatio: 0,
     systemThroughput: 0,
@@ -341,9 +425,9 @@ export default function ArcGISWAStateTool() {
     dataCompletenessScore: 0,
     complianceRiskScore: 0
   })
-  const [activeView, setActiveView] = useState("map")
-  const [liveEventFeed, setLiveEventFeed] = useState([])
-  const [anomalies, setAnomalies] = useState([])
+  const [activeView, setActiveView] = useState<"map" | "reports" | "forecast" | "audit">("map")
+  const [liveEventFeed, setLiveEventFeed] = useState<CaseEvent[]>([])
+  const [anomalies, setAnomalies] = useState<string[]>([])
   const [seasonalData, setSeasonalData] = useState({ stressLevel: 0, projectedPeakDays: 0, recommendation: "" })
 
   // Initialize data
@@ -385,10 +469,10 @@ export default function ArcGISWAStateTool() {
       
       // Generate new events occasionally
       if (Math.random() < 0.3) {
-        const newEvent = {
+        const newEvent: CaseEvent = {
           id: generateEventId(),
           clientId: clients[Math.floor(Math.random() * clients.length)]?.id || "CL-UNKNOWN",
-          type: getRandomElement(["intake", "outreach_contact", "shelter_placement", "housing_referral", "follow_up"]),
+          type: getRandomElement(["intake", "outreach_contact", "shelter_placement", "housing_referral", "follow_up"] as CaseEventType[]),
           timestamp: new Date().toISOString(),
           location: getRandomElement(WA_CITIES),
           workerId: `WK-${Math.floor(Math.random() * 150) + 1}`,
@@ -478,7 +562,7 @@ export default function ArcGISWAStateTool() {
 
       {/* SECONDARY NAV */}
       <nav className="h-10 bg-stone-200 border-b border-stone-300 flex items-center px-4 gap-1 flex-shrink-0">
-        {(["map", "reports", "forecast", "audit"]).map(view => (
+        {(["map", "reports", "forecast", "audit"] as const).map(view => (
           <button
             key={view}
             onClick={() => setActiveView(view)}
@@ -497,7 +581,7 @@ export default function ArcGISWAStateTool() {
         <div className="flex-1"></div>
         <div className="flex items-center gap-2 text-xs text-stone-500">
           <span>DEPTH:</span>
-          {([1, 2, 3, 4]).map(d => (
+          {([1, 2, 3, 4] as DepthLayer[]).map(d => (
             <button
               key={d}
               onClick={() => setDepthLayer(d)}
@@ -695,7 +779,7 @@ export default function ArcGISWAStateTool() {
                 <div className="absolute bottom-4 left-4 bg-white/95 backdrop-blur-sm rounded-lg shadow-lg p-3 text-xs">
                   <div className="font-semibold text-stone-700 mb-2">Risk Stratification</div>
                   <div className="space-y-1">
-                    {(["critical", "high", "moderate", "low", "stable"]).map(level => (
+                    {(["critical", "high", "moderate", "low", "stable"] as RiskLevel[]).map(level => (
                       <div key={level} className="flex items-center gap-2">
                         <div className="w-3 h-3 rounded-full" style={{ backgroundColor: getRiskColor(level) }}></div>
                         <span className="capitalize text-stone-600">{level}</span>
@@ -706,7 +790,7 @@ export default function ArcGISWAStateTool() {
                     <>
                       <div className="font-semibold text-stone-700 mt-3 mb-2">Housing Status</div>
                       <div className="space-y-1">
-                        {(["unsheltered", "emergency_shelter", "transitional", "housed"]).map(status => (
+                        {(["unsheltered", "emergency_shelter", "transitional", "housed"] as HousingStatus[]).map(status => (
                           <div key={status} className="flex items-center gap-2">
                             <div className="w-2 h-2 rounded-full" style={{ backgroundColor: getStatusColor(status) }}></div>
                             <span className="capitalize text-stone-600">{status.replace("_", " ")}</span>

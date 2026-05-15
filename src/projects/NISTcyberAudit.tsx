@@ -1,1460 +1,1185 @@
-import { useState, useEffect, useCallback } from "react"
-import {
-  AlertTriangle,
-  Shield,
-  DollarSign,
-  Clock,
-  Building2,
-  Users,
-  FileCheck,
-  TrendingUp,
-  Activity,
-  ChevronRight,
-  X,
-  RefreshCw,
-  Flag,
-  ArrowUpRight,
-  CheckCircle2,
-  XCircle,
-  AlertCircle,
-  Database,
-  Layers,
-  BarChart3,
-  FileWarning,
-  Briefcase,
-  Calendar,
-  Target,
-  Zap,
-  ArrowLeft,
-  ChevronDown,
-} from "lucide-react"
+import React, { useState, useEffect } from "react";
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// TYPE DEFINITIONS
-// ═══════════════════════════════════════════════════════════════════════════════
+// ============================================================================
+// NIST-ALIGNED CYBERSECURITY AUDIT & CONTINUITY SIMULATOR
+// Federal-Grade Security + RMF Operations Environment
+// Professional Business Dashboard Aesthetic
+// ============================================================================
 
-interface AuditEvent {
-  date: string
-  event: string
-  severity: "info" | "warning" | "critical"
+// Types & Interfaces
+type ImpactLevel = "LOW" | "MODERATE" | "HIGH";
+type DataSensitivity = "PUBLIC" | "CUI" | "SBU" | "CLASSIFIED";
+type RiskLevel = "LOW" | "MODERATE" | "HIGH" | "CRITICAL";
+type ATOStatus = "APPROVE" | "APPROVE_CONDITIONS" | "DENY" | "REMEDIATION_REQUIRED";
+type RMFPhase = "PREPARE" | "CATEGORIZE" | "SELECT" | "IMPLEMENT" | "ASSESS" | "AUTHORIZE" | "MONITOR";
+type ThreatLevel = "MINIMAL" | "ELEVATED" | "HIGH" | "SEVERE" | "CRITICAL";
+type IRPhase = "DETECTION" | "ANALYSIS" | "CONTAINMENT" | "ERADICATION" | "RECOVERY" | "POST_INCIDENT";
+
+interface ControlFamily {
+  id: string;
+  name: string;
+  controlCount: number;
+  implemented: number;
+  partial: number;
+  effectiveness: number;
+  drift: number;
 }
 
-interface Project {
-  id: string
-  name: string
-  agency: string
-  program: string
-  contractor: string
-  subcontractors: string[]
-  fundingSource: string
-  awardType: string
-  congressionalDistrict: string
-  totalBudget: number
-  obligatedAmount: number
-  actualSpend: number
-  remainingBudget: number
-  burnRate: number
-  monthlySpendRate: number
-  forecastedTotalSpend: number
-  fundingReallocationFlag: boolean
-  costOverrunIndicator: boolean
-  financialEfficiencyScore: number
-  startDate: string
-  endDate: string
-  daysElapsed: number
-  daysRemaining: number
-  percentTimeUsed: number
-  lifecyclePhase: "Awarded" | "Obligating" | "Executing" | "Closing" | "Closed"
-  nistRmfScore: number
-  complianceFlags: number
-  complianceStage: "Initial Review" | "Mid Compliance Check" | "Final Audit"
-  auditFindings: number
-  lastAuditDate: string
-  nextAuditDue: string
-  reportingCadence: "Monthly" | "Quarterly"
-  lastReportSubmitted: string
-  missingReportsIndicator: boolean
-  riskLevel: "Red" | "Orange" | "Yellow" | "Green"
-  riskTags: string[]
-  slaRemaining: number
-  slaRiskLevel: "High" | "Medium" | "Low"
-  incidentCount: number
-  escalationStatus: boolean
-  priorityScore: number
-  programManager: string
-  complianceOfficer: string
-  lastUpdated: string
-  auditHistory: AuditEvent[]
-  notes: string
+interface Vulnerability {
+  id: string;
+  cve: string;
+  severity: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+  system: string;
+  exploitProbability: number;
+  daysOpen: number;
+  description: string;
 }
 
-interface ContractorMetrics {
-  name: string
-  activeProjects: number
-  avgComplianceScore: number
-  incidentRate: number
-  riskRating: "Low" | "Medium" | "High"
-  totalBudgetManaged: number
-  deliveryEfficiency: number
+interface SecurityEvent {
+  id: string;
+  timestamp: Date;
+  type: "CONTROL_FAILURE" | "ACCESS_ANOMALY" | "CONFIG_CHANGE" | "THREAT_DETECTED" | "AUDIT_FINDING" | "PATCH_LAG" | "INCIDENT";
+  severity: "INFO" | "WARNING" | "CRITICAL";
+  system: string;
+  description: string;
+  controlFamily?: string;
 }
 
-interface ProgramMetrics {
-  name: string
-  projectCount: number
-  totalBudget: number
-  totalSpend: number
-  avgCompliance: number
-  riskDistribution: { red: number; orange: number; yellow: number; green: number }
+interface FederalSystem {
+  id: string;
+  name: string;
+  fismaId: string;
+  agency: string;
+  contractor: string;
+  systemType: "MISSION_CRITICAL" | "BUSINESS_SUPPORT" | "PUBLIC_FACING" | "CLASSIFIED_ENCLAVE";
+  impactLevel: ImpactLevel;
+  dataSensitivity: DataSensitivity;
+  informationTypes: string[];
+  controlFamilies: ControlFamily[];
+  residualRisk: number;
+  inherentRisk: number;
+  controlEffectiveness: number;
+  vulnerabilityDensity: number;
+  threatExposure: number;
+  riskLevel: RiskLevel;
+  atoStatus: ATOStatus;
+  rmfPhase: RMFPhase;
+  lastAssessment: Date;
+  nextAssessment: Date;
+  openFindings: number;
+  poamItems: number;
 }
 
-interface NavigationModule {
-  id: string
-  label: string
-  icon: React.ElementType
-  description: string
-  category: "operations" | "compliance" | "analytics" | "management"
-  alertCount: number
-  status: "healthy" | "warning" | "critical"
+interface Contractor {
+  id: string;
+  name: string;
+  trustScore: number;
+  systemsManaged: number;
+  criticalDependencies: number;
+  complianceScore: number;
+  incidentHistory: number;
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// SIMULATION DATA GENERATOR
-// ═══════════════════════════════════════════════════════════════════════════════
+interface Incident {
+  id: string;
+  name: string;
+  phase: IRPhase;
+  severity: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+  affectedSystems: string[];
+  detectionTime: Date;
+  containmentTime?: Date;
+  responseTimeMinutes: number;
+  escalationLevel: number;
+  status: "ACTIVE" | "CONTAINED" | "RESOLVED";
+}
 
-const AGENCIES = ["DOT", "HUD", "EPA", "DHS", "DOE", "HHS", "DOD", "VA"]
-const PROGRAMS = ["Infrastructure", "Climate Resilience", "Cybersecurity", "Public Health", "Housing", "Veterans Services", "Emergency Response", "Transportation"]
-const CONTRACTORS = ["Accenture Federal", "Deloitte GPS", "Booz Allen Hamilton", "Leidos", "SAIC", "Northrop Grumman", "General Dynamics IT", "Lockheed Martin"]
-const FUNDING_SOURCES = ["IIJA", "ARPA", "General Fund", "Emergency Allocation", "Supplemental Appropriation"]
-const AWARD_TYPES = ["Grant", "Cooperative Agreement", "Contract", "IDIQ Task Order"]
-const RISK_TAGS = ["Procurement Delay", "Vendor Risk", "Staffing Gap", "Regulatory Delay", "Funding Gap", "Scope Creep", "Technical Debt"]
-const PROGRAM_MANAGERS = ["J. Morrison", "K. Patel", "R. Chen", "M. Williams", "S. Johnson", "A. Garcia", "T. Nguyen", "L. Davis"]
-const COMPLIANCE_OFFICERS = ["D. Thompson", "E. Martinez", "F. Robinson", "G. Anderson", "H. Taylor", "I. Brown", "C. Wilson", "B. Moore"]
+interface COOPScenario {
+  id: string;
+  name: string;
+  type: "CYBERATTACK" | "DATACENTER_OUTAGE" | "RANSOMWARE" | "CLOUD_FAILURE" | "INSIDER_SABOTAGE";
+  survivabilityScore: number;
+  rtoHours: number;
+  rpoHours: number;
+  fallbackEfficiency: number;
+  affectedSystems: number;
+  status: "SIMULATING" | "PASSED" | "FAILED" | "PARTIAL";
+}
 
-function generateProject(index: number): Project {
-  const totalBudget = Math.floor(Math.random() * 45000000) + 5000000
-  const percentComplete = Math.random() * 0.85 + 0.1
-  const actualSpend = Math.floor(totalBudget * percentComplete * (0.7 + Math.random() * 0.5))
-  const obligatedAmount = Math.floor(totalBudget * (0.6 + Math.random() * 0.4))
-  const totalDays = Math.floor(Math.random() * 720) + 180
-  const daysElapsed = Math.floor(totalDays * percentComplete)
-  const daysRemaining = totalDays - daysElapsed
-  const timeRatio = daysElapsed / totalDays
-  const spendRatio = actualSpend / totalBudget
-  const burnRate = timeRatio > 0 ? spendRatio / timeRatio : 0
-  const nistScore = Math.random() * 0.4 + 0.55
-  const complianceFlags = Math.floor(Math.random() * 8)
-  const auditFindings = Math.floor(Math.random() * 5)
+// ============================================================================
+// SIMULATED DATA GENERATORS
+// ============================================================================
 
-  let riskLevel: "Red" | "Orange" | "Yellow" | "Green" = "Green"
-  if (burnRate > 1.3 || nistScore < 0.6 || complianceFlags > 5) riskLevel = "Red"
-  else if (burnRate > 1.1 || nistScore < 0.7 || complianceFlags > 3) riskLevel = "Orange"
-  else if (burnRate > 0.95 || nistScore < 0.8 || complianceFlags > 1) riskLevel = "Yellow"
+const AGENCIES = ["DHS", "DoD", "HUD", "VA", "DOJ", "Treasury", "State", "EPA"];
+const CONTRACTORS = ["Booz Allen Hamilton", "Deloitte Federal", "Lockheed Martin", "Northrop Grumman", "Raytheon", "SAIC", "Leidos", "General Dynamics IT"];
+const CONTROL_FAMILIES: { id: string; name: string; baseControls: number }[] = [
+  { id: "AC", name: "Access Control", baseControls: 25 },
+  { id: "AU", name: "Audit & Accountability", baseControls: 16 },
+  { id: "CM", name: "Configuration Management", baseControls: 14 },
+  { id: "IR", name: "Incident Response", baseControls: 10 },
+  { id: "RA", name: "Risk Assessment", baseControls: 9 },
+  { id: "SC", name: "System & Comms Protection", baseControls: 44 },
+  { id: "SI", name: "System & Info Integrity", baseControls: 23 },
+  { id: "CA", name: "Assessment & Authorization", baseControls: 9 },
+  { id: "PL", name: "Planning", baseControls: 11 },
+  { id: "PS", name: "Personnel Security", baseControls: 9 },
+];
 
-  const priorityScore = (riskLevel === "Red" ? 0.4 : riskLevel === "Orange" ? 0.3 : riskLevel === "Yellow" ? 0.2 : 0.1) +
-    (complianceFlags > 3 ? 0.3 : complianceFlags > 1 ? 0.2 : 0.1) +
-    (burnRate > 1.1 ? 0.3 : burnRate < 0.8 ? 0.2 : 0.1)
+const INFO_TYPES = ["PII", "Financial", "Operational Intel", "Health Records", "Infrastructure Control", "Law Enforcement", "National Security"];
 
+function generateControlFamilies(): ControlFamily[] {
+  return CONTROL_FAMILIES.map((cf) => {
+    const implemented = Math.floor(cf.baseControls * (0.5 + Math.random() * 0.4));
+    const partial = Math.floor((cf.baseControls - implemented) * Math.random());
+    return {
+      id: cf.id,
+      name: cf.name,
+      controlCount: cf.baseControls,
+      implemented,
+      partial,
+      effectiveness: 40 + Math.random() * 55,
+      drift: Math.random() * 25,
+    };
+  });
+}
+
+function generateSystems(): FederalSystem[] {
+  const systemNames = [
+    "AEGIS-CORE", "SENTINEL-NET", "GUARDIAN-DB", "CITADEL-AUTH", "BASTION-API",
+    "FORTRESS-CRM", "SHIELD-ANALYTICS", "BULWARK-INFRA", "RAMPART-COMMS", "VIGILANT-LOGS",
+    "PATRIOT-IDENTITY", "LIBERTY-FINANCE", "JUSTICE-RECORDS", "HOMELAND-OPS", "FEDERAL-GATEWAY"
+  ];
+  
+  return systemNames.map((name, i) => {
+    const controlFamilies = generateControlFamilies();
+    const avgEffectiveness = controlFamilies.reduce((a, b) => a + b.effectiveness, 0) / controlFamilies.length;
+    const avgDrift = controlFamilies.reduce((a, b) => a + b.drift, 0) / controlFamilies.length;
+    const inherentRisk = 20 + Math.random() * 60;
+    const residualRisk = inherentRisk * (1 - avgEffectiveness / 150);
+    const riskLevel: RiskLevel = residualRisk < 25 ? "LOW" : residualRisk < 45 ? "MODERATE" : residualRisk < 65 ? "HIGH" : "CRITICAL";
+    
+    const rmfPhases: RMFPhase[] = ["PREPARE", "CATEGORIZE", "SELECT", "IMPLEMENT", "ASSESS", "AUTHORIZE", "MONITOR"];
+    
+    return {
+      id: `SYS-${String(i + 1).padStart(4, "0")}`,
+      name,
+      fismaId: `FISMA-${AGENCIES[i % AGENCIES.length]}-${String(1000 + i)}`,
+      agency: AGENCIES[i % AGENCIES.length],
+      contractor: CONTRACTORS[i % CONTRACTORS.length],
+      systemType: ["MISSION_CRITICAL", "BUSINESS_SUPPORT", "PUBLIC_FACING", "CLASSIFIED_ENCLAVE"][i % 4] as FederalSystem["systemType"],
+      impactLevel: ["LOW", "MODERATE", "HIGH"][Math.floor(Math.random() * 3)] as ImpactLevel,
+      dataSensitivity: ["PUBLIC", "CUI", "SBU", "CLASSIFIED"][Math.floor(Math.random() * 4)] as DataSensitivity,
+      informationTypes: INFO_TYPES.slice(0, 2 + Math.floor(Math.random() * 3)),
+      controlFamilies,
+      residualRisk,
+      inherentRisk,
+      controlEffectiveness: avgEffectiveness,
+      vulnerabilityDensity: Math.random() * 40,
+      threatExposure: 10 + Math.random() * 70,
+      riskLevel,
+      atoStatus: avgEffectiveness > 75 ? "APPROVE" : avgEffectiveness > 60 ? "APPROVE_CONDITIONS" : avgEffectiveness > 45 ? "REMEDIATION_REQUIRED" : "DENY",
+      rmfPhase: rmfPhases[Math.floor(Math.random() * rmfPhases.length)],
+      lastAssessment: new Date(Date.now() - Math.random() * 180 * 24 * 60 * 60 * 1000),
+      nextAssessment: new Date(Date.now() + Math.random() * 90 * 24 * 60 * 60 * 1000),
+      openFindings: Math.floor(Math.random() * 25),
+      poamItems: Math.floor(Math.random() * 15),
+    };
+  });
+}
+
+function generateVulnerabilities(systems: FederalSystem[]): Vulnerability[] {
+  const vulns: Vulnerability[] = [];
+  const cveBase = 2024;
+  
+  systems.forEach((sys) => {
+    const count = Math.floor(sys.vulnerabilityDensity / 5);
+    for (let i = 0; i < count; i++) {
+      vulns.push({
+        id: `VULN-${sys.id}-${i}`,
+        cve: `CVE-${cveBase}-${String(Math.floor(Math.random() * 50000)).padStart(5, "0")}`,
+        severity: ["LOW", "MEDIUM", "HIGH", "CRITICAL"][Math.floor(Math.random() * 4)] as Vulnerability["severity"],
+        system: sys.name,
+        exploitProbability: Math.random() * 100,
+        daysOpen: Math.floor(Math.random() * 120),
+        description: [
+          "Remote code execution via unpatched service",
+          "Privilege escalation through misconfigured permissions",
+          "SQL injection in legacy API endpoint",
+          "Cross-site scripting in admin portal",
+          "Insecure deserialization vulnerability",
+          "Authentication bypass via session fixation",
+          "Buffer overflow in network service",
+          "Weak cryptographic implementation",
+        ][Math.floor(Math.random() * 8)],
+      });
+    }
+  });
+  
+  return vulns.sort((a, b) => {
+    const sev = { CRITICAL: 4, HIGH: 3, MEDIUM: 2, LOW: 1 };
+    return sev[b.severity] - sev[a.severity];
+  });
+}
+
+function generateContractors(): Contractor[] {
+  return CONTRACTORS.map((name, i) => ({
+    id: `CONT-${i}`,
+    name,
+    trustScore: 50 + Math.random() * 45,
+    systemsManaged: 1 + Math.floor(Math.random() * 5),
+    criticalDependencies: Math.floor(Math.random() * 8),
+    complianceScore: 60 + Math.random() * 35,
+    incidentHistory: Math.floor(Math.random() * 5),
+  }));
+}
+
+function generateIncident(): Incident {
+  const types = [
+    "Unauthorized Access Attempt",
+    "Malware Detection",
+    "Data Exfiltration Alert",
+    "Phishing Campaign",
+    "Credential Compromise",
+    "Ransomware Indicator",
+    "APT Activity Detected",
+    "Insider Threat Alert",
+  ];
+  
   return {
-    id: `PRJ-${2024}-${String(index + 1).padStart(4, "0")}`,
-    name: `${PROGRAMS[index % PROGRAMS.length]} Initiative ${Math.floor(index / PROGRAMS.length) + 1}`,
-    agency: AGENCIES[index % AGENCIES.length],
-    program: PROGRAMS[index % PROGRAMS.length],
-    contractor: CONTRACTORS[index % CONTRACTORS.length],
-    subcontractors: Math.random() > 0.5 ? [CONTRACTORS[(index + 3) % CONTRACTORS.length]] : [],
-    fundingSource: FUNDING_SOURCES[index % FUNDING_SOURCES.length],
-    awardType: AWARD_TYPES[index % AWARD_TYPES.length],
-    congressionalDistrict: `DC-${Math.floor(Math.random() * 8) + 1}`,
-    totalBudget,
-    obligatedAmount,
-    actualSpend,
-    remainingBudget: totalBudget - actualSpend,
-    burnRate,
-    monthlySpendRate: actualSpend / Math.max(daysElapsed / 30, 1),
-    forecastedTotalSpend: Math.floor(actualSpend / Math.max(percentComplete, 0.1)),
-    fundingReallocationFlag: Math.random() > 0.85,
-    costOverrunIndicator: burnRate > 1.15,
-    financialEfficiencyScore: Math.min(1, Math.max(0, 1 - Math.abs(burnRate - 1) * 0.5)),
-    startDate: "2023-01-15",
-    endDate: "2025-06-30",
-    daysElapsed,
-    daysRemaining,
-    percentTimeUsed: timeRatio * 100,
-    lifecyclePhase: percentComplete < 0.15 ? "Awarded" : percentComplete < 0.3 ? "Obligating" : percentComplete < 0.85 ? "Executing" : percentComplete < 0.95 ? "Closing" : "Closed",
-    nistRmfScore: nistScore,
-    complianceFlags,
-    complianceStage: percentComplete < 0.4 ? "Initial Review" : percentComplete < 0.75 ? "Mid Compliance Check" : "Final Audit",
-    auditFindings,
-    lastAuditDate: "2024-09-15",
-    nextAuditDue: "2025-03-15",
-    reportingCadence: Math.random() > 0.5 ? "Monthly" : "Quarterly",
-    lastReportSubmitted: "2024-11-01",
-    missingReportsIndicator: Math.random() > 0.8,
-    riskLevel,
-    riskTags: RISK_TAGS.filter(() => Math.random() > 0.75).slice(0, 3),
-    slaRemaining: daysRemaining,
-    slaRiskLevel: daysRemaining < 30 ? "High" : daysRemaining < 90 ? "Medium" : "Low",
-    incidentCount: Math.floor(Math.random() * 4),
-    escalationStatus: riskLevel === "Red",
-    priorityScore,
-    programManager: PROGRAM_MANAGERS[index % PROGRAM_MANAGERS.length],
-    complianceOfficer: COMPLIANCE_OFFICERS[index % COMPLIANCE_OFFICERS.length],
-    lastUpdated: new Date().toISOString(),
-    auditHistory: [
-      { date: "2024-03-15", event: "Initial compliance review completed", severity: "info" },
-      { date: "2024-06-20", event: "Mid-cycle audit performed", severity: "info" },
-      { date: "2024-09-15", event: auditFindings > 0 ? `${auditFindings} findings identified` : "No findings", severity: auditFindings > 2 ? "critical" : auditFindings > 0 ? "warning" : "info" },
-    ],
-    notes: "Standard monitoring protocols in effect. Quarterly review scheduled.",
-  }
+    id: `INC-${Date.now()}`,
+    name: types[Math.floor(Math.random() * types.length)],
+    phase: ["DETECTION", "ANALYSIS", "CONTAINMENT", "ERADICATION", "RECOVERY", "POST_INCIDENT"][Math.floor(Math.random() * 6)] as IRPhase,
+    severity: ["LOW", "MEDIUM", "HIGH", "CRITICAL"][Math.floor(Math.random() * 4)] as Incident["severity"],
+    affectedSystems: ["AEGIS-CORE", "SENTINEL-NET", "GUARDIAN-DB"].slice(0, 1 + Math.floor(Math.random() * 3)),
+    detectionTime: new Date(Date.now() - Math.random() * 48 * 60 * 60 * 1000),
+    responseTimeMinutes: Math.floor(Math.random() * 240),
+    escalationLevel: 1 + Math.floor(Math.random() * 4),
+    status: ["ACTIVE", "CONTAINED", "RESOLVED"][Math.floor(Math.random() * 3)] as Incident["status"],
+  };
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// ENGINE CALCULATIONS
-// ═══════════════════════════════════════════════════════════════════════════════
-
-function calculateBurnRate(actualSpend: number, budget: number, daysElapsed: number, totalDays: number): number {
-  const timeRatio = daysElapsed / totalDays
-  if (timeRatio === 0) return 0
-  return (actualSpend / budget) / timeRatio
+function generateCOOPScenarios(): COOPScenario[] {
+  return [
+    { id: "COOP-1", name: "Nation-State Cyberattack", type: "CYBERATTACK", survivabilityScore: 72, rtoHours: 4, rpoHours: 1, fallbackEfficiency: 85, affectedSystems: 8, status: "PASSED" },
+    { id: "COOP-2", name: "Primary Datacenter Loss", type: "DATACENTER_OUTAGE", survivabilityScore: 88, rtoHours: 2, rpoHours: 0.5, fallbackEfficiency: 92, affectedSystems: 15, status: "PASSED" },
+    { id: "COOP-3", name: "Enterprise Ransomware", type: "RANSOMWARE", survivabilityScore: 45, rtoHours: 72, rpoHours: 24, fallbackEfficiency: 60, affectedSystems: 12, status: "FAILED" },
+    { id: "COOP-4", name: "Cloud Provider Failure", type: "CLOUD_FAILURE", survivabilityScore: 78, rtoHours: 6, rpoHours: 2, fallbackEfficiency: 80, affectedSystems: 6, status: "PARTIAL" },
+    { id: "COOP-5", name: "Insider Sabotage Event", type: "INSIDER_SABOTAGE", survivabilityScore: 55, rtoHours: 12, rpoHours: 4, fallbackEfficiency: 70, affectedSystems: 4, status: "SIMULATING" },
+  ];
 }
 
-function calculateComplianceScore(nistScore: number, flags: number, auditFindings: number): number {
-  const baseScore = nistScore * 0.6
-  const flagPenalty = flags * 0.05
-  const auditPenalty = auditFindings * 0.08
-  return Math.max(0, Math.min(1, baseScore + 0.4 - flagPenalty - auditPenalty))
+// ============================================================================
+// CALCULATION ENGINES
+// ============================================================================
+
+function calculateThreatExposure(system: FederalSystem, threatLevel: ThreatLevel): number {
+  const threatMultipliers: Record<ThreatLevel, number> = {
+    MINIMAL: 0.5, ELEVATED: 0.75, HIGH: 1.0, SEVERE: 1.25, CRITICAL: 1.5,
+  };
+  const baseExposure = system.vulnerabilityDensity * 0.4 + (100 - system.controlEffectiveness) * 0.4 + system.inherentRisk * 0.2;
+  return Math.min(100, baseExposure * threatMultipliers[threatLevel]);
 }
 
-function calculatePriorityScore(riskLevel: string, complianceScore: number, burnRate: number): number {
-  const riskWeight = riskLevel === "Red" ? 1 : riskLevel === "Orange" ? 0.7 : riskLevel === "Yellow" ? 0.4 : 0.1
-  const complianceBreach = complianceScore < 0.7 ? 1 : complianceScore < 0.85 ? 0.5 : 0
-  const budgetVariance = Math.abs(burnRate - 1)
-  return (riskWeight * 0.4) + (complianceBreach * 0.3) + (budgetVariance * 0.3)
+function calculateATOReadiness(system: FederalSystem): number {
+  const controlScore = system.controlEffectiveness * 0.35;
+  const findingsPenalty = Math.min(30, system.openFindings * 1.5);
+  const poamPenalty = Math.min(20, system.poamItems * 2);
+  const riskPenalty = system.residualRisk * 0.2;
+  return Math.max(0, Math.min(100, controlScore + 50 - findingsPenalty - poamPenalty - riskPenalty));
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// FORMAT UTILITIES
-// ═══════════════════════════════════════════════════════════════════════════════
-
-function formatCurrency(value: number): string {
-  if (value >= 1000000) return `$${(value / 1000000).toFixed(1)}M`
-  if (value >= 1000) return `$${(value / 1000).toFixed(0)}K`
-  return `$${value.toFixed(0)}`
+function calculateSupplyChainRisk(contractors: Contractor[]): number {
+  const avgTrust = contractors.reduce((a, b) => a + b.trustScore, 0) / contractors.length;
+  const avgCompliance = contractors.reduce((a, b) => a + b.complianceScore, 0) / contractors.length;
+  const totalIncidents = contractors.reduce((a, b) => a + b.incidentHistory, 0);
+  const criticalDeps = contractors.reduce((a, b) => a + b.criticalDependencies, 0);
+  return Math.min(100, (100 - avgTrust) * 0.3 + (100 - avgCompliance) * 0.3 + totalIncidents * 5 + criticalDeps * 2);
 }
 
-function formatPercent(value: number): string {
-  return `${(value * 100).toFixed(1)}%`
+function calculateIREfficiency(incident: Incident): number {
+  const phasePenalties: Record<IRPhase, number> = {
+    DETECTION: 0, ANALYSIS: 5, CONTAINMENT: 15, ERADICATION: 25, RECOVERY: 35, POST_INCIDENT: 0,
+  };
+  const timePenalty = Math.min(40, incident.responseTimeMinutes / 6);
+  const escalationPenalty = incident.escalationLevel * 5;
+  return Math.max(0, 100 - phasePenalties[incident.phase] - timePenalty - escalationPenalty);
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
+function calculateCascadeRisk(systems: FederalSystem[]): number {
+  const criticalSystems = systems.filter((s) => s.systemType === "MISSION_CRITICAL");
+  const avgRisk = criticalSystems.length > 0 ? criticalSystems.reduce((a, b) => a + b.residualRisk, 0) / criticalSystems.length : 0;
+  const interconnectionFactor = criticalSystems.length * 3;
+  return Math.min(100, avgRisk * 0.6 + interconnectionFactor);
+}
+
+// ============================================================================
 // MAIN COMPONENT
-// ═══════════════════════════════════════════════════════════════════════════════
+// ============================================================================
 
-export default function SentinelDashboard() {
-  const [projects, setProjects] = useState<Project[]>([])
-  const [activeView, setActiveView] = useState<string | null>(null)
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null)
-  const [isSyncing, setIsSyncing] = useState(false)
-  const [lastSync, setLastSync] = useState<Date>(new Date())
-  const [systemTime, setSystemTime] = useState<Date>(new Date())
+type ViewMode = "OPERATIONS" | "RMF_LIFECYCLE" | "INCIDENT_RESPONSE" | "COOP_SIMULATION" | "AUDIT_REPORTS" | "SUPPLY_CHAIN";
 
-  // Initialize projects
+export default function NISTCyberSimulator() {
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [viewMode, setViewMode] = useState<ViewMode>("OPERATIONS");
+  const [systems, setSystems] = useState<FederalSystem[]>([]);
+  const [vulnerabilities, setVulnerabilities] = useState<Vulnerability[]>([]);
+  const [contractors, setContractors] = useState<Contractor[]>([]);
+  const [incidents, setIncidents] = useState<Incident[]>([]);
+  const [coopScenarios, setCOOPScenarios] = useState<COOPScenario[]>([]);
+  const [securityEvents, setSecurityEvents] = useState<SecurityEvent[]>([]);
+  const [threatLevel, setThreatLevel] = useState<ThreatLevel>("ELEVATED");
+  const [selectedSystem, setSelectedSystem] = useState<FederalSystem | null>(null);
+  const [simulationTick, setSimulationTick] = useState(0);
+
   useEffect(() => {
-    const initialProjects = Array.from({ length: 24 }, (_, i) => generateProject(i))
-    setProjects(initialProjects)
-  }, [])
+    const sys = generateSystems();
+    setSystems(sys);
+    setVulnerabilities(generateVulnerabilities(sys));
+    setContractors(generateContractors());
+    setIncidents([generateIncident(), generateIncident(), generateIncident()]);
+    setCOOPScenarios(generateCOOPScenarios());
+  }, []);
 
-  // Real-time clock
   useEffect(() => {
-    const interval = setInterval(() => setSystemTime(new Date()), 1000)
-    return () => clearInterval(interval)
-  }, [])
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
 
-  // Simulation: Data drift
   useEffect(() => {
-    const interval = setInterval(() => {
-      setProjects(prev => prev.map(p => ({
-        ...p,
-        actualSpend: p.actualSpend + Math.floor(Math.random() * 50000),
-        daysElapsed: Math.min(p.daysElapsed + 0.1, p.daysElapsed + p.daysRemaining),
-        nistRmfScore: Math.min(1, Math.max(0.4, p.nistRmfScore + (Math.random() - 0.5) * 0.02)),
-        burnRate: calculateBurnRate(p.actualSpend, p.totalBudget, p.daysElapsed, p.daysElapsed + p.daysRemaining),
-      })))
-    }, 8000)
-    return () => clearInterval(interval)
-  }, [])
+    const simTimer = setInterval(() => {
+      setSimulationTick((t) => t + 1);
+      
+      if (Math.random() > 0.6) {
+        const eventTypes: SecurityEvent["type"][] = ["CONTROL_FAILURE", "ACCESS_ANOMALY", "CONFIG_CHANGE", "THREAT_DETECTED", "AUDIT_FINDING", "PATCH_LAG"];
+        const severities: SecurityEvent["severity"][] = ["INFO", "WARNING", "CRITICAL"];
+        const descriptions = [
+          "Failed authentication attempt from unknown IP",
+          "Configuration change detected in production",
+          "Control effectiveness below threshold",
+          "Suspicious lateral movement detected",
+          "Patch pending for 30+ days",
+          "Audit finding requires remediation",
+          "Unauthorized privilege escalation attempt",
+          "Network anomaly in segmented zone",
+        ];
+        
+        const newEvent: SecurityEvent = {
+          id: `EVT-${Date.now()}`,
+          timestamp: new Date(),
+          type: eventTypes[Math.floor(Math.random() * eventTypes.length)],
+          severity: severities[Math.floor(Math.random() * severities.length)],
+          system: systems[Math.floor(Math.random() * systems.length)]?.name || "UNKNOWN",
+          description: descriptions[Math.floor(Math.random() * descriptions.length)],
+          controlFamily: CONTROL_FAMILIES[Math.floor(Math.random() * CONTROL_FAMILIES.length)].id,
+        };
+        
+        setSecurityEvents((prev) => [newEvent, ...prev].slice(0, 50));
+      }
 
-  const handleSync = useCallback(() => {
-    setIsSyncing(true)
-    setTimeout(() => {
-      setIsSyncing(false)
-      setLastSync(new Date())
-    }, 2500)
-  }, [])
+      setSystems((prev) =>
+        prev.map((sys) => ({
+          ...sys,
+          controlFamilies: sys.controlFamilies.map((cf) => ({
+            ...cf,
+            drift: Math.min(30, cf.drift + Math.random() * 0.5),
+            effectiveness: Math.max(30, cf.effectiveness - Math.random() * 0.3),
+          })),
+        }))
+      );
 
-  // Derived metrics
-  const totalBudget = projects.reduce((sum, p) => sum + p.totalBudget, 0)
-  const totalSpend = projects.reduce((sum, p) => sum + p.actualSpend, 0)
-  const avgCompliance = projects.length > 0 ? projects.reduce((sum, p) => sum + calculateComplianceScore(p.nistRmfScore, p.complianceFlags, p.auditFindings), 0) / projects.length : 0
-  const criticalProjects = projects.filter(p => p.riskLevel === "Red").length
-  const atRiskProjects = projects.filter(p => p.riskLevel === "Orange").length
+      if (Math.random() > 0.95) {
+        const levels: ThreatLevel[] = ["MINIMAL", "ELEVATED", "HIGH", "SEVERE", "CRITICAL"];
+        const currentIdx = levels.indexOf(threatLevel);
+        const newIdx = Math.max(0, Math.min(4, currentIdx + (Math.random() > 0.5 ? 1 : -1)));
+        setThreatLevel(levels[newIdx]);
+      }
+    }, 3000);
 
-  // Contractor metrics
-  const contractorMetrics: ContractorMetrics[] = CONTRACTORS.map(name => {
-    const contractorProjects = projects.filter(p => p.contractor === name)
-    return {
-      name,
-      activeProjects: contractorProjects.length,
-      avgComplianceScore: contractorProjects.length > 0 ? contractorProjects.reduce((sum, p) => sum + calculateComplianceScore(p.nistRmfScore, p.complianceFlags, p.auditFindings), 0) / contractorProjects.length : 0,
-      incidentRate: contractorProjects.length > 0 ? contractorProjects.reduce((sum, p) => sum + p.incidentCount, 0) / contractorProjects.length : 0,
-      riskRating: contractorProjects.some(p => p.riskLevel === "Red") ? "High" : contractorProjects.some(p => p.riskLevel === "Orange") ? "Medium" : "Low",
-      totalBudgetManaged: contractorProjects.reduce((sum, p) => sum + p.totalBudget, 0),
-      deliveryEfficiency: contractorProjects.length > 0 ? contractorProjects.reduce((sum, p) => sum + p.financialEfficiencyScore, 0) / contractorProjects.length : 0,
+    return () => clearInterval(simTimer);
+  }, [systems, threatLevel]);
+
+  const totalSystems = systems.length;
+  const criticalVulns = vulnerabilities.filter((v) => v.severity === "CRITICAL").length;
+  const highRiskSystems = systems.filter((s) => s.riskLevel === "HIGH" || s.riskLevel === "CRITICAL").length;
+  const avgControlEffectiveness = systems.length > 0 ? systems.reduce((a, b) => a + b.controlEffectiveness, 0) / systems.length : 0;
+  const activeIncidents = incidents.filter((i) => i.status === "ACTIVE").length;
+  const supplyChainRisk = calculateSupplyChainRisk(contractors);
+  const cascadeRisk = calculateCascadeRisk(systems);
+
+  // Professional color helpers
+  const getRiskColor = (level: RiskLevel | string) => {
+    switch (level) {
+      case "LOW": return "text-emerald-700";
+      case "MODERATE": return "text-amber-600";
+      case "HIGH": return "text-orange-600";
+      case "CRITICAL": return "text-red-600";
+      default: return "text-neutral-600";
     }
-  })
+  };
 
-  // Program metrics
-  const programMetrics: ProgramMetrics[] = PROGRAMS.map(name => {
-    const programProjects = projects.filter(p => p.program === name)
-    return {
-      name,
-      projectCount: programProjects.length,
-      totalBudget: programProjects.reduce((sum, p) => sum + p.totalBudget, 0),
-      totalSpend: programProjects.reduce((sum, p) => sum + p.actualSpend, 0),
-      avgCompliance: programProjects.length > 0 ? programProjects.reduce((sum, p) => sum + calculateComplianceScore(p.nistRmfScore, p.complianceFlags, p.auditFindings), 0) / programProjects.length : 0,
-      riskDistribution: {
-        red: programProjects.filter(p => p.riskLevel === "Red").length,
-        orange: programProjects.filter(p => p.riskLevel === "Orange").length,
-        yellow: programProjects.filter(p => p.riskLevel === "Yellow").length,
-        green: programProjects.filter(p => p.riskLevel === "Green").length,
-      },
+  const getRiskBg = (level: RiskLevel | string) => {
+    switch (level) {
+      case "LOW": return "bg-emerald-50 border-emerald-200";
+      case "MODERATE": return "bg-amber-50 border-amber-200";
+      case "HIGH": return "bg-orange-50 border-orange-200";
+      case "CRITICAL": return "bg-red-50 border-red-200";
+      default: return "bg-neutral-50 border-neutral-200";
     }
-  })
+  };
 
-  // ═══════════════════════════════════════════════════════════════════════════════
-  // NAVIGATION MODULES CONFIGURATION
-  // ═══════════════════════════════════════════════════════════════════════════════
+  const getThreatColor = (level: ThreatLevel) => {
+    switch (level) {
+      case "MINIMAL": return "text-emerald-700 bg-emerald-50 border-emerald-300";
+      case "ELEVATED": return "text-amber-700 bg-amber-50 border-amber-300";
+      case "HIGH": return "text-orange-700 bg-orange-50 border-orange-300";
+      case "SEVERE": return "text-red-700 bg-red-50 border-red-300";
+      case "CRITICAL": return "text-red-800 bg-red-100 border-red-400";
+    }
+  };
 
-  const navigationModules: NavigationModule[] = [
-    {
-      id: "projects",
-      label: "Project Portfolio",
-      icon: Layers,
-      description: "Active grants, contracts, and task orders",
-      category: "operations",
-      alertCount: criticalProjects,
-      status: criticalProjects > 0 ? "critical" : atRiskProjects > 0 ? "warning" : "healthy",
-    },
-    {
-      id: "alerts",
-      label: "Risk Alerts",
-      icon: AlertTriangle,
-      description: "Flagged items requiring attention",
-      category: "operations",
-      alertCount: criticalProjects + atRiskProjects,
-      status: criticalProjects > 0 ? "critical" : atRiskProjects > 0 ? "warning" : "healthy",
-    },
-    {
-      id: "analytics",
-      label: "Analytics & Insights",
-      icon: BarChart3,
-      description: "Burn rate analysis and forecasting",
-      category: "analytics",
-      alertCount: projects.filter(p => p.burnRate > 1.1).length,
-      status: projects.filter(p => p.burnRate > 1.1).length > 3 ? "warning" : "healthy",
-    },
-    {
-      id: "compliance",
-      label: "Compliance Tracker",
-      icon: Shield,
-      description: "NIST-800-53 scoring and audit status",
-      category: "compliance",
-      alertCount: projects.filter(p => p.complianceFlags > 2).length,
-      status: projects.filter(p => p.nistRmfScore < 0.6).length > 0 ? "critical" : projects.filter(p => p.complianceFlags > 2).length > 0 ? "warning" : "healthy",
-    },
-    {
-      id: "programs",
-      label: "Program Intelligence",
-      icon: Target,
-      description: "Cross-project program analytics",
-      category: "analytics",
-      alertCount: 0,
-      status: "healthy",
-    },
-    {
-      id: "contractors",
-      label: "Contractor Performance",
-      icon: Building2,
-      description: "Vendor metrics and risk ratings",
-      category: "management",
-      alertCount: contractorMetrics.filter(c => c.riskRating === "High").length,
-      status: contractorMetrics.filter(c => c.riskRating === "High").length > 0 ? "warning" : "healthy",
-    },
-    {
-      id: "audit",
-      label: "Audit Queue",
-      icon: FileCheck,
-      description: "Pending reviews and findings",
-      category: "compliance",
-      alertCount: projects.filter(p => p.auditFindings > 0).length,
-      status: projects.filter(p => p.auditFindings > 2).length > 0 ? "critical" : projects.filter(p => p.auditFindings > 0).length > 0 ? "warning" : "healthy",
-    },
-  ]
+  const getATOBadge = (status: ATOStatus) => {
+    switch (status) {
+      case "APPROVE": return "bg-emerald-100 text-emerald-800 border-emerald-300";
+      case "APPROVE_CONDITIONS": return "bg-amber-100 text-amber-800 border-amber-300";
+      case "DENY": return "bg-red-100 text-red-800 border-red-300";
+      case "REMEDIATION_REQUIRED": return "bg-orange-100 text-orange-800 border-orange-300";
+    }
+  };
 
-  const riskColorMap = {
-    Red: "bg-red-50 border-red-200 text-red-700",
-    Orange: "bg-amber-50 border-amber-200 text-amber-700",
-    Yellow: "bg-yellow-50 border-yellow-200 text-yellow-700",
-    Green: "bg-emerald-50 border-emerald-200 text-emerald-700",
-  }
+  const formatATOStatus = (status: ATOStatus) => {
+    switch (status) {
+      case "APPROVE": return "ATO APPROVED";
+      case "APPROVE_CONDITIONS": return "CONDITIONAL";
+      case "DENY": return "DENIED";
+      case "REMEDIATION_REQUIRED": return "REMEDIATION";
+    }
+  };
 
-  const riskDotMap = {
-    Red: "bg-red-500",
-    Orange: "bg-amber-500",
-    Yellow: "bg-yellow-500",
-    Green: "bg-emerald-500",
-  }
+  // ============================================================================
+  // RENDER VIEWS
+  // ============================================================================
 
-  // ═══════════════════════════════════════════════════════════════════════════════
-  // RENDER FUNCTIONS
-  // ═══════════════════════════════════════════════════════════════════════════════
-
-  const renderProjectsView = () => (
-    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-      {projects.sort((a, b) => b.priorityScore - a.priorityScore).map(project => (
-        <div
-          key={project.id}
-          onClick={() => setSelectedProject(project)}
-          className={`p-4 border rounded-lg cursor-pointer transition-all hover:shadow-md hover:-translate-y-0.5 ${riskColorMap[project.riskLevel]}`}
-        >
-          <div className="flex items-start justify-between mb-3">
-            <div>
-              <div className="text-xs text-gray-500 font-mono">{project.id}</div>
-              <div className="font-semibold text-gray-900 mt-0.5">{project.name}</div>
-            </div>
-            <div className={`w-3 h-3 rounded-full ${riskDotMap[project.riskLevel]} animate-pulse`} />
-          </div>
-          
-          <div className="grid grid-cols-2 gap-2 text-xs mb-3">
-            <div className="text-gray-600">{project.agency} / {project.contractor}</div>
-            <div className="text-right text-gray-600">{project.program}</div>
-          </div>
-
-          <div className="grid grid-cols-4 gap-2 text-center">
-            <div className="bg-white/60 p-2 rounded border border-gray-100">
-              <div className="text-xs text-gray-500">Burn</div>
-              <div className={`font-mono text-sm ${project.burnRate > 1.1 ? "text-red-600" : project.burnRate < 0.8 ? "text-amber-600" : "text-emerald-600"}`}>
-                {(project.burnRate * 100).toFixed(0)}%
-              </div>
-            </div>
-            <div className="bg-white/60 p-2 rounded border border-gray-100">
-              <div className="text-xs text-gray-500">NIST</div>
-              <div className={`font-mono text-sm ${project.nistRmfScore < 0.7 ? "text-red-600" : project.nistRmfScore < 0.85 ? "text-amber-600" : "text-emerald-600"}`}>
-                {(project.nistRmfScore * 100).toFixed(0)}%
-              </div>
-            </div>
-            <div className="bg-white/60 p-2 rounded border border-gray-100">
-              <div className="text-xs text-gray-500">SLA</div>
-              <div className={`font-mono text-sm ${project.slaRemaining < 30 ? "text-red-600" : project.slaRemaining < 90 ? "text-amber-600" : "text-gray-700"}`}>
-                {project.slaRemaining}d
-              </div>
-            </div>
-            <div className="bg-white/60 p-2 rounded border border-gray-100">
-              <div className="text-xs text-gray-500">Flags</div>
-              <div className={`font-mono text-sm ${project.complianceFlags > 3 ? "text-red-600" : project.complianceFlags > 1 ? "text-amber-600" : "text-gray-700"}`}>
-                {project.complianceFlags}
-              </div>
-            </div>
-          </div>
-
-          {project.riskTags.length > 0 && (
-            <div className="flex flex-wrap gap-1 mt-3">
-              {project.riskTags.slice(0, 2).map(tag => (
-                <span key={tag} className="px-2 py-0.5 text-xs bg-white/80 text-gray-600 rounded border border-gray-200">{tag}</span>
-              ))}
-            </div>
-          )}
+  const renderOperationsView = () => (
+    <div className="flex flex-1 overflow-hidden">
+      {/* Left Panel - Security Control Stream */}
+      <div className="w-80 border-r border-neutral-200 bg-white flex flex-col">
+        <div className="p-4 border-b border-neutral-200">
+          <div className="text-sm font-semibold text-neutral-900 uppercase tracking-wide">Security Control Stream</div>
+          <div className="text-xs text-neutral-500 mt-1">Live events from all monitored systems</div>
         </div>
-      ))}
-    </div>
-  )
-
-  const renderAlertsView = () => {
-    const sortedByRisk = [...projects].sort((a, b) => {
-      const order = { Red: 0, Orange: 1, Yellow: 2, Green: 3 }
-      return order[a.riskLevel] - order[b.riskLevel]
-    })
-
-    return (
-      <div className="space-y-2" style={{maxHeight: "520px", overflowY: "auto"}}>
-        {sortedByRisk.slice(0, 10).map(project => (
-          <div
-            key={project.id}
-            onClick={() => setSelectedProject(project)}
-            className={`p-4 border rounded-lg cursor-pointer flex items-center justify-between transition-all hover:shadow-sm ${riskColorMap[project.riskLevel]}`}
-          >
-            <div className="flex items-center gap-4">
-              <div className={`w-3 h-3 rounded-full ${riskDotMap[project.riskLevel]}`} />
-              <div>
-                <div className="font-medium text-gray-900">{project.name}</div>
-                <div className="text-xs text-gray-500">{project.id} / {project.agency} / {project.contractor}</div>
+        <div className="flex-1 overflow-y-auto">
+          {securityEvents.map((event) => (
+            <div
+              key={event.id}
+              className={`p-3 border-b border-neutral-100 hover:bg-neutral-50 cursor-pointer ${
+                event.severity === "CRITICAL" ? "bg-red-50" : event.severity === "WARNING" ? "bg-amber-50" : ""
+              }`}
+            >
+              <div className="flex items-center justify-between mb-1">
+                <span className={`text-xs font-medium px-2 py-0.5 rounded border ${
+                  event.severity === "CRITICAL" ? "bg-red-100 text-red-800 border-red-200" :
+                  event.severity === "WARNING" ? "bg-amber-100 text-amber-800 border-amber-200" :
+                  "bg-neutral-100 text-neutral-700 border-neutral-200"
+                }`}>
+                  {event.severity}
+                </span>
+                <span className="text-xs text-neutral-400 font-mono">
+                  {event.timestamp.toLocaleTimeString()}
+                </span>
               </div>
-            </div>
-            <div className="flex items-center gap-6 text-sm">
-              <div className="text-center">
-                <div className="text-xs text-gray-500">Priority</div>
-                <div className="font-mono text-gray-800">{(project.priorityScore * 100).toFixed(0)}</div>
+              <div className="text-sm text-neutral-800 mb-1">{event.description}</div>
+              <div className="flex items-center gap-2 text-xs text-neutral-500">
+                <span className="font-mono">{event.system}</span>
+                {event.controlFamily && (
+                  <span className="px-1.5 py-0.5 bg-neutral-100 rounded text-neutral-600 border border-neutral-200">{event.controlFamily}</span>
+                )}
               </div>
-              <div className="text-center">
-                <div className="text-xs text-gray-500">SLA</div>
-                <div className={`font-mono ${project.slaRemaining < 30 ? "text-red-600" : "text-gray-800"}`}>{project.slaRemaining}d</div>
-              </div>
-              <div className="text-center">
-                <div className="text-xs text-gray-500">Burn</div>
-                <div className={`font-mono ${project.burnRate > 1.1 ? "text-red-600" : "text-gray-800"}`}>{(project.burnRate * 100).toFixed(0)}%</div>
-              </div>
-              <ChevronRight className="w-4 h-4 text-gray-400" />
-            </div>
-          </div>
-        ))}
-      </div>
-    )
-  }
-
-  const renderAnalyticsView = () => (
-    <div className="space-y-6">
-      {/* Summary Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-          <div className="flex items-center gap-2 text-gray-500 text-sm mb-2">
-            <Layers className="w-4 h-4" />
-            Total Projects
-          </div>
-          <div className="text-3xl font-semibold text-gray-900">{projects.length}</div>
-        </div>
-        <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-          <div className="flex items-center gap-2 text-gray-500 text-sm mb-2">
-            <DollarSign className="w-4 h-4" />
-            Total Budget
-          </div>
-          <div className="text-3xl font-semibold text-gray-900">{formatCurrency(totalBudget)}</div>
-        </div>
-        <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-          <div className="flex items-center gap-2 text-gray-500 text-sm mb-2">
-            <TrendingUp className="w-4 h-4" />
-            Total Spend
-          </div>
-          <div className="text-3xl font-semibold text-blue-600">{formatCurrency(totalSpend)}</div>
-        </div>
-        <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-          <div className="flex items-center gap-2 text-gray-500 text-sm mb-2">
-            <Shield className="w-4 h-4" />
-            Avg Compliance
-          </div>
-          <div className={`text-3xl font-semibold ${avgCompliance < 0.7 ? "text-red-600" : avgCompliance < 0.85 ? "text-amber-600" : "text-emerald-600"}`}>
-            {formatPercent(avgCompliance)}
-          </div>
-        </div>
-      </div>
-
-      {/* Risk Distribution */}
-      <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-        <h3 className="text-lg font-semibold text-gray-800 mb-4">Risk Distribution</h3>
-        <div className="flex items-end gap-3 h-40">
-          {[
-            { label: "Critical", count: projects.filter(p => p.riskLevel === "Red").length, color: "bg-red-500" },
-            { label: "At Risk", count: projects.filter(p => p.riskLevel === "Orange").length, color: "bg-amber-500" },
-            { label: "Monitor", count: projects.filter(p => p.riskLevel === "Yellow").length, color: "bg-yellow-500" },
-            { label: "Stable", count: projects.filter(p => p.riskLevel === "Green").length, color: "bg-emerald-500" },
-          ].map(item => (
-            <div key={item.label} className="flex-1 flex flex-col items-center gap-2">
-              <div
-                className={`w-full ${item.color} rounded-t transition-all duration-500`}
-                style={{ height: `${Math.max(8, (item.count / projects.length) * 100)}%` }}
-              />
-              <div className="text-xs text-gray-500">{item.label}</div>
-              <div className="font-mono text-gray-800 font-semibold">{item.count}</div>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Burn Rate Analysis */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <div className="text-red-700 text-sm mb-1 font-medium">Over-Expenditure</div>
-          <div className="text-3xl font-semibold text-red-600">{projects.filter(p => p.burnRate > 1.1).length}</div>
-          <div className="text-xs text-red-500 mt-1">{"Burn Rate > 110%"}</div>
-        </div>
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
-          <div className="text-amber-700 text-sm mb-1 font-medium">Under-Utilization</div>
-          <div className="text-3xl font-semibold text-amber-600">{projects.filter(p => p.burnRate < 0.8).length}</div>
-          <div className="text-xs text-amber-500 mt-1">{"Burn Rate < 80%"}</div>
-        </div>
-        <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
-          <div className="text-emerald-700 text-sm mb-1 font-medium">On Track</div>
-          <div className="text-3xl font-semibold text-emerald-600">{projects.filter(p => p.burnRate >= 0.8 && p.burnRate <= 1.1).length}</div>
-          <div className="text-xs text-emerald-500 mt-1">{"80% <= Burn <= 110%"}</div>
-        </div>
-      </div>
-
-      {/* Forecasting */}
-      <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-        <h3 className="text-lg font-semibold text-gray-800 mb-4">Forecasted Expenditure</h3>
-        <div className="grid grid-cols-2 gap-8">
-          <div>
-            <div className="text-sm text-gray-500 mb-1">Projected Total Spend</div>
-            <div className="text-3xl font-semibold text-gray-900">{formatCurrency(projects.reduce((sum, p) => sum + p.forecastedTotalSpend, 0))}</div>
-          </div>
-          <div>
-            <div className="text-sm text-gray-500 mb-1">Budget Variance</div>
-            <div className={`text-3xl font-semibold ${projects.reduce((sum, p) => sum + p.forecastedTotalSpend, 0) > totalBudget ? "text-red-600" : "text-emerald-600"}`}>
-              {formatCurrency(Math.abs(projects.reduce((sum, p) => sum + p.forecastedTotalSpend, 0) - totalBudget))}
-              <span className="text-lg ml-2 font-normal">{projects.reduce((sum, p) => sum + p.forecastedTotalSpend, 0) > totalBudget ? "over" : "under"}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-
-  const renderComplianceView = () => (
-    <div className="space-y-4">
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-        <div className="flex items-center gap-3 mb-2">
-          <Shield className="w-5 h-5 text-blue-600" />
-          <span className="font-semibold text-blue-800">NIST-800-53 Compliance Model</span>
-        </div>
-        <div className="text-sm text-blue-700 font-mono">
-          Score = (NIST RMF x 0.60) + (40% Base) - (Flags x 0.05) - (Findings x 0.08)
-        </div>
-      </div>
-
-      <div style={{maxHeight: "520px", overflowY: "auto"}}>
-      {projects
-        .sort((a, b) => calculateComplianceScore(a.nistRmfScore, a.complianceFlags, a.auditFindings) - calculateComplianceScore(b.nistRmfScore, b.complianceFlags, b.auditFindings))
-        .slice(0, 10)
-        .map(project => {
-          const score = calculateComplianceScore(project.nistRmfScore, project.complianceFlags, project.auditFindings)
-          return (
-            <div
-              key={project.id}
-              onClick={() => setSelectedProject(project)}
-              className="p-4 bg-white border border-gray-200 rounded-lg cursor-pointer hover:border-blue-300 hover:shadow-sm transition-all"
-            >
-              <div className="flex items-center justify-between mb-3">
-                <div>
-                  <div className="font-medium text-gray-900">{project.name}</div>
-                  <div className="text-xs text-gray-500">{project.id} / {project.complianceStage}</div>
-                </div>
-                <div className={`text-2xl font-semibold ${score < 0.6 ? "text-red-600" : score < 0.75 ? "text-amber-600" : "text-emerald-600"}`}>
-                  {formatPercent(score)}
-                </div>
-              </div>
-              <div className="grid grid-cols-4 gap-4 text-sm">
-                <div>
-                  <div className="text-xs text-gray-500">NIST RMF</div>
-                  <div className="font-mono text-gray-700">{formatPercent(project.nistRmfScore)}</div>
-                </div>
-                <div>
-                  <div className="text-xs text-gray-500">Flags</div>
-                  <div className={`font-mono ${project.complianceFlags > 3 ? "text-red-600" : "text-gray-700"}`}>{project.complianceFlags}</div>
-                </div>
-                <div>
-                  <div className="text-xs text-gray-500">Audit Findings</div>
-                  <div className={`font-mono ${project.auditFindings > 2 ? "text-red-600" : "text-gray-700"}`}>{project.auditFindings}</div>
-                </div>
-                <div>
-                  <div className="text-xs text-gray-500">Next Audit</div>
-                  <div className="font-mono text-gray-700">{project.nextAuditDue}</div>
-                </div>
-              </div>
-              <div className="mt-3 h-2 bg-gray-100 rounded-full overflow-hidden">
-                <div
-                  className={`h-full transition-all duration-500 rounded-full ${score < 0.6 ? "bg-red-500" : score < 0.75 ? "bg-amber-500" : "bg-emerald-500"}`}
-                  style={{ width: `${score * 100}%` }}
-                />
-              </div>
-            </div>
-          )
-        })}
-      </div>
-    </div>
-  )
-
-  const renderProgramsView = () => (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      {programMetrics.map(program => (
-        <div key={program.name} className="bg-white border border-gray-200 rounded-lg p-5 shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                <Target className="w-5 h-5 text-blue-600" />
-              </div>
-              <span className="font-semibold text-gray-800">{program.name}</span>
-            </div>
-            <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">{program.projectCount} projects</span>
-          </div>
-          
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            <div>
-              <div className="text-xs text-gray-500">Total Budget</div>
-              <div className="font-semibold text-lg text-gray-900">{formatCurrency(program.totalBudget)}</div>
-            </div>
-            <div>
-              <div className="text-xs text-gray-500">Total Spend</div>
-              <div className="font-semibold text-lg text-blue-600">{formatCurrency(program.totalSpend)}</div>
-            </div>
-          </div>
-
-          <div className="mb-4">
-            <div className="text-xs text-gray-500 mb-1">Avg Compliance</div>
-            <div className="flex items-center gap-2">
-              <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
-                <div
-                  className={`h-full rounded-full ${program.avgCompliance < 0.6 ? "bg-red-500" : program.avgCompliance < 0.75 ? "bg-amber-500" : "bg-emerald-500"}`}
-                  style={{ width: `${program.avgCompliance * 100}%` }}
-                />
-              </div>
-              <span className="font-mono text-sm text-gray-700">{formatPercent(program.avgCompliance)}</span>
-            </div>
-          </div>
-
-          <div>
-            <div className="text-xs text-gray-500 mb-2">Risk Distribution</div>
-            <div className="flex gap-2">
-              {program.riskDistribution.red > 0 && (
-                <div className="flex items-center gap-1 px-2 py-1 bg-red-50 rounded text-xs text-red-600 border border-red-200">
-                  <span className="w-2 h-2 bg-red-500 rounded-full" />
-                  {program.riskDistribution.red}
-                </div>
-              )}
-              {program.riskDistribution.orange > 0 && (
-                <div className="flex items-center gap-1 px-2 py-1 bg-amber-50 rounded text-xs text-amber-600 border border-amber-200">
-                  <span className="w-2 h-2 bg-amber-500 rounded-full" />
-                  {program.riskDistribution.orange}
-                </div>
-              )}
-              {program.riskDistribution.yellow > 0 && (
-                <div className="flex items-center gap-1 px-2 py-1 bg-yellow-50 rounded text-xs text-yellow-600 border border-yellow-200">
-                  <span className="w-2 h-2 bg-yellow-500 rounded-full" />
-                  {program.riskDistribution.yellow}
-                </div>
-              )}
-              {program.riskDistribution.green > 0 && (
-                <div className="flex items-center gap-1 px-2 py-1 bg-emerald-50 rounded text-xs text-emerald-600 border border-emerald-200">
-                  <span className="w-2 h-2 bg-emerald-500 rounded-full" />
-                  {program.riskDistribution.green}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
-  )
-
-  const renderContractorsView = () => (
-    <div className="space-y-3">
-      {contractorMetrics.sort((a, b) => b.avgComplianceScore - a.avgComplianceScore).map(contractor => (
-        <div key={contractor.name} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                <Building2 className="w-5 h-5 text-gray-600" />
-              </div>
-              <span className="font-semibold text-gray-800">{contractor.name}</span>
-            </div>
-            <div className={`px-3 py-1 rounded-full text-xs font-medium ${
-              contractor.riskRating === "High" ? "bg-red-100 text-red-700 border border-red-200" :
-              contractor.riskRating === "Medium" ? "bg-amber-100 text-amber-700 border border-amber-200" :
-              "bg-emerald-100 text-emerald-700 border border-emerald-200"
-            }`}>
-              {contractor.riskRating} Risk
-            </div>
-          </div>
-          <div className="grid grid-cols-5 gap-4 text-sm">
-            <div>
-              <div className="text-xs text-gray-500">Active Projects</div>
-              <div className="font-semibold text-gray-800">{contractor.activeProjects}</div>
-            </div>
-            <div>
-              <div className="text-xs text-gray-500">Avg Compliance</div>
-              <div className={`font-semibold ${contractor.avgComplianceScore < 0.7 ? "text-red-600" : contractor.avgComplianceScore < 0.85 ? "text-amber-600" : "text-emerald-600"}`}>
-                {formatPercent(contractor.avgComplianceScore)}
-              </div>
-            </div>
-            <div>
-              <div className="text-xs text-gray-500">Incident Rate</div>
-              <div className={`font-semibold ${contractor.incidentRate > 1.5 ? "text-red-600" : "text-gray-800"}`}>{contractor.incidentRate.toFixed(2)}</div>
-            </div>
-            <div>
-              <div className="text-xs text-gray-500">Budget Managed</div>
-              <div className="font-semibold text-gray-800">{formatCurrency(contractor.totalBudgetManaged)}</div>
-            </div>
-            <div>
-              <div className="text-xs text-gray-500">Delivery Efficiency</div>
-              <div className={`font-semibold ${contractor.deliveryEfficiency < 0.7 ? "text-red-600" : "text-emerald-600"}`}>
-                {formatPercent(contractor.deliveryEfficiency)}
-              </div>
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
-  )
-
-  const renderAuditView = () => {
-    const auditQueue = projects.filter(p => p.auditFindings > 0 || p.complianceStage === "Final Audit")
-    return (
-      <div className="space-y-4">
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+      {/* Center - System Overview */}
+      <div className="flex-1 flex flex-col overflow-hidden bg-neutral-50">
+        <div className="p-4 border-b border-neutral-200 bg-white">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <FileCheck className="w-5 h-5 text-blue-600" />
-              <span className="font-semibold text-blue-800">Audit Queue</span>
+            <div>
+              <div className="text-sm font-semibold text-neutral-900">Federal Information System Network</div>
+              <div className="text-xs text-neutral-500">Authorization boundary visualization with live threat overlay</div>
             </div>
-            <span className="text-sm text-blue-600 bg-blue-100 px-3 py-1 rounded-full">{auditQueue.length} items pending review</span>
+            <div className={`px-3 py-1.5 rounded font-medium text-xs border ${getThreatColor(threatLevel)}`}>
+              FPCON: {threatLevel}
+            </div>
           </div>
         </div>
+        
+        <div className="flex-1 p-4 overflow-auto">
+          <div className="grid grid-cols-3 gap-4">
+            {systems.map((sys) => (
+              <div
+                key={sys.id}
+                onClick={() => setSelectedSystem(sys)}
+                className={`p-4 rounded-lg border-2 cursor-pointer transition-all hover:shadow-md ${getRiskBg(sys.riskLevel)} ${
+                  selectedSystem?.id === sys.id ? "ring-2 ring-neutral-900 ring-offset-2" : ""
+                }`}
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-mono text-neutral-500">{sys.fismaId}</span>
+                  <span className={`text-xs font-medium px-2 py-0.5 rounded border ${getATOBadge(sys.atoStatus)}`}>
+                    {formatATOStatus(sys.atoStatus)}
+                  </span>
+                </div>
+                <div className="text-sm font-semibold text-neutral-900 mb-1">{sys.name}</div>
+                <div className="text-xs text-neutral-500 mb-3">{sys.agency} / {sys.contractor.split(" ")[0]}</div>
+                
+                <div className="grid grid-cols-2 gap-3 text-xs">
+                  <div>
+                    <div className="text-neutral-500">Risk Level</div>
+                    <div className={`font-semibold ${getRiskColor(sys.riskLevel)}`}>{sys.riskLevel}</div>
+                  </div>
+                  <div>
+                    <div className="text-neutral-500">Control Eff.</div>
+                    <div className="font-mono text-neutral-800">{sys.controlEffectiveness.toFixed(1)}%</div>
+                  </div>
+                  <div>
+                    <div className="text-neutral-500">Open Findings</div>
+                    <div className="font-mono text-neutral-800">{sys.openFindings}</div>
+                  </div>
+                  <div>
+                    <div className="text-neutral-500">RMF Phase</div>
+                    <div className="font-mono text-neutral-600 text-[10px]">{sys.rmfPhase}</div>
+                  </div>
+                </div>
 
-        {auditQueue.map(project => (
-          <div
-            key={project.id}
-            onClick={() => setSelectedProject(project)}
-            className="p-4 bg-white border border-gray-200 rounded-lg cursor-pointer hover:border-blue-300 hover:shadow-sm transition-all"
-          >
-            <div className="flex items-center justify-between mb-3">
-              <div>
-                <div className="font-medium text-gray-900">{project.name}</div>
-                <div className="text-xs text-gray-500">{project.id} / {project.agency}</div>
-              </div>
-              <div className={`px-3 py-1 rounded-full text-xs font-medium ${
-                project.auditFindings > 2 ? "bg-red-100 text-red-700 border border-red-200" :
-                project.auditFindings > 0 ? "bg-amber-100 text-amber-700 border border-amber-200" :
-                "bg-gray-100 text-gray-600 border border-gray-200"
-              }`}>
-                {project.auditFindings} findings
-              </div>
-            </div>
-            <div className="grid grid-cols-4 gap-4 text-sm">
-              <div>
-                <div className="text-xs text-gray-500">Stage</div>
-                <div className="text-gray-700">{project.complianceStage}</div>
-              </div>
-              <div>
-                <div className="text-xs text-gray-500">Last Audit</div>
-                <div className="font-mono text-gray-700">{project.lastAuditDate}</div>
-              </div>
-              <div>
-                <div className="text-xs text-gray-500">Next Due</div>
-                <div className="font-mono text-gray-700">{project.nextAuditDue}</div>
-              </div>
-              <div>
-                <div className="text-xs text-gray-500">NIST Score</div>
-                <div className={`font-mono ${project.nistRmfScore < 0.7 ? "text-red-600" : "text-emerald-600"}`}>
-                  {formatPercent(project.nistRmfScore)}
+                <div className="mt-3">
+                  <div className="h-2 bg-neutral-200 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full transition-all rounded-full ${
+                        sys.controlEffectiveness > 75 ? "bg-emerald-500" :
+                        sys.controlEffectiveness > 50 ? "bg-amber-500" : "bg-red-500"
+                      }`}
+                      style={{ width: `${sys.controlEffectiveness}%` }}
+                    />
+                  </div>
                 </div>
               </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Right Panel - Risk & Compliance State */}
+      <div className="w-80 border-l border-neutral-200 bg-white flex flex-col">
+        <div className="p-4 border-b border-neutral-200">
+          <div className="text-sm font-semibold text-neutral-900 uppercase tracking-wide">Risk & Compliance State</div>
+        </div>
+        
+        {selectedSystem ? (
+          <div className="flex-1 overflow-y-auto p-4">
+            <div className="mb-4">
+              <div className="text-sm font-semibold text-neutral-900">{selectedSystem.name}</div>
+              <div className="text-xs text-neutral-500 font-mono">{selectedSystem.fismaId}</div>
             </div>
-            {project.auditHistory.length > 0 && (
-              <div className="mt-3 pt-3 border-t border-gray-100">
-                <div className="text-xs text-gray-500 mb-2">Recent Audit Events</div>
-                <div className="space-y-1">
-                  {project.auditHistory.slice(-2).map((event, i) => (
-                    <div key={i} className="flex items-center gap-2 text-xs">
-                      {event.severity === "critical" ? <XCircle className="w-3 h-3 text-red-500" /> :
-                       event.severity === "warning" ? <AlertCircle className="w-3 h-3 text-amber-500" /> :
-                       <CheckCircle2 className="w-3 h-3 text-emerald-500" />}
-                      <span className="text-gray-400">{event.date}</span>
-                      <span className="text-gray-600">{event.event}</span>
+
+            <div className="space-y-4">
+              <div className="p-3 bg-neutral-50 rounded-lg border border-neutral-200">
+                <div className="text-xs text-neutral-600 uppercase tracking-wide mb-2 font-medium">Identity Layer</div>
+                <div className="space-y-1 text-xs">
+                  <div className="flex justify-between"><span className="text-neutral-500">Agency</span><span className="text-neutral-800 font-medium">{selectedSystem.agency}</span></div>
+                  <div className="flex justify-between"><span className="text-neutral-500">Contractor</span><span className="text-neutral-800 font-medium">{selectedSystem.contractor.split(" ")[0]}</span></div>
+                  <div className="flex justify-between"><span className="text-neutral-500">System Type</span><span className="text-neutral-800 font-medium">{selectedSystem.systemType.replace(/_/g, " ")}</span></div>
+                </div>
+              </div>
+
+              <div className="p-3 bg-neutral-50 rounded-lg border border-neutral-200">
+                <div className="text-xs text-neutral-600 uppercase tracking-wide mb-2 font-medium">Data Classification</div>
+                <div className="space-y-1 text-xs">
+                  <div className="flex justify-between"><span className="text-neutral-500">FIPS 199</span><span className={`font-semibold ${getRiskColor(selectedSystem.impactLevel)}`}>{selectedSystem.impactLevel}</span></div>
+                  <div className="flex justify-between"><span className="text-neutral-500">Sensitivity</span><span className="text-neutral-800 font-medium">{selectedSystem.dataSensitivity}</span></div>
+                  <div className="mt-2">
+                    <div className="text-neutral-500 mb-1">Information Types</div>
+                    <div className="flex flex-wrap gap-1">
+                      {selectedSystem.informationTypes.map((t) => (
+                        <span key={t} className="px-1.5 py-0.5 bg-white rounded text-neutral-600 text-[10px] border border-neutral-200">{t}</span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-3 bg-neutral-50 rounded-lg border border-neutral-200">
+                <div className="text-xs text-neutral-600 uppercase tracking-wide mb-2 font-medium">Risk Posture</div>
+                <div className="space-y-3 text-xs">
+                  <div>
+                    <div className="flex justify-between mb-1"><span className="text-neutral-500">Inherent Risk</span><span className="text-neutral-800 font-mono">{selectedSystem.inherentRisk.toFixed(1)}</span></div>
+                    <div className="h-1.5 bg-neutral-200 rounded-full"><div className="h-full bg-orange-500 rounded-full" style={{ width: `${selectedSystem.inherentRisk}%` }} /></div>
+                  </div>
+                  <div>
+                    <div className="flex justify-between mb-1"><span className="text-neutral-500">Residual Risk</span><span className={`font-mono ${getRiskColor(selectedSystem.riskLevel)}`}>{selectedSystem.residualRisk.toFixed(1)}</span></div>
+                    <div className="h-1.5 bg-neutral-200 rounded-full"><div className={`h-full rounded-full ${selectedSystem.residualRisk > 60 ? "bg-red-500" : selectedSystem.residualRisk > 40 ? "bg-amber-500" : "bg-emerald-500"}`} style={{ width: `${selectedSystem.residualRisk}%` }} /></div>
+                  </div>
+                  <div>
+                    <div className="flex justify-between mb-1"><span className="text-neutral-500">Threat Exposure</span><span className="text-neutral-800 font-mono">{calculateThreatExposure(selectedSystem, threatLevel).toFixed(1)}</span></div>
+                    <div className="h-1.5 bg-neutral-200 rounded-full"><div className="h-full bg-red-500 rounded-full" style={{ width: `${calculateThreatExposure(selectedSystem, threatLevel)}%` }} /></div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-3 bg-neutral-50 rounded-lg border border-neutral-200">
+                <div className="text-xs text-neutral-600 uppercase tracking-wide mb-2 font-medium">NIST 800-53 Controls</div>
+                <div className="space-y-2">
+                  {selectedSystem.controlFamilies.slice(0, 6).map((cf) => (
+                    <div key={cf.id} className="text-xs">
+                      <div className="flex justify-between mb-1">
+                        <span className="text-neutral-600">{cf.id}: {cf.name.split(" ")[0]}</span>
+                        <span className={cf.effectiveness > 70 ? "text-emerald-700 font-semibold" : cf.effectiveness > 50 ? "text-amber-700 font-semibold" : "text-red-700 font-semibold"}>
+                          {cf.effectiveness.toFixed(0)}%
+                        </span>
+                      </div>
+                      <div className="h-1.5 bg-neutral-200 rounded-full">
+                        <div
+                          className={`h-full rounded-full ${cf.effectiveness > 70 ? "bg-emerald-500" : cf.effectiveness > 50 ? "bg-amber-500" : "bg-red-500"}`}
+                          style={{ width: `${cf.effectiveness}%` }}
+                        />
+                      </div>
                     </div>
                   ))}
                 </div>
               </div>
-            )}
+
+              <div className="p-3 bg-neutral-50 rounded-lg border border-neutral-200">
+                <div className="text-xs text-neutral-600 uppercase tracking-wide mb-2 font-medium">Authorization Status</div>
+                <div className="text-center py-2">
+                  <div className={`text-3xl font-bold ${calculateATOReadiness(selectedSystem) > 70 ? "text-emerald-600" : calculateATOReadiness(selectedSystem) > 50 ? "text-amber-600" : "text-red-600"}`}>
+                    {calculateATOReadiness(selectedSystem).toFixed(0)}
+                  </div>
+                  <div className="text-xs text-neutral-500 mt-1">ATO Readiness Score</div>
+                </div>
+                <div className={`text-center text-xs font-semibold px-3 py-1.5 rounded border mt-2 ${getATOBadge(selectedSystem.atoStatus)}`}>
+                  {formatATOStatus(selectedSystem.atoStatus)}
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="flex-1 flex items-center justify-center text-neutral-400 text-sm">
+            Select a system to view details
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  const renderRMFLifecycleView = () => {
+    const phases: { id: RMFPhase; name: string; description: string }[] = [
+      { id: "PREPARE", name: "Prepare", description: "Asset inventory, boundary definition" },
+      { id: "CATEGORIZE", name: "Categorize", description: "FIPS 199 impact level assignment" },
+      { id: "SELECT", name: "Select", description: "Control baseline selection" },
+      { id: "IMPLEMENT", name: "Implement", description: "Control deployment tracking" },
+      { id: "ASSESS", name: "Assess", description: "Control effectiveness evaluation" },
+      { id: "AUTHORIZE", name: "Authorize", description: "ATO decision process" },
+      { id: "MONITOR", name: "Monitor", description: "Continuous monitoring" },
+    ];
+
+    const systemsByPhase = phases.map((p) => ({
+      ...p,
+      systems: systems.filter((s) => s.rmfPhase === p.id),
+    }));
+
+    return (
+      <div className="flex-1 p-6 overflow-auto bg-neutral-50">
+        <div className="mb-6">
+          <div className="text-lg font-bold text-neutral-900">NIST RMF Lifecycle Simulation</div>
+          <div className="text-sm text-neutral-500">Real-time tracking of systems through authorization workflow</div>
+        </div>
+
+        <div className="flex gap-2 mb-8">
+          {phases.map((phase, idx) => (
+            <div key={phase.id} className="flex-1">
+              <div className={`p-4 rounded-t-lg border-2 border-b-0 ${
+                systemsByPhase[idx].systems.length > 0 ? "bg-white border-neutral-900" : "bg-white border-neutral-200"
+              }`}>
+                <div className="text-xs font-mono text-neutral-500 uppercase">{phase.id}</div>
+                <div className="text-sm font-semibold text-neutral-900 mt-1">{phase.name}</div>
+                <div className="text-xs text-neutral-500 mt-1">{phase.description}</div>
+                <div className="text-2xl font-bold text-neutral-900 mt-2">{systemsByPhase[idx].systems.length}</div>
+              </div>
+              <div className={`h-1 ${systemsByPhase[idx].systems.length > 0 ? "bg-neutral-900" : "bg-neutral-300"}`} />
+            </div>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-7 gap-4">
+          {systemsByPhase.map((phase) => (
+            <div key={phase.id} className="space-y-2">
+              {phase.systems.map((sys) => (
+                <div
+                  key={sys.id}
+                  className={`p-3 rounded-lg border-2 cursor-pointer hover:shadow-md transition-shadow ${getRiskBg(sys.riskLevel)}`}
+                  onClick={() => setSelectedSystem(sys)}
+                >
+                  <div className="text-xs font-semibold text-neutral-800 truncate">{sys.name}</div>
+                  <div className="text-xs text-neutral-500">{sys.agency}</div>
+                  <div className={`text-xs font-semibold mt-1 ${getRiskColor(sys.riskLevel)}`}>{sys.riskLevel}</div>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  const renderIncidentResponseView = () => (
+    <div className="flex-1 p-6 overflow-auto bg-neutral-50">
+      <div className="mb-6">
+        <div className="text-lg font-bold text-neutral-900">Incident Response Simulator</div>
+        <div className="text-sm text-neutral-500">NIST IR lifecycle tracking and response workflow</div>
+      </div>
+
+      <div className="grid grid-cols-3 gap-6">
+        <div className="col-span-2 space-y-4">
+          <div className="text-sm font-semibold text-neutral-700 uppercase tracking-wide">Active Incidents</div>
+          {incidents.map((inc) => (
+            <div key={inc.id} className={`p-5 rounded-lg border-2 bg-white ${
+              inc.severity === "CRITICAL" ? "border-red-300" :
+              inc.severity === "HIGH" ? "border-orange-300" :
+              "border-neutral-200"
+            }`}>
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <div className="text-sm font-semibold text-neutral-900">{inc.name}</div>
+                  <div className="text-xs text-neutral-500 font-mono">{inc.id}</div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className={`px-2 py-1 rounded text-xs font-semibold border ${
+                    inc.severity === "CRITICAL" ? "bg-red-100 text-red-800 border-red-200" :
+                    inc.severity === "HIGH" ? "bg-orange-100 text-orange-800 border-orange-200" :
+                    inc.severity === "MEDIUM" ? "bg-amber-100 text-amber-800 border-amber-200" :
+                    "bg-neutral-100 text-neutral-700 border-neutral-200"
+                  }`}>{inc.severity}</span>
+                  <span className={`px-2 py-1 rounded text-xs font-semibold border ${
+                    inc.status === "ACTIVE" ? "bg-red-100 text-red-800 border-red-200" :
+                    inc.status === "CONTAINED" ? "bg-amber-100 text-amber-800 border-amber-200" :
+                    "bg-emerald-100 text-emerald-800 border-emerald-200"
+                  }`}>{inc.status}</span>
+                </div>
+              </div>
+
+              <div className="flex gap-1 mb-3">
+                {["DETECTION", "ANALYSIS", "CONTAINMENT", "ERADICATION", "RECOVERY", "POST_INCIDENT"].map((phase, idx) => {
+                  const currentIdx = ["DETECTION", "ANALYSIS", "CONTAINMENT", "ERADICATION", "RECOVERY", "POST_INCIDENT"].indexOf(inc.phase);
+                  return (
+                    <div
+                      key={phase}
+                      className={`flex-1 h-2 rounded-full ${
+                        idx <= currentIdx ? "bg-neutral-900" : "bg-neutral-200"
+                      }`}
+                    />
+                  );
+                })}
+              </div>
+              <div className="text-xs text-neutral-600 font-medium mb-3">Phase: {inc.phase}</div>
+
+              <div className="grid grid-cols-4 gap-4 text-xs">
+                <div>
+                  <div className="text-neutral-500">Response Time</div>
+                  <div className="text-neutral-900 font-mono font-semibold">{inc.responseTimeMinutes}m</div>
+                </div>
+                <div>
+                  <div className="text-neutral-500">Escalation</div>
+                  <div className="text-neutral-900 font-mono font-semibold">Level {inc.escalationLevel}</div>
+                </div>
+                <div>
+                  <div className="text-neutral-500">Efficiency</div>
+                  <div className={`font-mono font-semibold ${calculateIREfficiency(inc) > 70 ? "text-emerald-700" : "text-amber-700"}`}>
+                    {calculateIREfficiency(inc).toFixed(0)}%
+                  </div>
+                </div>
+                <div>
+                  <div className="text-neutral-500">Systems</div>
+                  <div className="text-neutral-900 font-mono font-semibold">{inc.affectedSystems.length}</div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="space-y-4">
+          <div className="text-sm font-semibold text-neutral-700 uppercase tracking-wide">Response Metrics</div>
+          <div className="p-4 bg-white rounded-lg border-2 border-neutral-200">
+            <div className="text-xs text-neutral-500">Mean Time to Detect</div>
+            <div className="text-2xl font-bold text-neutral-900">14.2<span className="text-sm text-neutral-400 font-normal">min</span></div>
+          </div>
+          <div className="p-4 bg-white rounded-lg border-2 border-neutral-200">
+            <div className="text-xs text-neutral-500">Mean Time to Contain</div>
+            <div className="text-2xl font-bold text-neutral-900">47.8<span className="text-sm text-neutral-400 font-normal">min</span></div>
+          </div>
+          <div className="p-4 bg-white rounded-lg border-2 border-neutral-200">
+            <div className="text-xs text-neutral-500">Avg Response Efficiency</div>
+            <div className="text-2xl font-bold text-emerald-700">
+              {(incidents.reduce((a, b) => a + calculateIREfficiency(b), 0) / incidents.length).toFixed(0)}%
+            </div>
+          </div>
+          <div className="p-4 bg-white rounded-lg border-2 border-neutral-200">
+            <div className="text-xs text-neutral-500">Active Incidents</div>
+            <div className={`text-2xl font-bold ${activeIncidents > 0 ? "text-red-600" : "text-emerald-700"}`}>{activeIncidents}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderCOOPView = () => (
+    <div className="flex-1 p-6 overflow-auto bg-neutral-50">
+      <div className="mb-6">
+        <div className="text-lg font-bold text-neutral-900">Continuity of Operations (COOP) Simulation</div>
+        <div className="text-sm text-neutral-500">System resilience under disruption scenarios</div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-6">
+        {coopScenarios.map((scenario) => (
+          <div key={scenario.id} className={`p-5 rounded-lg border-2 bg-white ${
+            scenario.status === "FAILED" ? "border-red-300" :
+            scenario.status === "PASSED" ? "border-emerald-300" :
+            scenario.status === "PARTIAL" ? "border-amber-300" :
+            "border-neutral-300"
+          }`}>
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <div className="text-sm font-semibold text-neutral-900">{scenario.name}</div>
+                <div className="text-xs text-neutral-500 font-mono">{scenario.type}</div>
+              </div>
+              <span className={`px-2 py-1 rounded text-xs font-semibold border ${
+                scenario.status === "FAILED" ? "bg-red-100 text-red-800 border-red-200" :
+                scenario.status === "PASSED" ? "bg-emerald-100 text-emerald-800 border-emerald-200" :
+                scenario.status === "PARTIAL" ? "bg-amber-100 text-amber-800 border-amber-200" :
+                "bg-neutral-100 text-neutral-700 border-neutral-200"
+              }`}>{scenario.status}</span>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <div>
+                <div className="text-xs text-neutral-500">Survivability</div>
+                <div className={`text-xl font-bold ${scenario.survivabilityScore > 70 ? "text-emerald-700" : scenario.survivabilityScore > 50 ? "text-amber-700" : "text-red-700"}`}>
+                  {scenario.survivabilityScore}%
+                </div>
+              </div>
+              <div>
+                <div className="text-xs text-neutral-500">Fallback Efficiency</div>
+                <div className="text-xl font-bold text-neutral-900">{scenario.fallbackEfficiency}%</div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-4 text-xs">
+              <div>
+                <div className="text-neutral-500">RTO</div>
+                <div className="text-neutral-900 font-mono font-semibold">{scenario.rtoHours}h</div>
+              </div>
+              <div>
+                <div className="text-neutral-500">RPO</div>
+                <div className="text-neutral-900 font-mono font-semibold">{scenario.rpoHours}h</div>
+              </div>
+              <div>
+                <div className="text-neutral-500">Systems</div>
+                <div className="text-neutral-900 font-mono font-semibold">{scenario.affectedSystems}</div>
+              </div>
+            </div>
           </div>
         ))}
       </div>
-    )
-  }
 
-  const renderDetailPanel = () => {
-    if (!selectedProject) return null
-    const compScore = calculateComplianceScore(selectedProject.nistRmfScore, selectedProject.complianceFlags, selectedProject.auditFindings)
-    
-    return (
-      <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-          {/* Header */}
-          <div className="sticky top-0 bg-white border-b border-gray-200 p-4 flex items-center justify-between rounded-t-xl">
-            <div>
-              <div className="text-xs text-gray-500 font-mono">{selectedProject.id}</div>
-              <div className="text-xl font-semibold text-gray-900">{selectedProject.name}</div>
-              <div className="text-sm text-gray-500 mt-1">
-                {selectedProject.agency} / {selectedProject.contractor} / {selectedProject.program}
-              </div>
+      <div className="mt-8 p-5 bg-white rounded-lg border-2 border-neutral-200">
+        <div className="text-sm font-semibold text-neutral-900 mb-4">Multi-System Interdependency Analysis</div>
+        <div className="grid grid-cols-3 gap-6">
+          <div>
+            <div className="text-xs text-neutral-500 mb-2">Cascading Failure Risk</div>
+            <div className={`text-3xl font-bold ${cascadeRisk > 60 ? "text-red-600" : cascadeRisk > 40 ? "text-amber-600" : "text-emerald-700"}`}>
+              {cascadeRisk.toFixed(1)}%
             </div>
-            <button onClick={() => setSelectedProject(null)} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-              <X className="w-5 h-5 text-gray-500" />
-            </button>
+            <div className="h-2 bg-neutral-200 rounded-full mt-2">
+              <div className={`h-full rounded-full ${cascadeRisk > 60 ? "bg-red-500" : cascadeRisk > 40 ? "bg-amber-500" : "bg-emerald-500"}`} style={{ width: `${cascadeRisk}%` }} />
+            </div>
           </div>
-
-          <div className="p-6 space-y-6">
-            {/* Financial Overview */}
-            <div>
-              <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3 flex items-center gap-2">
-                <DollarSign className="w-4 h-4" />
-                Financial Overview
-              </h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-                  <div className="text-xs text-gray-500">Total Budget</div>
-                  <div className="text-xl font-semibold text-gray-900">{formatCurrency(selectedProject.totalBudget)}</div>
-                </div>
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-                  <div className="text-xs text-gray-500">Actual Spend</div>
-                  <div className="text-xl font-semibold text-blue-600">{formatCurrency(selectedProject.actualSpend)}</div>
-                </div>
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-                  <div className="text-xs text-gray-500">Forecasted Total</div>
-                  <div className={`text-xl font-semibold ${selectedProject.forecastedTotalSpend > selectedProject.totalBudget ? "text-red-600" : "text-gray-900"}`}>
-                    {formatCurrency(selectedProject.forecastedTotalSpend)}
-                  </div>
-                </div>
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-                  <div className="text-xs text-gray-500">Burn Rate</div>
-                  <div className={`text-xl font-semibold ${selectedProject.burnRate > 1.1 ? "text-red-600" : selectedProject.burnRate < 0.8 ? "text-amber-600" : "text-emerald-600"}`}>
-                    {(selectedProject.burnRate * 100).toFixed(1)}%
-                  </div>
-                </div>
-              </div>
-              <div className="mt-3 text-xs text-gray-500 font-mono bg-gray-50 p-2 rounded">
-                Formula: Spend_Actual / (Budget x (Days_Elapsed / Days_Total)) = {selectedProject.burnRate.toFixed(3)}
-              </div>
+          <div>
+            <div className="text-xs text-neutral-500 mb-2">Critical System Dependencies</div>
+            <div className="text-3xl font-bold text-neutral-900">
+              {systems.filter(s => s.systemType === "MISSION_CRITICAL").length}
             </div>
-
-            {/* Compliance Overview */}
-            <div>
-              <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3 flex items-center gap-2">
-                <Shield className="w-4 h-4" />
-                Compliance Overview
-              </h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-                  <div className="text-xs text-gray-500">Compliance Score</div>
-                  <div className={`text-xl font-semibold ${compScore < 0.6 ? "text-red-600" : compScore < 0.75 ? "text-amber-600" : "text-emerald-600"}`}>
-                    {formatPercent(compScore)}
-                  </div>
-                </div>
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-                  <div className="text-xs text-gray-500">NIST RMF Score</div>
-                  <div className="text-xl font-semibold text-gray-900">{formatPercent(selectedProject.nistRmfScore)}</div>
-                </div>
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-                  <div className="text-xs text-gray-500">Compliance Flags</div>
-                  <div className={`text-xl font-semibold ${selectedProject.complianceFlags > 3 ? "text-red-600" : "text-gray-900"}`}>
-                    {selectedProject.complianceFlags}
-                  </div>
-                </div>
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-                  <div className="text-xs text-gray-500">Audit Findings</div>
-                  <div className={`text-xl font-semibold ${selectedProject.auditFindings > 2 ? "text-red-600" : "text-gray-900"}`}>
-                    {selectedProject.auditFindings}
-                  </div>
-                </div>
-              </div>
-              <div className="mt-3 h-2 bg-gray-100 rounded-full overflow-hidden">
-                <div
-                  className={`h-full transition-all rounded-full ${compScore < 0.6 ? "bg-red-500" : compScore < 0.75 ? "bg-amber-500" : "bg-emerald-500"}`}
-                  style={{ width: `${compScore * 100}%` }}
-                />
-              </div>
-              <div className="mt-2 text-xs text-gray-500">
-                Stage: {selectedProject.complianceStage} / Next Audit: {selectedProject.nextAuditDue}
-              </div>
-            </div>
-
-            {/* Timeline */}
-            <div>
-              <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3 flex items-center gap-2">
-                <Clock className="w-4 h-4" />
-                Timeline
-              </h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-                  <div className="text-xs text-gray-500">Days Elapsed</div>
-                  <div className="text-xl font-semibold text-gray-900">{Math.floor(selectedProject.daysElapsed)}</div>
-                </div>
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-                  <div className="text-xs text-gray-500">Days Remaining</div>
-                  <div className={`text-xl font-semibold ${selectedProject.daysRemaining < 30 ? "text-red-600" : "text-gray-900"}`}>
-                    {selectedProject.daysRemaining}
-                  </div>
-                </div>
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-                  <div className="text-xs text-gray-500">Time Used</div>
-                  <div className="text-xl font-semibold text-gray-900">{selectedProject.percentTimeUsed.toFixed(1)}%</div>
-                </div>
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-                  <div className="text-xs text-gray-500">Lifecycle Phase</div>
-                  <div className="text-lg font-medium text-gray-900">{selectedProject.lifecyclePhase}</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Risk & Alerts */}
-            <div>
-              <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3 flex items-center gap-2">
-                <AlertTriangle className="w-4 h-4" />
-                Risk & Alerts
-              </h3>
-              <div className="flex flex-wrap gap-2 mb-3">
-                <div className={`px-3 py-1.5 rounded-full text-sm font-medium ${riskColorMap[selectedProject.riskLevel]}`}>
-                  {selectedProject.riskLevel} Risk
-                </div>
-                <div className={`px-3 py-1.5 rounded-full text-sm font-medium ${
-                  selectedProject.slaRiskLevel === "High" ? "bg-red-50 text-red-700 border border-red-200" :
-                  selectedProject.slaRiskLevel === "Medium" ? "bg-amber-50 text-amber-700 border border-amber-200" :
-                  "bg-gray-100 text-gray-600 border border-gray-200"
-                }`}>
-                  SLA: {selectedProject.slaRiskLevel}
-                </div>
-                {selectedProject.escalationStatus && (
-                  <div className="px-3 py-1.5 rounded-full text-sm font-medium bg-red-50 text-red-700 border border-red-200 flex items-center gap-1">
-                    <Zap className="w-3 h-3" />
-                    Escalated
-                  </div>
-                )}
-              </div>
-              {selectedProject.riskTags.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  {selectedProject.riskTags.map(tag => (
-                    <span key={tag} className="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded border border-gray-200">{tag}</span>
-                  ))}
-                </div>
-              )}
-              <div className="mt-3 text-xs text-gray-500 font-mono bg-gray-50 p-2 rounded">
-                Priority Score: {(calculatePriorityScore(selectedProject.riskLevel, compScore, selectedProject.burnRate) * 100).toFixed(0)} = (RiskLevel x 0.4) + (ComplianceBreach x 0.3) + (BudgetVariance x 0.3)
-              </div>
-            </div>
-
-            {/* Audit History */}
-            <div>
-              <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3 flex items-center gap-2">
-                <FileCheck className="w-4 h-4" />
-                Audit History
-              </h3>
-              <div className="space-y-2">
-                {selectedProject.auditHistory.map((event, i) => (
-                  <div key={i} className="flex items-center gap-3 p-3 bg-gray-50 border border-gray-200 rounded-lg">
-                    {event.severity === "critical" ? <XCircle className="w-4 h-4 text-red-500" /> :
-                     event.severity === "warning" ? <AlertCircle className="w-4 h-4 text-amber-500" /> :
-                     <CheckCircle2 className="w-4 h-4 text-emerald-500" />}
-                    <span className="text-xs text-gray-400 font-mono">{event.date}</span>
-                    <span className="text-sm text-gray-700">{event.event}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Actions */}
-            <div className="flex gap-3 pt-4 border-t border-gray-200">
-              <button
-                onClick={handleSync}
-                disabled={isSyncing}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50 font-medium"
-              >
-                <RefreshCw className={`w-4 h-4 ${isSyncing ? "animate-spin" : ""}`} />
-                {isSyncing ? "Syncing..." : "Sync to Database"}
-              </button>
-              <button className="flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg transition-colors font-medium">
-                <Flag className="w-4 h-4" />
-                Flag for Audit
-              </button>
-              <button className="flex items-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors font-medium">
-                <ArrowUpRight className="w-4 h-4" />
-                Escalate
-              </button>
-            </div>
+            <div className="text-xs text-neutral-500 mt-2">Mission-critical nodes</div>
+          </div>
+          <div>
+            <div className="text-xs text-neutral-500 mb-2">Network Segmentation Score</div>
+            <div className="text-3xl font-bold text-neutral-900">78.4%</div>
+            <div className="text-xs text-neutral-500 mt-2">Isolation effectiveness</div>
           </div>
         </div>
       </div>
-    )
-  }
+    </div>
+  );
 
-  // ═══════════════════════════════════════════════════════════════════════════════
-  // CENTRAL HUB NAVIGATION
-  // ═══════════════════════════════════════════════════════════════════════════════
+  const renderSupplyChainView = () => (
+    <div className="flex-1 p-6 overflow-auto bg-neutral-50">
+      <div className="mb-6">
+        <div className="text-lg font-bold text-neutral-900">Supply Chain Security Analysis</div>
+        <div className="text-sm text-neutral-500">Third-party risk modeling and vendor trust scoring</div>
+      </div>
 
-  const renderCentralHub = () => {
-    const categories = {
-      operations: { label: "Operations", color: "blue" },
-      compliance: { label: "Compliance & Audit", color: "emerald" },
-      analytics: { label: "Analytics & Intelligence", color: "purple" },
-      management: { label: "Management", color: "amber" },
-    }
-
-    const getCategoryModules = (category: string) => 
-      navigationModules.filter(m => m.category === category)
-
-    return (
-      <div className="min-h-[calc(100vh-180px)] flex flex-col items-center justify-center p-8">
-        {/* Central Hub Diagram */}
-        <div className="relative w-full max-w-5xl">
-          {/* Center Hub */}
-          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
-            <div className="w-40 h-40 bg-gradient-to-br from-blue-600 to-blue-800 rounded-full flex flex-col items-center justify-center shadow-xl border-4 border-white">
-              <Database className="w-10 h-10 text-white mb-1" />
-              <span className="text-white font-semibold text-sm">Data</span>
-              <span className="text-white/80 text-xs">Warehouse</span>
-            </div>
+      <div className="grid grid-cols-4 gap-4 mb-6">
+        <div className="p-4 bg-white rounded-lg border-2 border-neutral-200">
+          <div className="text-xs text-neutral-500">Supply Chain Risk Index</div>
+          <div className={`text-2xl font-bold ${supplyChainRisk > 50 ? "text-red-600" : supplyChainRisk > 30 ? "text-amber-600" : "text-emerald-700"}`}>
+            {supplyChainRisk.toFixed(1)}
           </div>
-
-          {/* Connection Lines SVG */}
-          <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 800 600">
-            {/* Lines from center to each quadrant */}
-            <line x1="400" y1="300" x2="150" y2="120" stroke="#CBD5E1" strokeWidth="2" strokeDasharray="4 4" />
-            <line x1="400" y1="300" x2="650" y2="120" stroke="#CBD5E1" strokeWidth="2" strokeDasharray="4 4" />
-            <line x1="400" y1="300" x2="150" y2="480" stroke="#CBD5E1" strokeWidth="2" strokeDasharray="4 4" />
-            <line x1="400" y1="300" x2="650" y2="480" stroke="#CBD5E1" strokeWidth="2" strokeDasharray="4 4" />
-          </svg>
-
-          {/* Operations - Top Left */}
-          <div className="absolute top-0 left-0 w-[45%]">
-            <div className="bg-white border-4 border-rose-300 rounded-2xl overflow-hidden">
-              <div className="bg-rose-200 px-5 py-4 flex items-center gap-2 mb-0">
-                <div className="w-8 h-8 bg-rose-600 rounded-lg flex items-center justify-center">
-                  <Briefcase className="w-4 h-4 text-white" />
-                </div>
-                <h3 className="font-bold text-gray-900">Operations</h3>
-              </div>
-              <div className="p-5">
-              <div className="space-y-2">
-                {getCategoryModules("operations").map(mod => {
-                  const Icon = mod.icon
-                  return (
-                    <button
-                      key={mod.id}
-                      onClick={() => setActiveView(mod.id)}
-                      className="w-full flex items-center gap-3 p-3 bg-white rounded-xl border border-blue-100 hover:border-blue-400 hover:shadow-md transition-all group"
-                    >
-                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors ${
-                        mod.status === "critical" ? "bg-red-100 text-red-600" :
-                        mod.status === "warning" ? "bg-amber-100 text-amber-600" :
-                        "bg-blue-100 text-blue-600 group-hover:bg-blue-600 group-hover:text-white"
-                      }`}>
-                        <Icon className="w-5 h-5" />
-                      </div>
-                      <div className="flex-1 text-left">
-                        <div className="font-medium text-gray-800 text-sm">{mod.label}</div>
-                        <div className="text-xs text-gray-500">{mod.description}</div>
-                      </div>
-                      {mod.alertCount > 0 && (
-                        <div className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
-                          mod.status === "critical" ? "bg-red-500 text-white" :
-                          mod.status === "warning" ? "bg-amber-500 text-white" :
-                          "bg-gray-200 text-gray-600"
-                        }`}>
-                          {mod.alertCount}
-                        </div>
-                      )}
-                      <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-blue-600 transition-colors" />
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
-            </div>
+        </div>
+        <div className="p-4 bg-white rounded-lg border-2 border-neutral-200">
+          <div className="text-xs text-neutral-500">Active Contractors</div>
+          <div className="text-2xl font-bold text-neutral-900">{contractors.length}</div>
+        </div>
+        <div className="p-4 bg-white rounded-lg border-2 border-neutral-200">
+          <div className="text-xs text-neutral-500">Critical Dependencies</div>
+          <div className="text-2xl font-bold text-amber-600">{contractors.reduce((a, b) => a + b.criticalDependencies, 0)}</div>
+        </div>
+        <div className="p-4 bg-white rounded-lg border-2 border-neutral-200">
+          <div className="text-xs text-neutral-500">Avg Trust Score</div>
+          <div className="text-2xl font-bold text-neutral-900">
+            {(contractors.reduce((a, b) => a + b.trustScore, 0) / contractors.length).toFixed(1)}
           </div>
-
-          {/* Analytics - Top Right */}
-          <div className="absolute top-0 right-0 w-[45%]">
-            <div className="bg-white border-4 border-rose-300 rounded-2xl overflow-hidden">
-              <div className="bg-rose-200 px-5 py-4 flex items-center gap-2 mb-0">
-                <div className="w-8 h-8 bg-rose-600 rounded-lg flex items-center justify-center">
-                  <BarChart3 className="w-4 h-4 text-white" />
-                </div>
-                <h3 className="font-bold text-gray-900">Analytics & Intelligence</h3>
-              </div>
-              <div className="p-5">
-              <div className="space-y-2">
-                {getCategoryModules("analytics").map(mod => {
-                  const Icon = mod.icon
-                  return (
-                    <button
-                      key={mod.id}
-                      onClick={() => setActiveView(mod.id)}
-                      className="w-full flex items-center gap-3 p-3 bg-white rounded-xl border border-purple-100 hover:border-purple-400 hover:shadow-md transition-all group"
-                    >
-                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors ${
-                        mod.status === "critical" ? "bg-red-100 text-red-600" :
-                        mod.status === "warning" ? "bg-amber-100 text-amber-600" :
-                        "bg-purple-100 text-purple-600 group-hover:bg-purple-600 group-hover:text-white"
-                      }`}>
-                        <Icon className="w-5 h-5" />
-                      </div>
-                      <div className="flex-1 text-left">
-                        <div className="font-medium text-gray-800 text-sm">{mod.label}</div>
-                        <div className="text-xs text-gray-500">{mod.description}</div>
-                      </div>
-                      {mod.alertCount > 0 && (
-                        <div className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
-                          mod.status === "critical" ? "bg-red-500 text-white" :
-                          mod.status === "warning" ? "bg-amber-500 text-white" :
-                          "bg-gray-200 text-gray-600"
-                        }`}>
-                          {mod.alertCount}
-                        </div>
-                      )}
-                      <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-purple-600 transition-colors" />
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
-            </div>
-          </div>
-
-          {/* Compliance - Bottom Left */}
-          <div className="absolute bottom-0 left-0 w-[45%]">
-            <div className="bg-white border-4 border-rose-300 rounded-2xl overflow-hidden">
-              <div className="bg-rose-200 px-5 py-4 flex items-center gap-2 mb-0">
-                <div className="w-8 h-8 bg-rose-600 rounded-lg flex items-center justify-center">
-                  <Shield className="w-4 h-4 text-white" />
-                </div>
-                <h3 className="font-bold text-gray-900">Compliance & Audit</h3>
-              </div>
-              <div className="p-5">
-              <div className="space-y-2">
-                {getCategoryModules("compliance").map(mod => {
-                  const Icon = mod.icon
-                  return (
-                    <button
-                      key={mod.id}
-                      onClick={() => setActiveView(mod.id)}
-                      className="w-full flex items-center gap-3 p-3 bg-white rounded-xl border border-emerald-100 hover:border-emerald-400 hover:shadow-md transition-all group"
-                    >
-                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors ${
-                        mod.status === "critical" ? "bg-red-100 text-red-600" :
-                        mod.status === "warning" ? "bg-amber-100 text-amber-600" :
-                        "bg-emerald-100 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white"
-                      }`}>
-                        <Icon className="w-5 h-5" />
-                      </div>
-                      <div className="flex-1 text-left">
-                        <div className="font-medium text-gray-800 text-sm">{mod.label}</div>
-                        <div className="text-xs text-gray-500">{mod.description}</div>
-                      </div>
-                      {mod.alertCount > 0 && (
-                        <div className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
-                          mod.status === "critical" ? "bg-red-500 text-white" :
-                          mod.status === "warning" ? "bg-amber-500 text-white" :
-                          "bg-gray-200 text-gray-600"
-                        }`}>
-                          {mod.alertCount}
-                        </div>
-                      )}
-                      <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-emerald-600 transition-colors" />
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
-            </div>
-          </div>
-
-          {/* Management - Bottom Right */}
-          <div className="absolute bottom-0 right-0 w-[45%]">
-            <div className="bg-white border-4 border-rose-300 rounded-2xl overflow-hidden">
-              <div className="bg-rose-200 px-5 py-4 flex items-center gap-2 mb-0">
-                <div className="w-8 h-8 bg-rose-600 rounded-lg flex items-center justify-center">
-                  <Building2 className="w-4 h-4 text-white" />
-                </div>
-                <h3 className="font-bold text-gray-900">Management</h3>
-              </div>
-              <div className="p-5">
-              <div className="space-y-2">
-                {getCategoryModules("management").map(mod => {
-                  const Icon = mod.icon
-                  return (
-                    <button
-                      key={mod.id}
-                      onClick={() => setActiveView(mod.id)}
-                      className="w-full flex items-center gap-3 p-3 bg-white rounded-xl border border-amber-100 hover:border-amber-400 hover:shadow-md transition-all group"
-                    >
-                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors ${
-                        mod.status === "critical" ? "bg-red-100 text-red-600" :
-                        mod.status === "warning" ? "bg-amber-100 text-amber-600" :
-                        "bg-amber-100 text-amber-600 group-hover:bg-amber-600 group-hover:text-white"
-                      }`}>
-                        <Icon className="w-5 h-5" />
-                      </div>
-                      <div className="flex-1 text-left">
-                        <div className="font-medium text-gray-800 text-sm">{mod.label}</div>
-                        <div className="text-xs text-gray-500">{mod.description}</div>
-                      </div>
-                      {mod.alertCount > 0 && (
-                        <div className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
-                          mod.status === "critical" ? "bg-red-500 text-white" :
-                          mod.status === "warning" ? "bg-amber-500 text-white" :
-                          "bg-gray-200 text-gray-600"
-                        }`}>
-                          {mod.alertCount}
-                        </div>
-                      )}
-                      <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-amber-600 transition-colors" />
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
-            </div>
-          </div>
-
-          {/* Spacer for layout */}
-          <div className="h-[600px]" />
         </div>
       </div>
-    )
-  }
 
-  // ═══════════════════════════════════════════════════════════════════════════════
-  // MAIN RENDER
-  // ═══════════════════════════════════════════════════════════════════════════════
+      <div className="grid grid-cols-2 gap-4">
+        {contractors.map((cont) => (
+          <div key={cont.id} className={`p-4 rounded-lg border-2 bg-white ${
+            cont.trustScore < 60 ? "border-red-300" :
+            cont.trustScore < 75 ? "border-amber-300" :
+            "border-neutral-200"
+          }`}>
+            <div className="flex items-center justify-between mb-3">
+              <div className="text-sm font-semibold text-neutral-900">{cont.name}</div>
+              <span className={`px-2 py-1 rounded text-xs font-semibold border ${
+                cont.trustScore > 80 ? "bg-emerald-100 text-emerald-800 border-emerald-200" :
+                cont.trustScore > 60 ? "bg-amber-100 text-amber-800 border-amber-200" :
+                "bg-red-100 text-red-800 border-red-200"
+              }`}>Trust: {cont.trustScore.toFixed(0)}</span>
+            </div>
+            <div className="grid grid-cols-4 gap-4 text-xs">
+              <div>
+                <div className="text-neutral-500">Systems</div>
+                <div className="text-neutral-900 font-mono font-semibold">{cont.systemsManaged}</div>
+              </div>
+              <div>
+                <div className="text-neutral-500">Dependencies</div>
+                <div className="text-neutral-900 font-mono font-semibold">{cont.criticalDependencies}</div>
+              </div>
+              <div>
+                <div className="text-neutral-500">Compliance</div>
+                <div className={`font-mono font-semibold ${cont.complianceScore > 80 ? "text-emerald-700" : "text-amber-700"}`}>{cont.complianceScore.toFixed(0)}%</div>
+              </div>
+              <div>
+                <div className="text-neutral-500">Incidents</div>
+                <div className={`font-mono font-semibold ${cont.incidentHistory > 2 ? "text-red-600" : "text-neutral-900"}`}>{cont.incidentHistory}</div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 
-  return (
-    <>
-    <div className="min-h-screen bg-gray-50">
-      {/* Top Header Bar */}
-      <header className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-40">
-        <div className="px-6 py-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-6">
+  const renderAuditReportsView = () => (
+    <div className="flex-1 p-6 overflow-auto bg-neutral-50">
+      <div className="mb-6">
+        <div className="text-lg font-bold text-neutral-900">Compliance Reporting Engine</div>
+        <div className="text-sm text-neutral-500">NIST RMF, FISMA, and FedRAMP report generation</div>
+      </div>
+
+      <div className="grid grid-cols-3 gap-6">
+        <div className="col-span-2 space-y-4">
+          {[
+            { name: "NIST RMF Authorization Package", type: "RMF", status: "READY", systems: 12 },
+            { name: "FISMA Compliance Summary", type: "FISMA", status: "READY", systems: 15 },
+            { name: "FedRAMP Continuous Monitoring", type: "FEDRAMP", status: "GENERATING", systems: 8 },
+            { name: "POA&M Status Report", type: "POAM", status: "READY", systems: 15 },
+            { name: "Quarterly Security Assessment", type: "QSA", status: "READY", systems: 15 },
+          ].map((report, idx) => (
+            <div key={idx} className="p-4 bg-white rounded-lg border-2 border-neutral-200 flex items-center justify-between">
+              <div>
+                <div className="text-sm font-semibold text-neutral-900">{report.name}</div>
+                <div className="text-xs text-neutral-500 mt-1">
+                  <span className="font-mono text-neutral-700 font-semibold">{report.type}</span> | {report.systems} systems included
+                </div>
+              </div>
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-                  <Database className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <div className="font-semibold text-gray-900 tracking-tight">SENTINEL</div>
-                  <div className="text-xs text-gray-500">Federal Grant Compliance & Data Warehouse</div>
-                </div>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-8">
-              {/* Quick Stats */}
-              <div className="flex items-center gap-6 text-sm">
-                <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
-                  <span className="text-gray-500">Critical:</span>
-                  <span className="font-semibold text-red-600">{criticalProjects}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 bg-amber-500 rounded-full" />
-                  <span className="text-gray-500">At Risk:</span>
-                  <span className="font-semibold text-amber-600">{atRiskProjects}</span>
-                </div>
-                <div className="h-6 w-px bg-gray-200" />
-                <div className="flex items-center gap-2">
-                  <span className="text-gray-500">Budget:</span>
-                  <span className="font-semibold text-gray-800">{formatCurrency(totalBudget)}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-gray-500">Compliance:</span>
-                  <span className={`font-semibold ${avgCompliance < 0.7 ? "text-red-600" : avgCompliance < 0.85 ? "text-amber-600" : "text-emerald-600"}`}>
-                    {formatPercent(avgCompliance)}
-                  </span>
-                </div>
-              </div>
-
-              <div className="h-6 w-px bg-gray-200" />
-
-              {/* System Status */}
-              <div className="flex items-center gap-4 text-sm">
-                <div className="flex items-center gap-2 text-gray-500">
-                  <Activity className="w-4 h-4 text-emerald-500" />
-                  <span>Operational</span>
-                </div>
-                <div className="text-gray-400">
-                  Sync: {lastSync.toLocaleTimeString()}
-                </div>
-                <div className="font-mono text-gray-600 bg-gray-100 px-2 py-1 rounded">
-                  {systemTime.toLocaleTimeString()} EST
-                </div>
-                <button
-                  onClick={handleSync}
-                  disabled={isSyncing}
-                  className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg transition-colors disabled:opacity-50"
-                >
-                  <RefreshCw className={`w-4 h-4 ${isSyncing ? "animate-spin" : ""}`} />
-                  {isSyncing ? "Syncing" : "Sync"}
+                <span className={`px-2 py-1 rounded text-xs font-semibold border ${
+                  report.status === "READY" ? "bg-emerald-100 text-emerald-800 border-emerald-200" : "bg-neutral-100 text-neutral-700 border-neutral-200"
+                }`}>{report.status}</span>
+                <button className="px-4 py-2 bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-semibold rounded transition-colors">
+                  Generate
                 </button>
               </div>
             </div>
+          ))}
+        </div>
+
+        <div className="space-y-4">
+          <div className="p-4 bg-white rounded-lg border-2 border-neutral-200">
+            <div className="text-xs text-neutral-500">Total Open Findings</div>
+            <div className="text-2xl font-bold text-amber-600">{systems.reduce((a, b) => a + b.openFindings, 0)}</div>
+          </div>
+          <div className="p-4 bg-white rounded-lg border-2 border-neutral-200">
+            <div className="text-xs text-neutral-500">POA&M Items</div>
+            <div className="text-2xl font-bold text-neutral-900">{systems.reduce((a, b) => a + b.poamItems, 0)}</div>
+          </div>
+          <div className="p-4 bg-white rounded-lg border-2 border-neutral-200">
+            <div className="text-xs text-neutral-500">Audit Pass Probability</div>
+            <div className={`text-2xl font-bold ${avgControlEffectiveness > 75 ? "text-emerald-700" : "text-amber-700"}`}>
+              {Math.min(95, avgControlEffectiveness + 15).toFixed(0)}%
+            </div>
+          </div>
+          <div className="p-4 bg-white rounded-lg border-2 border-neutral-200">
+            <div className="text-xs text-neutral-500">Documentation Completeness</div>
+            <div className="text-2xl font-bold text-neutral-900">82.4%</div>
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-8">
+        <div className="text-sm font-semibold text-neutral-700 uppercase tracking-wide mb-4">Critical Vulnerabilities</div>
+        <div className="bg-white rounded-lg border-2 border-neutral-200 overflow-hidden">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b-2 border-neutral-200 bg-neutral-50">
+                <th className="text-left p-4 text-neutral-700 font-semibold">CVE</th>
+                <th className="text-left p-4 text-neutral-700 font-semibold">System</th>
+                <th className="text-left p-4 text-neutral-700 font-semibold">Severity</th>
+                <th className="text-left p-4 text-neutral-700 font-semibold">Days Open</th>
+                <th className="text-left p-4 text-neutral-700 font-semibold">Exploit Prob.</th>
+              </tr>
+            </thead>
+            <tbody>
+              {vulnerabilities.filter(v => v.severity === "CRITICAL" || v.severity === "HIGH").slice(0, 8).map((vuln) => (
+                <tr key={vuln.id} className="border-b border-neutral-100 hover:bg-neutral-50">
+                  <td className="p-4 font-mono text-neutral-900">{vuln.cve}</td>
+                  <td className="p-4 text-neutral-700">{vuln.system}</td>
+                  <td className="p-4">
+                    <span className={`px-2 py-1 rounded text-xs font-semibold border ${
+                      vuln.severity === "CRITICAL" ? "bg-red-100 text-red-800 border-red-200" : "bg-orange-100 text-orange-800 border-orange-200"
+                    }`}>{vuln.severity}</span>
+                  </td>
+                  <td className={`p-4 font-mono ${vuln.daysOpen > 60 ? "text-red-600 font-semibold" : "text-neutral-700"}`}>{vuln.daysOpen}</td>
+                  <td className="p-4 font-mono text-neutral-700">{vuln.exploitProbability.toFixed(1)}%</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+
+  // ============================================================================
+  // MAIN RENDER
+  // ============================================================================
+
+  return (
+    <>
+    <div className="min-h-screen bg-white text-neutral-900 flex flex-col">
+      {/* Top Header */}
+      <header className="h-14 border-b-2 border-neutral-200 bg-white flex items-center justify-between px-6 shrink-0">
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-neutral-900 rounded flex items-center justify-center">
+              <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+            </div>
+            <div>
+              <div className="text-sm font-bold text-neutral-900">NIST CYBER OPS</div>
+              <div className="text-xs text-neutral-500">Federal Cybersecurity Audit & Continuity Simulator</div>
+            </div>
+          </div>
+        </div>
+        <div className="flex items-center gap-6 text-sm">
+          <div className="flex items-center gap-2">
+            <span className="text-neutral-500">Tick:</span>
+            <span className="font-mono font-semibold text-neutral-900">{simulationTick}</span>
+          </div>
+          <div className={`px-3 py-1.5 rounded font-semibold text-xs border ${getThreatColor(threatLevel)}`}>
+            FPCON: {threatLevel}
+          </div>
+          <div className="text-neutral-700 font-mono">
+            {currentTime.toLocaleTimeString()} EST
           </div>
         </div>
       </header>
 
-      {/* Main Content */}
-      <main>
-        {activeView === null ? (
-          renderCentralHub()
-        ) : (
-          <div className="p-6">
-            {/* Breadcrumb / Back Button */}
-            <div className="mb-6 flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <button
-                  onClick={() => setActiveView(null)}
-                  className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-gray-300 transition-all text-gray-700 font-medium shadow-sm"
-                >
-                  <ArrowLeft className="w-4 h-4" />
-                  Back to Hub
-                </button>
-                <div className="h-6 w-px bg-gray-200" />
-                <h1 className="text-xl font-semibold text-gray-900">
-                  {navigationModules.find(n => n.id === activeView)?.label || "Dashboard"}
-                </h1>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-gray-500">
-                <Calendar className="w-4 h-4" />
-                {new Date().toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
-              </div>
+      {/* Navigation Tabs */}
+      <nav className="h-12 border-b border-neutral-200 bg-neutral-50 flex items-center px-6 gap-2 shrink-0">
+        {[
+          { id: "OPERATIONS", label: "Operations Center" },
+          { id: "RMF_LIFECYCLE", label: "RMF Lifecycle" },
+          { id: "INCIDENT_RESPONSE", label: "Incident Response" },
+          { id: "COOP_SIMULATION", label: "COOP Simulation" },
+          { id: "SUPPLY_CHAIN", label: "Supply Chain" },
+          { id: "AUDIT_REPORTS", label: "Audit Reports" },
+        ].map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setViewMode(tab.id as ViewMode)}
+            className={`px-4 py-2 text-sm font-medium rounded transition-all ${
+              viewMode === tab.id
+                ? "bg-neutral-900 text-white"
+                : "text-neutral-600 hover:text-neutral-900 hover:bg-neutral-200"
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </nav>
+
+      {/* System Health Bar */}
+      <div className="h-16 border-b border-neutral-200 bg-white flex items-center justify-between px-6 shrink-0">
+        <div className="flex items-center gap-10">
+          <div>
+            <div className="text-xs text-neutral-500 uppercase tracking-wide">Systems</div>
+            <div className="text-xl font-bold text-neutral-900">{totalSystems}</div>
+          </div>
+          <div>
+            <div className="text-xs text-neutral-500 uppercase tracking-wide">Critical Vulns</div>
+            <div className="text-xl font-bold text-red-600">{criticalVulns}</div>
+          </div>
+          <div>
+            <div className="text-xs text-neutral-500 uppercase tracking-wide">High Risk</div>
+            <div className="text-xl font-bold text-orange-600">{highRiskSystems}</div>
+          </div>
+          <div>
+            <div className="text-xs text-neutral-500 uppercase tracking-wide">Avg Control Eff.</div>
+            <div className={`text-xl font-bold ${avgControlEffectiveness > 70 ? "text-emerald-700" : "text-amber-700"}`}>
+              {avgControlEffectiveness.toFixed(1)}%
             </div>
-
-            {/* View Content */}
-            {activeView === "projects" && renderProjectsView()}
-            {activeView === "alerts" && renderAlertsView()}
-            {activeView === "analytics" && renderAnalyticsView()}
-            {activeView === "compliance" && renderComplianceView()}
-            {activeView === "programs" && renderProgramsView()}
-            {activeView === "contractors" && renderContractorsView()}
-            {activeView === "audit" && renderAuditView()}
-          </div>
-        )}
-      </main>
-
-      {/* Detail Panel Modal */}
-      {renderDetailPanel()}
-
-      {/* Footer */}
-      <footer className="bg-white border-t border-gray-200 px-6 py-3 mt-auto">
-        <div className="flex items-center justify-between text-xs text-gray-500">
-          <div className="flex items-center gap-4">
-            <span className="font-medium text-gray-700">SENTINEL v2.4.1</span>
-            <span className="text-gray-300">|</span>
-            <span>NIST 800-53 Rev. 5 Compliant</span>
-            <span className="text-gray-300">|</span>
-            <span>FedRAMP Authorized</span>
-          </div>
-          <div className="flex items-center gap-4">
-            <span>Classification: UNCLASSIFIED // FOUO</span>
-            <span className="text-gray-300">|</span>
-            <span className="text-emerald-600 font-medium">Session Active</span>
           </div>
         </div>
-      </footer>
+        <div className="flex items-center gap-10">
+          <div>
+            <div className="text-xs text-neutral-500 uppercase tracking-wide">Active Incidents</div>
+            <div className={`text-xl font-bold ${activeIncidents > 0 ? "text-red-600" : "text-emerald-700"}`}>{activeIncidents}</div>
+          </div>
+          <div>
+            <div className="text-xs text-neutral-500 uppercase tracking-wide">Supply Chain Risk</div>
+            <div className={`text-xl font-bold ${supplyChainRisk > 40 ? "text-amber-600" : "text-emerald-700"}`}>{supplyChainRisk.toFixed(1)}</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <main className="flex-1 flex overflow-hidden">
+        {viewMode === "OPERATIONS" && renderOperationsView()}
+        {viewMode === "RMF_LIFECYCLE" && renderRMFLifecycleView()}
+        {viewMode === "INCIDENT_RESPONSE" && renderIncidentResponseView()}
+        {viewMode === "COOP_SIMULATION" && renderCOOPView()}
+        {viewMode === "SUPPLY_CHAIN" && renderSupplyChainView()}
+        {viewMode === "AUDIT_REPORTS" && renderAuditReportsView()}
+      </main>
     </div>
 
     {/* ─── PROJECT FOOTER ────────────────────────────────────── */}
@@ -1471,15 +1196,15 @@ export default function SentinelDashboard() {
         <strong style={{ color: "#1a1a14", fontSize: 13 }}>Lancelot Napier-Kane</strong>
       </p>
       <p style={{ margin: "0 0 4px 0" }}>
-        <strong style={{ color: "#1a1a14" }}>Stack:</strong> React (TSX), Python (FastAPI, Pandas, SQLAlchemy), PostgreSQL (federal grant schema, contractor records, audit logs), Redis (real-time alert caching), AWS GovCloud (S3, Lambda, RDS), NIST 800-53 Rev. 5 controls mapping engine, FedRAMP authorization boundary tooling, Azure Government (backup compliance store), Elasticsearch (audit event indexing), dbt (compliance metric transforms), Tableau Government (embedded compliance dashboards)
+        <strong style={{ color: "#1a1a14" }}>Stack:</strong> React (TSX), Python (FastAPI, Pandas, SQLAlchemy), PostgreSQL (FISMA system registry, POAM tracking, ATO status schema, contractor records), Redis (live threat event caching), AWS GovCloud (S3 artifact storage, Lambda control drift triggers, RDS audit logs), NIST 800-53 Rev. 5 controls mapping engine, FedRAMP authorization boundary tooling, Elasticsearch (security event indexing, CVE feed integration), CISA Known Exploited Vulnerabilities (KEV) catalog feed, Tenable.io API schema (vulnerability density modeling), dbt (control effectiveness transforms), Splunk SIEM schema (security event normalization)
       </p>
       <p style={{ margin: "0 0 4px 0" }}>
-        <strong style={{ color: "#1a1a14" }}>Methods:</strong> NIST RMF scoring model applied per federal contractor project (Identify → Protect → Detect → Respond → Recover control families weighted by program risk tier); compliance score formula: (NIST RMF × 0.60) + (40% base) − (flags × 0.05) − (audit findings × 0.08); SLA breach prediction using trailing 90-day burn rate and flag velocity signals; contractor risk segmentation (Red/Orange/Yellow/Green) using multi-factor logistic regression across budget, compliance, and delivery metrics; audit queue triage using finding severity × recency weighting; all project records, compliance scores, audit histories, and contractor metrics are simulated based on federal grant compliance program documentation and NIST 800-53 Rev. 5 control frameworks
+        <strong style={{ color: "#1a1a14" }}>Methods:</strong> Per-system RMF lifecycle tracking across all seven phases (Prepare → Categorize → Select → Implement → Assess → Authorize → Monitor); ATO adjudication scoring using residual risk × control effectiveness × threat exposure composite; FISMA control family implementation scoring across 20 control families (AC, AT, AU, CA, CM, CP, IA, IR, MA, MP, PE, PL, PM, PS, PT, RA, SA, SC, SI, SR); vulnerability prioritization using CVSS × exploitability × days-open decay model; COOP scenario simulation with recovery time objective (RTO/RPO) modeling; supply chain risk scoring via contractor trust score × critical dependency count; incident response phase tracking (Detection → Analysis → Containment → Eradication → Recovery → Post-Incident); all system records, vulnerability data, contractor scores, incident timelines, and COOP scenarios are simulated based on NIST SP 800-53 Rev. 5, FISMA 2014, and FedRAMP documentation
       </p>
       <p style={{ margin: 0 }}>
-        <strong style={{ color: "#1a1a14" }}>Sources:</strong> NIST SP 800-53 Rev. 5 control catalog; OMB Circular A-123 federal grant management requirements; Federal Acquisition Regulation (FAR) contractor compliance standards; GSA FedRAMP authorization framework; USAID and HHS federal grant program compliance benchmarks; SAM.gov contractor registry schema; award and compliance data simulated from publicly available federal program documentation
+        <strong style={{ color: "#1a1a14" }}>Sources:</strong> NIST SP 800-53 Rev. 5 security control catalog; NIST SP 800-37 Rev. 2 RMF guidance; FISMA 2014 federal information security requirements; CISA Known Exploited Vulnerabilities (KEV) catalog; FedRAMP authorization framework and System Security Plan (SSP) template; OMB Circular A-130 information management policy; NIST SP 800-34 COOP planning guidance; DoD CMMC 2.0 supply chain risk assessment framework; system records, threat events, and compliance metrics simulated based on publicly available NIST, FISMA, and FedRAMP documentation
       </p>
     </div>
-  </>
-  )
+    </>
+  );
 }

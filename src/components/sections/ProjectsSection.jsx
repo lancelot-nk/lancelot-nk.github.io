@@ -21,8 +21,8 @@ const LazyMASIP            = lazy(() => import('../../projects/MASIPDashboard'))
 const LazyPeerReport       = lazy(() => import('../../projects/PeerReportSimulation'));
 const LazyNYCEventsAnnual  = lazy(() => import('../../projects/NYCEventsAnnualReport'));
 const LazyFedGrant         = lazy(() => import('../../projects/FedGrantAndDataWarehouse'));
-const LazyARCGIS           = lazy(() => import('../../projects/ARCGIScaseviewer'));
-const LazyNISTAudit        = lazy(() => import('../../projects/NISTcyberAudit'));
+const LazyARCGIS           = lazy(() => import('../../projects/REALARCGISWA'));
+const LazyNISTAudit        = lazy(() => import('../../projects/REALNIST'));
 const LazyOilTrainReport   = lazy(() => import('../../projects/OilTrainInteractiveReport'));
 const LazyNEPAReview       = lazy(() => import('../../projects/NEPALiteratureReview'));
 
@@ -41,8 +41,16 @@ import img11 from '../../assets/project_finops.jpg';
 import img12 from '../../assets/project_homeless_services.jpg';
 import img13 from '../../assets/project_lytx_csm.jpg';
 import img14 from '../../assets/project_kingman_rfp.jpg';
-import img15 from '../../assets/project_mock_hra.jpg';
-import img16 from '../../assets/project_finops.jpg';
+import img15 from '../../assets/project_hra_fraud.jpg';
+import img16 from '../../assets/project_budget.jpg';
+import imgNIST from '../../assets/project_nist_cyber.jpg';
+import imgARCGIS from '../../assets/project_arcgis_wa.jpg';
+import imgFedGrant from '../../assets/project_federal_grant.jpg';
+import imgMASIP from '../../assets/project_masip.jpg';
+import imgCompliance from '../../assets/project_compliance.jpg';
+import imgFunnel from '../../assets/project_events_funnel.jpg';
+import imgNEPA from '../../assets/project_nepa.jpg';
+import imgRail from '../../assets/project_rail.jpg';
 
 // ── Brand Colors ─────────────────────────────────────────────────────────────
 const PINK   = '#B8004E';
@@ -72,22 +80,22 @@ export const PROJECTS = [
     img: img11,
   },
   {
-    title: 'ArcGIS Mapped Client Data Report Tool',
-    desc: 'ArcGIS-integrated federal client case data management system — spatial risk mapping, grant portfolio tracking, NIST RMF compliance scoring, contractor performance analytics, burn rate forecasting, and audit queue management across multi-agency federal programs.',
-    tech: ['React', 'TypeScript', 'ArcGIS', 'Federal Grants', 'PostGIS', 'NIST 800-53', 'FedRAMP', 'Spatial Analytics'],
+    title: 'ArcGIS WA Human Services Mapping Tool',
+    desc: 'Washington State geospatial human services operational platform — ArcGIS county-level client case mapping, housing stability scoring, outreach coverage modeling, program performance analytics, equity metrics, service saturation indices, and policy impact simulation for homelessness response.',
+    tech: ['React', 'TypeScript', 'ArcGIS', 'GeoPandas', 'PostGIS', 'Washington State', 'DSHS', 'Human Services', 'Spatial Analytics'],
     link: '/arcgis_case_viewer.jsx',
     type: 'jsx',
     component: LazyARCGIS,
-    img: img11,
+    img: imgARCGIS,
   },
   {
-    title: 'NIST Cyber Compliance Audit Dashboard',
-    desc: 'Federal contractor compliance monitoring system — NIST 800-53 RMF scoring, audit queue management, SLA breach prediction, contractor risk segmentation, burn rate analytics, and multi-agency program compliance tracking across FedRAMP-authorized infrastructure.',
-    tech: ['React', 'TypeScript', 'NIST 800-53', 'FedRAMP', 'PostgreSQL', 'AWS GovCloud', 'Federal Compliance', 'Risk Management'],
+    title: 'NIST Cybersecurity Audit & Continuity Simulator',
+    desc: 'Federal-grade NIST cybersecurity operations environment — FISMA system monitoring, RMF lifecycle management, ATO authorization pipeline, CVE vulnerability tracking, COOP scenario simulation, supply chain risk assessment, and incident response phase tracking across federal enclaves.',
+    tech: ['React', 'TypeScript', 'NIST 800-53', 'FISMA', 'FedRAMP', 'RMF', 'COOP', 'Incident Response', 'Cybersecurity'],
     link: '/nist_cyber_audit.jsx',
     type: 'jsx',
     component: LazyNISTAudit,
-    img: img11,
+    img: imgNIST,
   },
   {
     title: 'Homeless Services Case Management',
@@ -105,7 +113,7 @@ export const PROJECTS = [
     link: '/fed_grant_data_warehouse.jsx',
     type: 'jsx',
     component: LazyFedGrant,
-    img: img11,
+    img: imgFedGrant,
   },
   {
     title: 'HRA Sovereign Integrity Engine',
@@ -141,7 +149,7 @@ export const PROJECTS = [
     link: '/events_conversion.jsx',
     type: 'jsx',
     component: LazyEventsConversion,
-    img: img9,
+    img: imgFunnel,
   },
   {
     title: 'NYC Events FY2024 Annual Report',
@@ -159,7 +167,7 @@ export const PROJECTS = [
     link: '/masip_dashboard.jsx',
     type: 'jsx',
     component: LazyMASIP,
-    img: img11,
+    img: imgMASIP,
   },
   {
     title: 'Peer Reporting & Compliance System (PRICAS)',
@@ -168,7 +176,7 @@ export const PROJECTS = [
     link: '/peer_report_simulation.jsx',
     type: 'jsx',
     component: LazyPeerReport,
-    img: img11,
+    img: imgCompliance,
   },
   {
     title: 'DC Oil Train Environmental Risk',
@@ -204,7 +212,7 @@ export const PROJECTS = [
     link: '/oil_train_interactive_report.jsx',
     type: 'jsx',
     component: LazyOilTrainReport,
-    img: img13,
+    img: imgRail,
   },
   {
     title: 'NEPA Urban Transport Literature Review',
@@ -213,7 +221,7 @@ export const PROJECTS = [
     link: '/nepa_literature_review.jsx',
     type: 'jsx',
     component: LazyNEPAReview,
-    img: img13,
+    img: imgNEPA,
   },
   {
     title: 'Kingman Island Green Infrastructure RFP',

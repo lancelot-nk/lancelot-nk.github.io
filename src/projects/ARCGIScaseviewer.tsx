@@ -1,1451 +1,1337 @@
-"use client"
+import { useState, useEffect, useCallback, useMemo } from "react"
 
-import { useState, useEffect, useCallback } from "react"
-import {
-  AlertTriangle,
-  Shield,
-  DollarSign,
-  Clock,
-  Building2,
-  Users,
-  FileCheck,
-  TrendingUp,
-  Activity,
-  ChevronRight,
-  X,
-  RefreshCw,
-  Flag,
-  ArrowUpRight,
-  CheckCircle2,
-  XCircle,
-  AlertCircle,
-  Database,
-  Layers,
-  BarChart3,
-  FileWarning,
-  Briefcase,
-  Calendar,
-  Target,
-  Zap,
-  ArrowLeft,
-  ChevronDown,
-} from "lucide-react"
+// ============================================================================
+// ARCGIS MAPPED CLIENT DATA REPORT TOOL (WASHINGTON STATE)
+// Comprehensive Life Resources — Program & Data Manager Simulation
+// A unified geospatial operational reality layer for human services delivery
+// ============================================================================
 
-// ═══════════════════════════════════════════════════════════════════════════════
 // TYPE DEFINITIONS
-// ═══════════════════════════════════════════════════════════════════════════════
+// ============================================================================
 
-interface AuditEvent {
-  date: string
-  event: string
-  severity: "info" | "warning" | "critical"
+type HousingStatus = "unsheltered" | "emergency_shelter" | "transitional" | "permanent_supportive" | "housed"
+type CaseEventType = "intake" | "outreach_contact" | "shelter_placement" | "housing_referral" | "follow_up" | "exit"
+type RiskLevel = "critical" | "high" | "moderate" | "low" | "stable"
+type DepthLayer = 1 | 2 | 3 | 4
+
+interface GeoPoint {
+  lat: number
+  lng: number
+  name: string
+  county: string
 }
 
-interface Project {
+interface ClientEntity {
   id: string
-  name: string
-  agency: string
-  program: string
-  contractor: string
-  subcontractors: string[]
-  fundingSource: string
-  awardType: string
-  congressionalDistrict: string
-  totalBudget: number
-  obligatedAmount: number
-  actualSpend: number
-  remainingBudget: number
-  burnRate: number
-  monthlySpendRate: number
-  forecastedTotalSpend: number
-  fundingReallocationFlag: boolean
-  costOverrunIndicator: boolean
-  financialEfficiencyScore: number
-  startDate: string
-  endDate: string
-  daysElapsed: number
-  daysRemaining: number
-  percentTimeUsed: number
-  lifecyclePhase: "Awarded" | "Obligating" | "Executing" | "Closing" | "Closed"
-  nistRmfScore: number
-  complianceFlags: number
-  complianceStage: "Initial Review" | "Mid Compliance Check" | "Final Audit"
-  auditFindings: number
-  lastAuditDate: string
-  nextAuditDue: string
-  reportingCadence: "Monthly" | "Quarterly"
-  lastReportSubmitted: string
-  missingReportsIndicator: boolean
-  riskLevel: "Red" | "Orange" | "Yellow" | "Green"
-  riskTags: string[]
-  slaRemaining: number
-  slaRiskLevel: "High" | "Medium" | "Low"
-  incidentCount: number
-  escalationStatus: boolean
-  priorityScore: number
-  programManager: string
-  complianceOfficer: string
-  lastUpdated: string
-  auditHistory: AuditEvent[]
+  housingStatus: HousingStatus
+  location: GeoPoint
+  serviceZone: string
+  mobilityRadius: number
+  intakeDate: string
+  caseManagerId: string
+  programEnrollments: string[]
+  housingStabilityScore: number
+  serviceRetentionRate: number
+  reengagementProbability: number
+  lastContact: string
+  riskLevel: RiskLevel
+  serviceHistory: CaseEvent[]
+}
+
+interface CaseEvent {
+  id: string
+  clientId: string
+  type: CaseEventType
+  timestamp: string
+  location: GeoPoint
+  workerId: string
+  outcome: string
   notes: string
 }
 
-interface ContractorMetrics {
-  name: string
-  activeProjects: number
-  avgComplianceScore: number
-  incidentRate: number
-  riskRating: "Low" | "Medium" | "High"
-  totalBudgetManaged: number
-  deliveryEfficiency: number
-}
-
-interface ProgramMetrics {
-  name: string
-  projectCount: number
-  totalBudget: number
-  totalSpend: number
-  avgCompliance: number
-  riskDistribution: { red: number; orange: number; yellow: number; green: number }
-}
-
-interface NavigationModule {
+interface ProgramEntity {
   id: string
-  label: string
-  icon: React.ElementType
-  description: string
-  category: "operations" | "compliance" | "analytics" | "management"
-  alertCount: number
-  status: "healthy" | "warning" | "critical"
+  name: string
+  type: string
+  agency: string
+  fundingSource: string
+  capacity: number
+  activeCaseload: number
+  completionRate: number
+  avgTimeToStability: number
+  coverageArea: string[]
+  equityScore: number
+  costPerOutcome: number
+  utilizationRate: number
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// SIMULATION DATA GENERATOR
-// ═══════════════════════════════════════════════════════════════════════════════
+interface CountyData {
+  name: string
+  code: string
+  center: { x: number; y: number }
+  population: number
+  clientCount: number
+  shelterCapacity: number
+  shelterOccupancy: number
+  outreachCoverage: number
+  housingStabilityIndex: number
+  serviceSaturationIndex: number
+  dataReportingIntegrity: number
+  riskLevel: RiskLevel
+  programs: string[]
+}
 
-const AGENCIES = ["DOT", "HUD", "EPA", "DHS", "DOE", "HHS", "DOD", "VA"]
-const PROGRAMS = ["Infrastructure", "Climate Resilience", "Cybersecurity", "Public Health", "Housing", "Veterans Services", "Emergency Response", "Transportation"]
-const CONTRACTORS = ["Accenture Federal", "Deloitte GPS", "Booz Allen Hamilton", "Leidos", "SAIC", "Northrop Grumman", "General Dynamics IT", "Lockheed Martin"]
-const FUNDING_SOURCES = ["IIJA", "ARPA", "General Fund", "Emergency Allocation", "Supplemental Appropriation"]
-const AWARD_TYPES = ["Grant", "Cooperative Agreement", "Contract", "IDIQ Task Order"]
-const RISK_TAGS = ["Procurement Delay", "Vendor Risk", "Staffing Gap", "Regulatory Delay", "Funding Gap", "Scope Creep", "Technical Debt"]
-const PROGRAM_MANAGERS = ["J. Morrison", "K. Patel", "R. Chen", "M. Williams", "S. Johnson", "A. Garcia", "T. Nguyen", "L. Davis"]
-const COMPLIANCE_OFFICERS = ["D. Thompson", "E. Martinez", "F. Robinson", "G. Anderson", "H. Taylor", "I. Brown", "C. Wilson", "B. Moore"]
+interface SystemMetrics {
+  totalActiveClients: number
+  housedRatio: number
+  systemThroughput: number
+  caseBacklog: number
+  avgDaysToHousing: number
+  outreachContactsToday: number
+  shelterOccupancyRate: number
+  grantUtilization: number
+  dataCompletenessScore: number
+  complianceRiskScore: number
+}
 
-function generateProject(index: number): Project {
-  const totalBudget = Math.floor(Math.random() * 45000000) + 5000000
-  const percentComplete = Math.random() * 0.85 + 0.1
-  const actualSpend = Math.floor(totalBudget * percentComplete * (0.7 + Math.random() * 0.5))
-  const obligatedAmount = Math.floor(totalBudget * (0.6 + Math.random() * 0.4))
-  const totalDays = Math.floor(Math.random() * 720) + 180
-  const daysElapsed = Math.floor(totalDays * percentComplete)
-  const daysRemaining = totalDays - daysElapsed
-  const timeRatio = daysElapsed / totalDays
-  const spendRatio = actualSpend / totalBudget
-  const burnRate = timeRatio > 0 ? spendRatio / timeRatio : 0
-  const nistScore = Math.random() * 0.4 + 0.55
-  const complianceFlags = Math.floor(Math.random() * 8)
-  const auditFindings = Math.floor(Math.random() * 5)
+// WASHINGTON STATE GEOGRAPHIC DATA
+// ============================================================================
 
-  let riskLevel: "Red" | "Orange" | "Yellow" | "Green" = "Green"
-  if (burnRate > 1.3 || nistScore < 0.6 || complianceFlags > 5) riskLevel = "Red"
-  else if (burnRate > 1.1 || nistScore < 0.7 || complianceFlags > 3) riskLevel = "Orange"
-  else if (burnRate > 0.95 || nistScore < 0.8 || complianceFlags > 1) riskLevel = "Yellow"
+const WA_COUNTIES: CountyData[] = [
+  { name: "King", code: "KC", center: { x: 72, y: 38 }, population: 2269675, clientCount: 12847, shelterCapacity: 4200, shelterOccupancy: 3892, outreachCoverage: 0.87, housingStabilityIndex: 0.72, serviceSaturationIndex: 0.91, dataReportingIntegrity: 0.94, riskLevel: "high", programs: ["FHARP-KC", "DESC", "REACH"] },
+  { name: "Pierce", code: "PC", center: { x: 68, y: 48 }, population: 921130, clientCount: 5234, shelterCapacity: 1800, shelterOccupancy: 1687, outreachCoverage: 0.79, housingStabilityIndex: 0.68, serviceSaturationIndex: 0.82, dataReportingIntegrity: 0.91, riskLevel: "high", programs: ["FHARP-PC", "CLR", "PCHS"] },
+  { name: "Snohomish", code: "SC", center: { x: 74, y: 28 }, population: 827957, clientCount: 3421, shelterCapacity: 1200, shelterOccupancy: 1089, outreachCoverage: 0.74, housingStabilityIndex: 0.71, serviceSaturationIndex: 0.76, dataReportingIntegrity: 0.89, riskLevel: "moderate", programs: ["FHARP-SN", "YWCA", "VOA"] },
+  { name: "Spokane", code: "SP", center: { x: 92, y: 22 }, population: 539339, clientCount: 2876, shelterCapacity: 950, shelterOccupancy: 891, outreachCoverage: 0.71, housingStabilityIndex: 0.69, serviceSaturationIndex: 0.78, dataReportingIntegrity: 0.87, riskLevel: "moderate", programs: ["FHARP-SP", "VOL", "SNAP"] },
+  { name: "Clark", code: "CL", center: { x: 58, y: 82 }, population: 503311, clientCount: 1923, shelterCapacity: 680, shelterOccupancy: 612, outreachCoverage: 0.68, housingStabilityIndex: 0.73, serviceSaturationIndex: 0.71, dataReportingIntegrity: 0.92, riskLevel: "moderate", programs: ["FHARP-CL", "SHARE"] },
+  { name: "Thurston", code: "TH", center: { x: 62, y: 54 }, population: 294793, clientCount: 1456, shelterCapacity: 520, shelterOccupancy: 478, outreachCoverage: 0.76, housingStabilityIndex: 0.74, serviceSaturationIndex: 0.73, dataReportingIntegrity: 0.93, riskLevel: "low", programs: ["FHARP-TH", "IHN"] },
+  { name: "Kitsap", code: "KT", center: { x: 56, y: 38 }, population: 275611, clientCount: 1234, shelterCapacity: 420, shelterOccupancy: 387, outreachCoverage: 0.72, housingStabilityIndex: 0.76, serviceSaturationIndex: 0.69, dataReportingIntegrity: 0.88, riskLevel: "low", programs: ["FHARP-KT", "KRM"] },
+  { name: "Yakima", code: "YK", center: { x: 78, y: 52 }, population: 256035, clientCount: 1678, shelterCapacity: 380, shelterOccupancy: 362, outreachCoverage: 0.58, housingStabilityIndex: 0.61, serviceSaturationIndex: 0.84, dataReportingIntegrity: 0.79, riskLevel: "high", programs: ["FHARP-YK", "OIC"] },
+  { name: "Whatcom", code: "WH", center: { x: 68, y: 8 }, population: 229247, clientCount: 987, shelterCapacity: 340, shelterOccupancy: 298, outreachCoverage: 0.69, housingStabilityIndex: 0.77, serviceSaturationIndex: 0.67, dataReportingIntegrity: 0.91, riskLevel: "low", programs: ["FHARP-WH", "OC"] },
+  { name: "Benton", code: "BN", center: { x: 88, y: 56 }, population: 208100, clientCount: 834, shelterCapacity: 280, shelterOccupancy: 241, outreachCoverage: 0.63, housingStabilityIndex: 0.72, serviceSaturationIndex: 0.64, dataReportingIntegrity: 0.86, riskLevel: "low", programs: ["FHARP-BN"] },
+  { name: "Skagit", code: "SK", center: { x: 70, y: 18 }, population: 129205, clientCount: 623, shelterCapacity: 220, shelterOccupancy: 198, outreachCoverage: 0.65, housingStabilityIndex: 0.74, serviceSaturationIndex: 0.68, dataReportingIntegrity: 0.84, riskLevel: "low", programs: ["FHARP-SK"] },
+  { name: "Cowlitz", code: "CW", center: { x: 54, y: 72 }, population: 110593, clientCount: 712, shelterCapacity: 180, shelterOccupancy: 171, outreachCoverage: 0.54, housingStabilityIndex: 0.59, serviceSaturationIndex: 0.79, dataReportingIntegrity: 0.81, riskLevel: "moderate", programs: ["FHARP-CW"] },
+  { name: "Grant", code: "GR", center: { x: 82, y: 38 }, population: 99123, clientCount: 445, shelterCapacity: 120, shelterOccupancy: 108, outreachCoverage: 0.48, housingStabilityIndex: 0.63, serviceSaturationIndex: 0.71, dataReportingIntegrity: 0.77, riskLevel: "moderate", programs: ["FHARP-GR"] },
+  { name: "Lewis", code: "LW", center: { x: 60, y: 62 }, population: 82149, clientCount: 398, shelterCapacity: 95, shelterOccupancy: 87, outreachCoverage: 0.51, housingStabilityIndex: 0.66, serviceSaturationIndex: 0.72, dataReportingIntegrity: 0.79, riskLevel: "moderate", programs: [] },
+  { name: "Chelan", code: "CH", center: { x: 76, y: 28 }, population: 80435, clientCount: 312, shelterCapacity: 85, shelterOccupancy: 72, outreachCoverage: 0.46, housingStabilityIndex: 0.71, serviceSaturationIndex: 0.62, dataReportingIntegrity: 0.82, riskLevel: "low", programs: [] },
+  { name: "Grays Harbor", code: "GH", center: { x: 42, y: 50 }, population: 75061, clientCount: 534, shelterCapacity: 110, shelterOccupancy: 104, outreachCoverage: 0.43, housingStabilityIndex: 0.54, serviceSaturationIndex: 0.86, dataReportingIntegrity: 0.74, riskLevel: "critical", programs: ["FHARP-GH"] },
+  { name: "Mason", code: "MS", center: { x: 50, y: 48 }, population: 66768, clientCount: 387, shelterCapacity: 80, shelterOccupancy: 76, outreachCoverage: 0.49, housingStabilityIndex: 0.58, serviceSaturationIndex: 0.81, dataReportingIntegrity: 0.76, riskLevel: "moderate", programs: [] },
+  { name: "Walla Walla", code: "WW", center: { x: 94, y: 52 }, population: 62584, clientCount: 267, shelterCapacity: 70, shelterOccupancy: 58, outreachCoverage: 0.52, housingStabilityIndex: 0.73, serviceSaturationIndex: 0.59, dataReportingIntegrity: 0.85, riskLevel: "low", programs: [] },
+  { name: "Franklin", code: "FR", center: { x: 90, y: 52 }, population: 96749, clientCount: 423, shelterCapacity: 90, shelterOccupancy: 82, outreachCoverage: 0.47, housingStabilityIndex: 0.64, serviceSaturationIndex: 0.74, dataReportingIntegrity: 0.78, riskLevel: "moderate", programs: [] },
+  { name: "Clallam", code: "CA", center: { x: 38, y: 26 }, population: 77331, clientCount: 389, shelterCapacity: 95, shelterOccupancy: 88, outreachCoverage: 0.44, housingStabilityIndex: 0.61, serviceSaturationIndex: 0.78, dataReportingIntegrity: 0.73, riskLevel: "moderate", programs: [] },
+]
 
-  const priorityScore = (riskLevel === "Red" ? 0.4 : riskLevel === "Orange" ? 0.3 : riskLevel === "Yellow" ? 0.2 : 0.1) +
-    (complianceFlags > 3 ? 0.3 : complianceFlags > 1 ? 0.2 : 0.1) +
-    (burnRate > 1.1 ? 0.3 : burnRate < 0.8 ? 0.2 : 0.1)
+const WA_CITIES: GeoPoint[] = [
+  { lat: 47.6062, lng: -122.3321, name: "Seattle", county: "King" },
+  { lat: 47.2529, lng: -122.4443, name: "Tacoma", county: "Pierce" },
+  { lat: 47.6588, lng: -117.4260, name: "Spokane", county: "Spokane" },
+  { lat: 45.6387, lng: -122.6615, name: "Vancouver", county: "Clark" },
+  { lat: 47.0379, lng: -122.9007, name: "Olympia", county: "Thurston" },
+  { lat: 47.9790, lng: -122.2021, name: "Everett", county: "Snohomish" },
+  { lat: 48.7519, lng: -122.4787, name: "Bellingham", county: "Whatcom" },
+  { lat: 46.6021, lng: -120.5059, name: "Yakima", county: "Yakima" },
+]
 
-  return {
-    id: `PRJ-${2024}-${String(index + 1).padStart(4, "0")}`,
-    name: `${PROGRAMS[index % PROGRAMS.length]} Initiative ${Math.floor(index / PROGRAMS.length) + 1}`,
-    agency: AGENCIES[index % AGENCIES.length],
-    program: PROGRAMS[index % PROGRAMS.length],
-    contractor: CONTRACTORS[index % CONTRACTORS.length],
-    subcontractors: Math.random() > 0.5 ? [CONTRACTORS[(index + 3) % CONTRACTORS.length]] : [],
-    fundingSource: FUNDING_SOURCES[index % FUNDING_SOURCES.length],
-    awardType: AWARD_TYPES[index % AWARD_TYPES.length],
-    congressionalDistrict: `DC-${Math.floor(Math.random() * 8) + 1}`,
-    totalBudget,
-    obligatedAmount,
-    actualSpend,
-    remainingBudget: totalBudget - actualSpend,
-    burnRate,
-    monthlySpendRate: actualSpend / Math.max(daysElapsed / 30, 1),
-    forecastedTotalSpend: Math.floor(actualSpend / Math.max(percentComplete, 0.1)),
-    fundingReallocationFlag: Math.random() > 0.85,
-    costOverrunIndicator: burnRate > 1.15,
-    financialEfficiencyScore: Math.min(1, Math.max(0, 1 - Math.abs(burnRate - 1) * 0.5)),
-    startDate: "2023-01-15",
-    endDate: "2025-06-30",
-    daysElapsed,
-    daysRemaining,
-    percentTimeUsed: timeRatio * 100,
-    lifecyclePhase: percentComplete < 0.15 ? "Awarded" : percentComplete < 0.3 ? "Obligating" : percentComplete < 0.85 ? "Executing" : percentComplete < 0.95 ? "Closing" : "Closed",
-    nistRmfScore: nistScore,
-    complianceFlags,
-    complianceStage: percentComplete < 0.4 ? "Initial Review" : percentComplete < 0.75 ? "Mid Compliance Check" : "Final Audit",
-    auditFindings,
-    lastAuditDate: "2024-09-15",
-    nextAuditDue: "2025-03-15",
-    reportingCadence: Math.random() > 0.5 ? "Monthly" : "Quarterly",
-    lastReportSubmitted: "2024-11-01",
-    missingReportsIndicator: Math.random() > 0.8,
-    riskLevel,
-    riskTags: RISK_TAGS.filter(() => Math.random() > 0.75).slice(0, 3),
-    slaRemaining: daysRemaining,
-    slaRiskLevel: daysRemaining < 30 ? "High" : daysRemaining < 90 ? "Medium" : "Low",
-    incidentCount: Math.floor(Math.random() * 4),
-    escalationStatus: riskLevel === "Red",
-    priorityScore,
-    programManager: PROGRAM_MANAGERS[index % PROGRAM_MANAGERS.length],
-    complianceOfficer: COMPLIANCE_OFFICERS[index % COMPLIANCE_OFFICERS.length],
-    lastUpdated: new Date().toISOString(),
-    auditHistory: [
-      { date: "2024-03-15", event: "Initial compliance review completed", severity: "info" },
-      { date: "2024-06-20", event: "Mid-cycle audit performed", severity: "info" },
-      { date: "2024-09-15", event: auditFindings > 0 ? `${auditFindings} findings identified` : "No findings", severity: auditFindings > 2 ? "critical" : auditFindings > 0 ? "warning" : "info" },
-    ],
-    notes: "Standard monitoring protocols in effect. Quarterly review scheduled.",
+// PROGRAM DATA
+// ============================================================================
+
+const PROGRAMS: ProgramEntity[] = [
+  { id: "FHARP-KC", name: "FHARP King County", type: "Wraparound", agency: "King County DCHS", fundingSource: "State/HUD", capacity: 2400, activeCaseload: 2187, completionRate: 0.67, avgTimeToStability: 142, coverageArea: ["King"], equityScore: 0.78, costPerOutcome: 18420, utilizationRate: 0.91 },
+  { id: "FHARP-PC", name: "FHARP Pierce County", type: "Wraparound", agency: "Pierce County HS", fundingSource: "State/HUD", capacity: 1200, activeCaseload: 1089, completionRate: 0.64, avgTimeToStability: 156, coverageArea: ["Pierce"], equityScore: 0.74, costPerOutcome: 19870, utilizationRate: 0.91 },
+  { id: "DESC", name: "DESC Housing First", type: "Housing First", agency: "DESC", fundingSource: "Federal/Private", capacity: 800, activeCaseload: 756, completionRate: 0.71, avgTimeToStability: 118, coverageArea: ["King"], equityScore: 0.82, costPerOutcome: 16340, utilizationRate: 0.95 },
+  { id: "CLR", name: "Comprehensive Life Resources", type: "Wraparound", agency: "CLR", fundingSource: "State/County", capacity: 650, activeCaseload: 612, completionRate: 0.69, avgTimeToStability: 134, coverageArea: ["Pierce"], equityScore: 0.81, costPerOutcome: 17250, utilizationRate: 0.94 },
+  { id: "REACH", name: "REACH Outreach", type: "Outreach", agency: "REACH", fundingSource: "City/Private", capacity: 1500, activeCaseload: 1342, completionRate: 0.58, avgTimeToStability: 187, coverageArea: ["King"], equityScore: 0.76, costPerOutcome: 12890, utilizationRate: 0.89 },
+  { id: "VOA", name: "Volunteers of America", type: "Shelter/Transitional", agency: "VOA", fundingSource: "Federal/Private", capacity: 420, activeCaseload: 398, completionRate: 0.62, avgTimeToStability: 163, coverageArea: ["Snohomish", "King"], equityScore: 0.79, costPerOutcome: 15670, utilizationRate: 0.95 },
+  { id: "SNAP", name: "SNAP Services", type: "Wraparound", agency: "SNAP", fundingSource: "State/Federal", capacity: 380, activeCaseload: 341, completionRate: 0.66, avgTimeToStability: 148, coverageArea: ["Spokane"], equityScore: 0.77, costPerOutcome: 16890, utilizationRate: 0.90 },
+  { id: "SHARE", name: "SHARE Vancouver", type: "Shelter/Outreach", agency: "SHARE", fundingSource: "City/State", capacity: 320, activeCaseload: 287, completionRate: 0.61, avgTimeToStability: 171, coverageArea: ["Clark"], equityScore: 0.73, costPerOutcome: 18120, utilizationRate: 0.90 },
+]
+
+// UTILITY FUNCTIONS
+// ============================================================================
+
+const generateClientId = () => `CL-${Math.random().toString(36).substr(2, 9).toUpperCase()}`
+const generateEventId = () => `EV-${Math.random().toString(36).substr(2, 9).toUpperCase()}`
+
+const getRandomElement = <T,>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)]
+
+const formatDate = (date: Date): string => {
+  return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+}
+
+const formatTime = (date: Date): string => {
+  return date.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", second: "2-digit" })
+}
+
+const getRiskColor = (risk: RiskLevel): string => {
+  const colors: Record<RiskLevel, string> = {
+    critical: "#dc2626",
+    high: "#ea580c",
+    moderate: "#ca8a04",
+    low: "#16a34a",
+    stable: "#0891b2"
   }
+  return colors[risk]
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// ENGINE CALCULATIONS
-// ═══════════════════════════════════════════════════════════════════════════════
-
-function calculateBurnRate(actualSpend: number, budget: number, daysElapsed: number, totalDays: number): number {
-  const timeRatio = daysElapsed / totalDays
-  if (timeRatio === 0) return 0
-  return (actualSpend / budget) / timeRatio
+const getStatusColor = (status: HousingStatus): string => {
+  const colors: Record<HousingStatus, string> = {
+    unsheltered: "#dc2626",
+    emergency_shelter: "#ea580c",
+    transitional: "#ca8a04",
+    permanent_supportive: "#0891b2",
+    housed: "#16a34a"
+  }
+  return colors[status]
 }
 
-function calculateComplianceScore(nistScore: number, flags: number, auditFindings: number): number {
-  const baseScore = nistScore * 0.6
-  const flagPenalty = flags * 0.05
-  const auditPenalty = auditFindings * 0.08
-  return Math.max(0, Math.min(1, baseScore + 0.4 - flagPenalty - auditPenalty))
+// SIMULATION ENGINES
+// ============================================================================
+
+// 1. CLIENT FLOW ENGINE
+const simulateClientFlow = (clients: ClientEntity[]): ClientEntity[] => {
+  return clients.map(client => {
+    const rand = Math.random()
+    let newStatus = client.housingStatus
+    
+    // Simulate status transitions
+    if (client.housingStatus === "unsheltered" && rand < 0.02) {
+      newStatus = "emergency_shelter"
+    } else if (client.housingStatus === "emergency_shelter" && rand < 0.015) {
+      newStatus = "transitional"
+    } else if (client.housingStatus === "transitional" && rand < 0.01) {
+      newStatus = "permanent_supportive"
+    } else if (client.housingStatus === "permanent_supportive" && rand < 0.008) {
+      newStatus = "housed"
+    } else if (rand < 0.005) {
+      // Regression
+      if (client.housingStatus === "housed") newStatus = "permanent_supportive"
+      else if (client.housingStatus === "permanent_supportive") newStatus = "transitional"
+      else if (client.housingStatus === "transitional") newStatus = "emergency_shelter"
+    }
+    
+    return {
+      ...client,
+      housingStatus: newStatus,
+      housingStabilityScore: Math.max(0, Math.min(1, client.housingStabilityScore + (Math.random() - 0.48) * 0.02)),
+      serviceRetentionRate: Math.max(0, Math.min(1, client.serviceRetentionRate + (Math.random() - 0.5) * 0.01)),
+    }
+  })
 }
 
-function calculatePriorityScore(riskLevel: string, complianceScore: number, burnRate: number): number {
-  const riskWeight = riskLevel === "Red" ? 1 : riskLevel === "Orange" ? 0.7 : riskLevel === "Yellow" ? 0.4 : 0.1
-  const complianceBreach = complianceScore < 0.7 ? 1 : complianceScore < 0.85 ? 0.5 : 0
-  const budgetVariance = Math.abs(burnRate - 1)
-  return (riskWeight * 0.4) + (complianceBreach * 0.3) + (budgetVariance * 0.3)
+// 2. SERVICE CAPACITY ENGINE
+const calculateServiceCapacity = (counties: CountyData[]): { overloaded: string[], underutilized: string[] } => {
+  const overloaded: string[] = []
+  const underutilized: string[] = []
+  
+  counties.forEach(county => {
+    const occupancyRate = county.shelterOccupancy / county.shelterCapacity
+    if (occupancyRate > 0.92) overloaded.push(county.name)
+    if (occupancyRate < 0.65) underutilized.push(county.name)
+  })
+  
+  return { overloaded, underutilized }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// FORMAT UTILITIES
-// ═══════════════════════════════════════════════════════════════════════════════
-
-function formatCurrency(value: number): string {
-  if (value >= 1000000) return `$${(value / 1000000).toFixed(1)}M`
-  if (value >= 1000) return `$${(value / 1000).toFixed(0)}K`
-  return `$${value.toFixed(0)}`
+// 3. OUTCOME PREDICTION ENGINE
+const predictOutcome = (client: ClientEntity): { successProbability: number; timeToStability: number } => {
+  const baseProb = 0.5
+  const historyBonus = client.serviceHistory.length * 0.02
+  const stabilityBonus = client.housingStabilityScore * 0.3
+  const retentionBonus = client.serviceRetentionRate * 0.2
+  
+  const successProbability = Math.min(0.95, baseProb + historyBonus + stabilityBonus + retentionBonus)
+  const timeToStability = Math.round(180 - (successProbability * 100))
+  
+  return { successProbability, timeToStability }
 }
 
-function formatPercent(value: number): string {
-  return `${(value * 100).toFixed(1)}%`
+// 4. GRANT PERFORMANCE ENGINE
+const calculateGrantPerformance = (programs: ProgramEntity[]): { totalUtilization: number; avgCostPerOutcome: number; complianceRisk: number } => {
+  const totalCapacity = programs.reduce((sum, p) => sum + p.capacity, 0)
+  const totalActive = programs.reduce((sum, p) => sum + p.activeCaseload, 0)
+  const totalUtilization = totalActive / totalCapacity
+  
+  const avgCostPerOutcome = programs.reduce((sum, p) => sum + p.costPerOutcome, 0) / programs.length
+  
+  const lowPerformers = programs.filter(p => p.completionRate < 0.6).length
+  const complianceRisk = lowPerformers / programs.length
+  
+  return { totalUtilization, avgCostPerOutcome, complianceRisk }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
+// 5. CASE MANAGER LOAD BALANCING ENGINE
+const calculateCaseloadBalance = (clients: ClientEntity[]): Map<string, number> => {
+  const loads = new Map<string, number>()
+  clients.forEach(client => {
+    const current = loads.get(client.caseManagerId) || 0
+    loads.set(client.caseManagerId, current + 1)
+  })
+  return loads
+}
+
+// 6. EQUITY & ACCESS ENGINE
+const calculateEquityMetrics = (counties: CountyData[]): { underserved: string[], oversaturated: string[] } => {
+  const underserved: string[] = []
+  const oversaturated: string[] = []
+  
+  counties.forEach(county => {
+    if (county.outreachCoverage < 0.55) underserved.push(county.name)
+    if (county.serviceSaturationIndex > 0.85) oversaturated.push(county.name)
+  })
+  
+  return { underserved, oversaturated }
+}
+
+// 7. ANOMALY DETECTION ENGINE
+const detectAnomalies = (counties: CountyData[], events: CaseEvent[]): string[] => {
+  const anomalies: string[] = []
+  
+  counties.forEach(county => {
+    if (county.dataReportingIntegrity < 0.8) {
+      anomalies.push(`Data integrity warning: ${county.name} (${(county.dataReportingIntegrity * 100).toFixed(0)}%)`)
+    }
+    if (county.shelterOccupancy / county.shelterCapacity > 0.95) {
+      anomalies.push(`Capacity critical: ${county.name} shelter at ${((county.shelterOccupancy / county.shelterCapacity) * 100).toFixed(0)}%`)
+    }
+  })
+  
+  // Check for event anomalies
+  const recentEvents = events.slice(-50)
+  const intakeCount = recentEvents.filter(e => e.type === "intake").length
+  if (intakeCount > 30) {
+    anomalies.push(`Intake surge detected: ${intakeCount} new intakes in recent window`)
+  }
+  
+  return anomalies
+}
+
+// 8. SEASONAL STRESS ENGINE
+const calculateSeasonalStress = (): { stressLevel: number; projectedPeakDays: number; recommendation: string } => {
+  const month = new Date().getMonth()
+  const winterMonths = [10, 11, 0, 1, 2] // Nov-Mar
+  const isWinter = winterMonths.includes(month)
+  
+  const baseStress = isWinter ? 0.75 : 0.45
+  const stressLevel = baseStress + Math.random() * 0.15
+  const projectedPeakDays = isWinter ? Math.floor(Math.random() * 30) + 15 : Math.floor(Math.random() * 60) + 45
+  
+  const recommendation = stressLevel > 0.7 
+    ? "Activate emergency winter protocols" 
+    : stressLevel > 0.5 
+    ? "Monitor capacity closely" 
+    : "Standard operations"
+  
+  return { stressLevel, projectedPeakDays, recommendation }
+}
+
+// GENERATE SIMULATED DATA
+// ============================================================================
+
+const generateClients = (count: number): ClientEntity[] => {
+  const statuses: HousingStatus[] = ["unsheltered", "emergency_shelter", "transitional", "permanent_supportive", "housed"]
+  const statusWeights = [0.35, 0.25, 0.2, 0.12, 0.08]
+  
+  return Array.from({ length: count }, () => {
+    const county = getRandomElement(WA_COUNTIES)
+    const rand = Math.random()
+    let cumulative = 0
+    let status: HousingStatus = "unsheltered"
+    
+    for (let i = 0; i < statusWeights.length; i++) {
+      cumulative += statusWeights[i]
+      if (rand < cumulative) {
+        status = statuses[i]
+        break
+      }
+    }
+    
+    const riskLevels: RiskLevel[] = ["critical", "high", "moderate", "low", "stable"]
+    const riskWeights = status === "unsheltered" ? [0.3, 0.35, 0.25, 0.08, 0.02] : [0.05, 0.15, 0.35, 0.3, 0.15]
+    let riskRand = Math.random()
+    let riskCumulative = 0
+    let risk: RiskLevel = "moderate"
+    
+    for (let i = 0; i < riskWeights.length; i++) {
+      riskCumulative += riskWeights[i]
+      if (riskRand < riskCumulative) {
+        risk = riskLevels[i]
+        break
+      }
+    }
+    
+    const city = WA_CITIES.find(c => c.county === county.name) || WA_CITIES[0]
+    
+    return {
+      id: generateClientId(),
+      housingStatus: status,
+      location: {
+        lat: city.lat + (Math.random() - 0.5) * 0.2,
+        lng: city.lng + (Math.random() - 0.5) * 0.3,
+        name: city.name,
+        county: county.name
+      },
+      serviceZone: county.name,
+      mobilityRadius: Math.random() * 15 + 2,
+      intakeDate: formatDate(new Date(Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000)),
+      caseManagerId: `CM-${Math.floor(Math.random() * 200) + 1}`,
+      programEnrollments: county.programs.slice(0, Math.floor(Math.random() * 2) + 1),
+      housingStabilityScore: Math.random() * 0.6 + (status === "housed" ? 0.4 : 0),
+      serviceRetentionRate: Math.random() * 0.5 + 0.3,
+      reengagementProbability: Math.random() * 0.4 + 0.2,
+      lastContact: formatDate(new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000)),
+      riskLevel: risk,
+      serviceHistory: []
+    }
+  })
+}
+
+const generateCaseEvents = (clients: ClientEntity[], count: number): CaseEvent[] => {
+  const eventTypes: CaseEventType[] = ["intake", "outreach_contact", "shelter_placement", "housing_referral", "follow_up", "exit"]
+  const outcomes = ["successful", "pending", "no_response", "declined", "completed", "in_progress"]
+  
+  return Array.from({ length: count }, () => {
+    const client = getRandomElement(clients)
+    return {
+      id: generateEventId(),
+      clientId: client.id,
+      type: getRandomElement(eventTypes),
+      timestamp: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString(),
+      location: client.location,
+      workerId: `WK-${Math.floor(Math.random() * 150) + 1}`,
+      outcome: getRandomElement(outcomes),
+      notes: ""
+    }
+  })
+}
+
 // MAIN COMPONENT
-// ═══════════════════════════════════════════════════════════════════════════════
+// ============================================================================
 
-export default function SentinelDashboard() {
-  const [projects, setProjects] = useState<Project[]>([])
-  const [activeView, setActiveView] = useState<string | null>(null)
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null)
-  const [isSyncing, setIsSyncing] = useState(false)
-  const [lastSync, setLastSync] = useState<Date>(new Date())
-  const [systemTime, setSystemTime] = useState<Date>(new Date())
+export default function ArcGISWAStateTool() {
+  const [currentTime, setCurrentTime] = useState(new Date())
+  const [depthLayer, setDepthLayer] = useState<DepthLayer>(1)
+  const [selectedCounty, setSelectedCounty] = useState<CountyData | null>(null)
+  const [selectedProgram, setSelectedProgram] = useState<ProgramEntity | null>(null)
+  const [clients, setClients] = useState<ClientEntity[]>([])
+  const [caseEvents, setCaseEvents] = useState<CaseEvent[]>([])
+  const [systemMetrics, setSystemMetrics] = useState<SystemMetrics>({
+    totalActiveClients: 0,
+    housedRatio: 0,
+    systemThroughput: 0,
+    caseBacklog: 0,
+    avgDaysToHousing: 0,
+    outreachContactsToday: 0,
+    shelterOccupancyRate: 0,
+    grantUtilization: 0,
+    dataCompletenessScore: 0,
+    complianceRiskScore: 0
+  })
+  const [activeView, setActiveView] = useState<"map" | "reports" | "forecast" | "audit">("map")
+  const [liveEventFeed, setLiveEventFeed] = useState<CaseEvent[]>([])
+  const [anomalies, setAnomalies] = useState<string[]>([])
+  const [seasonalData, setSeasonalData] = useState({ stressLevel: 0, projectedPeakDays: 0, recommendation: "" })
 
-  // Initialize projects
+  // Initialize data
   useEffect(() => {
-    const initialProjects = Array.from({ length: 24 }, (_, i) => generateProject(i))
-    setProjects(initialProjects)
+    const initialClients = generateClients(500)
+    const initialEvents = generateCaseEvents(initialClients, 200)
+    setClients(initialClients)
+    setCaseEvents(initialEvents)
+    setLiveEventFeed(initialEvents.slice(-15))
+    
+    const grantPerf = calculateGrantPerformance(PROGRAMS)
+    const totalShelterOccupancy = WA_COUNTIES.reduce((sum, c) => sum + c.shelterOccupancy, 0)
+    const totalShelterCapacity = WA_COUNTIES.reduce((sum, c) => sum + c.shelterCapacity, 0)
+    
+    setSystemMetrics({
+      totalActiveClients: initialClients.length,
+      housedRatio: initialClients.filter(c => c.housingStatus === "housed").length / initialClients.length,
+      systemThroughput: Math.floor(Math.random() * 50) + 120,
+      caseBacklog: Math.floor(Math.random() * 200) + 340,
+      avgDaysToHousing: 147,
+      outreachContactsToday: Math.floor(Math.random() * 100) + 180,
+      shelterOccupancyRate: totalShelterOccupancy / totalShelterCapacity,
+      grantUtilization: grantPerf.totalUtilization,
+      dataCompletenessScore: 0.89,
+      complianceRiskScore: grantPerf.complianceRisk
+    })
+    
+    setSeasonalData(calculateSeasonalStress())
+    setAnomalies(detectAnomalies(WA_COUNTIES, initialEvents))
   }, [])
 
-  // Real-time clock
-  useEffect(() => {
-    const interval = setInterval(() => setSystemTime(new Date()), 1000)
-    return () => clearInterval(interval)
-  }, [])
-
-  // Simulation: Data drift
+  // Live simulation loop
   useEffect(() => {
     const interval = setInterval(() => {
-      setProjects(prev => prev.map(p => ({
-        ...p,
-        actualSpend: p.actualSpend + Math.floor(Math.random() * 50000),
-        daysElapsed: Math.min(p.daysElapsed + 0.1, p.daysElapsed + p.daysRemaining),
-        nistRmfScore: Math.min(1, Math.max(0.4, p.nistRmfScore + (Math.random() - 0.5) * 0.02)),
-        burnRate: calculateBurnRate(p.actualSpend, p.totalBudget, p.daysElapsed, p.daysElapsed + p.daysRemaining),
-      })))
-    }, 8000)
-    return () => clearInterval(interval)
-  }, [])
-
-  const handleSync = useCallback(() => {
-    setIsSyncing(true)
-    setTimeout(() => {
-      setIsSyncing(false)
-      setLastSync(new Date())
-    }, 2500)
-  }, [])
-
-  // Derived metrics
-  const totalBudget = projects.reduce((sum, p) => sum + p.totalBudget, 0)
-  const totalSpend = projects.reduce((sum, p) => sum + p.actualSpend, 0)
-  const avgCompliance = projects.length > 0 ? projects.reduce((sum, p) => sum + calculateComplianceScore(p.nistRmfScore, p.complianceFlags, p.auditFindings), 0) / projects.length : 0
-  const criticalProjects = projects.filter(p => p.riskLevel === "Red").length
-  const atRiskProjects = projects.filter(p => p.riskLevel === "Orange").length
-
-  // Contractor metrics
-  const contractorMetrics: ContractorMetrics[] = CONTRACTORS.map(name => {
-    const contractorProjects = projects.filter(p => p.contractor === name)
-    return {
-      name,
-      activeProjects: contractorProjects.length,
-      avgComplianceScore: contractorProjects.length > 0 ? contractorProjects.reduce((sum, p) => sum + calculateComplianceScore(p.nistRmfScore, p.complianceFlags, p.auditFindings), 0) / contractorProjects.length : 0,
-      incidentRate: contractorProjects.length > 0 ? contractorProjects.reduce((sum, p) => sum + p.incidentCount, 0) / contractorProjects.length : 0,
-      riskRating: contractorProjects.some(p => p.riskLevel === "Red") ? "High" : contractorProjects.some(p => p.riskLevel === "Orange") ? "Medium" : "Low",
-      totalBudgetManaged: contractorProjects.reduce((sum, p) => sum + p.totalBudget, 0),
-      deliveryEfficiency: contractorProjects.length > 0 ? contractorProjects.reduce((sum, p) => sum + p.financialEfficiencyScore, 0) / contractorProjects.length : 0,
-    }
-  })
-
-  // Program metrics
-  const programMetrics: ProgramMetrics[] = PROGRAMS.map(name => {
-    const programProjects = projects.filter(p => p.program === name)
-    return {
-      name,
-      projectCount: programProjects.length,
-      totalBudget: programProjects.reduce((sum, p) => sum + p.totalBudget, 0),
-      totalSpend: programProjects.reduce((sum, p) => sum + p.actualSpend, 0),
-      avgCompliance: programProjects.length > 0 ? programProjects.reduce((sum, p) => sum + calculateComplianceScore(p.nistRmfScore, p.complianceFlags, p.auditFindings), 0) / programProjects.length : 0,
-      riskDistribution: {
-        red: programProjects.filter(p => p.riskLevel === "Red").length,
-        orange: programProjects.filter(p => p.riskLevel === "Orange").length,
-        yellow: programProjects.filter(p => p.riskLevel === "Yellow").length,
-        green: programProjects.filter(p => p.riskLevel === "Green").length,
-      },
-    }
-  })
-
-  // ═══════════════════════════════════════════════════════════════════════════════
-  // NAVIGATION MODULES CONFIGURATION
-  // ═══════════════════════════════════════════════════════════════════════════════
-
-  const navigationModules: NavigationModule[] = [
-    {
-      id: "projects",
-      label: "Project Portfolio",
-      icon: Layers,
-      description: "Active grants, contracts, and task orders",
-      category: "operations",
-      alertCount: criticalProjects,
-      status: criticalProjects > 0 ? "critical" : atRiskProjects > 0 ? "warning" : "healthy",
-    },
-    {
-      id: "alerts",
-      label: "Risk Alerts",
-      icon: AlertTriangle,
-      description: "Flagged items requiring attention",
-      category: "operations",
-      alertCount: criticalProjects + atRiskProjects,
-      status: criticalProjects > 0 ? "critical" : atRiskProjects > 0 ? "warning" : "healthy",
-    },
-    {
-      id: "analytics",
-      label: "Analytics & Insights",
-      icon: BarChart3,
-      description: "Burn rate analysis and forecasting",
-      category: "analytics",
-      alertCount: projects.filter(p => p.burnRate > 1.1).length,
-      status: projects.filter(p => p.burnRate > 1.1).length > 3 ? "warning" : "healthy",
-    },
-    {
-      id: "compliance",
-      label: "Compliance Tracker",
-      icon: Shield,
-      description: "NIST-800-53 scoring and audit status",
-      category: "compliance",
-      alertCount: projects.filter(p => p.complianceFlags > 2).length,
-      status: projects.filter(p => p.nistRmfScore < 0.6).length > 0 ? "critical" : projects.filter(p => p.complianceFlags > 2).length > 0 ? "warning" : "healthy",
-    },
-    {
-      id: "programs",
-      label: "Program Intelligence",
-      icon: Target,
-      description: "Cross-project program analytics",
-      category: "analytics",
-      alertCount: 0,
-      status: "healthy",
-    },
-    {
-      id: "contractors",
-      label: "Contractor Performance",
-      icon: Building2,
-      description: "Vendor metrics and risk ratings",
-      category: "management",
-      alertCount: contractorMetrics.filter(c => c.riskRating === "High").length,
-      status: contractorMetrics.filter(c => c.riskRating === "High").length > 0 ? "warning" : "healthy",
-    },
-    {
-      id: "audit",
-      label: "Audit Queue",
-      icon: FileCheck,
-      description: "Pending reviews and findings",
-      category: "compliance",
-      alertCount: projects.filter(p => p.auditFindings > 0).length,
-      status: projects.filter(p => p.auditFindings > 2).length > 0 ? "critical" : projects.filter(p => p.auditFindings > 0).length > 0 ? "warning" : "healthy",
-    },
-  ]
-
-  const riskColorMap = {
-    Red: "bg-red-50 border-red-200 text-red-700",
-    Orange: "bg-amber-50 border-amber-200 text-amber-700",
-    Yellow: "bg-yellow-50 border-yellow-200 text-yellow-700",
-    Green: "bg-emerald-50 border-emerald-200 text-emerald-700",
-  }
-
-  const riskDotMap = {
-    Red: "bg-red-500",
-    Orange: "bg-amber-500",
-    Yellow: "bg-yellow-500",
-    Green: "bg-emerald-500",
-  }
-
-  // ═══════════════════════════════════════════════════════════════════════════════
-  // RENDER FUNCTIONS
-  // ═══════════════════════════════════════════════════════════════════════════════
-
-  const renderProjectsView = () => (
-    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-      {projects.sort((a, b) => b.priorityScore - a.priorityScore).map(project => (
-        <div
-          key={project.id}
-          onClick={() => setSelectedProject(project)}
-          className={`p-4 border rounded-lg cursor-pointer transition-all hover:shadow-md hover:-translate-y-0.5 ${riskColorMap[project.riskLevel]}`}
-        >
-          <div className="flex items-start justify-between mb-3">
-            <div>
-              <div className="text-xs text-gray-500 font-mono">{project.id}</div>
-              <div className="font-semibold text-gray-900 mt-0.5">{project.name}</div>
-            </div>
-            <div className={`w-3 h-3 rounded-full ${riskDotMap[project.riskLevel]} animate-pulse`} />
-          </div>
-          
-          <div className="grid grid-cols-2 gap-2 text-xs mb-3">
-            <div className="text-gray-600">{project.agency} / {project.contractor}</div>
-            <div className="text-right text-gray-600">{project.program}</div>
-          </div>
-
-          <div className="grid grid-cols-4 gap-2 text-center">
-            <div className="bg-white/60 p-2 rounded border border-gray-100">
-              <div className="text-xs text-gray-500">Burn</div>
-              <div className={`font-mono text-sm ${project.burnRate > 1.1 ? "text-red-600" : project.burnRate < 0.8 ? "text-amber-600" : "text-emerald-600"}`}>
-                {(project.burnRate * 100).toFixed(0)}%
-              </div>
-            </div>
-            <div className="bg-white/60 p-2 rounded border border-gray-100">
-              <div className="text-xs text-gray-500">NIST</div>
-              <div className={`font-mono text-sm ${project.nistRmfScore < 0.7 ? "text-red-600" : project.nistRmfScore < 0.85 ? "text-amber-600" : "text-emerald-600"}`}>
-                {(project.nistRmfScore * 100).toFixed(0)}%
-              </div>
-            </div>
-            <div className="bg-white/60 p-2 rounded border border-gray-100">
-              <div className="text-xs text-gray-500">SLA</div>
-              <div className={`font-mono text-sm ${project.slaRemaining < 30 ? "text-red-600" : project.slaRemaining < 90 ? "text-amber-600" : "text-gray-700"}`}>
-                {project.slaRemaining}d
-              </div>
-            </div>
-            <div className="bg-white/60 p-2 rounded border border-gray-100">
-              <div className="text-xs text-gray-500">Flags</div>
-              <div className={`font-mono text-sm ${project.complianceFlags > 3 ? "text-red-600" : project.complianceFlags > 1 ? "text-amber-600" : "text-gray-700"}`}>
-                {project.complianceFlags}
-              </div>
-            </div>
-          </div>
-
-          {project.riskTags.length > 0 && (
-            <div className="flex flex-wrap gap-1 mt-3">
-              {project.riskTags.slice(0, 2).map(tag => (
-                <span key={tag} className="px-2 py-0.5 text-xs bg-white/80 text-gray-600 rounded border border-gray-200">{tag}</span>
-              ))}
-            </div>
-          )}
-        </div>
-      ))}
-    </div>
-  )
-
-  const renderAlertsView = () => {
-    const sortedByRisk = [...projects].sort((a, b) => {
-      const order = { Red: 0, Orange: 1, Yellow: 2, Green: 3 }
-      return order[a.riskLevel] - order[b.riskLevel]
-    })
-
-    return (
-      <div className="space-y-2">
-        {sortedByRisk.map(project => (
-          <div
-            key={project.id}
-            onClick={() => setSelectedProject(project)}
-            className={`p-4 border rounded-lg cursor-pointer flex items-center justify-between transition-all hover:shadow-sm ${riskColorMap[project.riskLevel]}`}
-          >
-            <div className="flex items-center gap-4">
-              <div className={`w-3 h-3 rounded-full ${riskDotMap[project.riskLevel]}`} />
-              <div>
-                <div className="font-medium text-gray-900">{project.name}</div>
-                <div className="text-xs text-gray-500">{project.id} / {project.agency} / {project.contractor}</div>
-              </div>
-            </div>
-            <div className="flex items-center gap-6 text-sm">
-              <div className="text-center">
-                <div className="text-xs text-gray-500">Priority</div>
-                <div className="font-mono text-gray-800">{(project.priorityScore * 100).toFixed(0)}</div>
-              </div>
-              <div className="text-center">
-                <div className="text-xs text-gray-500">SLA</div>
-                <div className={`font-mono ${project.slaRemaining < 30 ? "text-red-600" : "text-gray-800"}`}>{project.slaRemaining}d</div>
-              </div>
-              <div className="text-center">
-                <div className="text-xs text-gray-500">Burn</div>
-                <div className={`font-mono ${project.burnRate > 1.1 ? "text-red-600" : "text-gray-800"}`}>{(project.burnRate * 100).toFixed(0)}%</div>
-              </div>
-              <ChevronRight className="w-4 h-4 text-gray-400" />
-            </div>
-          </div>
-        ))}
-      </div>
-    )
-  }
-
-  const renderAnalyticsView = () => (
-    <div className="space-y-6">
-      {/* Summary Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-          <div className="flex items-center gap-2 text-gray-500 text-sm mb-2">
-            <Layers className="w-4 h-4" />
-            Total Projects
-          </div>
-          <div className="text-3xl font-semibold text-gray-900">{projects.length}</div>
-        </div>
-        <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-          <div className="flex items-center gap-2 text-gray-500 text-sm mb-2">
-            <DollarSign className="w-4 h-4" />
-            Total Budget
-          </div>
-          <div className="text-3xl font-semibold text-gray-900">{formatCurrency(totalBudget)}</div>
-        </div>
-        <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-          <div className="flex items-center gap-2 text-gray-500 text-sm mb-2">
-            <TrendingUp className="w-4 h-4" />
-            Total Spend
-          </div>
-          <div className="text-3xl font-semibold text-blue-600">{formatCurrency(totalSpend)}</div>
-        </div>
-        <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-          <div className="flex items-center gap-2 text-gray-500 text-sm mb-2">
-            <Shield className="w-4 h-4" />
-            Avg Compliance
-          </div>
-          <div className={`text-3xl font-semibold ${avgCompliance < 0.7 ? "text-red-600" : avgCompliance < 0.85 ? "text-amber-600" : "text-emerald-600"}`}>
-            {formatPercent(avgCompliance)}
-          </div>
-        </div>
-      </div>
-
-      {/* Risk Distribution */}
-      <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-        <h3 className="text-lg font-semibold text-gray-800 mb-4">Risk Distribution</h3>
-        <div className="flex items-end gap-3 h-40">
-          {[
-            { label: "Critical", count: projects.filter(p => p.riskLevel === "Red").length, color: "bg-red-500" },
-            { label: "At Risk", count: projects.filter(p => p.riskLevel === "Orange").length, color: "bg-amber-500" },
-            { label: "Monitor", count: projects.filter(p => p.riskLevel === "Yellow").length, color: "bg-yellow-500" },
-            { label: "Stable", count: projects.filter(p => p.riskLevel === "Green").length, color: "bg-emerald-500" },
-          ].map(item => (
-            <div key={item.label} className="flex-1 flex flex-col items-center gap-2">
-              <div
-                className={`w-full ${item.color} rounded-t transition-all duration-500`}
-                style={{ height: `${Math.max(8, (item.count / projects.length) * 100)}%` }}
-              />
-              <div className="text-xs text-gray-500">{item.label}</div>
-              <div className="font-mono text-gray-800 font-semibold">{item.count}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Burn Rate Analysis */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <div className="text-red-700 text-sm mb-1 font-medium">Over-Expenditure</div>
-          <div className="text-3xl font-semibold text-red-600">{projects.filter(p => p.burnRate > 1.1).length}</div>
-          <div className="text-xs text-red-500 mt-1">{"Burn Rate > 110%"}</div>
-        </div>
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
-          <div className="text-amber-700 text-sm mb-1 font-medium">Under-Utilization</div>
-          <div className="text-3xl font-semibold text-amber-600">{projects.filter(p => p.burnRate < 0.8).length}</div>
-          <div className="text-xs text-amber-500 mt-1">{"Burn Rate < 80%"}</div>
-        </div>
-        <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
-          <div className="text-emerald-700 text-sm mb-1 font-medium">On Track</div>
-          <div className="text-3xl font-semibold text-emerald-600">{projects.filter(p => p.burnRate >= 0.8 && p.burnRate <= 1.1).length}</div>
-          <div className="text-xs text-emerald-500 mt-1">{"80% <= Burn <= 110%"}</div>
-        </div>
-      </div>
-
-      {/* Forecasting */}
-      <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-        <h3 className="text-lg font-semibold text-gray-800 mb-4">Forecasted Expenditure</h3>
-        <div className="grid grid-cols-2 gap-8">
-          <div>
-            <div className="text-sm text-gray-500 mb-1">Projected Total Spend</div>
-            <div className="text-3xl font-semibold text-gray-900">{formatCurrency(projects.reduce((sum, p) => sum + p.forecastedTotalSpend, 0))}</div>
-          </div>
-          <div>
-            <div className="text-sm text-gray-500 mb-1">Budget Variance</div>
-            <div className={`text-3xl font-semibold ${projects.reduce((sum, p) => sum + p.forecastedTotalSpend, 0) > totalBudget ? "text-red-600" : "text-emerald-600"}`}>
-              {formatCurrency(Math.abs(projects.reduce((sum, p) => sum + p.forecastedTotalSpend, 0) - totalBudget))}
-              <span className="text-lg ml-2 font-normal">{projects.reduce((sum, p) => sum + p.forecastedTotalSpend, 0) > totalBudget ? "over" : "under"}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-
-  const renderComplianceView = () => (
-    <div className="space-y-4">
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-        <div className="flex items-center gap-3 mb-2">
-          <Shield className="w-5 h-5 text-blue-600" />
-          <span className="font-semibold text-blue-800">NIST-800-53 Compliance Model</span>
-        </div>
-        <div className="text-sm text-blue-700 font-mono">
-          Score = (NIST RMF x 0.60) + (40% Base) - (Flags x 0.05) - (Findings x 0.08)
-        </div>
-      </div>
-
-      {projects
-        .sort((a, b) => calculateComplianceScore(a.nistRmfScore, a.complianceFlags, a.auditFindings) - calculateComplianceScore(b.nistRmfScore, b.complianceFlags, b.auditFindings))
-        .map(project => {
-          const score = calculateComplianceScore(project.nistRmfScore, project.complianceFlags, project.auditFindings)
-          return (
-            <div
-              key={project.id}
-              onClick={() => setSelectedProject(project)}
-              className="p-4 bg-white border border-gray-200 rounded-lg cursor-pointer hover:border-blue-300 hover:shadow-sm transition-all"
-            >
-              <div className="flex items-center justify-between mb-3">
-                <div>
-                  <div className="font-medium text-gray-900">{project.name}</div>
-                  <div className="text-xs text-gray-500">{project.id} / {project.complianceStage}</div>
-                </div>
-                <div className={`text-2xl font-semibold ${score < 0.6 ? "text-red-600" : score < 0.75 ? "text-amber-600" : "text-emerald-600"}`}>
-                  {formatPercent(score)}
-                </div>
-              </div>
-              <div className="grid grid-cols-4 gap-4 text-sm">
-                <div>
-                  <div className="text-xs text-gray-500">NIST RMF</div>
-                  <div className="font-mono text-gray-700">{formatPercent(project.nistRmfScore)}</div>
-                </div>
-                <div>
-                  <div className="text-xs text-gray-500">Flags</div>
-                  <div className={`font-mono ${project.complianceFlags > 3 ? "text-red-600" : "text-gray-700"}`}>{project.complianceFlags}</div>
-                </div>
-                <div>
-                  <div className="text-xs text-gray-500">Audit Findings</div>
-                  <div className={`font-mono ${project.auditFindings > 2 ? "text-red-600" : "text-gray-700"}`}>{project.auditFindings}</div>
-                </div>
-                <div>
-                  <div className="text-xs text-gray-500">Next Audit</div>
-                  <div className="font-mono text-gray-700">{project.nextAuditDue}</div>
-                </div>
-              </div>
-              <div className="mt-3 h-2 bg-gray-100 rounded-full overflow-hidden">
-                <div
-                  className={`h-full transition-all duration-500 rounded-full ${score < 0.6 ? "bg-red-500" : score < 0.75 ? "bg-amber-500" : "bg-emerald-500"}`}
-                  style={{ width: `${score * 100}%` }}
-                />
-              </div>
-            </div>
-          )
-        })}
-    </div>
-  )
-
-  const renderProgramsView = () => (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      {programMetrics.map(program => (
-        <div key={program.name} className="bg-white border border-gray-200 rounded-lg p-5 shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                <Target className="w-5 h-5 text-blue-600" />
-              </div>
-              <span className="font-semibold text-gray-800">{program.name}</span>
-            </div>
-            <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">{program.projectCount} projects</span>
-          </div>
-          
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            <div>
-              <div className="text-xs text-gray-500">Total Budget</div>
-              <div className="font-semibold text-lg text-gray-900">{formatCurrency(program.totalBudget)}</div>
-            </div>
-            <div>
-              <div className="text-xs text-gray-500">Total Spend</div>
-              <div className="font-semibold text-lg text-blue-600">{formatCurrency(program.totalSpend)}</div>
-            </div>
-          </div>
-
-          <div className="mb-4">
-            <div className="text-xs text-gray-500 mb-1">Avg Compliance</div>
-            <div className="flex items-center gap-2">
-              <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
-                <div
-                  className={`h-full rounded-full ${program.avgCompliance < 0.6 ? "bg-red-500" : program.avgCompliance < 0.75 ? "bg-amber-500" : "bg-emerald-500"}`}
-                  style={{ width: `${program.avgCompliance * 100}%` }}
-                />
-              </div>
-              <span className="font-mono text-sm text-gray-700">{formatPercent(program.avgCompliance)}</span>
-            </div>
-          </div>
-
-          <div>
-            <div className="text-xs text-gray-500 mb-2">Risk Distribution</div>
-            <div className="flex gap-2">
-              {program.riskDistribution.red > 0 && (
-                <div className="flex items-center gap-1 px-2 py-1 bg-red-50 rounded text-xs text-red-600 border border-red-200">
-                  <span className="w-2 h-2 bg-red-500 rounded-full" />
-                  {program.riskDistribution.red}
-                </div>
-              )}
-              {program.riskDistribution.orange > 0 && (
-                <div className="flex items-center gap-1 px-2 py-1 bg-amber-50 rounded text-xs text-amber-600 border border-amber-200">
-                  <span className="w-2 h-2 bg-amber-500 rounded-full" />
-                  {program.riskDistribution.orange}
-                </div>
-              )}
-              {program.riskDistribution.yellow > 0 && (
-                <div className="flex items-center gap-1 px-2 py-1 bg-yellow-50 rounded text-xs text-yellow-600 border border-yellow-200">
-                  <span className="w-2 h-2 bg-yellow-500 rounded-full" />
-                  {program.riskDistribution.yellow}
-                </div>
-              )}
-              {program.riskDistribution.green > 0 && (
-                <div className="flex items-center gap-1 px-2 py-1 bg-emerald-50 rounded text-xs text-emerald-600 border border-emerald-200">
-                  <span className="w-2 h-2 bg-emerald-500 rounded-full" />
-                  {program.riskDistribution.green}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
-  )
-
-  const renderContractorsView = () => (
-    <div className="space-y-3">
-      {contractorMetrics.sort((a, b) => b.avgComplianceScore - a.avgComplianceScore).map(contractor => (
-        <div key={contractor.name} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                <Building2 className="w-5 h-5 text-gray-600" />
-              </div>
-              <span className="font-semibold text-gray-800">{contractor.name}</span>
-            </div>
-            <div className={`px-3 py-1 rounded-full text-xs font-medium ${
-              contractor.riskRating === "High" ? "bg-red-100 text-red-700 border border-red-200" :
-              contractor.riskRating === "Medium" ? "bg-amber-100 text-amber-700 border border-amber-200" :
-              "bg-emerald-100 text-emerald-700 border border-emerald-200"
-            }`}>
-              {contractor.riskRating} Risk
-            </div>
-          </div>
-          <div className="grid grid-cols-5 gap-4 text-sm">
-            <div>
-              <div className="text-xs text-gray-500">Active Projects</div>
-              <div className="font-semibold text-gray-800">{contractor.activeProjects}</div>
-            </div>
-            <div>
-              <div className="text-xs text-gray-500">Avg Compliance</div>
-              <div className={`font-semibold ${contractor.avgComplianceScore < 0.7 ? "text-red-600" : contractor.avgComplianceScore < 0.85 ? "text-amber-600" : "text-emerald-600"}`}>
-                {formatPercent(contractor.avgComplianceScore)}
-              </div>
-            </div>
-            <div>
-              <div className="text-xs text-gray-500">Incident Rate</div>
-              <div className={`font-semibold ${contractor.incidentRate > 1.5 ? "text-red-600" : "text-gray-800"}`}>{contractor.incidentRate.toFixed(2)}</div>
-            </div>
-            <div>
-              <div className="text-xs text-gray-500">Budget Managed</div>
-              <div className="font-semibold text-gray-800">{formatCurrency(contractor.totalBudgetManaged)}</div>
-            </div>
-            <div>
-              <div className="text-xs text-gray-500">Delivery Efficiency</div>
-              <div className={`font-semibold ${contractor.deliveryEfficiency < 0.7 ? "text-red-600" : "text-emerald-600"}`}>
-                {formatPercent(contractor.deliveryEfficiency)}
-              </div>
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
-  )
-
-  const renderAuditView = () => {
-    const auditQueue = projects.filter(p => p.auditFindings > 0 || p.complianceStage === "Final Audit")
-    return (
-      <div className="space-y-4">
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <FileCheck className="w-5 h-5 text-blue-600" />
-              <span className="font-semibold text-blue-800">Audit Queue</span>
-            </div>
-            <span className="text-sm text-blue-600 bg-blue-100 px-3 py-1 rounded-full">{auditQueue.length} items pending review</span>
-          </div>
-        </div>
-
-        {auditQueue.map(project => (
-          <div
-            key={project.id}
-            onClick={() => setSelectedProject(project)}
-            className="p-4 bg-white border border-gray-200 rounded-lg cursor-pointer hover:border-blue-300 hover:shadow-sm transition-all"
-          >
-            <div className="flex items-center justify-between mb-3">
-              <div>
-                <div className="font-medium text-gray-900">{project.name}</div>
-                <div className="text-xs text-gray-500">{project.id} / {project.agency}</div>
-              </div>
-              <div className={`px-3 py-1 rounded-full text-xs font-medium ${
-                project.auditFindings > 2 ? "bg-red-100 text-red-700 border border-red-200" :
-                project.auditFindings > 0 ? "bg-amber-100 text-amber-700 border border-amber-200" :
-                "bg-gray-100 text-gray-600 border border-gray-200"
-              }`}>
-                {project.auditFindings} findings
-              </div>
-            </div>
-            <div className="grid grid-cols-4 gap-4 text-sm">
-              <div>
-                <div className="text-xs text-gray-500">Stage</div>
-                <div className="text-gray-700">{project.complianceStage}</div>
-              </div>
-              <div>
-                <div className="text-xs text-gray-500">Last Audit</div>
-                <div className="font-mono text-gray-700">{project.lastAuditDate}</div>
-              </div>
-              <div>
-                <div className="text-xs text-gray-500">Next Due</div>
-                <div className="font-mono text-gray-700">{project.nextAuditDue}</div>
-              </div>
-              <div>
-                <div className="text-xs text-gray-500">NIST Score</div>
-                <div className={`font-mono ${project.nistRmfScore < 0.7 ? "text-red-600" : "text-emerald-600"}`}>
-                  {formatPercent(project.nistRmfScore)}
-                </div>
-              </div>
-            </div>
-            {project.auditHistory.length > 0 && (
-              <div className="mt-3 pt-3 border-t border-gray-100">
-                <div className="text-xs text-gray-500 mb-2">Recent Audit Events</div>
-                <div className="space-y-1">
-                  {project.auditHistory.slice(-2).map((event, i) => (
-                    <div key={i} className="flex items-center gap-2 text-xs">
-                      {event.severity === "critical" ? <XCircle className="w-3 h-3 text-red-500" /> :
-                       event.severity === "warning" ? <AlertCircle className="w-3 h-3 text-amber-500" /> :
-                       <CheckCircle2 className="w-3 h-3 text-emerald-500" />}
-                      <span className="text-gray-400">{event.date}</span>
-                      <span className="text-gray-600">{event.event}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
-    )
-  }
-
-  const renderDetailPanel = () => {
-    if (!selectedProject) return null
-    const compScore = calculateComplianceScore(selectedProject.nistRmfScore, selectedProject.complianceFlags, selectedProject.auditFindings)
+      setCurrentTime(new Date())
+      
+      // Simulate client flow
+      setClients(prev => simulateClientFlow(prev))
+      
+      // Generate new events occasionally
+      if (Math.random() < 0.3) {
+        const newEvent: CaseEvent = {
+          id: generateEventId(),
+          clientId: clients[Math.floor(Math.random() * clients.length)]?.id || "CL-UNKNOWN",
+          type: getRandomElement(["intake", "outreach_contact", "shelter_placement", "housing_referral", "follow_up"] as CaseEventType[]),
+          timestamp: new Date().toISOString(),
+          location: getRandomElement(WA_CITIES),
+          workerId: `WK-${Math.floor(Math.random() * 150) + 1}`,
+          outcome: getRandomElement(["successful", "pending", "in_progress"]),
+          notes: ""
+        }
+        setCaseEvents(prev => [...prev, newEvent])
+        setLiveEventFeed(prev => [newEvent, ...prev.slice(0, 14)])
+      }
+      
+      // Update metrics
+      setSystemMetrics(prev => ({
+        ...prev,
+        outreachContactsToday: prev.outreachContactsToday + (Math.random() < 0.2 ? 1 : 0),
+        systemThroughput: Math.max(80, Math.min(200, prev.systemThroughput + Math.floor((Math.random() - 0.5) * 5))),
+        caseBacklog: Math.max(200, Math.min(600, prev.caseBacklog + Math.floor((Math.random() - 0.45) * 3)))
+      }))
+      
+    }, 3000)
     
-    return (
-      <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-          {/* Header */}
-          <div className="sticky top-0 bg-white border-b border-gray-200 p-4 flex items-center justify-between rounded-t-xl">
-            <div>
-              <div className="text-xs text-gray-500 font-mono">{selectedProject.id}</div>
-              <div className="text-xl font-semibold text-gray-900">{selectedProject.name}</div>
-              <div className="text-sm text-gray-500 mt-1">
-                {selectedProject.agency} / {selectedProject.contractor} / {selectedProject.program}
-              </div>
-            </div>
-            <button onClick={() => setSelectedProject(null)} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-              <X className="w-5 h-5 text-gray-500" />
-            </button>
-          </div>
+    return () => clearInterval(interval)
+  }, [clients])
 
-          <div className="p-6 space-y-6">
-            {/* Financial Overview */}
-            <div>
-              <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3 flex items-center gap-2">
-                <DollarSign className="w-4 h-4" />
-                Financial Overview
-              </h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-                  <div className="text-xs text-gray-500">Total Budget</div>
-                  <div className="text-xl font-semibold text-gray-900">{formatCurrency(selectedProject.totalBudget)}</div>
-                </div>
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-                  <div className="text-xs text-gray-500">Actual Spend</div>
-                  <div className="text-xl font-semibold text-blue-600">{formatCurrency(selectedProject.actualSpend)}</div>
-                </div>
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-                  <div className="text-xs text-gray-500">Forecasted Total</div>
-                  <div className={`text-xl font-semibold ${selectedProject.forecastedTotalSpend > selectedProject.totalBudget ? "text-red-600" : "text-gray-900"}`}>
-                    {formatCurrency(selectedProject.forecastedTotalSpend)}
-                  </div>
-                </div>
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-                  <div className="text-xs text-gray-500">Burn Rate</div>
-                  <div className={`text-xl font-semibold ${selectedProject.burnRate > 1.1 ? "text-red-600" : selectedProject.burnRate < 0.8 ? "text-amber-600" : "text-emerald-600"}`}>
-                    {(selectedProject.burnRate * 100).toFixed(1)}%
-                  </div>
-                </div>
-              </div>
-              <div className="mt-3 text-xs text-gray-500 font-mono bg-gray-50 p-2 rounded">
-                Formula: Spend_Actual / (Budget x (Days_Elapsed / Days_Total)) = {selectedProject.burnRate.toFixed(3)}
-              </div>
-            </div>
-
-            {/* Compliance Overview */}
-            <div>
-              <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3 flex items-center gap-2">
-                <Shield className="w-4 h-4" />
-                Compliance Overview
-              </h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-                  <div className="text-xs text-gray-500">Compliance Score</div>
-                  <div className={`text-xl font-semibold ${compScore < 0.6 ? "text-red-600" : compScore < 0.75 ? "text-amber-600" : "text-emerald-600"}`}>
-                    {formatPercent(compScore)}
-                  </div>
-                </div>
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-                  <div className="text-xs text-gray-500">NIST RMF Score</div>
-                  <div className="text-xl font-semibold text-gray-900">{formatPercent(selectedProject.nistRmfScore)}</div>
-                </div>
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-                  <div className="text-xs text-gray-500">Compliance Flags</div>
-                  <div className={`text-xl font-semibold ${selectedProject.complianceFlags > 3 ? "text-red-600" : "text-gray-900"}`}>
-                    {selectedProject.complianceFlags}
-                  </div>
-                </div>
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-                  <div className="text-xs text-gray-500">Audit Findings</div>
-                  <div className={`text-xl font-semibold ${selectedProject.auditFindings > 2 ? "text-red-600" : "text-gray-900"}`}>
-                    {selectedProject.auditFindings}
-                  </div>
-                </div>
-              </div>
-              <div className="mt-3 h-2 bg-gray-100 rounded-full overflow-hidden">
-                <div
-                  className={`h-full transition-all rounded-full ${compScore < 0.6 ? "bg-red-500" : compScore < 0.75 ? "bg-amber-500" : "bg-emerald-500"}`}
-                  style={{ width: `${compScore * 100}%` }}
-                />
-              </div>
-              <div className="mt-2 text-xs text-gray-500">
-                Stage: {selectedProject.complianceStage} / Next Audit: {selectedProject.nextAuditDue}
-              </div>
-            </div>
-
-            {/* Timeline */}
-            <div>
-              <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3 flex items-center gap-2">
-                <Clock className="w-4 h-4" />
-                Timeline
-              </h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-                  <div className="text-xs text-gray-500">Days Elapsed</div>
-                  <div className="text-xl font-semibold text-gray-900">{Math.floor(selectedProject.daysElapsed)}</div>
-                </div>
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-                  <div className="text-xs text-gray-500">Days Remaining</div>
-                  <div className={`text-xl font-semibold ${selectedProject.daysRemaining < 30 ? "text-red-600" : "text-gray-900"}`}>
-                    {selectedProject.daysRemaining}
-                  </div>
-                </div>
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-                  <div className="text-xs text-gray-500">Time Used</div>
-                  <div className="text-xl font-semibold text-gray-900">{selectedProject.percentTimeUsed.toFixed(1)}%</div>
-                </div>
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-                  <div className="text-xs text-gray-500">Lifecycle Phase</div>
-                  <div className="text-lg font-medium text-gray-900">{selectedProject.lifecyclePhase}</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Risk & Alerts */}
-            <div>
-              <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3 flex items-center gap-2">
-                <AlertTriangle className="w-4 h-4" />
-                Risk & Alerts
-              </h3>
-              <div className="flex flex-wrap gap-2 mb-3">
-                <div className={`px-3 py-1.5 rounded-full text-sm font-medium ${riskColorMap[selectedProject.riskLevel]}`}>
-                  {selectedProject.riskLevel} Risk
-                </div>
-                <div className={`px-3 py-1.5 rounded-full text-sm font-medium ${
-                  selectedProject.slaRiskLevel === "High" ? "bg-red-50 text-red-700 border border-red-200" :
-                  selectedProject.slaRiskLevel === "Medium" ? "bg-amber-50 text-amber-700 border border-amber-200" :
-                  "bg-gray-100 text-gray-600 border border-gray-200"
-                }`}>
-                  SLA: {selectedProject.slaRiskLevel}
-                </div>
-                {selectedProject.escalationStatus && (
-                  <div className="px-3 py-1.5 rounded-full text-sm font-medium bg-red-50 text-red-700 border border-red-200 flex items-center gap-1">
-                    <Zap className="w-3 h-3" />
-                    Escalated
-                  </div>
-                )}
-              </div>
-              {selectedProject.riskTags.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  {selectedProject.riskTags.map(tag => (
-                    <span key={tag} className="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded border border-gray-200">{tag}</span>
-                  ))}
-                </div>
-              )}
-              <div className="mt-3 text-xs text-gray-500 font-mono bg-gray-50 p-2 rounded">
-                Priority Score: {(calculatePriorityScore(selectedProject.riskLevel, compScore, selectedProject.burnRate) * 100).toFixed(0)} = (RiskLevel x 0.4) + (ComplianceBreach x 0.3) + (BudgetVariance x 0.3)
-              </div>
-            </div>
-
-            {/* Audit History */}
-            <div>
-              <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3 flex items-center gap-2">
-                <FileCheck className="w-4 h-4" />
-                Audit History
-              </h3>
-              <div className="space-y-2">
-                {selectedProject.auditHistory.map((event, i) => (
-                  <div key={i} className="flex items-center gap-3 p-3 bg-gray-50 border border-gray-200 rounded-lg">
-                    {event.severity === "critical" ? <XCircle className="w-4 h-4 text-red-500" /> :
-                     event.severity === "warning" ? <AlertCircle className="w-4 h-4 text-amber-500" /> :
-                     <CheckCircle2 className="w-4 h-4 text-emerald-500" />}
-                    <span className="text-xs text-gray-400 font-mono">{event.date}</span>
-                    <span className="text-sm text-gray-700">{event.event}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Actions */}
-            <div className="flex gap-3 pt-4 border-t border-gray-200">
-              <button
-                onClick={handleSync}
-                disabled={isSyncing}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50 font-medium"
-              >
-                <RefreshCw className={`w-4 h-4 ${isSyncing ? "animate-spin" : ""}`} />
-                {isSyncing ? "Syncing..." : "Sync to Database"}
-              </button>
-              <button className="flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg transition-colors font-medium">
-                <Flag className="w-4 h-4" />
-                Flag for Audit
-              </button>
-              <button className="flex items-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors font-medium">
-                <ArrowUpRight className="w-4 h-4" />
-                Escalate
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  // ═══════════════════════════════════════════════════════════════════════════════
-  // CENTRAL HUB NAVIGATION
-  // ═══════════════════════════════════════════════════════════════════════════════
-
-  const renderCentralHub = () => {
-    const categories = {
-      operations: { label: "Operations", color: "blue" },
-      compliance: { label: "Compliance & Audit", color: "emerald" },
-      analytics: { label: "Analytics & Intelligence", color: "purple" },
-      management: { label: "Management", color: "amber" },
+  // Calculate derived data
+  const capacityData = useMemo(() => calculateServiceCapacity(WA_COUNTIES), [])
+  const equityData = useMemo(() => calculateEquityMetrics(WA_COUNTIES), [])
+  
+  const getEventIcon = (type: CaseEventType) => {
+    const icons: Record<CaseEventType, string> = {
+      intake: "I",
+      outreach_contact: "O",
+      shelter_placement: "S",
+      housing_referral: "H",
+      follow_up: "F",
+      exit: "E"
     }
-
-    const getCategoryModules = (category: string) => 
-      navigationModules.filter(m => m.category === category)
-
-    return (
-      <div className="min-h-[calc(100vh-180px)] flex flex-col items-center justify-center p-8">
-        {/* Central Hub Diagram */}
-        <div className="relative w-full max-w-5xl">
-          {/* Center Hub */}
-          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
-            <div className="w-40 h-40 bg-gradient-to-br from-blue-600 to-blue-800 rounded-full flex flex-col items-center justify-center shadow-xl border-4 border-white">
-              <Database className="w-10 h-10 text-white mb-1" />
-              <span className="text-white font-semibold text-sm">Data</span>
-              <span className="text-white/80 text-xs">Warehouse</span>
-            </div>
-          </div>
-
-          {/* Connection Lines SVG */}
-          <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 800 600">
-            {/* Lines from center to each quadrant */}
-            <line x1="400" y1="300" x2="150" y2="120" stroke="#CBD5E1" strokeWidth="2" strokeDasharray="4 4" />
-            <line x1="400" y1="300" x2="650" y2="120" stroke="#CBD5E1" strokeWidth="2" strokeDasharray="4 4" />
-            <line x1="400" y1="300" x2="150" y2="480" stroke="#CBD5E1" strokeWidth="2" strokeDasharray="4 4" />
-            <line x1="400" y1="300" x2="650" y2="480" stroke="#CBD5E1" strokeWidth="2" strokeDasharray="4 4" />
-          </svg>
-
-          {/* Operations - Top Left */}
-          <div className="absolute top-0 left-0 w-[45%]">
-            <div className="bg-blue-50 border-2 border-blue-200 rounded-2xl p-5">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                  <Briefcase className="w-4 h-4 text-white" />
-                </div>
-                <h3 className="font-semibold text-blue-800">Operations</h3>
-              </div>
-              <div className="space-y-2">
-                {getCategoryModules("operations").map(mod => {
-                  const Icon = mod.icon
-                  return (
-                    <button
-                      key={mod.id}
-                      onClick={() => setActiveView(mod.id)}
-                      className="w-full flex items-center gap-3 p-3 bg-white rounded-xl border border-blue-100 hover:border-blue-400 hover:shadow-md transition-all group"
-                    >
-                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors ${
-                        mod.status === "critical" ? "bg-red-100 text-red-600" :
-                        mod.status === "warning" ? "bg-amber-100 text-amber-600" :
-                        "bg-blue-100 text-blue-600 group-hover:bg-blue-600 group-hover:text-white"
-                      }`}>
-                        <Icon className="w-5 h-5" />
-                      </div>
-                      <div className="flex-1 text-left">
-                        <div className="font-medium text-gray-800 text-sm">{mod.label}</div>
-                        <div className="text-xs text-gray-500">{mod.description}</div>
-                      </div>
-                      {mod.alertCount > 0 && (
-                        <div className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
-                          mod.status === "critical" ? "bg-red-500 text-white" :
-                          mod.status === "warning" ? "bg-amber-500 text-white" :
-                          "bg-gray-200 text-gray-600"
-                        }`}>
-                          {mod.alertCount}
-                        </div>
-                      )}
-                      <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-blue-600 transition-colors" />
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
-          </div>
-
-          {/* Analytics - Top Right */}
-          <div className="absolute top-0 right-0 w-[45%]">
-            <div className="bg-purple-50 border-2 border-purple-200 rounded-2xl p-5">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center">
-                  <BarChart3 className="w-4 h-4 text-white" />
-                </div>
-                <h3 className="font-semibold text-purple-800">Analytics & Intelligence</h3>
-              </div>
-              <div className="space-y-2">
-                {getCategoryModules("analytics").map(mod => {
-                  const Icon = mod.icon
-                  return (
-                    <button
-                      key={mod.id}
-                      onClick={() => setActiveView(mod.id)}
-                      className="w-full flex items-center gap-3 p-3 bg-white rounded-xl border border-purple-100 hover:border-purple-400 hover:shadow-md transition-all group"
-                    >
-                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors ${
-                        mod.status === "critical" ? "bg-red-100 text-red-600" :
-                        mod.status === "warning" ? "bg-amber-100 text-amber-600" :
-                        "bg-purple-100 text-purple-600 group-hover:bg-purple-600 group-hover:text-white"
-                      }`}>
-                        <Icon className="w-5 h-5" />
-                      </div>
-                      <div className="flex-1 text-left">
-                        <div className="font-medium text-gray-800 text-sm">{mod.label}</div>
-                        <div className="text-xs text-gray-500">{mod.description}</div>
-                      </div>
-                      {mod.alertCount > 0 && (
-                        <div className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
-                          mod.status === "critical" ? "bg-red-500 text-white" :
-                          mod.status === "warning" ? "bg-amber-500 text-white" :
-                          "bg-gray-200 text-gray-600"
-                        }`}>
-                          {mod.alertCount}
-                        </div>
-                      )}
-                      <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-purple-600 transition-colors" />
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
-          </div>
-
-          {/* Compliance - Bottom Left */}
-          <div className="absolute bottom-0 left-0 w-[45%]">
-            <div className="bg-emerald-50 border-2 border-emerald-200 rounded-2xl p-5">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center">
-                  <Shield className="w-4 h-4 text-white" />
-                </div>
-                <h3 className="font-semibold text-emerald-800">Compliance & Audit</h3>
-              </div>
-              <div className="space-y-2">
-                {getCategoryModules("compliance").map(mod => {
-                  const Icon = mod.icon
-                  return (
-                    <button
-                      key={mod.id}
-                      onClick={() => setActiveView(mod.id)}
-                      className="w-full flex items-center gap-3 p-3 bg-white rounded-xl border border-emerald-100 hover:border-emerald-400 hover:shadow-md transition-all group"
-                    >
-                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors ${
-                        mod.status === "critical" ? "bg-red-100 text-red-600" :
-                        mod.status === "warning" ? "bg-amber-100 text-amber-600" :
-                        "bg-emerald-100 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white"
-                      }`}>
-                        <Icon className="w-5 h-5" />
-                      </div>
-                      <div className="flex-1 text-left">
-                        <div className="font-medium text-gray-800 text-sm">{mod.label}</div>
-                        <div className="text-xs text-gray-500">{mod.description}</div>
-                      </div>
-                      {mod.alertCount > 0 && (
-                        <div className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
-                          mod.status === "critical" ? "bg-red-500 text-white" :
-                          mod.status === "warning" ? "bg-amber-500 text-white" :
-                          "bg-gray-200 text-gray-600"
-                        }`}>
-                          {mod.alertCount}
-                        </div>
-                      )}
-                      <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-emerald-600 transition-colors" />
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
-          </div>
-
-          {/* Management - Bottom Right */}
-          <div className="absolute bottom-0 right-0 w-[45%]">
-            <div className="bg-amber-50 border-2 border-amber-200 rounded-2xl p-5">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 bg-amber-600 rounded-lg flex items-center justify-center">
-                  <Building2 className="w-4 h-4 text-white" />
-                </div>
-                <h3 className="font-semibold text-amber-800">Management</h3>
-              </div>
-              <div className="space-y-2">
-                {getCategoryModules("management").map(mod => {
-                  const Icon = mod.icon
-                  return (
-                    <button
-                      key={mod.id}
-                      onClick={() => setActiveView(mod.id)}
-                      className="w-full flex items-center gap-3 p-3 bg-white rounded-xl border border-amber-100 hover:border-amber-400 hover:shadow-md transition-all group"
-                    >
-                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors ${
-                        mod.status === "critical" ? "bg-red-100 text-red-600" :
-                        mod.status === "warning" ? "bg-amber-100 text-amber-600" :
-                        "bg-amber-100 text-amber-600 group-hover:bg-amber-600 group-hover:text-white"
-                      }`}>
-                        <Icon className="w-5 h-5" />
-                      </div>
-                      <div className="flex-1 text-left">
-                        <div className="font-medium text-gray-800 text-sm">{mod.label}</div>
-                        <div className="text-xs text-gray-500">{mod.description}</div>
-                      </div>
-                      {mod.alertCount > 0 && (
-                        <div className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
-                          mod.status === "critical" ? "bg-red-500 text-white" :
-                          mod.status === "warning" ? "bg-amber-500 text-white" :
-                          "bg-gray-200 text-gray-600"
-                        }`}>
-                          {mod.alertCount}
-                        </div>
-                      )}
-                      <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-amber-600 transition-colors" />
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
-          </div>
-
-          {/* Spacer for layout */}
-          <div className="h-[600px]" />
-        </div>
-      </div>
-    )
+    return icons[type]
   }
 
-  // ═══════════════════════════════════════════════════════════════════════════════
-  // MAIN RENDER
-  // ═══════════════════════════════════════════════════════════════════════════════
+  const getEventColor = (type: CaseEventType) => {
+    const colors: Record<CaseEventType, string> = {
+      intake: "#3b82f6",
+      outreach_contact: "#8b5cf6",
+      shelter_placement: "#f59e0b",
+      housing_referral: "#10b981",
+      follow_up: "#6b7280",
+      exit: "#ef4444"
+    }
+    return colors[type]
+  }
+
+  const depthLabels = {
+    1: "State Overview",
+    2: "County Intelligence", 
+    3: "Field Operations",
+    4: "Micro Case Layer"
+  }
 
   return (
     <>
-    <div className="min-h-screen bg-gray-50">
-      {/* Top Header Bar */}
-      <header className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-40">
-        <div className="px-6 py-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-6">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-                  <Database className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <div className="font-semibold text-gray-900 tracking-tight">SENTINEL</div>
-                  <div className="text-xs text-gray-500">Federal Grant Compliance & Data Warehouse</div>
-                </div>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-8">
-              {/* Quick Stats */}
-              <div className="flex items-center gap-6 text-sm">
-                <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
-                  <span className="text-gray-500">Critical:</span>
-                  <span className="font-semibold text-red-600">{criticalProjects}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 bg-amber-500 rounded-full" />
-                  <span className="text-gray-500">At Risk:</span>
-                  <span className="font-semibold text-amber-600">{atRiskProjects}</span>
-                </div>
-                <div className="h-6 w-px bg-gray-200" />
-                <div className="flex items-center gap-2">
-                  <span className="text-gray-500">Budget:</span>
-                  <span className="font-semibold text-gray-800">{formatCurrency(totalBudget)}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-gray-500">Compliance:</span>
-                  <span className={`font-semibold ${avgCompliance < 0.7 ? "text-red-600" : avgCompliance < 0.85 ? "text-amber-600" : "text-emerald-600"}`}>
-                    {formatPercent(avgCompliance)}
-                  </span>
-                </div>
-              </div>
-
-              <div className="h-6 w-px bg-gray-200" />
-
-              {/* System Status */}
-              <div className="flex items-center gap-4 text-sm">
-                <div className="flex items-center gap-2 text-gray-500">
-                  <Activity className="w-4 h-4 text-emerald-500" />
-                  <span>Operational</span>
-                </div>
-                <div className="text-gray-400">
-                  Sync: {lastSync.toLocaleTimeString()}
-                </div>
-                <div className="font-mono text-gray-600 bg-gray-100 px-2 py-1 rounded">
-                  {systemTime.toLocaleTimeString()} EST
-                </div>
-                <button
-                  onClick={handleSync}
-                  disabled={isSyncing}
-                  className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg transition-colors disabled:opacity-50"
-                >
-                  <RefreshCw className={`w-4 h-4 ${isSyncing ? "animate-spin" : ""}`} />
-                  {isSyncing ? "Syncing" : "Sync"}
-                </button>
-              </div>
-            </div>
+    <div className="h-screen w-full bg-stone-100 text-stone-800 flex flex-col overflow-hidden" style={{ fontFamily: "'Inter', -apple-system, sans-serif" }}>
+      
+      {/* HEADER BAR */}
+      <header className="h-12 bg-stone-800 text-stone-100 flex items-center justify-between px-4 border-b border-stone-700 flex-shrink-0">
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 bg-emerald-500 rounded flex items-center justify-center text-xs font-bold text-white">WA</div>
+            <span className="font-semibold text-sm">ARCGIS CLIENT DATA REPORT TOOL</span>
           </div>
+          <span className="text-stone-400 text-xs">Washington State Human Services Intelligence Layer</span>
+        </div>
+        <div className="flex items-center gap-6 text-xs">
+          <div className="flex items-center gap-2">
+            <span className="text-stone-400">HMIS</span>
+            <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
+            <span className="text-emerald-400">CONNECTED</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-stone-400">PRISM</span>
+            <span className="w-2 h-2 bg-emerald-400 rounded-full"></span>
+            <span className="text-emerald-400">SYNCED</span>
+          </div>
+          <div className="text-stone-300 font-mono">{formatTime(currentTime)}</div>
+          <div className="text-stone-400">{formatDate(currentTime)}</div>
         </div>
       </header>
 
-      {/* Main Content */}
-      <main>
-        {activeView === null ? (
-          renderCentralHub()
-        ) : (
-          <div className="p-6">
-            {/* Breadcrumb / Back Button */}
-            <div className="mb-6 flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <button
-                  onClick={() => setActiveView(null)}
-                  className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-gray-300 transition-all text-gray-700 font-medium shadow-sm"
-                >
-                  <ArrowLeft className="w-4 h-4" />
-                  Back to Hub
-                </button>
-                <div className="h-6 w-px bg-gray-200" />
-                <h1 className="text-xl font-semibold text-gray-900">
-                  {navigationModules.find(n => n.id === activeView)?.label || "Dashboard"}
-                </h1>
+      {/* SECONDARY NAV */}
+      <nav className="h-10 bg-stone-200 border-b border-stone-300 flex items-center px-4 gap-1 flex-shrink-0">
+        {(["map", "reports", "forecast", "audit"] as const).map(view => (
+          <button
+            key={view}
+            onClick={() => setActiveView(view)}
+            className={`px-4 py-1.5 text-xs font-medium rounded transition-colors ${
+              activeView === view 
+                ? "bg-stone-700 text-white" 
+                : "text-stone-600 hover:bg-stone-300"
+            }`}
+          >
+            {view === "map" && "GEOSPATIAL OPERATIONS"}
+            {view === "reports" && "COMPLIANCE REPORTS"}
+            {view === "forecast" && "FORECASTING"}
+            {view === "audit" && "AUDIT TRAIL"}
+          </button>
+        ))}
+        <div className="flex-1"></div>
+        <div className="flex items-center gap-2 text-xs text-stone-500">
+          <span>DEPTH:</span>
+          {([1, 2, 3, 4] as DepthLayer[]).map(d => (
+            <button
+              key={d}
+              onClick={() => setDepthLayer(d)}
+              className={`w-7 h-7 rounded text-xs font-medium transition-colors ${
+                depthLayer === d 
+                  ? "bg-stone-700 text-white" 
+                  : "bg-stone-300 text-stone-600 hover:bg-stone-400"
+              }`}
+            >
+              {d}
+            </button>
+          ))}
+          <span className="ml-2 text-stone-600 font-medium">{depthLabels[depthLayer]}</span>
+        </div>
+      </nav>
+
+      {/* MAIN CONTENT */}
+      <div className="flex-1 flex overflow-hidden">
+        
+        {/* LEFT PANEL - CASE FLOW STREAM */}
+        <aside className="w-72 bg-white border-r border-stone-300 flex flex-col flex-shrink-0">
+          <div className="p-3 bg-stone-100 border-b border-stone-300">
+            <h2 className="text-xs font-semibold text-stone-700 uppercase tracking-wide">LIVE CASE FLOW</h2>
+            <p className="text-xs text-stone-500 mt-0.5">Real-time service events</p>
+          </div>
+          <div className="flex-1 overflow-y-auto">
+            {liveEventFeed.map((event, idx) => (
+              <div 
+                key={event.id} 
+                className={`p-3 border-b border-stone-200 hover:bg-stone-50 cursor-pointer transition-colors ${idx === 0 ? "bg-blue-50" : ""}`}
+              >
+                <div className="flex items-start gap-2">
+                  <div 
+                    className="w-6 h-6 rounded flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
+                    style={{ backgroundColor: getEventColor(event.type) }}
+                  >
+                    {getEventIcon(event.type)}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-medium text-stone-800 capitalize">{event.type.replace("_", " ")}</span>
+                      <span className="text-xs text-stone-400">{new Date(event.timestamp).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}</span>
+                    </div>
+                    <div className="text-xs text-stone-500 mt-0.5 truncate">
+                      {event.location.name}, {event.location.county} County
+                    </div>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-xs text-stone-400">{event.clientId}</span>
+                      <span className={`text-xs px-1.5 py-0.5 rounded ${
+                        event.outcome === "successful" ? "bg-emerald-100 text-emerald-700" :
+                        event.outcome === "pending" ? "bg-amber-100 text-amber-700" :
+                        "bg-stone-100 text-stone-600"
+                      }`}>
+                        {event.outcome}
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div className="flex items-center gap-2 text-sm text-gray-500">
-                <Calendar className="w-4 h-4" />
-                {new Date().toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
+            ))}
+          </div>
+        </aside>
+
+        {/* CENTER - MAP VIEW */}
+        <main className="flex-1 flex flex-col bg-stone-200 overflow-hidden">
+          {activeView === "map" && (
+            <>
+              {/* MAP CONTAINER */}
+              <div className="flex-1 relative bg-gradient-to-br from-stone-300 to-stone-400 overflow-hidden">
+                {/* Simulated WA State Map Background */}
+                <div className="absolute inset-0">
+                  <svg viewBox="0 0 100 90" className="w-full h-full" preserveAspectRatio="xMidYMid meet">
+                    {/* Water/Ocean background */}
+                    <rect x="0" y="0" width="100" height="90" fill="#c5d5e4" />
+                    
+                    {/* Washington State Shape (simplified) */}
+                    <path
+                      d="M 30 5 L 95 5 L 95 8 L 92 12 L 95 18 L 95 65 L 88 65 L 88 75 L 52 75 L 52 85 L 48 85 L 48 75 L 35 75 L 35 65 L 30 65 L 30 55 L 25 50 L 25 35 L 30 30 L 32 20 L 30 15 L 30 5"
+                      fill="#d4c9b8"
+                      stroke="#9a8c7a"
+                      strokeWidth="0.5"
+                    />
+                    
+                    {/* Major highways (simplified) */}
+                    <path d="M 35 38 L 95 38" stroke="#e8e0d4" strokeWidth="0.8" strokeDasharray="2,1" opacity="0.6" />
+                    <path d="M 70 5 L 70 75" stroke="#e8e0d4" strokeWidth="0.8" strokeDasharray="2,1" opacity="0.6" />
+                    
+                    {/* Cascade Range (mountain ridge indication) */}
+                    <path d="M 65 5 L 62 30 L 58 50 L 55 75" stroke="#b8a898" strokeWidth="1.5" fill="none" opacity="0.4" />
+                    
+                    {/* Service Density Heatfields (Layer 2+) */}
+                    {depthLayer >= 2 && WA_COUNTIES.map((county, idx) => {
+                      const intensity = county.clientCount / 15000
+                      const radius = 4 + intensity * 8
+                      return (
+                        <circle
+                          key={county.code}
+                          cx={county.center.x}
+                          cy={county.center.y}
+                          r={radius}
+                          fill={getRiskColor(county.riskLevel)}
+                          opacity={0.25 + intensity * 0.2}
+                          className="transition-all duration-500"
+                        />
+                      )
+                    })}
+                    
+                    {/* Case Flow Vectors (Layer 3+) */}
+                    {depthLayer >= 3 && (
+                      <>
+                        <defs>
+                          <marker id="arrowhead" markerWidth="6" markerHeight="4" refX="5" refY="2" orient="auto">
+                            <polygon points="0 0, 6 2, 0 4" fill="#6b7280" opacity="0.6" />
+                          </marker>
+                        </defs>
+                        {/* Flow from rural to urban */}
+                        <path d="M 42 50 Q 55 45 68 48" stroke="#6b7280" strokeWidth="0.5" fill="none" markerEnd="url(#arrowhead)" opacity="0.4" />
+                        <path d="M 78 52 Q 75 45 72 38" stroke="#6b7280" strokeWidth="0.5" fill="none" markerEnd="url(#arrowhead)" opacity="0.4" />
+                        <path d="M 82 38 Q 78 35 74 28" stroke="#6b7280" strokeWidth="0.5" fill="none" markerEnd="url(#arrowhead)" opacity="0.4" />
+                      </>
+                    )}
+                    
+                    {/* County markers */}
+                    {WA_COUNTIES.map((county) => {
+                      const isSelected = selectedCounty?.code === county.code
+                      const markerSize = depthLayer >= 2 ? 2.5 : 2
+                      return (
+                        <g key={county.code}>
+                          <circle
+                            cx={county.center.x}
+                            cy={county.center.y}
+                            r={isSelected ? markerSize + 1 : markerSize}
+                            fill={isSelected ? "#1e40af" : getRiskColor(county.riskLevel)}
+                            stroke={isSelected ? "#1e40af" : "#fff"}
+                            strokeWidth={isSelected ? 1 : 0.5}
+                            className="cursor-pointer transition-all duration-200 hover:opacity-80"
+                            onClick={() => setSelectedCounty(isSelected ? null : county)}
+                          />
+                          {depthLayer >= 2 && (
+                            <text
+                              x={county.center.x}
+                              y={county.center.y + 5}
+                              fontSize="2.5"
+                              fill="#44403c"
+                              textAnchor="middle"
+                              className="pointer-events-none font-medium"
+                            >
+                              {county.code}
+                            </text>
+                          )}
+                        </g>
+                      )
+                    })}
+                    
+                    {/* City labels (Layer 1+) */}
+                    {WA_CITIES.slice(0, depthLayer >= 2 ? 8 : 5).map((city) => {
+                      const county = WA_COUNTIES.find(c => c.name === city.county)
+                      if (!county) return null
+                      return (
+                        <text
+                          key={city.name}
+                          x={county.center.x}
+                          y={county.center.y - 4}
+                          fontSize="2.2"
+                          fill="#57534e"
+                          textAnchor="middle"
+                          className="pointer-events-none"
+                        >
+                          {city.name}
+                        </text>
+                      )
+                    })}
+                    
+                    {/* Individual case points (Layer 4 only) */}
+                    {depthLayer === 4 && clients.slice(0, 100).map((client, idx) => {
+                      const county = WA_COUNTIES.find(c => c.name === client.location.county)
+                      if (!county) return null
+                      const offsetX = (Math.random() - 0.5) * 6
+                      const offsetY = (Math.random() - 0.5) * 6
+                      return (
+                        <circle
+                          key={client.id}
+                          cx={county.center.x + offsetX}
+                          cy={county.center.y + offsetY}
+                          r={0.8}
+                          fill={getStatusColor(client.housingStatus)}
+                          opacity={0.7}
+                        />
+                      )
+                    })}
+                  </svg>
+                </div>
+                
+                {/* Map Legend */}
+                <div className="absolute bottom-4 left-4 bg-white/95 backdrop-blur-sm rounded-lg shadow-lg p-3 text-xs">
+                  <div className="font-semibold text-stone-700 mb-2">Risk Stratification</div>
+                  <div className="space-y-1">
+                    {(["critical", "high", "moderate", "low", "stable"] as RiskLevel[]).map(level => (
+                      <div key={level} className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: getRiskColor(level) }}></div>
+                        <span className="capitalize text-stone-600">{level}</span>
+                      </div>
+                    ))}
+                  </div>
+                  {depthLayer >= 4 && (
+                    <>
+                      <div className="font-semibold text-stone-700 mt-3 mb-2">Housing Status</div>
+                      <div className="space-y-1">
+                        {(["unsheltered", "emergency_shelter", "transitional", "housed"] as HousingStatus[]).map(status => (
+                          <div key={status} className="flex items-center gap-2">
+                            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: getStatusColor(status) }}></div>
+                            <span className="capitalize text-stone-600">{status.replace("_", " ")}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </div>
+                
+                {/* Selected County Panel */}
+                {selectedCounty && (
+                  <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-sm rounded-lg shadow-lg p-4 w-72">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="font-semibold text-stone-800">{selectedCounty.name} County</h3>
+                      <button onClick={() => setSelectedCounty(null)} className="text-stone-400 hover:text-stone-600 text-lg leading-none">&times;</button>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3 text-xs">
+                      <div>
+                        <div className="text-stone-500">Active Clients</div>
+                        <div className="text-lg font-semibold text-stone-800">{selectedCounty.clientCount.toLocaleString()}</div>
+                      </div>
+                      <div>
+                        <div className="text-stone-500">Shelter Load</div>
+                        <div className="text-lg font-semibold" style={{ color: selectedCounty.shelterOccupancy / selectedCounty.shelterCapacity > 0.9 ? "#dc2626" : "#16a34a" }}>
+                          {((selectedCounty.shelterOccupancy / selectedCounty.shelterCapacity) * 100).toFixed(0)}%
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-stone-500">Outreach Coverage</div>
+                        <div className="text-lg font-semibold text-stone-800">{(selectedCounty.outreachCoverage * 100).toFixed(0)}%</div>
+                      </div>
+                      <div>
+                        <div className="text-stone-500">Data Integrity</div>
+                        <div className="text-lg font-semibold" style={{ color: selectedCounty.dataReportingIntegrity > 0.85 ? "#16a34a" : "#ca8a04" }}>
+                          {(selectedCounty.dataReportingIntegrity * 100).toFixed(0)}%
+                        </div>
+                      </div>
+                    </div>
+                    <div className="mt-3 pt-3 border-t border-stone-200">
+                      <div className="text-xs text-stone-500 mb-1">Active Programs</div>
+                      <div className="flex flex-wrap gap-1">
+                        {selectedCounty.programs.length > 0 ? selectedCounty.programs.map(p => (
+                          <span key={p} className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs">{p}</span>
+                        )) : <span className="text-stone-400 text-xs">No FHARP coverage</span>}
+                      </div>
+                    </div>
+                    <div className="mt-3">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-stone-500">Risk Level:</span>
+                        <span 
+                          className="px-2 py-0.5 rounded text-xs font-medium text-white capitalize"
+                          style={{ backgroundColor: getRiskColor(selectedCounty.riskLevel) }}
+                        >
+                          {selectedCounty.riskLevel}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              {/* BOTTOM STATUS BAR */}
+              <div className="h-20 bg-white border-t border-stone-300 flex items-center px-4 gap-6 flex-shrink-0">
+                <div className="flex-1 grid grid-cols-8 gap-4">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-stone-800">{systemMetrics.totalActiveClients.toLocaleString()}</div>
+                    <div className="text-xs text-stone-500">Active Clients</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-emerald-600">{(systemMetrics.housedRatio * 100).toFixed(1)}%</div>
+                    <div className="text-xs text-stone-500">Housed Rate</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-stone-800">{systemMetrics.systemThroughput}</div>
+                    <div className="text-xs text-stone-500">Daily Throughput</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold" style={{ color: systemMetrics.caseBacklog > 400 ? "#dc2626" : "#ca8a04" }}>{systemMetrics.caseBacklog}</div>
+                    <div className="text-xs text-stone-500">Case Backlog</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-stone-800">{systemMetrics.avgDaysToHousing}</div>
+                    <div className="text-xs text-stone-500">Avg Days to Housing</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-blue-600">{systemMetrics.outreachContactsToday}</div>
+                    <div className="text-xs text-stone-500">Outreach Today</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold" style={{ color: systemMetrics.shelterOccupancyRate > 0.9 ? "#dc2626" : "#16a34a" }}>
+                      {(systemMetrics.shelterOccupancyRate * 100).toFixed(0)}%
+                    </div>
+                    <div className="text-xs text-stone-500">Shelter Occupancy</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-stone-800">{(systemMetrics.grantUtilization * 100).toFixed(0)}%</div>
+                    <div className="text-xs text-stone-500">Grant Utilization</div>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+
+          {activeView === "reports" && (
+            <div className="flex-1 p-6 overflow-y-auto">
+              <h2 className="text-xl font-semibold text-stone-800 mb-4">Compliance Reports</h2>
+              <div className="grid grid-cols-2 gap-6">
+                {/* HUD Compliance Report */}
+                <div className="bg-white rounded-lg shadow p-5">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-semibold text-stone-800">Quarterly HUD Compliance Report</h3>
+                    <span className="px-2 py-1 bg-emerald-100 text-emerald-700 text-xs rounded">READY</span>
+                  </div>
+                  <div className="space-y-3 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-stone-500">Sheltered Count</span>
+                      <span className="font-medium">{clients.filter(c => c.housingStatus !== "unsheltered").length.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-stone-500">Unsheltered Count</span>
+                      <span className="font-medium">{clients.filter(c => c.housingStatus === "unsheltered").length.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-stone-500">Program Entry Flow</span>
+                      <span className="font-medium">+{Math.floor(Math.random() * 200) + 300}/mo</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-stone-500">Housing Retention Rate</span>
+                      <span className="font-medium text-emerald-600">78.4%</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-stone-500">Data Completeness</span>
+                      <span className="font-medium">{(systemMetrics.dataCompletenessScore * 100).toFixed(1)}%</span>
+                    </div>
+                  </div>
+                  <button className="mt-4 w-full py-2 bg-stone-800 text-white text-sm rounded hover:bg-stone-700 transition-colors">
+                    Generate Full Report
+                  </button>
+                </div>
+                
+                {/* WA State Grant Performance */}
+                <div className="bg-white rounded-lg shadow p-5">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-semibold text-stone-800">WA State Grant Performance</h3>
+                    <span className="px-2 py-1 bg-amber-100 text-amber-700 text-xs rounded">REVIEW NEEDED</span>
+                  </div>
+                  <div className="space-y-3 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-stone-500">Total Funding Utilized</span>
+                      <span className="font-medium">${((systemMetrics.grantUtilization * 12500000)).toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-stone-500">Cost per Housed Individual</span>
+                      <span className="font-medium">$17,340</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-stone-500">Cost per Outreach Contact</span>
+                      <span className="font-medium">$847</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-stone-500">Operational Efficiency</span>
+                      <span className="font-medium text-emerald-600">+12% YoY</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-stone-500">Underperforming Programs</span>
+                      <span className="font-medium text-amber-600">2 flagged</span>
+                    </div>
+                  </div>
+                  <button className="mt-4 w-full py-2 bg-stone-800 text-white text-sm rounded hover:bg-stone-700 transition-colors">
+                    Generate Full Report
+                  </button>
+                </div>
+                
+                {/* County Scorecards */}
+                <div className="bg-white rounded-lg shadow p-5 col-span-2">
+                  <h3 className="font-semibold text-stone-800 mb-4">County Performance Scorecards</h3>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b border-stone-200">
+                          <th className="text-left py-2 text-stone-500 font-medium">County</th>
+                          <th className="text-center py-2 text-stone-500 font-medium">Housing Stability</th>
+                          <th className="text-center py-2 text-stone-500 font-medium">Service Saturation</th>
+                          <th className="text-center py-2 text-stone-500 font-medium">Outreach Coverage</th>
+                          <th className="text-center py-2 text-stone-500 font-medium">Data Integrity</th>
+                          <th className="text-center py-2 text-stone-500 font-medium">Risk Level</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {WA_COUNTIES.slice(0, 10).map(county => (
+                          <tr key={county.code} className="border-b border-stone-100 hover:bg-stone-50">
+                            <td className="py-2 font-medium text-stone-800">{county.name}</td>
+                            <td className="text-center">
+                              <span className={`px-2 py-0.5 rounded text-xs ${county.housingStabilityIndex > 0.7 ? "bg-emerald-100 text-emerald-700" : county.housingStabilityIndex > 0.6 ? "bg-amber-100 text-amber-700" : "bg-red-100 text-red-700"}`}>
+                                {(county.housingStabilityIndex * 100).toFixed(0)}%
+                              </span>
+                            </td>
+                            <td className="text-center">
+                              <span className={`px-2 py-0.5 rounded text-xs ${county.serviceSaturationIndex > 0.8 ? "bg-red-100 text-red-700" : county.serviceSaturationIndex > 0.7 ? "bg-amber-100 text-amber-700" : "bg-emerald-100 text-emerald-700"}`}>
+                                {(county.serviceSaturationIndex * 100).toFixed(0)}%
+                              </span>
+                            </td>
+                            <td className="text-center">
+                              <span className={`px-2 py-0.5 rounded text-xs ${county.outreachCoverage > 0.7 ? "bg-emerald-100 text-emerald-700" : county.outreachCoverage > 0.55 ? "bg-amber-100 text-amber-700" : "bg-red-100 text-red-700"}`}>
+                                {(county.outreachCoverage * 100).toFixed(0)}%
+                              </span>
+                            </td>
+                            <td className="text-center">
+                              <span className={`px-2 py-0.5 rounded text-xs ${county.dataReportingIntegrity > 0.85 ? "bg-emerald-100 text-emerald-700" : county.dataReportingIntegrity > 0.75 ? "bg-amber-100 text-amber-700" : "bg-red-100 text-red-700"}`}>
+                                {(county.dataReportingIntegrity * 100).toFixed(0)}%
+                              </span>
+                            </td>
+                            <td className="text-center">
+                              <span 
+                                className="px-2 py-0.5 rounded text-xs text-white capitalize"
+                                style={{ backgroundColor: getRiskColor(county.riskLevel) }}
+                              >
+                                {county.riskLevel}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
               </div>
             </div>
+          )}
 
-            {/* View Content */}
-            {activeView === "projects" && renderProjectsView()}
-            {activeView === "alerts" && renderAlertsView()}
-            {activeView === "analytics" && renderAnalyticsView()}
-            {activeView === "compliance" && renderComplianceView()}
-            {activeView === "programs" && renderProgramsView()}
-            {activeView === "contractors" && renderContractorsView()}
-            {activeView === "audit" && renderAuditView()}
-          </div>
-        )}
-      </main>
+          {activeView === "forecast" && (
+            <div className="flex-1 p-6 overflow-y-auto">
+              <h2 className="text-xl font-semibold text-stone-800 mb-4">Forecasting & Projections</h2>
+              <div className="grid grid-cols-3 gap-6">
+                {/* Seasonal Stress */}
+                <div className="bg-white rounded-lg shadow p-5">
+                  <h3 className="font-semibold text-stone-800 mb-4">Seasonal Stress Projection</h3>
+                  <div className="mb-4">
+                    <div className="text-3xl font-bold" style={{ color: seasonalData.stressLevel > 0.7 ? "#dc2626" : seasonalData.stressLevel > 0.5 ? "#ca8a04" : "#16a34a" }}>
+                      {(seasonalData.stressLevel * 100).toFixed(0)}%
+                    </div>
+                    <div className="text-sm text-stone-500">Current System Stress</div>
+                  </div>
+                  <div className="h-2 bg-stone-200 rounded-full mb-4">
+                    <div 
+                      className="h-full rounded-full transition-all duration-500"
+                      style={{ 
+                        width: `${seasonalData.stressLevel * 100}%`,
+                        backgroundColor: seasonalData.stressLevel > 0.7 ? "#dc2626" : seasonalData.stressLevel > 0.5 ? "#ca8a04" : "#16a34a"
+                      }}
+                    ></div>
+                  </div>
+                  <div className="text-sm text-stone-600 mb-2">
+                    <span className="font-medium">Projected Peak:</span> {seasonalData.projectedPeakDays} days
+                  </div>
+                  <div className="p-3 bg-stone-100 rounded text-sm text-stone-700">
+                    <span className="font-medium">Recommendation:</span> {seasonalData.recommendation}
+                  </div>
+                </div>
+                
+                {/* Housing Outcome Forecast */}
+                <div className="bg-white rounded-lg shadow p-5">
+                  <h3 className="font-semibold text-stone-800 mb-4">Housing Outcome Model</h3>
+                  <div className="space-y-4">
+                    <div>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span className="text-stone-500">Successful Placements (30d)</span>
+                        <span className="font-medium">~{Math.floor(systemMetrics.systemThroughput * 0.67)}</span>
+                      </div>
+                      <div className="h-2 bg-stone-200 rounded-full">
+                        <div className="h-full bg-emerald-500 rounded-full" style={{ width: "67%" }}></div>
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span className="text-stone-500">Long-term Stability (90d)</span>
+                        <span className="font-medium">~{Math.floor(systemMetrics.systemThroughput * 0.52)}</span>
+                      </div>
+                      <div className="h-2 bg-stone-200 rounded-full">
+                        <div className="h-full bg-blue-500 rounded-full" style={{ width: "52%" }}></div>
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span className="text-stone-500">Return to Unsheltered</span>
+                        <span className="font-medium text-amber-600">~{Math.floor(systemMetrics.systemThroughput * 0.18)}</span>
+                      </div>
+                      <div className="h-2 bg-stone-200 rounded-full">
+                        <div className="h-full bg-amber-500 rounded-full" style={{ width: "18%" }}></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Policy Impact Simulator */}
+                <div className="bg-white rounded-lg shadow p-5">
+                  <h3 className="font-semibold text-stone-800 mb-4">Policy Impact Simulator</h3>
+                  <div className="space-y-3 text-sm">
+                    <div className="p-3 bg-blue-50 rounded border border-blue-200">
+                      <div className="font-medium text-blue-800">+20% FHARP Funding</div>
+                      <div className="text-blue-600">Projected: -12% unsheltered pop.</div>
+                    </div>
+                    <div className="p-3 bg-emerald-50 rounded border border-emerald-200">
+                      <div className="font-medium text-emerald-800">New Rural Outreach</div>
+                      <div className="text-emerald-600">Projected: +8% service coverage</div>
+                    </div>
+                    <div className="p-3 bg-amber-50 rounded border border-amber-200">
+                      <div className="font-medium text-amber-800">Shelter Capacity +200</div>
+                      <div className="text-amber-600">Projected: -15% overflow events</div>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Service Desert Map */}
+                <div className="bg-white rounded-lg shadow p-5 col-span-2">
+                  <h3 className="font-semibold text-stone-800 mb-4">Service Coverage Gaps</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <div className="text-sm font-medium text-stone-600 mb-2">Underserved Counties</div>
+                      <div className="space-y-2">
+                        {equityData.underserved.map(county => (
+                          <div key={county} className="flex items-center gap-2 text-sm">
+                            <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                            <span>{county}</span>
+                            <span className="text-stone-400 text-xs ml-auto">{"<"}55% coverage</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-sm font-medium text-stone-600 mb-2">Oversaturated Counties</div>
+                      <div className="space-y-2">
+                        {equityData.oversaturated.map(county => (
+                          <div key={county} className="flex items-center gap-2 text-sm">
+                            <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
+                            <span>{county}</span>
+                            <span className="text-stone-400 text-xs ml-auto">{">"}85% saturation</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Capacity Alerts */}
+                <div className="bg-white rounded-lg shadow p-5">
+                  <h3 className="font-semibold text-stone-800 mb-4">Capacity Alerts</h3>
+                  <div className="space-y-3">
+                    <div className="text-sm font-medium text-stone-600">Overloaded Regions</div>
+                    {capacityData.overloaded.map(county => (
+                      <div key={county} className="p-2 bg-red-50 border border-red-200 rounded text-sm text-red-700">
+                        {county} County - Shelter at capacity
+                      </div>
+                    ))}
+                    {capacityData.overloaded.length === 0 && (
+                      <div className="text-sm text-stone-400">No critical capacity issues</div>
+                    )}
+                    <div className="text-sm font-medium text-stone-600 mt-4">Underutilized Resources</div>
+                    {capacityData.underutilized.slice(0, 3).map(county => (
+                      <div key={county} className="p-2 bg-blue-50 border border-blue-200 rounded text-sm text-blue-700">
+                        {county} County - Available capacity
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
-      {/* Detail Panel Modal */}
-      {renderDetailPanel()}
+          {activeView === "audit" && (
+            <div className="flex-1 p-6 overflow-y-auto">
+              <h2 className="text-xl font-semibold text-stone-800 mb-4">Audit Trail & Data Quality</h2>
+              <div className="grid grid-cols-2 gap-6">
+                {/* Anomaly Detection */}
+                <div className="bg-white rounded-lg shadow p-5">
+                  <h3 className="font-semibold text-stone-800 mb-4">System Anomalies</h3>
+                  <div className="space-y-2">
+                    {anomalies.map((anomaly, idx) => (
+                      <div key={idx} className="p-3 bg-amber-50 border-l-4 border-amber-400 text-sm text-amber-800">
+                        {anomaly}
+                      </div>
+                    ))}
+                    {anomalies.length === 0 && (
+                      <div className="text-sm text-stone-400">No anomalies detected</div>
+                    )}
+                  </div>
+                </div>
+                
+                {/* Data Quality Metrics */}
+                <div className="bg-white rounded-lg shadow p-5">
+                  <h3 className="font-semibold text-stone-800 mb-4">HMIS Data Quality</h3>
+                  <div className="space-y-4">
+                    <div>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span className="text-stone-600">Field Completeness</span>
+                        <span className="font-medium">{(systemMetrics.dataCompletenessScore * 100).toFixed(1)}%</span>
+                      </div>
+                      <div className="h-2 bg-stone-200 rounded-full">
+                        <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${systemMetrics.dataCompletenessScore * 100}%` }}></div>
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span className="text-stone-600">Timestamp Consistency</span>
+                        <span className="font-medium">94.2%</span>
+                      </div>
+                      <div className="h-2 bg-stone-200 rounded-full">
+                        <div className="h-full bg-emerald-500 rounded-full" style={{ width: "94.2%" }}></div>
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span className="text-stone-600">Duplicate Detection</span>
+                        <span className="font-medium text-amber-600">12 flagged</span>
+                      </div>
+                      <div className="h-2 bg-stone-200 rounded-full">
+                        <div className="h-full bg-amber-500 rounded-full" style={{ width: "2.4%" }}></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Recent Audit Events */}
+                <div className="bg-white rounded-lg shadow p-5 col-span-2">
+                  <h3 className="font-semibold text-stone-800 mb-4">Recent System Activity</h3>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b border-stone-200">
+                          <th className="text-left py-2 text-stone-500 font-medium">Timestamp</th>
+                          <th className="text-left py-2 text-stone-500 font-medium">Action</th>
+                          <th className="text-left py-2 text-stone-500 font-medium">Entity</th>
+                          <th className="text-left py-2 text-stone-500 font-medium">User</th>
+                          <th className="text-left py-2 text-stone-500 font-medium">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {caseEvents.slice(-10).reverse().map(event => (
+                          <tr key={event.id} className="border-b border-stone-100 hover:bg-stone-50">
+                            <td className="py-2 text-stone-600 font-mono text-xs">
+                              {new Date(event.timestamp).toLocaleString()}
+                            </td>
+                            <td className="py-2 capitalize">{event.type.replace("_", " ")}</td>
+                            <td className="py-2 font-mono text-xs">{event.clientId}</td>
+                            <td className="py-2 font-mono text-xs">{event.workerId}</td>
+                            <td className="py-2">
+                              <span className={`px-2 py-0.5 rounded text-xs ${
+                                event.outcome === "successful" ? "bg-emerald-100 text-emerald-700" :
+                                event.outcome === "pending" ? "bg-amber-100 text-amber-700" :
+                                "bg-stone-100 text-stone-600"
+                              }`}>
+                                {event.outcome}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </main>
 
-      {/* Footer */}
-      <footer className="bg-white border-t border-gray-200 px-6 py-3 mt-auto">
-        <div className="flex items-center justify-between text-xs text-gray-500">
-          <div className="flex items-center gap-4">
-            <span className="font-medium text-gray-700">SENTINEL v2.4.1</span>
-            <span className="text-gray-300">|</span>
-            <span>NIST 800-53 Rev. 5 Compliant</span>
-            <span className="text-gray-300">|</span>
-            <span>FedRAMP Authorized</span>
+        {/* RIGHT PANEL - PROGRAM STATE */}
+        <aside className="w-80 bg-white border-l border-stone-300 flex flex-col flex-shrink-0">
+          <div className="p-3 bg-stone-100 border-b border-stone-300">
+            <h2 className="text-xs font-semibold text-stone-700 uppercase tracking-wide">PROGRAM INTELLIGENCE</h2>
+            <p className="text-xs text-stone-500 mt-0.5">FHARP & Partner Systems</p>
           </div>
-          <div className="flex items-center gap-4">
-            <span>Classification: UNCLASSIFIED // FOUO</span>
-            <span className="text-gray-300">|</span>
-            <span className="text-emerald-600 font-medium">Session Active</span>
+          <div className="flex-1 overflow-y-auto">
+            {PROGRAMS.map(program => (
+              <div 
+                key={program.id}
+                onClick={() => setSelectedProgram(selectedProgram?.id === program.id ? null : program)}
+                className={`p-3 border-b border-stone-200 cursor-pointer transition-colors ${
+                  selectedProgram?.id === program.id ? "bg-blue-50" : "hover:bg-stone-50"
+                }`}
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-stone-800">{program.name}</span>
+                  <span className={`text-xs px-1.5 py-0.5 rounded ${
+                    program.utilizationRate > 0.9 ? "bg-emerald-100 text-emerald-700" :
+                    program.utilizationRate > 0.7 ? "bg-amber-100 text-amber-700" :
+                    "bg-red-100 text-red-700"
+                  }`}>
+                    {(program.utilizationRate * 100).toFixed(0)}%
+                  </span>
+                </div>
+                <div className="text-xs text-stone-500 mb-2">{program.agency}</div>
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div>
+                    <span className="text-stone-400">Caseload</span>
+                    <div className="font-medium text-stone-700">{program.activeCaseload}/{program.capacity}</div>
+                  </div>
+                  <div>
+                    <span className="text-stone-400">Completion</span>
+                    <div className="font-medium text-stone-700">{(program.completionRate * 100).toFixed(0)}%</div>
+                  </div>
+                </div>
+                {selectedProgram?.id === program.id && (
+                  <div className="mt-3 pt-3 border-t border-stone-200 space-y-2 text-xs">
+                    <div className="flex justify-between">
+                      <span className="text-stone-500">Avg Time to Stability</span>
+                      <span className="font-medium">{program.avgTimeToStability} days</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-stone-500">Cost per Outcome</span>
+                      <span className="font-medium">${program.costPerOutcome.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-stone-500">Equity Score</span>
+                      <span className="font-medium">{(program.equityScore * 100).toFixed(0)}%</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-stone-500">Funding</span>
+                      <span className="font-medium">{program.fundingSource}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
-        </div>
-      </footer>
+          
+          {/* Quick Stats Footer */}
+          <div className="p-3 bg-stone-100 border-t border-stone-300">
+            <div className="grid grid-cols-2 gap-3 text-xs">
+              <div>
+                <div className="text-stone-500">Total Programs</div>
+                <div className="text-lg font-semibold text-stone-800">{PROGRAMS.length}</div>
+              </div>
+              <div>
+                <div className="text-stone-500">Total Capacity</div>
+                <div className="text-lg font-semibold text-stone-800">{PROGRAMS.reduce((sum, p) => sum + p.capacity, 0).toLocaleString()}</div>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </div>
     </div>
 
     {/* ─── PROJECT FOOTER ────────────────────────────────────── */}
@@ -1462,13 +1348,13 @@ export default function SentinelDashboard() {
         <strong style={{ color: "#1a1a14", fontSize: 13 }}>Lancelot Napier-Kane</strong>
       </p>
       <p style={{ margin: "0 0 4px 0" }}>
-        <strong style={{ color: "#1a1a14" }}>Stack:</strong> React, TypeScript, ArcGIS API for JavaScript (simulated map layers and spatial queries), Python (GeoPandas, Shapely), PostgreSQL with PostGIS extension (simulated spatial data warehouse), Amazon Redshift (simulated data warehouse), AWS Glue ETL (simulated pipeline orchestration), NIST SP 800-53 Rev. 5 RMF control mapping, FedRAMP boundary modeling, Esri World Imagery tile service, dbt Core v1.8, Tableau Server (simulated reporting layer)
+        <strong style={{ color: "#1a1a14" }}>Stack:</strong> React (TSX), Python (FastAPI, GeoPandas, Pandas, SQLAlchemy), PostgreSQL (HMIS client schema, case event log, program enrollment records), PostGIS (county geometry, service zone polygons, client location indexing), ArcGIS Online (Washington State administrative boundary layers, spatial risk overlays), ESRI ArcGIS REST API (feature service queries, map image exports), Washington State HMIS data integration (SHA homeless management data schema), PRISM case management platform schema, Elasticsearch (client history indexing, outreach event search), Redis (active caseload caching), AWS GovCloud (S3 report archiving, Lambda event triggers), dbt (housing stability and equity score transforms)
       </p>
       <p style={{ margin: "0 0 4px 0" }}>
-        <strong style={{ color: "#1a1a14" }}>Methods:</strong> ArcGIS-integrated client case record visualization with geographic clustering and spatial risk analysis; federal grant portfolio tracking across obligation, execution, and closeout phases; burn rate analytics and cost overrun forecasting using trailing 90-day spend velocity; NIST RMF audit finding classification and compliance stage progression; contractor performance scoring using on-time delivery rate, findings rate, and subcontracting compliance; missing-report SLA breach detection against OMB Uniform Guidance cadence requirements; all project and case data simulated against published federal grant and program management frameworks
+        <strong style={{ color: "#1a1a14" }}>Methods:</strong> Multi-depth geospatial intelligence layering (State Overview → County Intelligence → Field Operations → Micro Case Layer) with progressive data disclosure at each depth tier; housing stability score composite from service retention rate, reengagement probability, and time-since-last-contact decay; service saturation index per county using active caseload ÷ program capacity with equity-weighted adjustment; client risk classification (critical/high/moderate/low/stable) via multi-factor logistic model on housing status trajectory, service engagement frequency, and program exit outcomes; outreach coverage ratio calculation using worker dispatch records vs. estimated unsheltered population per zone; equity score computation using environmental justice metrics — income decile, transit access, language barrier weighting; all client records, case event histories, program metrics, and county-level statistics are simulated based on Washington State HMIS documentation and SHA Homeless Management public reports
       </p>
       <p style={{ margin: 0 }}>
-        <strong style={{ color: "#1a1a14" }}>Sources:</strong> OMB Uniform Guidance (2 CFR Part 200); NIST SP 800-53 Rev. 5 audit controls; Esri ArcGIS REST API documentation and World Imagery tile service; FedRAMP authorization boundary documentation; USASpending.gov federal award data structures; GAO-21-119G Federal Financial Management Standards; grant and case data simulated based on published federal program parameters
+        <strong style={{ color: "#1a1a14" }}>Sources:</strong> Washington State Department of Commerce Homelessness Data; Seattle/King County HMIS public annual reports; Washington State Homeless Management Information System (HMIS) data dictionary; HUD Homeless Data Exchange (HDX) program reporting schema; ESRI ArcGIS Washington State boundary and service area datasets; SHA (Seattle Housing Authority) housing stability outcome data; Washington State PRISM integrated case management platform documentation; client, case, and program data simulated from publicly available Washington State homeless services and HMIS documentation
       </p>
     </div>
     </>
