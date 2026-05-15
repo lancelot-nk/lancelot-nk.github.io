@@ -390,13 +390,14 @@ function MetricCard({
   change?: number
   icon: React.ElementType
   subtitle?: string
-  accentColor?: "slate" | "emerald" | "amber" | "blue"
+  accentColor?: "slate" | "emerald" | "amber" | "blue" | "red"
 }) {
   const accentStyles = {
     slate: "bg-slate-50 border-slate-200",
     emerald: "bg-emerald-50/50 border-emerald-200",
     amber: "bg-amber-50/50 border-amber-200",
     blue: "bg-blue-50/50 border-blue-200",
+    red: "bg-red-50/50 border-red-200",
   }
   
   const iconBgStyles = {
@@ -404,6 +405,7 @@ function MetricCard({
     emerald: "bg-emerald-100",
     amber: "bg-amber-100",
     blue: "bg-blue-100",
+    red: "bg-red-100",
   }
   
   const iconStyles = {
@@ -411,6 +413,7 @@ function MetricCard({
     emerald: "text-emerald-600",
     amber: "text-amber-600",
     blue: "text-blue-600",
+    red: "text-red-600",
   }
 
   return (
