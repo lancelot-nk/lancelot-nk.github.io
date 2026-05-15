@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from "react"
+import React, { useState, useEffect, useCallback, useMemo } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   TrendingUp,
@@ -605,11 +605,11 @@ export default function B2BChurnPredictorSimulation() {
                     <h2 className="mb-3 text-xl font-semibold text-white">
                       Revenue Operations Intelligence — Enterprise Fleet Management
                     </h2>
-                    <p className="text-sm leading-relaxed text-slate-600">
+                    <p className="text-sm leading-relaxed text-slate-300">
                       This simulation models the complete B2B sales operations environment for a fleet management
-                      SaaS platform, tracking <span className="text-blue-600 font-medium">{accounts.length} enterprise accounts</span> across{" "}
-                      <span className="text-blue-600 font-medium">{TERRITORIES.length} territories</span> with{" "}
-                      <span className="text-blue-600 font-medium">{salesReps.length} sales representatives</span>.
+                      SaaS platform, tracking <span className="text-blue-300 font-medium">{accounts.length} enterprise accounts</span> across{" "}
+                      <span className="text-blue-300 font-medium">{TERRITORIES.length} territories</span> with{" "}
+                      <span className="text-blue-300 font-medium">{salesReps.length} sales representatives</span>.
                       Current tracking coverage includes <span className="text-emerald-400 font-medium">{totalFleetVehicles.toLocaleString()} fleet vehicles</span> with
                       integrated telematics and DriveCam safety monitoring. The system continuously evaluates
                       churn risk, renewal timing, and expansion opportunities using predictive analytics
@@ -618,7 +618,7 @@ export default function B2BChurnPredictorSimulation() {
                     </p>
                   </div>
                   <div className="flex flex-col items-end gap-2">
-                    <div className="flex items-center gap-1.5 text-xs text-slate-500">
+                    <div className="flex items-center gap-1.5 text-xs text-slate-400">
                       <RefreshCw className="h-3 w-3 animate-spin" />
                       <span>Cycle #{simulationCycle}</span>
                     </div>
@@ -1055,7 +1055,7 @@ export default function B2BChurnPredictorSimulation() {
               {/* Priority Action Queue */}
               <div className="mb-6 rounded-xl border border-slate-200 bg-gradient-to-br from-gray-900/80 to-gray-900/40 p-6">
                 <div className="mb-4 flex items-center justify-between">
-                  <h3 className="text-sm font-medium text-slate-900">Priority Intervention Queue</h3>
+                  <h3 className="text-sm font-medium text-slate-100">Priority Intervention Queue</h3>
                   <Badge variant="outline" className="border-red-500/30 bg-red-500/10 text-red-400 text-[10px]">
                     {interventions.filter(i => i.priority === "immediate").length} Immediate Actions
                   </Badge>

@@ -14,7 +14,7 @@ import {
 // ============================================================================
 
 
-  fiscalEfficiencyScore
+  fiscalEfficiencyScore: number
   status: "on-track" | "at-risk" | "over-budget" | "under-utilized"
 }
 
@@ -34,64 +34,64 @@ import {
 
 // Engine 1: Budget Utilization Engine
 function useBudgetUtilizationEngine() {
-  const [programs, setPrograms] = useState([
+  const [programs, setPrograms] = useState<ProgramBudget[]>([
     {
       id: "PRG-001",
       programName: "Kingman Island Restoration",
-      allocatedBudget: 485000,
-      actualExpenditure: 312450,
+      allocatedBudget,
+      actualExpenditure,
       burnRate: 64.4,
       varianceRatio: -8.2,
       fundingSource: "DOEE Environmental Grant",
-      costBreakdown: { labor: 145000, materials: 89000, admin: 34450, facilities: 44000 },
+      costBreakdown: { labor, materials, admin, facilities: 44000 },
       fiscalEfficiencyScore: 87.3,
       status: "on-track"
     },
     {
       id: "PRG-002",
       programName: "Green Jobs Workforce Development",
-      allocatedBudget: 320000,
-      actualExpenditure: 298750,
+      allocatedBudget,
+      actualExpenditure,
       burnRate: 93.4,
       varianceRatio: 12.8,
       fundingSource: "DC Workforce Innovation Fund",
-      costBreakdown: { labor: 198000, materials: 42000, admin: 28750, facilities: 30000 },
+      costBreakdown: { labor, materials, admin, facilities: 30000 },
       fiscalEfficiencyScore: 72.1,
       status: "at-risk"
     },
     {
       id: "PRG-003",
       programName: "Youth Environmental Education",
-      allocatedBudget: 175000,
-      actualExpenditure: 89200,
+      allocatedBudget,
+      actualExpenditure,
       burnRate: 51.0,
       varianceRatio: -22.5,
       fundingSource: "EPA Environmental Education",
-      costBreakdown: { labor: 52000, materials: 18200, admin: 9000, facilities: 10000 },
+      costBreakdown: { labor, materials, admin, facilities: 10000 },
       fiscalEfficiencyScore: 68.4,
       status: "under-utilized"
     },
     {
       id: "PRG-004",
       programName: "Rainwater Retention Gardens",
-      allocatedBudget: 245000,
-      actualExpenditure: 267890,
+      allocatedBudget,
+      actualExpenditure,
       burnRate: 109.3,
       varianceRatio: 18.7,
       fundingSource: "DC Water Infrastructure Grant",
-      costBreakdown: { labor: 98000, materials: 124890, admin: 22000, facilities: 23000 },
+      costBreakdown: { labor, materials, admin, facilities: 23000 },
       fiscalEfficiencyScore: 58.2,
       status: "over-budget"
     },
     {
       id: "PRG-005",
       programName: "Community Garden Network",
-      allocatedBudget: 128000,
-      actualExpenditure: 94320,
+      allocatedBudget,
+      actualExpenditure,
       burnRate: 73.7,
       varianceRatio: -4.1,
       fundingSource: "USDA Community Foods Grant",
-      costBreakdown: { labor: 48000, materials: 28320, admin: 8000, facilities: 10000 },
+      costBreakdown: { labor, materials, admin, facilities: 10000 },
       fiscalEfficiencyScore: 91.7,
       status: "on-track"
     }
@@ -102,7 +102,7 @@ function useBudgetUtilizationEngine() {
       const expenditureChange = (Math.random() - 0.45) * prog.allocatedBudget * 0.008
       const newExpenditure = Math.max(0, prog.actualExpenditure + expenditureChange)
       const newBurnRate = (newExpenditure / prog.allocatedBudget) * 100
-      const newVariance = newBurnRate - (prog.burnRate > 80 ? 85 : 75)
+      const newVariance = newBurnRate - (prog.burnRate > 80 ? 85 )
       const efficiencyDelta = (Math.random() - 0.5) * 2
       
       let status: ProgramBudget["status"] = "on-track"
@@ -112,9 +112,9 @@ function useBudgetUtilizationEngine() {
 
       return {
         ...prog,
-        actualExpenditure: newExpenditure,
-        burnRate: newBurnRate,
-        varianceRatio: newVariance,
+        actualExpenditure,
+        burnRate,
+        varianceRatio,
         fiscalEfficiencyScore: Math.min(100, Math.max(0, prog.fiscalEfficiencyScore + efficiencyDelta)),
         status
       }
@@ -126,12 +126,12 @@ function useBudgetUtilizationEngine() {
 
 // Engine 2: Facility Usage Optimization Engine
 function useFacilityEngine() {
-  const [facilities, setFacilities] = useState([
-    { id: "FAC-001", name: "Kingman Island Education Center", siteType: "education", utilizationPercent: 78.5, occupancyCycles: 42, maintenanceCostIndex: 0.85, operationalCapacity: 120, sharedUsageConflicts: 3, efficiencyRank: 2 },
-    { id: "FAC-002", name: "Anacostia Restoration Site", siteType: "restoration", utilizationPercent: 92.1, occupancyCycles: 28, maintenanceCostIndex: 1.12, operationalCapacity: 45, sharedUsageConflicts: 1, efficiencyRank: 1 },
-    { id: "FAC-003", name: "Ward 7 Training Facility", siteType: "training", utilizationPercent: 61.3, occupancyCycles: 35, maintenanceCostIndex: 0.72, operationalCapacity: 80, sharedUsageConflicts: 5, efficiencyRank: 4 },
-    { id: "FAC-004", name: "DC Green Admin Office", siteType: "administrative", utilizationPercent: 88.9, occupancyCycles: 52, maintenanceCostIndex: 0.45, operationalCapacity: 25, sharedUsageConflicts: 0, efficiencyRank: 3 },
-    { id: "FAC-005", name: "Benning Road Garden Site", siteType: "restoration", utilizationPercent: 45.2, occupancyCycles: 18, maintenanceCostIndex: 0.92, operationalCapacity: 60, sharedUsageConflicts: 7, efficiencyRank: 5 }
+  const [facilities, setFacilities] = useState<Facility[]>([
+    { id: "FAC-001", name: "Kingman Island Education Center", siteType: "education", utilizationPercent: 78.5, occupancyCycles, maintenanceCostIndex: 0.85, operationalCapacity, sharedUsageConflicts, efficiencyRank: 2 },
+    { id: "FAC-002", name: "Anacostia Restoration Site", siteType: "restoration", utilizationPercent: 92.1, occupancyCycles, maintenanceCostIndex: 1.12, operationalCapacity, sharedUsageConflicts, efficiencyRank: 1 },
+    { id: "FAC-003", name: "Ward 7 Training Facility", siteType: "training", utilizationPercent: 61.3, occupancyCycles, maintenanceCostIndex: 0.72, operationalCapacity, sharedUsageConflicts, efficiencyRank: 4 },
+    { id: "FAC-004", name: "DC Green Admin Office", siteType: "administrative", utilizationPercent: 88.9, occupancyCycles, maintenanceCostIndex: 0.45, operationalCapacity, sharedUsageConflicts, efficiencyRank: 3 },
+    { id: "FAC-005", name: "Benning Road Garden Site", siteType: "restoration", utilizationPercent: 45.2, occupancyCycles, maintenanceCostIndex: 0.92, operationalCapacity, sharedUsageConflicts, efficiencyRank: 5 }
   ])
 
   const simulateFacilityUsage = useCallback(() => {
@@ -149,12 +149,12 @@ function useFacilityEngine() {
 
 // Engine 3: Audit Risk Detection Engine
 function useAuditEngine() {
-  const [findings, setFindings] = useState([
-    { id: "AUD-001", severity: "high", category: "Documentation", discrepancyType: "Missing receipts", documentationScore: 45, resolutionStatus: "open", description: "Q2 material purchases lack supporting documentation for 23 transactions totaling $12,450", financialImpact: 12450 },
-    { id: "AUD-002", severity: "medium", category: "Cost Allocation", discrepancyType: "Indirect cost miscoding", documentationScore: 72, resolutionStatus: "in-progress", description: "Administrative costs incorrectly allocated to direct program expenses in Green Jobs program", financialImpact: 8200 },
-    { id: "AUD-003", severity: "low", category: "Reporting", discrepancyType: "Late submission", documentationScore: 88, resolutionStatus: "resolved", description: "Monthly progress report submitted 3 days past deadline for Youth Education program", financialImpact: 0 },
-    { id: "AUD-004", severity: "critical", category: "Compliance", discrepancyType: "Unallowable expense", documentationScore: 32, resolutionStatus: "open", description: "Equipment purchase exceeds grant-allowable threshold without prior approval", financialImpact: 28750 },
-    { id: "AUD-005", severity: "medium", category: "Procurement", discrepancyType: "Vendor documentation", documentationScore: 65, resolutionStatus: "in-progress", description: "Competitive bidding documentation incomplete for landscaping contract", financialImpact: 15600 }
+  const [findings, setFindings] = useState<AuditFinding[]>([
+    { id: "AUD-001", severity: "high", category: "Documentation", discrepancyType: "Missing receipts", documentationScore, resolutionStatus: "open", description: "Q2 material purchases lack supporting documentation for 23 transactions totaling $12,450", financialImpact: 12450 },
+    { id: "AUD-002", severity: "medium", category: "Cost Allocation", discrepancyType: "Indirect cost miscoding", documentationScore, resolutionStatus: "in-progress", description: "Administrative costs incorrectly allocated to direct program expenses in Green Jobs program", financialImpact: 8200 },
+    { id: "AUD-003", severity: "low", category: "Reporting", discrepancyType: "Late submission", documentationScore, resolutionStatus: "resolved", description: "Monthly progress report submitted 3 days past deadline for Youth Education program", financialImpact: 0 },
+    { id: "AUD-004", severity: "critical", category: "Compliance", discrepancyType: "Unallowable expense", documentationScore, resolutionStatus: "open", description: "Equipment purchase exceeds grant-allowable threshold without prior approval", financialImpact: 28750 },
+    { id: "AUD-005", severity: "medium", category: "Procurement", discrepancyType: "Vendor documentation", documentationScore, resolutionStatus: "in-progress", description: "Competitive bidding documentation incomplete for landscaping contract", financialImpact: 15600 }
   ])
 
   const [auditRiskScore, setAuditRiskScore] = useState(67.4)
@@ -175,11 +175,11 @@ function useAuditEngine() {
 
 // Engine 4: Grant Compliance Engine
 function useGrantEngine() {
-  const [grants, setGrants] = useState([
-    { id: "GRT-001", name: "DOEE Environmental Restoration FY24", totalAward: 485000, drawnAmount: 312450, reportingCadence: "Quarterly", complianceThreshold: 95, auditRiskLevel: "low", nextReportDue: "2024-03-31", allowableCostRules: ["Direct labor", "Materials", "Equipment < $5000", "Training"] },
-    { id: "GRT-002", name: "DC Workforce Innovation Grant", totalAward: 320000, drawnAmount: 298750, reportingCadence: "Monthly", complianceThreshold: 90, auditRiskLevel: "medium", nextReportDue: "2024-02-15", allowableCostRules: ["Participant stipends", "Instructor salaries", "Certification fees", "Transportation"] },
-    { id: "GRT-003", name: "EPA Environmental Education Award", totalAward: 175000, drawnAmount: 89200, reportingCadence: "Semi-Annual", complianceThreshold: 92, auditRiskLevel: "low", nextReportDue: "2024-06-30", allowableCostRules: ["Curriculum development", "Field trips", "Educational materials", "Outreach"] },
-    { id: "GRT-004", name: "DC Water Infrastructure Fund", totalAward: 245000, drawnAmount: 267890, reportingCadence: "Quarterly", complianceThreshold: 88, auditRiskLevel: "high", nextReportDue: "2024-02-28", allowableCostRules: ["Construction materials", "Engineering services", "Permits", "Labor"] }
+  const [grants, setGrants] = useState<Grant[]>([
+    { id: "GRT-001", name: "DOEE Environmental Restoration FY24", totalAward, drawnAmount, reportingCadence: "Quarterly", complianceThreshold, auditRiskLevel: "low", nextReportDue: "2024-03-31", allowableCostRules: ["Direct labor", "Materials", "Equipment < $5000", "Training"] },
+    { id: "GRT-002", name: "DC Workforce Innovation Grant", totalAward, drawnAmount, reportingCadence: "Monthly", complianceThreshold, auditRiskLevel: "medium", nextReportDue: "2024-02-15", allowableCostRules: ["Participant stipends", "Instructor salaries", "Certification fees", "Transportation"] },
+    { id: "GRT-003", name: "EPA Environmental Education Award", totalAward, drawnAmount, reportingCadence: "Semi-Annual", complianceThreshold, auditRiskLevel: "low", nextReportDue: "2024-06-30", allowableCostRules: ["Curriculum development", "Field trips", "Educational materials", "Outreach"] },
+    { id: "GRT-004", name: "DC Water Infrastructure Fund", totalAward, drawnAmount, reportingCadence: "Quarterly", complianceThreshold, auditRiskLevel: "high", nextReportDue: "2024-02-28", allowableCostRules: ["Construction materials", "Engineering services", "Permits", "Labor"] }
   ])
 
   const simulateGrantProgress = useCallback(() => {
@@ -195,13 +195,13 @@ function useGrantEngine() {
 
 // Engine 5: Expenditure Flow Engine
 function useExpenditureEngine() {
-  const [expenditures] = useState([
-    { id: "EXP-001", description: "Native plant materials - Phase 2", category: "Materials", amount: 8450, program: "Kingman Island Restoration", facility: "Anacostia Restoration Site", complianceTag: "compliant", approvalStatus: "approved", date: "2024-01-15" },
-    { id: "EXP-002", description: "Instructor salary - January", category: "Labor", amount: 4200, program: "Green Jobs Workforce Development", facility: "Ward 7 Training Facility", complianceTag: "compliant", approvalStatus: "approved", date: "2024-01-31" },
-    { id: "EXP-003", description: "Heavy equipment rental", category: "Equipment", amount: 12800, program: "Rainwater Retention Gardens", facility: "Benning Road Garden Site", complianceTag: "review", approvalStatus: "pending", date: "2024-02-02" },
-    { id: "EXP-004", description: "Field trip transportation", category: "Transportation", amount: 890, program: "Youth Environmental Education", facility: "Kingman Island Education Center", complianceTag: "compliant", approvalStatus: "approved", date: "2024-02-05" },
-    { id: "EXP-005", description: "Office supplies - Admin", category: "Administrative", amount: 342, program: "Community Garden Network", facility: "DC Green Admin Office", complianceTag: "flagged", approvalStatus: "rejected", date: "2024-02-08" },
-    { id: "EXP-006", description: "Soil amendment materials", category: "Materials", amount: 5670, program: "Community Garden Network", facility: "Benning Road Garden Site", complianceTag: "compliant", approvalStatus: "approved", date: "2024-02-10" }
+  const [expenditures] = useState<Expenditure[]>([
+    { id: "EXP-001", description: "Native plant materials - Phase 2", category: "Materials", amount, program: "Kingman Island Restoration", facility: "Anacostia Restoration Site", complianceTag: "compliant", approvalStatus: "approved", date: "2024-01-15" },
+    { id: "EXP-002", description: "Instructor salary - January", category: "Labor", amount, program: "Green Jobs Workforce Development", facility: "Ward 7 Training Facility", complianceTag: "compliant", approvalStatus: "approved", date: "2024-01-31" },
+    { id: "EXP-003", description: "Heavy equipment rental", category: "Equipment", amount, program: "Rainwater Retention Gardens", facility: "Benning Road Garden Site", complianceTag: "review", approvalStatus: "pending", date: "2024-02-02" },
+    { id: "EXP-004", description: "Field trip transportation", category: "Transportation", amount, program: "Youth Environmental Education", facility: "Kingman Island Education Center", complianceTag: "compliant", approvalStatus: "approved", date: "2024-02-05" },
+    { id: "EXP-005", description: "Office supplies - Admin", category: "Administrative", amount, program: "Community Garden Network", facility: "DC Green Admin Office", complianceTag: "flagged", approvalStatus: "rejected", date: "2024-02-08" },
+    { id: "EXP-006", description: "Soil amendment materials", category: "Materials", amount, program: "Community Garden Network", facility: "Benning Road Garden Site", complianceTag: "compliant", approvalStatus: "approved", date: "2024-02-10" }
   ])
 
   return { expenditures }
@@ -209,15 +209,15 @@ function useExpenditureEngine() {
 
 // Engine 6: Budget Forecast Engine
 function useForecastEngine() {
-  const [forecasts, setForecasts] = useState([
-    { month: "Jan", projected: 95000, actual: 89200, burnRate: 7.1 },
-    { month: "Feb", projected: 105000, actual: 112450, burnRate: 8.4 },
-    { month: "Mar", projected: 118000, actual: 108900, burnRate: 8.1 },
-    { month: "Apr", projected: 125000, actual: 134200, burnRate: 10.0 },
-    { month: "May", projected: 132000, actual: 128750, burnRate: 9.6 },
-    { month: "Jun", projected: 145000, actual: 0, burnRate: 0 },
-    { month: "Jul", projected: 152000, actual: 0, burnRate: 0 },
-    { month: "Aug", projected: 148000, actual: 0, burnRate: 0 }
+  const [forecasts, setForecasts] = useState<ForecastData[]>([
+    { month: "Jan", projected, actual, burnRate: 7.1 },
+    { month: "Feb", projected, actual, burnRate: 8.4 },
+    { month: "Mar", projected, actual, burnRate: 8.1 },
+    { month: "Apr", projected, actual, burnRate: 10.0 },
+    { month: "May", projected, actual, burnRate: 9.6 },
+    { month: "Jun", projected, actual, burnRate: 0 },
+    { month: "Jul", projected, actual, burnRate: 0 },
+    { month: "Aug", projected, actual, burnRate: 0 }
   ])
 
   const simulateForecast = useCallback(() => {
@@ -235,13 +235,13 @@ function useForecastEngine() {
 // HELPER COMPONENTS
 // ============================================================================
 
-function formatCurrency(amount): string {
+function formatCurrency(amount){
   if (amount >= 1000000) return `$${(amount / 1000000).toFixed(2)}M`
   if (amount >= 1000) return `$${(amount / 1000).toFixed(1)}K`
   return `$${amount.toFixed(0)}`
 }
 
-function getSeverityColor(severity): string {
+function getSeverityColor(severity){
   switch (severity) {
     case "critical": return "bg-red-600 text-white"
     case "high": return "bg-orange-500 text-white"
@@ -251,7 +251,7 @@ function getSeverityColor(severity): string {
   }
 }
 
-function getStatusColor(status): string {
+function getStatusColor(status){
   switch (status) {
     case "on-track": return "text-green-700 bg-green-100"
     case "at-risk": return "text-amber-700 bg-amber-100"
@@ -261,7 +261,7 @@ function getStatusColor(status): string {
   }
 }
 
-function getComplianceColor(tag): string {
+function getComplianceColor(tag){
   switch (tag) {
     case "compliant": return "text-green-700 bg-green-50 border-green-200"
     case "review": return "text-amber-700 bg-amber-50 border-amber-200"
@@ -357,7 +357,7 @@ export default function BudgetAuditPage() {
 
       <div className="flex max-w-[1800px] mx-auto">
         {/* Left Sidebar Navigation */}
-        <aside className="w-64 min-h-[calc(100vh-80px)] bg-white/60 backdrop-blur-sm border-r border-emerald-200 p-4 sticky top-0">
+        <aside className="w-64 self-start sticky top-0 bg-white/60 backdrop-blur-sm border-r border-emerald-200 p-4">
           <nav className="space-y-1">
             {navItems.map(item => (
               <button
@@ -451,16 +451,16 @@ export default function BudgetAuditPage() {
           {/* SCROLL LAYER 1: FINANCIAL OVERVIEW LEDGER */}
           {/* ============================================================ */}
           <motion.section
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity, y: 20 }}
+            animate={{ opacity, y: 0 }}
             className="grid grid-cols-5 gap-4"
           >
             {[
-              { label: "Total Allocated", value: formatCurrency(totalAllocated), icon: DollarSign, color: "emerald" },
-              { label: "Total Expended", value: formatCurrency(totalExpended), icon: Receipt, color: "teal" },
-              { label: "Burn Rate", value: `${overallBurnRate.toFixed(1)}%`, icon: TrendingUp, color: "green" },
-              { label: "Avg Efficiency", value: `${avgEfficiency.toFixed(1)}%`, icon: Activity, color: "cyan" },
-              { label: "Open Findings", value: openFindings.toString(), icon: AlertTriangle, color: "amber", highlight: criticalFindings > 0 }
+              { label: "Total Allocated", value: formatCurrency(totalAllocated), icon, color: "emerald" },
+              { label: "Total Expended", value: formatCurrency(totalExpended), icon, color: "teal" },
+              { label: "Burn Rate", value: `${overallBurnRate.toFixed(1)}%`, icon, color: "green" },
+              { label: "Avg Efficiency", value: `${avgEfficiency.toFixed(1)}%`, icon, color: "cyan" },
+              { label: "Open Findings", value: openFindings.toString(), icon, color: "amber", highlight: criticalFindings > 0 }
             ].map((kpi, i) => (
               <div
                 key={i}
@@ -482,8 +482,8 @@ export default function BudgetAuditPage() {
           {/* ============================================================ */}
           {activeNav === "overview" && (
             <motion.section
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
+              initial={{ opacity, y: 16 }}
+              animate={{ opacity, y: 0 }}
               transition={{ delay: 0.05 }}
               className="grid grid-cols-3 gap-4"
             >
@@ -491,7 +491,7 @@ export default function BudgetAuditPage() {
                 {
                   id: "programs",
                   label: "Program Budgets",
-                  icon: FolderOpen,
+                  icon,
                   stat: `${programs.filter(p => p.status === "on-track").length}/${programs.length} on-track`,
                   sub: `${formatCurrency(totalAllocated)} allocated across ${programs.length} programs`,
                   color: "from-emerald-500 to-teal-500",
@@ -499,7 +499,7 @@ export default function BudgetAuditPage() {
                 {
                   id: "facilities",
                   label: "Facilities Audit",
-                  icon: Building,
+                  icon,
                   stat: `${facilities.length} sites tracked`,
                   sub: `Avg utilization ${(facilities.reduce((s,f)=>s+f.utilizationPercent,0)/facilities.length).toFixed(0)}% · ${facilities.reduce((s,f)=>s+f.sharedUsageConflicts,0)} scheduling conflicts`,
                   color: "from-teal-500 to-cyan-500",
@@ -507,7 +507,7 @@ export default function BudgetAuditPage() {
                 {
                   id: "expenditures",
                   label: "Expenditure Ledger",
-                  icon: Receipt,
+                  icon,
                   stat: `${expenditures.length} transactions`,
                   sub: `${expenditures.filter(e=>e.complianceTag==="flagged").length} flagged · ${expenditures.filter(e=>e.approvalStatus==="pending").length} pending approval`,
                   color: "from-cyan-500 to-emerald-500",
@@ -515,7 +515,7 @@ export default function BudgetAuditPage() {
                 {
                   id: "compliance",
                   label: "Grant Compliance",
-                  icon: ShieldCheck,
+                  icon,
                   stat: `${grants.length} active grants`,
                   sub: `${formatCurrency(grants.reduce((s,g)=>s+g.totalAward,0))} total award · ${grants.filter(g=>g.auditRiskLevel==="high").length} high-risk`,
                   color: "from-green-500 to-emerald-600",
@@ -523,7 +523,7 @@ export default function BudgetAuditPage() {
                 {
                   id: "findings",
                   label: "Audit Findings",
-                  icon: FileWarning,
+                  icon,
                   stat: `${openFindings} open findings`,
                   sub: `${criticalFindings} critical/high · ${findings.filter(f=>f.resolutionStatus==="resolved").length} resolved`,
                   color: "from-amber-500 to-orange-500",
@@ -531,7 +531,7 @@ export default function BudgetAuditPage() {
                 {
                   id: "forecast",
                   label: "Budget Forecast",
-                  icon: LineChart,
+                  icon,
                   stat: `${overallBurnRate.toFixed(1)}% burn rate`,
                   sub: `Projected depletion Q3 FY24 · Audit readiness ${(100-auditRiskScore).toFixed(0)}%`,
                   color: "from-emerald-700 to-teal-700",
@@ -565,8 +565,8 @@ export default function BudgetAuditPage() {
           {/* ============================================================ */}
           {(activeNav === "overview" || activeNav === "programs") && (
           <motion.section
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity, y: 20 }}
+            animate={{ opacity, y: 0 }}
             transition={{ delay: 0.1 }}
             className="bg-white rounded-xl border border-emerald-200 shadow-sm overflow-hidden"
           >
@@ -660,8 +660,8 @@ export default function BudgetAuditPage() {
           {/* ============================================================ */}
           {(activeNav === "overview" || activeNav === "facilities") && (
           <motion.section
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity, y: 20 }}
+            animate={{ opacity, y: 0 }}
             transition={{ delay: 0.2 }}
             className="grid grid-cols-2 gap-6"
           >
@@ -730,7 +730,7 @@ export default function BudgetAuditPage() {
                     materials: acc.materials + p.costBreakdown.materials,
                     admin: acc.admin + p.costBreakdown.admin,
                     facilities: acc.facilities + p.costBreakdown.facilities
-                  }), { labor: 0, materials: 0, admin: 0, facilities: 0 })
+                  }), { labor, materials, admin, facilities: 0 })
                   const total = totals.labor + totals.materials + totals.admin + totals.facilities
                   const categories = [
                     { name: "Labor", value: totals.labor, color: "bg-emerald-500" },
@@ -760,7 +760,7 @@ export default function BudgetAuditPage() {
                             )
                             acc.offset += pct
                             return acc
-                          }, { elements: [] .Element[], offset: 0 }).elements}
+                          }, { elements: [] as JSX.Element[], offset: 0 }).elements}
                         </svg>
                         <div className="absolute inset-0 flex flex-col items-center justify-center">
                           <span className="text-2xl font-bold text-emerald-900">{formatCurrency(total)}</span>
@@ -794,8 +794,8 @@ export default function BudgetAuditPage() {
           {/* ============================================================ */}
           {(activeNav === "overview" || activeNav === "expenditures") && (
           <motion.section
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity, y: 20 }}
+            animate={{ opacity, y: 0 }}
             transition={{ delay: 0.3 }}
             className="bg-white rounded-xl border border-emerald-200 shadow-sm overflow-hidden"
           >
@@ -857,8 +857,8 @@ export default function BudgetAuditPage() {
           {/* ============================================================ */}
           {(activeNav === "overview" || activeNav === "compliance") && (
           <motion.section
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity, y: 20 }}
+            animate={{ opacity, y: 0 }}
             transition={{ delay: 0.4 }}
             className="grid grid-cols-2 gap-6"
           >
@@ -918,8 +918,8 @@ export default function BudgetAuditPage() {
           {/* ============================================================ */}
           {(activeNav === "overview" || activeNav === "findings") && (
           <motion.section
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity, y: 20 }}
+            animate={{ opacity, y: 0 }}
             transition={{ delay: 0.5 }}
             className="bg-white rounded-xl border border-emerald-200 shadow-sm overflow-hidden"
           >
@@ -990,8 +990,8 @@ export default function BudgetAuditPage() {
           {/* ============================================================ */}
           {(activeNav === "overview" || activeNav === "forecast") && (
           <motion.section
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity, y: 20 }}
+            animate={{ opacity, y: 0 }}
             transition={{ delay: 0.6 }}
             className="bg-white rounded-xl border border-emerald-200 shadow-sm overflow-hidden"
           >
@@ -1058,8 +1058,8 @@ export default function BudgetAuditPage() {
           {/* ============================================================ */}
           {(activeNav === "overview" || activeNav === "forecast") && (
           <motion.section
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity, y: 20 }}
+            animate={{ opacity, y: 0 }}
             transition={{ delay: 0.7 }}
             className="bg-gradient-to-br from-emerald-800 to-teal-900 rounded-xl shadow-lg p-8 text-white"
           >
@@ -1148,7 +1148,7 @@ export default function BudgetAuditPage() {
     </div>
     {/* === PROJECT FOOTER === */}
     <div style={{background:"#0f172a",color:"#94a3b8",fontSize:"11px",padding:"18px 32px",borderTop:"2px solid #1e293b",fontFamily:"monospace",lineHeight:1.7}}>
-      <div style={{marginBottom:6,color:"#e2e8f0",fontWeight:700,fontSize:13,letterSpacing:1}}>PROJECT FOOTNOTE</div>
+      <div style={{marginBottom,color:"#e2e8f0",fontWeight,fontSize,letterSpacing:1}}>PROJECT FOOTNOTE</div>
       <div><strong style={{color:"#f1f5f9"}}>Stack:</strong> React · TypeScript · Tailwind CSS · Framer Motion · Lucide Icons — standalone simulation, no backend</div>
       <div><strong style={{color:"#f1f5f9"}}>Methods:</strong> Program budget variance tracking · Burn rate analysis · Facility utilization scoring · Expenditure compliance tagging · Grant drawdown monitoring · Audit finding severity classification · Fiscal efficiency indexing</div>
       <div><strong style={{color:"#f1f5f9"}}>Sources:</strong> Budget and program structures modeled after Living Classrooms Foundation DC / Kingman Island Ecological Area grant frameworks; grant reporting standards based on DOEE / DC Workforce Innovation Fund compliance requirements; all financial figures procedurally generated — no real organizational data</div>

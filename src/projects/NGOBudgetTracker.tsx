@@ -414,7 +414,7 @@ export default function BudgetAuditPage() {
 
       <div className="flex max-w-[1800px] mx-auto">
         {/* Left Sidebar Navigation */}
-        <aside className="w-64 min-h-[calc(100vh-80px)] bg-white/60 backdrop-blur-sm border-r border-emerald-200 p-4 sticky top-0">
+        <aside className="w-64 self-start sticky top-0 bg-white/60 backdrop-blur-sm border-r border-emerald-200 p-4">
           <nav className="space-y-1">
             {navItems.map(item => (
               <button
