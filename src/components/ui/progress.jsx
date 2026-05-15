@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils"
 
 function Progress({
   className,
-  children,
+  children = null,
   value,
   ...props
 }) {
