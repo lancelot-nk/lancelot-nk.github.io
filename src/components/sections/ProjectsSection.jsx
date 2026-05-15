@@ -28,6 +28,7 @@ const LazyNEPAReview       = lazy(() => import('../../projects/NEPALiteratureRev
 const LazySalesMatrix      = lazy(() => import('../../projects/SalesMatrix'));
 const LazyB2BChurn         = lazy(() => import('../../projects/B2BChurn'));
 const LazyGreenWorkforce   = lazy(() => import('../../projects/GREENworkforcetracker'));
+const LazyNGOBudget        = lazy(() => import('../../projects/NGOBudgetTracker'));
 
 // ── Image Imports ────────────────────────────────────────────────────────────
 import img1 from '../../assets/project1.jpg';
@@ -58,6 +59,7 @@ import imgSalesMatrix from '../../assets/project_sales_matrix.jpg';
 import imgB2BChurn from '../../assets/project_b2b_churn.jpg';
 import imgHRAIntegrity from '../../assets/project_hra_integrity.jpg';
 import imgGreenWorkforce from '../../assets/project_green_workforce.jpg';
+import imgNGOBudget from '../../assets/project_ngo_budget.jpg';
 
 // ── Brand Colors ─────────────────────────────────────────────────────────────
 const PINK   = '#B8004E';
@@ -211,6 +213,15 @@ export const PROJECTS = [
     type: 'jsx',
     component: LazyGreenWorkforce,
     img: imgGreenWorkforce,
+  },
+  {
+    title: 'NGO Program & Facilities Budget Audit System',
+    desc: 'Civic grant financial oversight platform simulating Living Classrooms Foundation DC — program burn rate tracking, facility utilization scoring, expenditure compliance tagging, audit finding severity classification, grant drawdown monitoring, and fiscal efficiency indexing.',
+    tech: ['React', 'TypeScript', 'Tailwind', 'Framer Motion', 'Civic Finance', 'NGO', 'Grant Compliance', 'Audit', 'DOEE'],
+    link: '/ngo_budget_tracker.jsx',
+    type: 'jsx',
+    component: LazyNGOBudget,
+    img: imgNGOBudget,
   },
   {
     title: 'Lytx Fleet Intelligence Platform',

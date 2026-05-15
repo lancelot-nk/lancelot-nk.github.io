@@ -13,77 +13,20 @@ import {
 // TYPE DEFINITIONS - CIVIC FINANCE AUDIT ENTITY MODELS
 // ============================================================================
 
-interface ProgramBudget {
-  id: string
-  programName: string
-  allocatedBudget: number
-  actualExpenditure: number
-  burnRate: number
-  varianceRatio: number
-  fundingSource: string
-  costBreakdown: {
-    labor: number
-    materials: number
-    admin: number
-    facilities: number
-  }
-  fiscalEfficiencyScore: number
+
+  fiscalEfficiencyScore
   status: "on-track" | "at-risk" | "over-budget" | "under-utilized"
 }
 
-interface Facility {
-  id: string
-  name: string
-  siteType: "education" | "restoration" | "training" | "administrative"
-  utilizationPercent: number
-  occupancyCycles: number
-  maintenanceCostIndex: number
-  operationalCapacity: number
-  sharedUsageConflicts: number
-  efficiencyRank: number
-}
 
-interface Expenditure {
-  id: string
-  description: string
-  category: string
-  amount: number
-  program: string
-  facility: string
-  complianceTag: "compliant" | "review" | "flagged"
-  approvalStatus: "approved" | "pending" | "rejected"
-  date: string
-}
 
-interface AuditFinding {
-  id: string
-  severity: "low" | "medium" | "high" | "critical"
-  category: string
-  discrepancyType: string
-  documentationScore: number
-  resolutionStatus: "open" | "in-progress" | "resolved"
-  description: string
-  financialImpact: number
-}
 
-interface Grant {
-  id: string
-  name: string
-  totalAward: number
-  drawnAmount: number
-  reportingCadence: string
-  complianceThreshold: number
-  auditRiskLevel: "low" | "medium" | "high"
-  nextReportDue: string
-  allowableCostRules: string[]
-}
 
-interface ForecastData {
-  month: string
-  projected: number
-  actual: number
-  burnRate: number
-}
+
+
+
+
+
 
 // ============================================================================
 // SIMULATION ENGINES
@@ -91,7 +34,7 @@ interface ForecastData {
 
 // Engine 1: Budget Utilization Engine
 function useBudgetUtilizationEngine() {
-  const [programs, setPrograms] = useState<ProgramBudget[]>([
+  const [programs, setPrograms] = useState([
     {
       id: "PRG-001",
       programName: "Kingman Island Restoration",
@@ -183,7 +126,7 @@ function useBudgetUtilizationEngine() {
 
 // Engine 2: Facility Usage Optimization Engine
 function useFacilityEngine() {
-  const [facilities, setFacilities] = useState<Facility[]>([
+  const [facilities, setFacilities] = useState([
     { id: "FAC-001", name: "Kingman Island Education Center", siteType: "education", utilizationPercent: 78.5, occupancyCycles: 42, maintenanceCostIndex: 0.85, operationalCapacity: 120, sharedUsageConflicts: 3, efficiencyRank: 2 },
     { id: "FAC-002", name: "Anacostia Restoration Site", siteType: "restoration", utilizationPercent: 92.1, occupancyCycles: 28, maintenanceCostIndex: 1.12, operationalCapacity: 45, sharedUsageConflicts: 1, efficiencyRank: 1 },
     { id: "FAC-003", name: "Ward 7 Training Facility", siteType: "training", utilizationPercent: 61.3, occupancyCycles: 35, maintenanceCostIndex: 0.72, operationalCapacity: 80, sharedUsageConflicts: 5, efficiencyRank: 4 },
@@ -206,7 +149,7 @@ function useFacilityEngine() {
 
 // Engine 3: Audit Risk Detection Engine
 function useAuditEngine() {
-  const [findings, setFindings] = useState<AuditFinding[]>([
+  const [findings, setFindings] = useState([
     { id: "AUD-001", severity: "high", category: "Documentation", discrepancyType: "Missing receipts", documentationScore: 45, resolutionStatus: "open", description: "Q2 material purchases lack supporting documentation for 23 transactions totaling $12,450", financialImpact: 12450 },
     { id: "AUD-002", severity: "medium", category: "Cost Allocation", discrepancyType: "Indirect cost miscoding", documentationScore: 72, resolutionStatus: "in-progress", description: "Administrative costs incorrectly allocated to direct program expenses in Green Jobs program", financialImpact: 8200 },
     { id: "AUD-003", severity: "low", category: "Reporting", discrepancyType: "Late submission", documentationScore: 88, resolutionStatus: "resolved", description: "Monthly progress report submitted 3 days past deadline for Youth Education program", financialImpact: 0 },
@@ -232,7 +175,7 @@ function useAuditEngine() {
 
 // Engine 4: Grant Compliance Engine
 function useGrantEngine() {
-  const [grants, setGrants] = useState<Grant[]>([
+  const [grants, setGrants] = useState([
     { id: "GRT-001", name: "DOEE Environmental Restoration FY24", totalAward: 485000, drawnAmount: 312450, reportingCadence: "Quarterly", complianceThreshold: 95, auditRiskLevel: "low", nextReportDue: "2024-03-31", allowableCostRules: ["Direct labor", "Materials", "Equipment < $5000", "Training"] },
     { id: "GRT-002", name: "DC Workforce Innovation Grant", totalAward: 320000, drawnAmount: 298750, reportingCadence: "Monthly", complianceThreshold: 90, auditRiskLevel: "medium", nextReportDue: "2024-02-15", allowableCostRules: ["Participant stipends", "Instructor salaries", "Certification fees", "Transportation"] },
     { id: "GRT-003", name: "EPA Environmental Education Award", totalAward: 175000, drawnAmount: 89200, reportingCadence: "Semi-Annual", complianceThreshold: 92, auditRiskLevel: "low", nextReportDue: "2024-06-30", allowableCostRules: ["Curriculum development", "Field trips", "Educational materials", "Outreach"] },
@@ -252,7 +195,7 @@ function useGrantEngine() {
 
 // Engine 5: Expenditure Flow Engine
 function useExpenditureEngine() {
-  const [expenditures] = useState<Expenditure[]>([
+  const [expenditures] = useState([
     { id: "EXP-001", description: "Native plant materials - Phase 2", category: "Materials", amount: 8450, program: "Kingman Island Restoration", facility: "Anacostia Restoration Site", complianceTag: "compliant", approvalStatus: "approved", date: "2024-01-15" },
     { id: "EXP-002", description: "Instructor salary - January", category: "Labor", amount: 4200, program: "Green Jobs Workforce Development", facility: "Ward 7 Training Facility", complianceTag: "compliant", approvalStatus: "approved", date: "2024-01-31" },
     { id: "EXP-003", description: "Heavy equipment rental", category: "Equipment", amount: 12800, program: "Rainwater Retention Gardens", facility: "Benning Road Garden Site", complianceTag: "review", approvalStatus: "pending", date: "2024-02-02" },
@@ -266,7 +209,7 @@ function useExpenditureEngine() {
 
 // Engine 6: Budget Forecast Engine
 function useForecastEngine() {
-  const [forecasts, setForecasts] = useState<ForecastData[]>([
+  const [forecasts, setForecasts] = useState([
     { month: "Jan", projected: 95000, actual: 89200, burnRate: 7.1 },
     { month: "Feb", projected: 105000, actual: 112450, burnRate: 8.4 },
     { month: "Mar", projected: 118000, actual: 108900, burnRate: 8.1 },
@@ -292,13 +235,13 @@ function useForecastEngine() {
 // HELPER COMPONENTS
 // ============================================================================
 
-function formatCurrency(amount: number): string {
+function formatCurrency(amount): string {
   if (amount >= 1000000) return `$${(amount / 1000000).toFixed(2)}M`
   if (amount >= 1000) return `$${(amount / 1000).toFixed(1)}K`
   return `$${amount.toFixed(0)}`
 }
 
-function getSeverityColor(severity: string): string {
+function getSeverityColor(severity): string {
   switch (severity) {
     case "critical": return "bg-red-600 text-white"
     case "high": return "bg-orange-500 text-white"
@@ -308,7 +251,7 @@ function getSeverityColor(severity: string): string {
   }
 }
 
-function getStatusColor(status: string): string {
+function getStatusColor(status): string {
   switch (status) {
     case "on-track": return "text-green-700 bg-green-100"
     case "at-risk": return "text-amber-700 bg-amber-100"
@@ -318,7 +261,7 @@ function getStatusColor(status: string): string {
   }
 }
 
-function getComplianceColor(tag: string): string {
+function getComplianceColor(tag): string {
   switch (tag) {
     case "compliant": return "text-green-700 bg-green-50 border-green-200"
     case "review": return "text-amber-700 bg-amber-50 border-amber-200"
@@ -731,7 +674,7 @@ export default function BudgetAuditPage() {
                             )
                             acc.offset += pct
                             return acc
-                          }, { elements: [] as JSX.Element[], offset: 0 }).elements}
+                          }, { elements: [] .Element[], offset: 0 }).elements}
                         </svg>
                         <div className="absolute inset-0 flex flex-col items-center justify-center">
                           <span className="text-2xl font-bold text-emerald-900">{formatCurrency(total)}</span>
