@@ -535,8 +535,92 @@ export default function BudgetAuditPage() {
           </motion.section>
 
           {/* ============================================================ */}
+          {/* OVERVIEW DASHBOARD: clickable nav tiles (overview only) */}
+          {/* ============================================================ */}
+          {activeNav === "overview" && (
+            <motion.section
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.05 }}
+              className="grid grid-cols-3 gap-4"
+            >
+              {[
+                {
+                  id: "programs",
+                  label: "Program Budgets",
+                  icon: FolderOpen,
+                  stat: `${programs.filter(p => p.status === "on-track").length}/${programs.length} on-track`,
+                  sub: `${formatCurrency(totalAllocated)} allocated across ${programs.length} programs`,
+                  color: "from-emerald-500 to-teal-500",
+                },
+                {
+                  id: "facilities",
+                  label: "Facilities Audit",
+                  icon: Building,
+                  stat: `${facilities.length} sites tracked`,
+                  sub: `Avg utilization ${(facilities.reduce((s,f)=>s+f.utilizationPercent,0)/facilities.length).toFixed(0)}% · ${facilities.reduce((s,f)=>s+f.sharedUsageConflicts,0)} scheduling conflicts`,
+                  color: "from-teal-500 to-cyan-500",
+                },
+                {
+                  id: "expenditures",
+                  label: "Expenditure Ledger",
+                  icon: Receipt,
+                  stat: `${expenditures.length} transactions`,
+                  sub: `${expenditures.filter(e=>e.complianceTag==="flagged").length} flagged · ${expenditures.filter(e=>e.approvalStatus==="pending").length} pending approval`,
+                  color: "from-cyan-500 to-emerald-500",
+                },
+                {
+                  id: "compliance",
+                  label: "Grant Compliance",
+                  icon: ShieldCheck,
+                  stat: `${grants.length} active grants`,
+                  sub: `${formatCurrency(grants.reduce((s,g)=>s+g.totalAward,0))} total award · ${grants.filter(g=>g.auditRiskLevel==="high").length} high-risk`,
+                  color: "from-green-500 to-emerald-600",
+                },
+                {
+                  id: "findings",
+                  label: "Audit Findings",
+                  icon: FileWarning,
+                  stat: `${openFindings} open findings`,
+                  sub: `${criticalFindings} critical/high · ${findings.filter(f=>f.resolutionStatus==="resolved").length} resolved`,
+                  color: "from-amber-500 to-orange-500",
+                },
+                {
+                  id: "forecast",
+                  label: "Budget Forecast",
+                  icon: LineChart,
+                  stat: `${overallBurnRate.toFixed(1)}% burn rate`,
+                  sub: `Projected depletion Q3 FY24 · Audit readiness ${(100-auditRiskScore).toFixed(0)}%`,
+                  color: "from-emerald-700 to-teal-700",
+                },
+              ].map(card => (
+                <button
+                  key={card.id}
+                  onClick={() => setActiveNav(card.id)}
+                  className="text-left bg-white rounded-xl border border-emerald-200 shadow-sm overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all group"
+                >
+                  <div className={`bg-gradient-to-r ${card.color} px-5 py-3 flex items-center justify-between`}>
+                    <span className="font-semibold text-white text-sm">{card.label}</span>
+                    <card.icon className="w-5 h-5 text-white/80" />
+                  </div>
+                  <div className="px-5 py-4">
+                    <p className="text-xl font-bold text-emerald-900">{card.stat}</p>
+                    <p className="text-xs text-emerald-600 mt-1 leading-relaxed">{card.sub}</p>
+                  </div>
+                  <div className="px-5 pb-3">
+                    <span className="text-xs font-medium text-emerald-500 group-hover:text-emerald-700 flex items-center gap-1 transition-colors">
+                      <ArrowRight className="w-3 h-3" /> Open full view
+                    </span>
+                  </div>
+                </button>
+              ))}
+            </motion.section>
+          )}
+
+          {/* ============================================================ */}
           {/* SCROLL LAYER 2: PROGRAM BUDGET ANALYSIS */}
           {/* ============================================================ */}
+          {(activeNav === "overview" || activeNav === "programs") && (
           <motion.section
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -626,10 +710,12 @@ export default function BudgetAuditPage() {
               </div>
             </div>
           </motion.section>
+          )}
 
           {/* ============================================================ */}
           {/* SCROLL LAYER 3: FACILITY UTILIZATION */}
           {/* ============================================================ */}
+          {(activeNav === "overview" || activeNav === "facilities") && (
           <motion.section
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -758,10 +844,12 @@ export default function BudgetAuditPage() {
               </div>
             </div>
           </motion.section>
+          )}
 
           {/* ============================================================ */}
           {/* SCROLL LAYER 4: EXPENDITURE LEDGER */}
           {/* ============================================================ */}
+          {(activeNav === "overview" || activeNav === "expenditures") && (
           <motion.section
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -819,10 +907,12 @@ export default function BudgetAuditPage() {
               </table>
             </div>
           </motion.section>
+          )}
 
           {/* ============================================================ */}
           {/* SCROLL LAYER 5: GRANT COMPLIANCE */}
           {/* ============================================================ */}
+          {(activeNav === "overview" || activeNav === "compliance") && (
           <motion.section
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -878,10 +968,12 @@ export default function BudgetAuditPage() {
               </div>
             ))}
           </motion.section>
+          )}
 
           {/* ============================================================ */}
           {/* SCROLL LAYER 6: AUDIT FINDINGS */}
           {/* ============================================================ */}
+          {(activeNav === "overview" || activeNav === "findings") && (
           <motion.section
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -948,10 +1040,12 @@ export default function BudgetAuditPage() {
               ))}
             </div>
           </motion.section>
+          )}
 
           {/* ============================================================ */}
           {/* SCROLL LAYER 7: BUDGET FORECAST */}
           {/* ============================================================ */}
+          {(activeNav === "overview" || activeNav === "forecast") && (
           <motion.section
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -1014,10 +1108,12 @@ export default function BudgetAuditPage() {
               </div>
             </div>
           </motion.section>
+          )}
 
           {/* ============================================================ */}
           {/* FINAL SYNTHESIS LAYER */}
           {/* ============================================================ */}
+          {(activeNav === "overview" || activeNav === "forecast") && (
           <motion.section
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -1097,6 +1193,7 @@ export default function BudgetAuditPage() {
               </div>
             </div>
           </motion.section>
+          )}
 
           {/* Footer */}
           <footer className="text-center py-8 text-emerald-700 text-sm">
