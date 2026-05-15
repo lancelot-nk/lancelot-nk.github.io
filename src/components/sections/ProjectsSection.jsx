@@ -19,6 +19,8 @@ const LazyHRABudget        = lazy(() => import('../../projects/HRABudgetVariance
 const LazyEventsConversion = lazy(() => import('../../projects/EventsConversion'));
 const LazyMASIP            = lazy(() => import('../../projects/MASIPDashboard'));
 const LazyPeerReport       = lazy(() => import('../../projects/PeerReportSimulation'));
+const LazyNYCEventsAnnual  = lazy(() => import('../../projects/NYCEventsAnnualReport'));
+const LazyFedGrant         = lazy(() => import('../../projects/FedGrantAndDataWarehouse'));
 
 // ── Image Imports ────────────────────────────────────────────────────────────
 import img1 from '../../assets/project1.jpg';
@@ -75,6 +77,15 @@ export const PROJECTS = [
     img: img12,
   },
   {
+    title: 'Federal Grant & Data Warehouse (SENTINEL)',
+    desc: 'Federal grant lifecycle management and data warehouse platform — multi-agency project tracking, financial compliance scoring, NIST RMF audit trails, burn rate analytics, risk flagging, and FedRAMP-authorized grant intelligence.',
+    tech: ['React', 'TypeScript', 'Federal Grants', 'NIST 800-53', 'FedRAMP', 'Data Warehouse', 'Government'],
+    link: '/fed_grant_data_warehouse.jsx',
+    type: 'jsx',
+    component: LazyFedGrant,
+    img: img11,
+  },
+  {
     title: 'HRA Sovereign Integrity Engine',
     desc: 'War-room fraud detection system for NYC HRA SNAP/EBT — live case triage, NIST-800-53 compliance matrix, RPA operations command, ISO 8583 packet inspection, advanced intel modules (SIG, DMF, Device Fingerprint, Subpoena Drafter), and kernel audit log. Real $7.6B budget oversight.',
     tech: ['React', 'NIST-800-53', 'EBT Fraud', 'HRA', 'SNAP', 'RPA', 'ISO 8583', 'NYC Government'],
@@ -108,6 +119,15 @@ export const PROJECTS = [
     link: '/events_conversion.jsx',
     type: 'jsx',
     component: LazyEventsConversion,
+    img: img9,
+  },
+  {
+    title: 'NYC Events FY2024 Annual Report',
+    desc: "Interactive public-facing annual report for NYC Events & Community Data Program — FY2024 attendance analytics, borough breakdowns, monthly trends, funding allocation, platform performance, and outcomes scorecard across 847 events reaching 284K attendees.",
+    tech: ['React', 'TypeScript', 'NYC Events', 'Annual Report', 'Data Visualization', 'Public Sector'],
+    link: '/nyc_events_annual_report.jsx',
+    type: 'jsx',
+    component: LazyNYCEventsAnnual,
     img: img9,
   },
   {
