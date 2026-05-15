@@ -93,7 +93,6 @@ function SvgLineChart({ data, xKey, yKey, color = '#67e8f9', yLabel = '' }) {
 }
 
 export default function KingmanIslandRFP() {
-  const [activeTab, setActiveTab] = useState(0);
   const [expandedPhase, setExpandedPhase] = useState(null);
   const [expandedDeliverable, setExpandedDeliverable] = useState(null);
 
@@ -268,17 +267,8 @@ export default function KingmanIslandRFP() {
 
   const COLORS = ['#67e8f9', '#34d399', '#60a5fa', '#a78bfa', '#f472b6', '#fb923c'];
 
-  const tabs = [
-    'Overview',
-    'Program Details',
-    'Budget & Timeline',
-    'Impact Metrics',
-    'Partners & History',
-    'Justification'
-  ];
-
   return (
-    <div className="min-h-screen bg-[#061018] text-white overflow-hidden relative">
+    <div style={{ width:'100%', maxWidth:'100%', background:'#061018', color:'white', overflowX:'hidden', position:'relative' }}>
       <style>{`
         * { scroll-behavior: smooth; }
 
@@ -441,28 +431,54 @@ export default function KingmanIslandRFP() {
         </div>
       </section>
 
-      {/* TABS */}
-      <div className="sticky top-0 z-50 glass border-b border-cyan-400/10">
+      {/* RFP METADATA */}
+      <section id="rfp-metadata" className="relative px-6 md:px-14 xl:px-20 py-8 border-b border-cyan-400/10">
+        <div className="glass rounded-[2rem] p-8">
+          <div className="text-xs uppercase tracking-[0.28em] text-cyan-200 mb-6">Solicitation Information</div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 text-sm">
+            {[
+              ['Solicitation Number', 'DOEE-OCTO-GI-FY2024-001', 'text-cyan-300'],
+              ['Issuing Agency', 'DC Dept. of Energy & Environment (DOEE)', 'text-slate-200'],
+              ['Program Title', 'Stormwater GI Workforce Development Grant', 'text-slate-200'],
+              ['Submission Deadline', 'March 31, 2024 — 5:00 PM EST', 'text-amber-300'],
+              ['Grant Period', 'October 1, 2024 – September 30, 2028', 'text-slate-200'],
+              ['Total Funding Available', '$400,000 (Four-Year Award)', 'text-emerald-300'],
+              ['Eligible Applicants', 'DC-based 501(c)(3) Nonprofits', 'text-slate-200'],
+              ['Point of Contact', 'DOEE Office of Contracts & Procurement', 'text-slate-200'],
+              ['CFDA Number', '66.460 — Nonpoint Source Implementation', 'text-slate-200'],
+            ].map(([label, value, colorClass]) => (
+              <div key={label} className="glass-soft rounded-xl p-4">
+                <div className="text-xs text-slate-500 uppercase tracking-wider mb-1">{label}</div>
+                <div className={`font-semibold ${colorClass}`}>{value}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION NAV */}
+      <div style={{ position:'sticky', top:0, zIndex:50 }} className="glass border-b border-cyan-400/10">
         <div className="px-6 md:px-14 xl:px-20">
-          <nav className="tab-nav">
-            {tabs.map((tab, idx) => (
-              <button
-                key={idx}
-                className={`tab-btn ${activeTab === idx ? 'active' : ''}`}
-                onClick={() => setActiveTab(idx)}
-              >
-                {tab}
-              </button>
+          <nav style={{ display:'flex', gap:0, borderBottom:'none', overflowX:'auto' }} className="scrollbar-hide">
+            {[['#overview','Overview'],['#program','Program'],['#budget','Budget'],['#impact','Impact'],['#partners','Partners'],['#justification','Justification']].map(([href, label]) => (
+              <a key={href} href={href} style={{ padding:'14px 22px', fontSize:'12px', textTransform:'uppercase', letterSpacing:'0.08em', fontWeight:600, border:'none', background:'none', color:'rgba(255,255,255,0.5)', cursor:'pointer', borderBottom:'2px solid transparent', textDecoration:'none', whiteSpace:'nowrap', display:'block', transition:'color 0.3s' }}
+                onMouseEnter={e => { e.target.style.color='rgba(255,255,255,0.8)'; }}
+                onMouseLeave={e => { e.target.style.color='rgba(255,255,255,0.5)'; }}>
+                {label}
+              </a>
             ))}
           </nav>
         </div>
       </div>
 
-      {/* CONTENT */}
-      <main className="relative px-6 md:px-14 xl:px-20 py-12">
+      <main className="relative">
 
-        {/* TAB 0: OVERVIEW */}
-        {activeTab === 0 && (
+        {/* SECTION 01: OVERVIEW */}
+        <section id="overview" style={{ position:'relative', paddingBottom:'4rem', borderBottom:'1px solid rgba(120,190,230,0.1)' }} className="px-6 md:px-14 xl:px-20 py-12">
+          <div style={{ padding:'2rem 0 1.5rem', borderBottom:'1px solid rgba(120,190,230,0.08)', marginBottom:'2rem' }}>
+            <div style={{ fontSize:'10px', textTransform:'uppercase', letterSpacing:'0.32em', color:'rgba(103,232,249,0.7)', marginBottom:'0.5rem' }}>Section 01</div>
+            <div style={{ fontSize:'clamp(1.5rem,3vw,2.5rem)', fontWeight:900, letterSpacing:'-0.04em' }}>Program Overview</div>
+          </div>
           <div className="space-y-10">
             {/* Hero Image + Summary */}
             <div className="grid xl:grid-cols-[1.2fr_0.8fr] gap-8">
@@ -591,10 +607,14 @@ export default function KingmanIslandRFP() {
               </div>
             </div>
           </div>
-        )}
+        </section>
 
-        {/* TAB 1: PROGRAM DETAILS */}
-        {activeTab === 1 && (
+        {/* SECTION 02: PROGRAM DETAILS */}
+        <section id="program" style={{ position:'relative', paddingBottom:'4rem', borderBottom:'1px solid rgba(120,190,230,0.1)' }} className="px-6 md:px-14 xl:px-20 py-12">
+          <div style={{ padding:'2rem 0 1.5rem', borderBottom:'1px solid rgba(120,190,230,0.08)', marginBottom:'2rem' }}>
+            <div style={{ fontSize:'10px', textTransform:'uppercase', letterSpacing:'0.32em', color:'rgba(103,232,249,0.7)', marginBottom:'0.5rem' }}>Section 02</div>
+            <div style={{ fontSize:'clamp(1.5rem,3vw,2.5rem)', fontWeight:900, letterSpacing:'-0.04em' }}>Program Architecture</div>
+          </div>
           <div className="space-y-10">
             <div className="glass rounded-[2rem] p-8">
               <div className="text-xs uppercase tracking-[0.26em] text-cyan-200 mb-4">
@@ -755,10 +775,14 @@ export default function KingmanIslandRFP() {
               </div>
             </div>
           </div>
-        )}
+        </section>
 
-        {/* TAB 2: BUDGET & TIMELINE */}
-        {activeTab === 2 && (
+        {/* SECTION 03: BUDGET & TIMELINE */}
+        <section id="budget" style={{ position:'relative', paddingBottom:'4rem', borderBottom:'1px solid rgba(120,190,230,0.1)' }} className="px-6 md:px-14 xl:px-20 py-12">
+          <div style={{ padding:'2rem 0 1.5rem', borderBottom:'1px solid rgba(120,190,230,0.08)', marginBottom:'2rem' }}>
+            <div style={{ fontSize:'10px', textTransform:'uppercase', letterSpacing:'0.32em', color:'rgba(103,232,249,0.7)', marginBottom:'0.5rem' }}>Section 03</div>
+            <div style={{ fontSize:'clamp(1.5rem,3vw,2.5rem)', fontWeight:900, letterSpacing:'-0.04em' }}>Budget & Financial Plan</div>
+          </div>
           <div className="space-y-10">
             <div className="glass rounded-[2rem] p-8">
               <div className="flex flex-wrap items-center justify-between gap-5 mb-8">
@@ -899,10 +923,14 @@ export default function KingmanIslandRFP() {
               </div>
             </div>
           </div>
-        )}
+        </section>
 
-        {/* TAB 3: IMPACT METRICS */}
-        {activeTab === 3 && (
+        {/* SECTION 04: IMPACT METRICS */}
+        <section id="impact" style={{ position:'relative', paddingBottom:'4rem', borderBottom:'1px solid rgba(120,190,230,0.1)' }} className="px-6 md:px-14 xl:px-20 py-12">
+          <div style={{ padding:'2rem 0 1.5rem', borderBottom:'1px solid rgba(120,190,230,0.08)', marginBottom:'2rem' }}>
+            <div style={{ fontSize:'10px', textTransform:'uppercase', letterSpacing:'0.32em', color:'rgba(103,232,249,0.7)', marginBottom:'0.5rem' }}>Section 04</div>
+            <div style={{ fontSize:'clamp(1.5rem,3vw,2.5rem)', fontWeight:900, letterSpacing:'-0.04em' }}>Impact Metrics & Outcomes</div>
+          </div>
           <div className="space-y-10">
             <div className="grid lg:grid-cols-2 gap-8">
               {/* Water Retention Chart */}
@@ -1008,10 +1036,14 @@ export default function KingmanIslandRFP() {
               />
             </div>
           </div>
-        )}
+        </section>
 
-        {/* TAB 4: PARTNERS & HISTORY */}
-        {activeTab === 4 && (
+        {/* SECTION 05: PARTNERS & HISTORY */}
+        <section id="partners" style={{ position:'relative', paddingBottom:'4rem', borderBottom:'1px solid rgba(120,190,230,0.1)' }} className="px-6 md:px-14 xl:px-20 py-12">
+          <div style={{ padding:'2rem 0 1.5rem', borderBottom:'1px solid rgba(120,190,230,0.08)', marginBottom:'2rem' }}>
+            <div style={{ fontSize:'10px', textTransform:'uppercase', letterSpacing:'0.32em', color:'rgba(103,232,249,0.7)', marginBottom:'0.5rem' }}>Section 05</div>
+            <div style={{ fontSize:'clamp(1.5rem,3vw,2.5rem)', fontWeight:900, letterSpacing:'-0.04em' }}>Strategic Partnerships & History</div>
+          </div>
           <div className="space-y-10">
             {/* Key Partners */}
             <div className="glass rounded-[2rem] p-8">
@@ -1132,10 +1164,14 @@ export default function KingmanIslandRFP() {
               </div>
             </div>
           </div>
-        )}
+        </section>
 
-        {/* TAB 5: JUSTIFICATION */}
-        {activeTab === 5 && (
+        {/* SECTION 06: JUSTIFICATION */}
+        <section id="justification" style={{ position:'relative', paddingBottom:'4rem', borderBottom:'1px solid rgba(120,190,230,0.1)' }} className="px-6 md:px-14 xl:px-20 py-12">
+          <div style={{ padding:'2rem 0 1.5rem', borderBottom:'1px solid rgba(120,190,230,0.08)', marginBottom:'2rem' }}>
+            <div style={{ fontSize:'10px', textTransform:'uppercase', letterSpacing:'0.32em', color:'rgba(103,232,249,0.7)', marginBottom:'0.5rem' }}>Section 06</div>
+            <div style={{ fontSize:'clamp(1.5rem,3vw,2.5rem)', fontWeight:900, letterSpacing:'-0.04em' }}>Funding Justification & Policy Alignment</div>
+          </div>
           <div className="space-y-10">
             <div className="grid lg:grid-cols-[1.2fr_0.8fr] gap-8">
               <div className="glass rounded-[2rem] p-8">
@@ -1257,7 +1293,7 @@ export default function KingmanIslandRFP() {
               </div>
             </div>
           </div>
-        )}
+        </section>
 
       </main>
 

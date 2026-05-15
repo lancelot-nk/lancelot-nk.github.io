@@ -14,6 +14,8 @@ const LazyFinOpsDash       = lazy(() => import('../../projects/FinOpsDashboard')
 const LazyHomelessSvc      = lazy(() => import('../../projects/HomelessServicesDashboard'));
 const LazyLytxCSM          = lazy(() => import('../../projects/LytxCSMExample'));
 const LazyKingmanRFP       = lazy(() => import('../../projects/KingmanRFPInteractive'));
+const LazyHRAFraud         = lazy(() => import('../../projects/HRAFraudAuditTool'));
+const LazyHRABudget        = lazy(() => import('../../projects/HRABudgetVarianceEngine'));
 
 // ── Image Imports ────────────────────────────────────────────────────────────
 import img1 from '../../assets/project1.jpg';
@@ -30,6 +32,8 @@ import img11 from '../../assets/project_finops.jpg';
 import img12 from '../../assets/project_homeless_services.jpg';
 import img13 from '../../assets/project_lytx_csm.jpg';
 import img14 from '../../assets/project_kingman_rfp.jpg';
+import img15 from '../../assets/project_mock_hra.jpg';
+import img16 from '../../assets/project_finops.jpg';
 
 // ── Brand Colors ─────────────────────────────────────────────────────────────
 const PINK   = '#B8004E';
@@ -66,6 +70,24 @@ export const PROJECTS = [
     type: 'jsx',
     component: LazyHomelessSvc,
     img: img12,
+  },
+  {
+    title: 'HRA Sovereign Integrity Engine',
+    desc: 'War-room fraud detection system for NYC HRA SNAP/EBT — live case triage, NIST-800-53 compliance matrix, RPA operations command, ISO 8583 packet inspection, advanced intel modules (SIG, DMF, Device Fingerprint, Subpoena Drafter), and kernel audit log. Real $7.6B budget oversight.',
+    tech: ['React', 'NIST-800-53', 'EBT Fraud', 'HRA', 'SNAP', 'RPA', 'ISO 8583', 'NYC Government'],
+    link: '/hra_fraud_audit_tool.jsx',
+    type: 'jsx',
+    component: LazyHRAFraud,
+    img: img15,
+  },
+  {
+    title: 'HRA SNAP Budget Variance Engine',
+    desc: "Federal SNAP benefit issuance analytics engine — FY2025 COLA allotment calculations, 100K synthetic household simulation, over/under-issuance variance detection, borough breakdown, regulatory root cause analysis, and utilization gap modeling across NYC's 543K SNAP households.",
+    tech: ['React', 'SNAP Benefits', 'Federal Policy', 'USDA FNS', 'Budget Analytics', 'HRA', 'NYC Government'],
+    link: '/hra_budget_variance_engine.jsx',
+    type: 'jsx',
+    component: LazyHRABudget,
+    img: img16,
   },
   {
     title: 'NYC Events Management System',
