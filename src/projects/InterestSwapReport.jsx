@@ -561,13 +561,6 @@ ${petInst || "[Institution]"}${petState ? `, ${petState}` : ""}`
           </div>
         )}
 
-        {/* ╔══════ FOOTER ══════╗ */}
-        <div style={{ background: C.surface, borderTop: `1px solid ${C.border}`, padding: "28px 156px", fontSize: 11, color: C.dim, lineHeight: 1.8, fontFamily: F.mono }} className="sr-footer">
-          <div><span style={{ color: C.muted }}>Analysis & Interface Design:</span> Lancelot Naipier-Kane</div>
-          <div style={{ marginTop: 6 }}><span style={{ color: C.muted }}>Real Data Sources:</span> Roosevelt Institute (2016), "The Financialization of Higher Education"; Time / Fortune (September 2016); Cornell Daily Sun (September 2016); The Hechinger Report; Action Center on Race and the Economy; NCES Digest of Education Statistics (average tuition 2000–2024); Federal Reserve / College Board (average student debt 2000–2024); FRB LIBOR historical rate data.</div>
-          <div style={{ marginTop: 6 }}><span style={{ color: C.muted }}>Estimated Data:</span> Swap loss figures for Columbia, UPenn, UC Berkeley, Univ. of Pittsburgh, Ohio State, Wayne State, and CUNY are estimated using Roosevelt Institute published methodology applied to comparable institutional debt profiles. Clearly noted in all tooltips. Confirmed figures: Harvard ($1.25B), Cornell ($280M+), Michigan State ($130.2M), Univ. of Michigan ($86M+).</div>
-          <div style={{ marginTop: 6 }}><span style={{ color: C.muted }}>Disclaimer:</span> For portfolio and policy education purposes. All policy recommendations are drawn from published research and advocacy literature. Not legal or financial advice.</div>
-        </div>
 
       </div>
 

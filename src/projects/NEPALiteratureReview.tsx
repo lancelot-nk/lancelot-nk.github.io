@@ -1909,13 +1909,7 @@ const SystemFooter: React.FC = () => (
         </div>
         <div className="text-right">
           <div className="font-mono">SIM-ENV-2024-LIT</div>
-          <div className="mt-1">Simulated for demonstration purposes</div>
         </div>
-      </div>
-      <div className="mt-6 pt-4 border-t border-slate-200 text-xs text-slate-400 text-center">
-        This is a portfolio demonstration system. All data is synthetically generated and does not represent actual FRA research or policy positions.
-        <br />
-        Built with React, TypeScript, and procedural data generation for institutional-grade simulation.
       </div>
     </div>
   </footer>

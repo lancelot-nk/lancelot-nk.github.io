@@ -1357,16 +1357,6 @@ export default function SolarDonorIntelligence() {
         {activeTab===4 && <Tab5DataModel/>}
       </div>
 
-      {/* Footer */}
-      <div style={{ borderTop:`1px solid ${C.border}`, padding:"16px 28px", background:C.bgPanel }}>
-        <div style={{ fontSize:11, color:C.textMute, lineHeight:1.8 }}>
-          <strong style={{ color:C.textMid }}>Data:</strong> All donor names, organizations, contact details, and financial figures are entirely fictional sample data for portfolio demonstration purposes only. No real donors or organizations are represented.&nbsp;·&nbsp;
-          <strong style={{ color:C.textMid }}>Architecture:</strong> Azure Cosmos DB, Synapse Analytics, Data Factory, Data Lake Gen2, Blob Storage, and Power BI integrations are simulated for demonstration — no live Azure connection exists in this file.&nbsp;·&nbsp;
-          <strong style={{ color:C.textMid }}>Best Practices:</strong> Donor cultivation methodology, scoring model structure, T-SQL queries, and NoSQL schema design reflect current nonprofit fundraising and data engineering practices.&nbsp;·&nbsp;
-          <strong>Compiled by Lancelot Napier-Kane</strong>
-        </div>
-      </div>
-
                   {/* ─── PROJECT FOOTER ────────────────────────────────────── */}
       <div style={{
         borderTop: "1px solid #cccccc",

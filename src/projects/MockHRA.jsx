@@ -104,7 +104,7 @@ const generateClients = () => {
 };
 
 export default function HRAEnterpriseApp() {
-  const [tab, setTab] = useState("form");
+  const [tab, setTab] = useState("analytics");
   const [clients, setClients] = useState(generateClients);
   const [selected, setSelected] = useState(null);
   const [search, setSearch] = useState("");

@@ -1342,23 +1342,23 @@ export default function SentinelDashboard() {
             
             <div className="flex items-center gap-8">
               {/* Quick Stats */}
-              <div className="flex items-center gap-6 text-sm">
-                <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+              <div className="flex items-center gap-6 text-sm flex-nowrap">
+                <div className="flex items-center gap-2 whitespace-nowrap">
+                  <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse flex-shrink-0" />
                   <span className="text-gray-500">Critical:</span>
                   <span className="font-semibold text-red-600">{criticalProjects}</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 bg-amber-500 rounded-full" />
+                <div className="flex items-center gap-2 whitespace-nowrap">
+                  <span className="w-2 h-2 bg-amber-500 rounded-full flex-shrink-0" />
                   <span className="text-gray-500">At Risk:</span>
                   <span className="font-semibold text-amber-600">{atRiskProjects}</span>
                 </div>
-                <div className="h-6 w-px bg-gray-200" />
-                <div className="flex items-center gap-2">
+                <div className="h-6 w-px bg-gray-200 flex-shrink-0" />
+                <div className="flex items-center gap-2 whitespace-nowrap">
                   <span className="text-gray-500">Budget:</span>
                   <span className="font-semibold text-gray-800">{formatCurrency(totalBudget)}</span>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 whitespace-nowrap">
                   <span className="text-gray-500">Compliance:</span>
                   <span className={`font-semibold ${avgCompliance < 0.7 ? "text-red-600" : avgCompliance < 0.85 ? "text-amber-600" : "text-emerald-600"}`}>
                     {formatPercent(avgCompliance)}
@@ -1369,15 +1369,15 @@ export default function SentinelDashboard() {
               <div className="h-6 w-px bg-gray-200" />
 
               {/* System Status */}
-              <div className="flex items-center gap-4 text-sm">
-                <div className="flex items-center gap-2 text-gray-500">
-                  <Activity className="w-4 h-4 text-emerald-500" />
+              <div className="flex items-center gap-4 text-sm flex-nowrap">
+                <div className="flex items-center gap-2 text-gray-500 whitespace-nowrap">
+                  <Activity className="w-4 h-4 text-emerald-500 flex-shrink-0" />
                   <span>Operational</span>
                 </div>
-                <div className="text-gray-400">
+                <div className="text-gray-400 whitespace-nowrap">
                   Sync: {lastSync.toLocaleTimeString()}
                 </div>
-                <div className="font-mono text-gray-600 bg-gray-100 px-2 py-1 rounded">
+                <div className="font-mono text-gray-600 bg-gray-100 px-2 py-1 rounded whitespace-nowrap">
                   {systemTime.toLocaleTimeString()} EST
                 </div>
                 <button

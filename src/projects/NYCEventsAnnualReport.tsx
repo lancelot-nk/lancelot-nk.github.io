@@ -1413,8 +1413,7 @@ export default function AnnualReport() {
 
             <div className="mt-8 pt-8 border-t border-[#1E3A5F] text-center text-xs text-[#6B7280]">
               <p>
-                Document ID: NYC-ECD-AR-{DATA.fiscalYear}-001 | Generated:{" "}
-                {new Date().toLocaleDateString()} | Classification: Public
+                Document ID: NYC-ECD-AR-{DATA.fiscalYear}-001 | Classification: Public
               </p>
             </div>
           </div>

@@ -1061,7 +1061,7 @@ const ForecastView = ({ currentTrendData }) => {
 // ─────────────────────────────────────────────
 
 export default function FinOpsDashboard() {
-  const [tab, setTab]                   = useState("billing");
+  const [tab, setTab]                   = useState("allocation");
   const [search, setSearch]             = useState("");
   const [sortBy, setSortBy]             = useState("spend-desc");
   const [viewMode, setViewMode]         = useState("grid");
@@ -1101,8 +1101,8 @@ export default function FinOpsDashboard() {
     });
 
   const TABS = [
-    { id:"billing",    label:"Billing Centers"  },
     { id:"allocation", label:"Allocation Map"   },
+    { id:"billing",    label:"Billing Centers"  },
     { id:"tabular",    label:"Tabular View"     },
     { id:"risk",       label:"Risk Audit"       },
     { id:"forecast",   label:"Forecast"         },
@@ -1267,21 +1267,6 @@ export default function FinOpsDashboard() {
       </div>
 
       {/* ── FOOTER ── */}
-      <div style={{ textAlign:"center", padding:"22px 24px", borderTop:"1px solid #e2e8f0",
-        marginTop:20, background:"#fff" }}>
-        <div style={{ fontSize:11, color:C.muted, lineHeight:2, maxWidth:800, margin:"0 auto" }}>
-          <span style={{ background:"#fefce8", color:"#854d0e", padding:"2px 10px",
-            borderRadius:4, fontWeight:700, marginRight:10 }}>⚠ SIMULATED DATA</span>
-          All billing figures and cloud spend data are synthetically generated for portfolio demonstration.
-          No live cloud APIs, credentials, or real accounts are connected.
-          <br/>
-          <strong>Architecture simulated:</strong> Azure Data Factory ingestion → Cost Management aggregation → FinOps dashboard rendering
-          <br/>
-          <strong>Frameworks referenced:</strong> NIST CSF 2.0 · FinOps Foundation Open Cost & Usage Spec (FOCUS) · AWS Cost Explorer API schema · Azure Cost Management API schema
-          <br/>
-          <strong>Built by Lancelot Naipier-Kane</strong> · Cloud FinOps & Governance Portfolio Simulation · Data: Sample (synthetically modeled)
-        </div>
-      </div>
 
       {/* Drill-down modal */}
       {selectedCenter && <CenterModal center={selectedCenter} onClose={()=>setSelected(null)}/>}

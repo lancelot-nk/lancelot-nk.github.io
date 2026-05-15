@@ -1330,7 +1330,7 @@ function Tab7AdvancedModules() {
 
 // ─── ROOT ─────────────────────────────────────────────────────────────────────
 export default function HRAFraudAuditTool() {
-  const [activeTab, setActiveTab] = useState(0);
+  const [activeTab, setActiveTab] = useState(5);
   const [isLive, setIsLive] = useState(true);
   const pulse = useSystemPulse();
 

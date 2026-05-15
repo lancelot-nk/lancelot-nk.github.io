@@ -1138,10 +1138,6 @@ export default function DCOilTrainSafetyNewsletter() {
           <div className="mt-16 pt-8 border-t border-white/10">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
               <div>
-                <div className="text-xs text-neutral-500 uppercase tracking-wider mb-1">Report Generated</div>
-                <div className="font-mono text-neutral-300">{systemTime.toISOString().split("T")[0]}</div>
-              </div>
-              <div>
                 <div className="text-xs text-neutral-500 uppercase tracking-wider mb-1">Classification</div>
                 <div className="font-mono text-neutral-300">PUBLIC DISCLOSURE</div>
               </div>
