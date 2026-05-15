@@ -1,14 +1,45 @@
+"use client"
+
 import React, { useState, useEffect, useCallback } from "react"
 
 // Types
+interface Report {
+  id: string
+  type: "ui-bug" | "employee-negligence" | "civil-rights" | "financial" | "safety" | "accessibility"
+  severity: "critical" | "high" | "medium" | "low"
+  status: "new" | "triaged" | "investigating" | "resolved" | "escalated"
+  office: string
+  program: string
+  dateSubmitted: string
+  lastUpdated: string
+  summary: string
+  assignedTo: string | null
+  complianceFlags: string[]
+  anonymous: boolean
+  daysOpen: number
+}
 
+interface HotspotData {
+  office: string
+  region: string
+  totalReports: number
+  criticalCount: number
+  trend: "up" | "down" | "stable"
+  riskScore: number
+  coordinates: { x: number; y: number }
+}
 
-
-
-
+interface AuditLog {
+  id: string
+  timestamp: string
+  action: string
+  user: string
+  details: string
+  reportId?: string
+}
 
 // Mock Data
-const mockReports = [
+const mockReports: Report[] = [
   { id: "PR-2024-0847", type: "civil-rights", severity: "critical", status: "investigating", office: "Downtown Benefits Center", program: "SNAP", dateSubmitted: "2024-01-15", lastUpdated: "2024-01-18", summary: "Alleged discriminatory denial of benefits based on national origin", assignedTo: "M. Rodriguez", complianceFlags: ["Title VI", "ADA"], anonymous: false, daysOpen: 12 },
   { id: "PR-2024-0846", type: "employee-negligence", severity: "high", status: "triaged", office: "Eastside Regional", program: "TANF", dateSubmitted: "2024-01-16", lastUpdated: "2024-01-17", summary: "Case worker failed to process renewal for 6 months resulting in benefit termination", assignedTo: "K. Thompson", complianceFlags: ["Due Process"], anonymous: true, daysOpen: 11 },
   { id: "PR-2024-0845", type: "ui-bug", severity: "medium", status: "new", office: "Online Portal", program: "All Programs", dateSubmitted: "2024-01-17", lastUpdated: "2024-01-17", summary: "Submit button unresponsive on mobile devices during peak hours", assignedTo: null, complianceFlags: ["508 Compliance"], anonymous: false, daysOpen: 10 },
@@ -19,7 +50,7 @@ const mockReports = [
   { id: "PR-2024-0840", type: "civil-rights", severity: "high", status: "triaged", office: "Westbrook Branch", program: "Housing Assistance", dateSubmitted: "2024-01-12", lastUpdated: "2024-01-14", summary: "Language access denied - no interpreter provided for LEP applicant", assignedTo: "L. Nguyen", complianceFlags: ["Title VI", "EO 13166"], anonymous: false, daysOpen: 15 },
 ]
 
-const mockHotspots = [
+const mockHotspots: HotspotData[] = [
   { office: "Downtown Benefits Center", region: "Central", totalReports: 47, criticalCount: 8, trend: "up", riskScore: 78, coordinates: { x: 45, y: 35 } },
   { office: "Eastside Regional", region: "East", totalReports: 32, criticalCount: 3, trend: "stable", riskScore: 52, coordinates: { x: 75, y: 40 } },
   { office: "Northgate Office", region: "North", totalReports: 28, criticalCount: 5, trend: "up", riskScore: 65, coordinates: { x: 50, y: 20 } },
@@ -29,7 +60,7 @@ const mockHotspots = [
   { office: "Online Portal", region: "Virtual", totalReports: 89, criticalCount: 4, trend: "down", riskScore: 45, coordinates: { x: 15, y: 75 } },
 ]
 
-const mockAuditLog = [
+const mockAuditLog: AuditLog[] = [
   { id: "AL-001", timestamp: "2024-01-18 14:32:15", action: "STATUS_CHANGE", user: "M. Rodriguez", details: "Changed status from 'triaged' to 'investigating'", reportId: "PR-2024-0847" },
   { id: "AL-002", timestamp: "2024-01-18 13:45:00", action: "ESCALATION", user: "System", details: "Auto-escalated due to 14-day SLA breach", reportId: "PR-2024-0844" },
   { id: "AL-003", timestamp: "2024-01-18 11:20:33", action: "ASSIGNMENT", user: "K. Thompson", details: "Self-assigned from triage queue", reportId: "PR-2024-0846" },
@@ -40,17 +71,17 @@ const mockAuditLog = [
 
 // Component
 export default function PRICASSystem() {
-  const [activeModule, setActiveModule] = useState(null)
-  const [reports, setReports] = useState(mockReports)
-  const [selectedReport, setSelectedReport] = useState(null)
+  const [activeModule, setActiveModule] = useState<string | null>(null)
+  const [reports, setReports] = useState<Report[]>(mockReports)
+  const [selectedReport, setSelectedReport] = useState<Report | null>(null)
   const [isSyncing, setIsSyncing] = useState(false)
   const [lastSync, setLastSync] = useState("2024-01-18 14:30:00")
-  const [filterStatus, setFilterStatus] = useState("all")
-  const [filterSeverity, setFilterSeverity] = useState("all")
+  const [filterStatus, setFilterStatus] = useState<string>("all")
+  const [filterSeverity, setFilterSeverity] = useState<string>("all")
   const [searchTerm, setSearchTerm] = useState("")
-  const [triageQueue, setTriageQueue] = useState([])
+  const [triageQueue, setTriageQueue] = useState<Report[]>([])
   const [showNewReportModal, setShowNewReportModal] = useState(false)
-  const [auditLogs] = useState(mockAuditLog)
+  const [auditLogs] = useState<AuditLog[]>(mockAuditLog)
   const [complianceMetrics, setComplianceMetrics] = useState({
     titleVI: 94,
     ada: 87,
@@ -58,7 +89,7 @@ export default function PRICASSystem() {
     serviceStandards: 76,
     duProcess: 91
   })
-  const [animatingMetric, setAnimatingMetric] = useState(null)
+  const [animatingMetric, setAnimatingMetric] = useState<string | null>(null)
   const [pulseEffect, setPulseEffect] = useState(false)
 
   // Filtered reports
@@ -641,7 +672,12 @@ export default function PRICASSystem() {
 }
 
 // Dashboard View Component
-function DashboardView({ reports, hotspots, complianceMetrics, pulseEffect ) {
+function DashboardView({ reports, hotspots, complianceMetrics, pulseEffect }: {
+  reports: Report[]
+  hotspots: HotspotData[]
+  complianceMetrics: Record<string, number>
+  pulseEffect: boolean
+}) {
   const statusCounts = {
     new: reports.filter(r => r.status === "new").length,
     triaged: reports.filter(r => r.status === "triaged").length,
@@ -1046,7 +1082,19 @@ function ReportsView({
   setSelectedReport,
   onStatusChange,
   animatingMetric
-) {
+}: {
+  reports: Report[]
+  filterStatus: string
+  setFilterStatus: (s: string) => void
+  filterSeverity: string
+  setFilterSeverity: (s: string) => void
+  searchTerm: string
+  setSearchTerm: (s: string) => void
+  selectedReport: Report | null
+  setSelectedReport: (r: Report | null) => void
+  onStatusChange: (id: string, status: Report["status"]) => void
+  animatingMetric: string | null
+}) {
   return (
     <div style={{ display: "flex", gap: "1.5rem", animation: "slideIn 0.5s ease-out" }}>
       {/* Reports List */}
@@ -1444,8 +1492,12 @@ function ReportsView({
 }
 
 // Triage View Component
-function TriageView({ queue, onAssign, animatingMetric ) {
-  const [selectedForAssign, setSelectedForAssign] = useState(null)
+function TriageView({ queue, onAssign, animatingMetric }: {
+  queue: Report[]
+  onAssign: (id: string, assignee: string) => void
+  animatingMetric: string | null
+}) {
+  const [selectedForAssign, setSelectedForAssign] = useState<string | null>(null)
   
   const investigators = [
     "M. Rodriguez",
@@ -1678,9 +1730,9 @@ function TriageView({ queue, onAssign, animatingMetric ) {
 }
 
 // Hotspots View Component
-function HotspotsView({ hotspots ) {
-  const [selectedHotspot, setSelectedHotspot] = useState(null)
-  const [mapView, setMapView] = useState("risk")
+function HotspotsView({ hotspots }: { hotspots: HotspotData[] }) {
+  const [selectedHotspot, setSelectedHotspot] = useState<HotspotData | null>(null)
+  const [mapView, setMapView] = useState<"risk" | "volume">("risk")
 
   return (
     <div style={{ 
@@ -2133,7 +2185,7 @@ function HotspotsView({ hotspots ) {
 }
 
 // Compliance View Component
-function ComplianceView({ metrics, reports ) {
+function ComplianceView({ metrics, reports }: { metrics: Record<string, number>, reports: Report[] }) {
   const complianceAreas = [
     {
       id: "titleVI",
@@ -2202,7 +2254,7 @@ function ComplianceView({ metrics, reports ) {
     }
   ]
 
-  const [expandedArea, setExpandedArea] = useState(null)
+  const [expandedArea, setExpandedArea] = useState<string | null>(null)
 
   return (
     <div style={{ animation: "slideIn 0.5s ease-out" }}>
@@ -2441,8 +2493,8 @@ function ComplianceView({ metrics, reports ) {
 }
 
 // Audit Log View Component
-function AuditLogView({ logs ) {
-  const [filterAction, setFilterAction] = useState("all")
+function AuditLogView({ logs }: { logs: AuditLog[] }) {
+  const [filterAction, setFilterAction] = useState<string>("all")
 
   const actionTypes = [...new Set(logs.map(l => l.action))]
 
@@ -2618,7 +2670,7 @@ function AuditLogView({ logs ) {
 }
 
 // Intake Form View Component
-function IntakeFormView({ onClose ) {
+function IntakeFormView({ onClose }: { onClose: () => void }) {
   const [formData, setFormData] = useState({
     type: "",
     severity: "",

@@ -1434,15 +1434,6 @@ export default function HRAFraudAuditTool() {
         {activeTab===6 && <Tab7AdvancedModules/>}
       </div>
 
-      {/* Footer */}
-      <div style={{ borderTop:`1px solid ${D.border}`, padding:"14px 24px", background:D.bgPanel }}>
-        <div style={{ fontSize:10, color:D.textMute, lineHeight:1.8, fontFamily:"'IBM Plex Mono','Courier New',monospace" }}>
-          <strong style={{ color:D.textMid }}>REAL DATA:</strong> NYC DOI Skimming Report (Sep 2025) · NYC Mayor's Office ($48.6M reimbursements) · USDA FNS Q1 2024 SNAP Fraud Data (34,306 NYC cases, 177,000 national) · NYC DSS reimbursement processing stats · USDA FY2023 improper payment rate (11.7%) · 18 U.S.C. § 1030, 7 U.S.C. § 2021, 7 CFR Part 273, 23-ADM-07, OMB M-22-09, NIST SP 800-53 Rev 5 · HRA Fraud Unit: 718-557-1399 ·&nbsp;
-          <strong style={{ color:D.orange }}>SAMPLE/SIMULATED:</strong> Individual case files, caseworker names, retailer specifics, device fingerprints, and RPA bot outputs are illustrative sample data. System architecture reflects real HRA tool stack (WMS, POS, Cúram, UiPath, SSIS, dbt, Tableau). ·&nbsp;
-          <strong style={{ color:D.accent }}>Compiled by Lancelot Napier-Kane</strong> · HRA Program &amp; Data Manager Nov 2023–Sep 2024
-        </div>
-      </div>
-
                   {/* ─── PROJECT FOOTER ────────────────────────────────────── */}
       <div style={{
         borderTop: "1px solid #cccccc",

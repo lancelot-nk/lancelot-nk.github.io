@@ -1,4 +1,9 @@
 import { useState, useEffect } from "react";
+import {
+  BarChart, Bar, LineChart, Line, AreaChart, Area, PieChart, Pie, Cell,
+  XAxis, YAxis, CartesianGrid, Tooltip, Legend,
+  ResponsiveContainer
+} from 'recharts';
 
 
 const STYLES = `
@@ -829,6 +834,7 @@ export default function NYCEventsTracker() {
   const [activeTab, setActiveTab] = useState(0);
   const [loading, setLoading] = useState(false);
   const [lastSync, setLastSync] = useState(new Date().toLocaleString());
+  const [activePieIndex, setActivePieIndex] = useState(null);
   
   // Filters
   const [filterBorough, setFilterBorough] = useState("All");
@@ -880,8 +886,8 @@ export default function NYCEventsTracker() {
   const zipcodeData = getZipcodeStats();
 
   function projectCoord(lng, lat, svgW = 600, svgH = 500) {
-    const minLng = -74.27, maxLng = -73.68;
-    const minLat = 40.48, maxLat = 40.93;
+    const minLng = -74.26, maxLng = -73.70;
+    const minLat = 40.47, maxLat = 40.92;
     const x = ((lng - minLng) / (maxLng - minLng)) * svgW;
     const y = svgH - ((lat - minLat) / (maxLat - minLat)) * svgH;
     return [x, y];
@@ -1082,52 +1088,33 @@ export default function NYCEventsTracker() {
                   <div className="nyc-card-title">Monthly Event Trends</div>
                 </div>
                 <div className="nyc-card-body">
-                  {(() => {
-                    const W = 600, H = 280;
-                    const pad = { top: 20, right: 20, bottom: 40, left: 45 };
-                    const cW = W - pad.left - pad.right;
-                    const cH = H - pad.top - pad.bottom;
-                    const vals = monthlyData.map(d => d.events);
-                    const minV = 0;
-                    const maxV = Math.max(...vals, 1);
-                    const xStep = cW / (monthlyData.length - 1);
-                    const toX = i => pad.left + i * xStep;
-                    const toY = v => pad.top + cH - ((v - minV) / (maxV - minV)) * cH;
-                    const linePoints = monthlyData.map((d, i) => `${toX(i)},${toY(d.events)}`).join(' ');
-                    const areaPath = `M ${toX(0)},${toY(monthlyData[0].events)} ` +
-                      monthlyData.slice(1).map((d, i) => `L ${toX(i + 1)},${toY(d.events)}`).join(' ') +
-                      ` L ${toX(monthlyData.length - 1)},${pad.top + cH} L ${toX(0)},${pad.top + cH} Z`;
-                    const gridLines = 4;
-                    return (
-                      <svg viewBox={`0 0 ${W} ${H}`} width="100%">
-                        <defs>
-                          <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#2563eb" stopOpacity={0.3}/>
-                            <stop offset="95%" stopColor="#2563eb" stopOpacity={0}/>
-                          </linearGradient>
-                        </defs>
-                        {Array.from({ length: gridLines + 1 }, (_, i) => {
-                          const y = pad.top + (cH / gridLines) * i;
-                          const v = Math.round(maxV - (maxV / gridLines) * i);
+                  <ResponsiveContainer width="100%" height={260}>
+                    <AreaChart data={monthlyData}>
+                      <defs>
+                        <linearGradient id="nycAreaGrad" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#2563eb" stopOpacity={0.3}/>
+                          <stop offset="95%" stopColor="#2563eb" stopOpacity={0}/>
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#1f2937"/>
+                      <XAxis dataKey="month" tick={{fontSize:11, fill:'#6b7280'}}/>
+                      <YAxis tick={{fontSize:11, fill:'#6b7280'}}/>
+                      <Tooltip content={({ active, payload, label }) => {
+                        if (active && payload && payload.length) {
                           return (
-                            <g key={i}>
-                              <line x1={pad.left} y1={y} x2={pad.left + cW} y2={y} stroke="#1f2937" strokeDasharray="3 3"/>
-                              <text x={pad.left - 6} y={y + 4} textAnchor="end" fontSize={10} fill="#6b7280">{v}</text>
-                            </g>
+                            <div style={{ background:'#1e293b', border:'1px solid rgba(255,255,255,0.1)', borderRadius:8, padding:'10px 14px', color:'#f8fafc', fontSize:12 }}>
+                              <div style={{ marginBottom:4, color:'#94a3b8', fontWeight:600 }}>{label}</div>
+                              {payload.map((entry, i) => (
+                                <div key={i} style={{ color: entry.color || '#f8fafc' }}>{entry.name}: <strong>{entry.value}</strong></div>
+                              ))}
+                            </div>
                           );
-                        })}
-                        <path d={areaPath} fill="url(#areaGrad)"/>
-                        <polyline points={linePoints} fill="none" stroke="#2563eb" strokeWidth={2}/>
-                        {monthlyData.map((d, i) => (
-                          <g key={i}>
-                            <circle cx={toX(i)} cy={toY(d.events)} r={3} fill="#2563eb"/>
-                            <text x={toX(i)} y={H - 8} textAnchor="middle" fontSize={10} fill="#6b7280">{d.month}</text>
-                            <title>{d.month}: {d.events} events</title>
-                          </g>
-                        ))}
-                      </svg>
-                    );
-                  })()}
+                        }
+                        return null;
+                      }}/>
+                      <Area type="monotone" dataKey="events" name="Events" stroke="#2563eb" fill="url(#nycAreaGrad)" activeDot={{ r: 6 }}/>
+                    </AreaChart>
+                  </ResponsiveContainer>
                 </div>
               </div>
 
@@ -1137,43 +1124,27 @@ export default function NYCEventsTracker() {
                   <div className="nyc-card-title">Platform Conversion Rates</div>
                 </div>
                 <div className="nyc-card-body">
-                  {(() => {
-                    const W = 600, H = 280;
-                    const pad = { top: 20, right: 20, bottom: 50, left: 45 };
-                    const cW = W - pad.left - pad.right;
-                    const cH = H - pad.top - pad.bottom;
-                    const maxV = 100;
-                    const gap = cW / platformData.length;
-                    const barW = gap * 0.55;
-                    const gridLines = 4;
-                    return (
-                      <svg viewBox={`0 0 ${W} ${H}`} width="100%">
-                        {Array.from({ length: gridLines + 1 }, (_, i) => {
-                          const y = pad.top + (cH / gridLines) * i;
-                          const v = Math.round(maxV - (maxV / gridLines) * i);
+                  <ResponsiveContainer width="100%" height={260}>
+                    <BarChart data={platformData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#1f2937"/>
+                      <XAxis dataKey="name" tick={{fontSize:10, fill:'#6b7280'}}/>
+                      <YAxis domain={[0,100]} tickFormatter={v=>`${v}%`} tick={{fontSize:11, fill:'#6b7280'}}/>
+                      <Tooltip content={({ active, payload, label }) => {
+                        if (active && payload && payload.length) {
                           return (
-                            <g key={i}>
-                              <line x1={pad.left} y1={y} x2={pad.left + cW} y2={y} stroke="#1f2937" strokeDasharray="3 3"/>
-                              <text x={pad.left - 6} y={y + 4} textAnchor="end" fontSize={10} fill="#6b7280">{v}%</text>
-                            </g>
+                            <div style={{ background:'#1e293b', border:'1px solid rgba(255,255,255,0.1)', borderRadius:8, padding:'10px 14px', color:'#f8fafc', fontSize:12 }}>
+                              <div style={{ marginBottom:4, color:'#94a3b8', fontWeight:600 }}>{label}</div>
+                              {payload.map((entry, i) => (
+                                <div key={i} style={{ color: entry.color || '#f8fafc' }}>{entry.name}: <strong>{entry.value}%</strong></div>
+                              ))}
+                            </div>
                           );
-                        })}
-                        {platformData.map((d, i) => {
-                          const barH = (d.conversionRate / maxV) * cH;
-                          const x = pad.left + i * gap + (gap - barW) / 2;
-                          const y = pad.top + cH - barH;
-                          return (
-                            <g key={i}>
-                              <rect x={x} y={y} width={barW} height={barH} fill="#10b981" rx={3}/>
-                              <text x={x + barW / 2} y={H - 28} textAnchor="middle" fontSize={9} fill="#6b7280">{d.name}</text>
-                              <text x={x + barW / 2} y={y - 4} textAnchor="middle" fontSize={9} fill="#10b981">{d.conversionRate}%</text>
-                              <title>{d.name}: {d.conversionRate}% conversion</title>
-                            </g>
-                          );
-                        })}
-                      </svg>
-                    );
-                  })()}
+                        }
+                        return null;
+                      }}/>
+                      <Bar dataKey="conversionRate" name="Conversion Rate" fill="#10b981" radius={[4,4,0,0]}/>
+                    </BarChart>
+                  </ResponsiveContainer>
                 </div>
               </div>
             </div>
@@ -1185,42 +1156,27 @@ export default function NYCEventsTracker() {
                   <div className="nyc-card-title">Borough Event Distribution</div>
                 </div>
                 <div className="nyc-card-body">
-                  {(() => {
-                    const W = 600, H = 280;
-                    const pad = { top: 20, right: 20, bottom: 20, left: 110 };
-                    const cW = W - pad.left - pad.right;
-                    const cH = H - pad.top - pad.bottom;
-                    const maxV = Math.max(...boroughData.map(d => d.events), 1);
-                    const gap = cH / boroughData.length;
-                    const barH = gap * 0.55;
-                    const gridLines = 4;
-                    return (
-                      <svg viewBox={`0 0 ${W} ${H}`} width="100%">
-                        {Array.from({ length: gridLines + 1 }, (_, i) => {
-                          const x = pad.left + (cW / gridLines) * i;
-                          const v = Math.round((maxV / gridLines) * i);
+                  <ResponsiveContainer width="100%" height={260}>
+                    <BarChart data={boroughData} layout="vertical">
+                      <CartesianGrid strokeDasharray="3 3" stroke="#1f2937"/>
+                      <XAxis type="number" tick={{fontSize:11, fill:'#6b7280'}}/>
+                      <YAxis dataKey="name" type="category" width={100} tick={{fontSize:10, fill:'#6b7280'}}/>
+                      <Tooltip content={({ active, payload, label }) => {
+                        if (active && payload && payload.length) {
                           return (
-                            <g key={i}>
-                              <line x1={x} y1={pad.top} x2={x} y2={pad.top + cH} stroke="#1f2937" strokeDasharray="3 3"/>
-                              <text x={x} y={pad.top + cH + 14} textAnchor="middle" fontSize={10} fill="#6b7280">{v}</text>
-                            </g>
+                            <div style={{ background:'#1e293b', border:'1px solid rgba(255,255,255,0.1)', borderRadius:8, padding:'10px 14px', color:'#f8fafc', fontSize:12 }}>
+                              <div style={{ marginBottom:4, color:'#94a3b8', fontWeight:600 }}>{label}</div>
+                              {payload.map((entry, i) => (
+                                <div key={i} style={{ color: entry.color || '#f8fafc' }}>{entry.name}: <strong>{entry.value}</strong></div>
+                              ))}
+                            </div>
                           );
-                        })}
-                        {boroughData.map((d, i) => {
-                          const barW = (d.events / maxV) * cW;
-                          const y = pad.top + i * gap + (gap - barH) / 2;
-                          return (
-                            <g key={i}>
-                              <rect x={pad.left} y={y} width={barW} height={barH} fill="#2563eb" rx={3}/>
-                              <text x={pad.left - 8} y={y + barH / 2 + 4} textAnchor="end" fontSize={10} fill="#6b7280">{d.name}</text>
-                              <text x={pad.left + barW + 5} y={y + barH / 2 + 4} textAnchor="start" fontSize={9} fill="#2563eb">{d.events}</text>
-                              <title>{d.name}: {d.events} events</title>
-                            </g>
-                          );
-                        })}
-                      </svg>
-                    );
-                  })()}
+                        }
+                        return null;
+                      }}/>
+                      <Bar dataKey="events" name="Events" fill="#2563eb" radius={[0,4,4,0]}/>
+                    </BarChart>
+                  </ResponsiveContainer>
                 </div>
               </div>
 
@@ -1230,40 +1186,38 @@ export default function NYCEventsTracker() {
                   <div className="nyc-card-title">Event Categories</div>
                 </div>
                 <div className="nyc-card-body">
-                  {(() => {
-                    const total = categoryData.reduce((s, d) => s + d.value, 0);
-                    const cx = 130, cy = 130, r = 95, ir = 52;
-                    let startAngle = -Math.PI / 2;
-                    const slices = categoryData.map((d, i) => {
-                      const angle = (d.value / total) * 2 * Math.PI;
-                      const endAngle = startAngle + angle;
-                      const x1 = cx + r * Math.cos(startAngle), y1 = cy + r * Math.sin(startAngle);
-                      const x2 = cx + r * Math.cos(endAngle), y2 = cy + r * Math.sin(endAngle);
-                      const ix1 = cx + ir * Math.cos(startAngle), iy1 = cy + ir * Math.sin(startAngle);
-                      const ix2 = cx + ir * Math.cos(endAngle), iy2 = cy + ir * Math.sin(endAngle);
-                      const large = angle > Math.PI ? 1 : 0;
-                      const path = `M ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2} L ${ix2} ${iy2} A ${ir} ${ir} 0 ${large} 0 ${ix1} ${iy1} Z`;
-                      const pct = Math.round(d.value / total * 100);
-                      startAngle = endAngle;
-                      return { path, color: COLORS[i % COLORS.length], name: d.name, pct };
-                    });
-                    return (
-                      <svg viewBox="0 0 420 280" width="100%">
-                        {slices.map((s, i) => (
-                          <path key={i} d={s.path} fill={s.color} stroke="#0a0a0f" strokeWidth={1.5}>
-                            <title>{s.name}: {s.pct}%</title>
-                          </path>
+                  <ResponsiveContainer width="100%" height={260}>
+                    <PieChart>
+                      <Pie
+                        data={categoryData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={50}
+                        outerRadius={80}
+                        dataKey="value"
+                        activeIndex={activePieIndex}
+                        onMouseEnter={(_, index) => setActivePieIndex(index)}
+                        onMouseLeave={() => setActivePieIndex(null)}
+                      >
+                        {categoryData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]}/>
                         ))}
-                        {slices.map((s, i) => (
-                          <g key={i} transform={`translate(280,${18 + i * 40})`}>
-                            <rect width={12} height={12} fill={s.color} rx={2}/>
-                            <text x={18} y={10} fontSize={11} fill="#9ca3af">{s.name}</text>
-                            <text x={18} y={24} fontSize={10} fill={s.color}>{s.pct}%</text>
-                          </g>
-                        ))}
-                      </svg>
-                    );
-                  })()}
+                      </Pie>
+                      <Tooltip content={({ active, payload }) => {
+                        if (active && payload && payload.length) {
+                          return (
+                            <div style={{ background:'#1e293b', border:'1px solid rgba(255,255,255,0.1)', borderRadius:8, padding:'10px 14px', color:'#f8fafc', fontSize:12 }}>
+                              {payload.map((entry, i) => (
+                                <div key={i} style={{ color: entry.payload.fill || '#f8fafc' }}>{entry.name}: <strong>{entry.value}</strong></div>
+                              ))}
+                            </div>
+                          );
+                        }
+                        return null;
+                      }}/>
+                      <Legend/>
+                    </PieChart>
+                  </ResponsiveContainer>
                 </div>
               </div>
             </div>

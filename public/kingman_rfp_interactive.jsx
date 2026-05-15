@@ -1,93 +1,38 @@
 import { useState } from "react";
+import {
+  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
+  ResponsiveContainer
+} from 'recharts';
 
-// ── Inline SVG Line Chart (no external dependency) ──────────────────────────
+// ── Recharts Area Chart (replaces inline SVG chart) ─────────────────────────
 function SvgLineChart({ data, xKey, yKey, color = '#2d7a4f', yLabel = '' }) {
-  const [tooltip, setTooltip] = useState(null);
-  const W = 560, H = 260, PAD = { top: 20, right: 20, bottom: 44, left: 58 };
-  const innerW = W - PAD.left - PAD.right;
-  const innerH = H - PAD.top - PAD.bottom;
-
-  const ys = data.map(d => d[yKey]);
-  const minY = Math.min(...ys) - 0.2;
-  const maxY = Math.max(...ys) + 0.2;
-  const toX = i => PAD.left + (i / (data.length - 1)) * innerW;
-  const toY = v => PAD.top + innerH - ((v - minY) / (maxY - minY)) * innerH;
-
-  const points = data.map((d, i) => `${toX(i)},${toY(d[yKey])}`).join(' ');
-  const areaClose = `${toX(data.length - 1)},${PAD.top + innerH} ${PAD.left},${PAD.top + innerH}`;
-
-  // Y-axis ticks
-  const yTicks = Array.from({ length: 5 }, (_, i) => minY + (i / 4) * (maxY - minY));
-
   return (
-    <div style={{ position: 'relative', width: '100%' }}>
-      <svg
-        viewBox={`0 0 ${W} ${H}`}
-        style={{ width: '100%', height: 'auto', display: 'block', overflow: 'visible' }}
-      >
-        {/* Grid lines */}
-        {yTicks.map((v, i) => (
-          <line key={i}
-            x1={PAD.left} y1={toY(v)} x2={PAD.left + innerW} y2={toY(v)}
-            stroke="rgba(45,106,79,0.12)" strokeDasharray="4 3"
-          />
-        ))}
-        {/* Y-axis label */}
-        <text
-          x={12} y={H / 2}
-          fill="#475569" fontSize={10} textAnchor="middle"
-          transform={`rotate(-90, 12, ${H / 2})`}
-        >{yLabel}</text>
-        {/* Y-axis ticks */}
-        {yTicks.map((v, i) => (
-          <text key={i}
-            x={PAD.left - 6} y={toY(v) + 4}
-            fill="#475569" fontSize={10} textAnchor="end"
-          >{v.toFixed(1)}</text>
-        ))}
-        {/* X-axis labels */}
-        {data.map((d, i) => (
-          <text key={i}
-            x={toX(i)} y={PAD.top + innerH + 18}
-            fill="#475569" fontSize={9} textAnchor="middle"
-          >{d[xKey]}</text>
-        ))}
-        {/* Area fill */}
-        <polygon
-          points={`${points} ${areaClose}`}
-          fill={color} fillOpacity={0.08}
-        />
-        {/* Line */}
-        <polyline points={points} fill="none" stroke={color} strokeWidth={2.5} strokeLinejoin="round" />
-        {/* Dots */}
-        {data.map((d, i) => (
-          <circle key={i}
-            cx={toX(i)} cy={toY(d[yKey])} r={5}
-            fill={color} stroke="rgba(240,250,245,0.9)" strokeWidth={2}
-            style={{ cursor: 'pointer' }}
-            onMouseEnter={() => setTooltip({ i, x: toX(i), y: toY(d[yKey]), d })}
-            onMouseLeave={() => setTooltip(null)}
-          />
-        ))}
-        {/* Tooltip */}
-        {tooltip && (() => {
-          const tx = tooltip.x + 10;
-          const ty = tooltip.y - 36;
-          return (
-            <g>
-              <rect x={tx} y={ty} width={108} height={30} rx={6}
-                fill="rgba(240,250,245,0.95)" stroke="rgba(45,106,79,0.3)" strokeWidth={1}
-              />
-              <text x={tx + 54} y={ty + 12} fill="#1a5c3a" fontSize={10} textAnchor="middle" fontWeight="600">
-                {tooltip.d[xKey]}
-              </text>
-              <text x={tx + 54} y={ty + 24} fill="#0d3b1e" fontSize={10} textAnchor="middle">
-                {tooltip.d[yKey]}M gal
-              </text>
-            </g>
-          );
-        })()}
-      </svg>
+    <div style={{ width: '100%' }}>
+      <ResponsiveContainer width="100%" height={260}>
+        <AreaChart data={data}>
+          <defs>
+            <linearGradient id="kingmanAreaGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor={color} stopOpacity={0.3}/>
+              <stop offset="95%" stopColor={color} stopOpacity={0}/>
+            </linearGradient>
+          </defs>
+          <CartesianGrid strokeDasharray="4 3" stroke="rgba(45,106,79,0.12)"/>
+          <XAxis dataKey={xKey} tick={{fontSize:9, fill:'#475569'}}/>
+          <YAxis tick={{fontSize:10, fill:'#475569'}} label={{ value: yLabel, angle: -90, position: 'insideLeft', offset: -5, style: { fill:'#475569', fontSize:10 } }}/>
+          <Tooltip content={({ active, payload, label }) => {
+            if (active && payload && payload.length) {
+              return (
+                <div style={{ background:'rgba(240,250,245,0.97)', border:'1px solid rgba(45,106,79,0.3)', borderRadius:6, padding:'8px 12px', fontSize:11 }}>
+                  <div style={{ color:'#1a5c3a', fontWeight:600, marginBottom:2 }}>{label}</div>
+                  <div style={{ color:'#0d3b1e' }}>{payload[0].value}M gal</div>
+                </div>
+              );
+            }
+            return null;
+          }}/>
+          <Area type="monotone" dataKey={yKey} stroke={color} fill="url(#kingmanAreaGrad)" strokeWidth={2.5} activeDot={{ r: 6, stroke:'rgba(240,250,245,0.9)', strokeWidth:2 }}/>
+        </AreaChart>
+      </ResponsiveContainer>
     </div>
   );
 }
@@ -392,26 +337,36 @@ export default function KingmanIslandRFP() {
       <div className="ambient w-[420px] h-[420px] bg-emerald-300 bottom-[5%] right-[-120px]" />
 
       {/* HEADER */}
-      <header style={{ background: '#1a5c3a' }} className="relative px-6 md:px-14 xl:px-20 pt-12 pb-8 border-b border-emerald-700/20">
-        <div className="flex flex-wrap items-center justify-between gap-6">
+      <header className="relative px-6 md:px-14 xl:px-20 pt-12 pb-10 border-b border-emerald-700/20 overflow-hidden" style={{ background: 'linear-gradient(135deg, #1a5c3a 0%, #0d3b1e 60%, #194d35 100%)' }}>
+        {/* Subtle texture overlay */}
+        <div className="absolute inset-0 opacity-[0.07] pointer-events-none" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.3) 1px, transparent 1px)', backgroundSize: '48px 48px' }} />
+        {/* Ambient glow blobs */}
+        <div className="absolute top-[-60px] right-[-80px] w-[320px] h-[320px] rounded-full opacity-20 pointer-events-none" style={{ background: 'radial-gradient(circle, #4ade80 0%, transparent 70%)', filter: 'blur(60px)' }} />
+        <div className="absolute bottom-[-40px] left-[10%] w-[240px] h-[240px] rounded-full opacity-15 pointer-events-none" style={{ background: 'radial-gradient(circle, #06b6d4 0%, transparent 70%)', filter: 'blur(50px)' }} />
+        <div className="relative flex flex-wrap items-center justify-between gap-6">
           <div>
-            <div className="inline-flex items-center gap-3 rounded-full px-5 py-2 glass text-[11px] uppercase tracking-[0.32em] text-teal-800 mb-4">
-              Living Classrooms Foundation • DOEE Grant Proposal • FY2024-2028
+            <div className="inline-flex items-center gap-3 rounded-full px-5 py-2 mb-4" style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.25)', color: '#bbf7d0', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.32em' }}>
+              🌿 Living Classrooms Foundation · DOEE Grant Proposal · FY2024–2028
             </div>
-            <h1 className="text-white text-[clamp(2.5rem,6vw,4.5rem)] font-black leading-[0.95] tracking-[-0.05em]">
+            <h1 className="text-white text-[clamp(2.2rem,5.5vw,4rem)] font-black leading-[0.95] tracking-[-0.04em]">
               Kingman Island Green Infrastructure<br />
-              Workforce Development Program
+              <span style={{ color: '#86efac' }}>Workforce Development Program</span>
             </h1>
-            <p className="mt-4 text-slate-600 text-sm uppercase tracking-wider">
-              Watershed Restoration & Education Project
+            <p className="mt-4 text-[13px] uppercase tracking-[0.18em]" style={{ color: 'rgba(187,247,208,0.75)' }}>
+              Watershed Restoration &amp; Community Education Project · Anacostia River, Washington D.C.
             </p>
+            <div className="flex flex-wrap gap-3 mt-5">
+              {['$4.2M DOEE Grant', 'Carbon Sequestration', 'Workforce Training', '3,200 Native Plantings'].map(tag => (
+                <span key={tag} className="text-[11px] px-3 py-1 rounded-full" style={{ background: 'rgba(74,222,128,0.18)', border: '1px solid rgba(74,222,128,0.3)', color: '#86efac' }}>{tag}</span>
+              ))}
+            </div>
           </div>
-          <div className="glass rounded-[1.8rem] p-6">
-            <div className="text-xs uppercase tracking-[0.24em] text-teal-700/80 mb-2">Contact</div>
-            <div className="text-lg font-bold">Doug Siglin</div>
-            <div className="text-sm text-slate-600">Regional Director, NCR</div>
-            <div className="text-xs text-slate-600 mt-2">202-997-7399</div>
-            <div className="text-xs text-teal-600">dsiglin@livingclassroomsdc.org</div>
+          <div className="rounded-[1.8rem] p-6 shrink-0" style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', backdropFilter: 'blur(16px)', minWidth: 200 }}>
+            <div className="text-[10px] uppercase tracking-[0.24em] mb-3" style={{ color: 'rgba(187,247,208,0.7)' }}>Project Contact</div>
+            <div className="text-lg font-bold text-white">Doug Siglin</div>
+            <div className="text-sm mt-0.5" style={{ color: 'rgba(187,247,208,0.8)' }}>Regional Director, NCR</div>
+            <div className="text-xs mt-3" style={{ color: 'rgba(187,247,208,0.65)' }}>202-997-7399</div>
+            <div className="text-xs mt-1" style={{ color: '#86efac' }}>dsiglin@livingclassroomsdc.org</div>
           </div>
         </div>
       </header>
