@@ -1485,13 +1485,11 @@ class AudioEngine {
   ) {
     if (!this.ctx || !this.masterGain) return
 
-    // In snip mode, stop existing sources to cut sounds to step length.
-    // In timing mode, let sounds ring out naturally.
-    if (snipMode) {
-      const existingSources = this.activeSources.get(padId) || []
-      existingSources.forEach(src => { try { src.stop() } catch {} })
-      this.activeSources.set(padId, [])
-    }
+    // Always stop existing sources on re-trigger (choke: new trigger cuts the previous sound for
+    // this pad, just like placing adjacent tiles — each new tile restarts the sound).
+    const existingSources = this.activeSources.get(padId) || []
+    existingSources.forEach(src => { try { src.stop() } catch {} })
+    this.activeSources.set(padId, [])
 
     const source = this.ctx.createBufferSource()
     source.buffer = buffer
@@ -1513,20 +1511,24 @@ class AudioEngine {
     const velMult = (velocity === 1 ? 0.4 : velocity === 2 ? 0.7 : 1.0)
     const baseVol = velMult * padSettings.volume * normalizationFactor * 0.7 // 0.7 headroom
 
-    // Duration and looping logic based on mode
+    // Duration logic:
+    // - Stretched note (step.length > 1): loop/truncate to exact stretched duration regardless of mode
+    // - Timing mode, single tile: play full buffer duration — next trigger of same pad will choke it
+    // - Snip mode, single tile: hard-cut at step boundary
+    const isStretched = stepDuration > buffer.duration * 0.9 && stretchable && stepDuration > 0.1
     let duration: number
-    if (snipMode) {
-      // Snip mode: cut to step length (original behaviour)
-      duration = stretchable ? stepDuration : Math.min(buffer.duration, stepDuration * 2)
-    } else {
-      // Timing mode: let the sample ring out naturally
-      if (stretchable && stepDuration > buffer.duration) {
-        // Loop to fill the step duration
+    if (isStretched) {
+      // Stretched note: loop if sample shorter than stretch target, else truncate
+      if (buffer.duration < stepDuration) {
         source.loop = true
-        duration = stepDuration
-      } else {
-        duration = buffer.duration
       }
+      duration = stepDuration
+    } else if (snipMode) {
+      // Snip mode single tile: cut to one step's worth of time
+      duration = stepDuration
+    } else {
+      // Timing mode single tile: play naturally until next retrigger chokes it
+      duration = buffer.duration
     }
 
     // ADSR envelope
@@ -1625,9 +1627,10 @@ class AudioEngine {
 
     source.connect(gain)
     source.start(t)
-    // Only schedule an early stop in snip mode or when looping for stretch
-    if (snipMode || source.loop) {
-      source.stop(releaseTime + 0.1)
+    // Schedule stop: always for stretched (looped) notes; for snip mode single tiles;
+    // NOT for timing-mode single tiles (they ring out until next retrigger chokes them).
+    if (isStretched || snipMode) {
+      source.stop(releaseTime + 0.05)
     }
 
     // Track active source
