@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, lazy, Suspense } from 'react';
-import { ChevronDown, ChevronUp, Code, Clock, ExternalLink } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { ChevronDown, ChevronUp, Code, Clock, ExternalLink, Maximize2, X } from 'lucide-react';
 import JsxViewer from '../JsxViewer';
 
 // Lazy-load heavy viewers only when first expanded
@@ -33,6 +34,7 @@ const LazySHEAnnual        = lazy(() => import('../../projects/SHEAnnualInteract
 const LazyFXBInteractive   = lazy(() => import('../../projects/FXBInteractive'));
 const LazyMalariaBiomedical = lazy(() => import('../../projects/MalariaBiomedical3D'));
 const LazyElectroLarynx    = lazy(() => import('../../projects/realfinalelectrolarynx'));
+const LazyDAW              = lazy(() => import('../../projects/nearfinaldaw'));
 
 // ── Image Imports ────────────────────────────────────────────────────────────
 import img1 from '../../assets/project1.jpg';
@@ -68,6 +70,7 @@ import imgSHEAnnual from '../../assets/project_she_annual.jpg';
 import imgFXBInteractive from '../../assets/project_fxb_interactive.jpg';
 import imgMalariaBiomedical from '../../assets/project_malaria_biomedical.jpg';
 import imgElectroLarynx from '../../assets/project_electrolarynx.jpg';
+import imgDAW from '../../assets/project_daw.jpg';
 
 // ── Brand Colors ─────────────────────────────────────────────────────────────
 const PINK   = '#B8004E';
@@ -369,6 +372,17 @@ export const PROJECTS = [
     component: LazyElectroLarynx,
     tags: ['data', 'ml', 'audio'],
   },
+  {
+    title: 'Alpha DAW — Browser-Native Sequencer',
+    desc: '32-pad step sequencer with live Freesound sample packs, real-time DSP (reverb, delay, distortion, filter, chorus, bitcrush), ADSR envelope editor, chaos engine, composition timeline, BPM-synced recording, and 27 genre presets. Sounds are cached per device via Cache API + localStorage.',
+    tech: ['React', 'TypeScript', 'Web Audio API', 'Freesound API', 'framer-motion', 'DSP', 'Step Sequencer'],
+    link: '/alpha_daw.jsx',
+    img: imgDAW,
+    type: 'jsx',
+    component: LazyDAW,
+    fullscreen: true,
+    tags: ['audio', 'dsp', 'creative'],
+  },
 ];
 
 const COMING_SOON = [
@@ -385,11 +399,64 @@ function NotebookFallback() {
   );
 }
 
+function FullscreenOverlay({ project, onClose }) {
+  // Close on Escape key
+  useEffect(() => {
+    const handler = (e) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', handler);
+    // Prevent body scroll while open
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', handler);
+      document.body.style.overflow = '';
+    };
+  }, [onClose]);
+
+  return createPortal(
+    <div style={{
+      position: 'fixed', inset: 0, zIndex: 9999,
+      background: '#000',
+      display: 'flex', flexDirection: 'column',
+    }}>
+      {/* Thin close bar */}
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '6px 12px', background: 'rgba(0,0,0,0.85)',
+        borderBottom: '1px solid rgba(255,255,255,0.08)', flexShrink: 0,
+      }}>
+        <span style={{ fontSize: '0.7rem', fontFamily: 'JetBrains Mono, monospace', color: 'rgba(255,255,255,0.5)', letterSpacing: 2, textTransform: 'uppercase' }}>
+          {project.title}
+        </span>
+        <button
+          onClick={onClose}
+          title="Close fullscreen (Esc)"
+          style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            width: 28, height: 28, borderRadius: 6, border: '1px solid rgba(255,255,255,0.15)',
+            background: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.7)',
+            cursor: 'pointer', transition: 'all 0.15s',
+          }}
+        >
+          <X style={{ width: 14, height: 14 }} />
+        </button>
+      </div>
+      {/* Component fills remaining space */}
+      <div style={{ flex: 1, overflow: 'auto' }}>
+        <Suspense fallback={<NotebookFallback />}>
+          <project.component />
+        </Suspense>
+      </div>
+    </div>,
+    document.body
+  );
+}
+
 function ProjectTile({ project, i, resetToken }) {
   const [open, setOpen] = useState(false);
+  const [fullscreen, setFullscreen] = useState(false);
 
   // Close (and unload) when parent signals that section is no longer visible
-  useEffect(() => { if (resetToken > 0) setOpen(false); }, [resetToken]);
+  useEffect(() => { if (resetToken > 0) { setOpen(false); setFullscreen(false); } }, [resetToken]);
 
   return (
     // ps-tile-wrap: 70% centered on desktop, full-width on mobile
@@ -462,6 +529,19 @@ function ProjectTile({ project, i, resetToken }) {
               <ExternalLink style={{ width: 13, height: 13 }} />
             </a>
           )}
+          {project.fullscreen && project.component && (
+            <button
+              onClick={e => { e.stopPropagation(); setFullscreen(true); }}
+              title="Open fullscreen (Esc to close)"
+              style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                width: 28, height: 28, borderRadius: 6, border: `1px solid ${BORDER}`,
+                background: 'rgba(88,0,184,0.08)', color: VIOLET, cursor: 'pointer',
+              }}
+            >
+              <Maximize2 style={{ width: 13, height: 13 }} />
+            </button>
+          )}
           <div style={{
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             width: 28, height: 28, borderRadius: 6,
@@ -487,6 +567,11 @@ function ProjectTile({ project, i, resetToken }) {
               )}
           </div>
         </div>
+      )}
+
+      {/* ── Fullscreen overlay portal ───── */}
+      {fullscreen && project.component && (
+        <FullscreenOverlay project={project} onClose={() => setFullscreen(false)} />
       )}
     </div>
   );
