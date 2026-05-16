@@ -29,6 +29,7 @@ import {
   Filter as FilterIcon,
   Music2,
   Wand2,
+  Star,
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 // --- TYPES & CONSTANTS ---
@@ -741,29 +742,54 @@ const SOUND_SLOT_BLUEPRINT: SoundSlotConfig[] = [
 
 // Broad instrument families to enforce "max 2 from same family" rule.
 const INSTRUMENT_FAMILIES: Record<string, string> = {
-  piano: 'keys', rhodes: 'keys', organ: 'keys', harpsichord: 'keys', clavinet: 'keys', wurlitzer: 'keys', accordion: 'keys',
-  guitar: 'strings', violin: 'strings', cello: 'strings', harp: 'strings', viola: 'strings', 'double bass': 'strings', mandolin: 'strings', banjo: 'strings', ukulele: 'strings', sitar: 'strings', oud: 'strings', lute: 'strings', dulcimer: 'strings',
-  synth: 'synth', 'synth lead': 'synth', 'synth pluck': 'synth', 'synth pad': 'synth', 'synth bass': 'synth', moog: 'synth',
-  flute: 'woodwind', sax: 'woodwind', clarinet: 'woodwind', oboe: 'woodwind', bassoon: 'woodwind', recorder: 'woodwind', piccolo: 'woodwind', 'pan flute': 'woodwind', 'tin whistle': 'woodwind', shakuhachi: 'woodwind',
-  trumpet: 'brass', trombone: 'brass', horn: 'brass', tuba: 'brass', 'french horn': 'brass', flugelhorn: 'brass', cornet: 'brass',
-  marimba: 'mallet', xylophone: 'mallet', vibraphone: 'mallet', glockenspiel: 'mallet', bells: 'mallet', kalimba: 'mallet', mbira: 'mallet',
-  tabla: 'world', sitar: 'world', kora: 'world', didgeridoo: 'world', gamelan: 'world', balafon: 'world', erhu: 'world',
+  // Keys (10)
+  piano: 'keys', 'grand piano': 'keys', 'upright piano': 'keys', rhodes: 'keys', wurlitzer: 'keys',
+  organ: 'keys', 'hammond organ': 'keys', 'church organ': 'keys', harpsichord: 'keys', clavinet: 'keys',
+  accordion: 'keys', 'toy piano': 'keys', celesta: 'keys',
+  // Strings — bowed/plucked (16)
+  guitar: 'strings', 'acoustic guitar': 'strings', 'electric guitar': 'strings', 'nylon guitar': 'strings',
+  'classical guitar': 'strings', violin: 'strings', viola: 'strings', cello: 'strings',
+  'double bass': 'strings', harp: 'strings', mandolin: 'strings', banjo: 'strings',
+  ukulele: 'strings', sitar: 'strings', oud: 'strings', lute: 'strings', dulcimer: 'strings',
+  // Synth (8)
+  'synth lead': 'synth', 'synth pad': 'synth', 'synth pluck': 'synth', 'synth bass': 'synth',
+  'synth arp': 'synth', moog: 'synth', 'modular synth': 'synth', 'fm synth': 'synth',
+  // Woodwind (12)
+  flute: 'woodwind', 'alto sax': 'woodwind', 'tenor sax': 'woodwind', 'soprano sax': 'woodwind',
+  clarinet: 'woodwind', oboe: 'woodwind', bassoon: 'woodwind', recorder: 'woodwind',
+  piccolo: 'woodwind', 'pan flute': 'woodwind', 'tin whistle': 'woodwind', shakuhachi: 'woodwind',
+  bagpipes: 'woodwind', harmonica: 'woodwind',
+  // Brass (8)
+  trumpet: 'brass', trombone: 'brass', 'french horn': 'brass', tuba: 'brass',
+  flugelhorn: 'brass', cornet: 'brass', 'brass ensemble': 'brass', euphonium: 'brass',
+  // Mallet / pitched percussion (8)
+  marimba: 'mallet', xylophone: 'mallet', vibraphone: 'mallet', glockenspiel: 'mallet',
+  'tubular bells': 'mallet', kalimba: 'mallet', mbira: 'mallet', 'steel drum': 'mallet',
+  // World / ethnic / special (10)
+  tabla: 'world', kora: 'world', didgeridoo: 'world', gamelan: 'world',
+  balafon: 'world', erhu: 'world', koto: 'world', shamisen: 'world',
+  bouzouki: 'world', cuatro: 'world',
 }
 const INSTRUMENT_POOL = [
-  // Keys
-  'piano', 'rhodes', 'organ', 'harpsichord', 'accordion',
-  // Strings
-  'guitar', 'violin', 'cello', 'harp', 'mandolin', 'banjo', 'sitar',
-  // Synths
-  'synth lead', 'synth pad', 'synth pluck', 'moog',
-  // Woodwinds
-  'flute', 'sax', 'clarinet', 'oboe', 'pan flute', 'shakuhachi', 'recorder',
-  // Brass
-  'trumpet', 'trombone', 'french horn', 'tuba', 'flugelhorn',
-  // Mallet / pitched perc
-  'marimba', 'vibraphone', 'xylophone', 'glockenspiel', 'kalimba',
-  // World / special
-  'sitar', 'kora', 'erhu', 'gamelan', 'didgeridoo', 'balafon',
+  // Keys (10)
+  'grand piano', 'upright piano', 'rhodes', 'wurlitzer', 'hammond organ',
+  'church organ', 'harpsichord', 'clavinet', 'accordion', 'celesta',
+  // Strings (16)
+  'acoustic guitar', 'electric guitar', 'nylon guitar', 'classical guitar',
+  'violin', 'viola', 'cello', 'double bass', 'harp', 'mandolin',
+  'banjo', 'ukulele', 'sitar', 'oud', 'lute', 'dulcimer',
+  // Synths (8)
+  'synth lead', 'synth pad', 'synth pluck', 'synth arp', 'moog', 'modular synth', 'fm synth', 'synth bass',
+  // Woodwinds (14)
+  'flute', 'piccolo', 'alto sax', 'tenor sax', 'soprano sax',
+  'clarinet', 'oboe', 'bassoon', 'recorder', 'pan flute',
+  'tin whistle', 'shakuhachi', 'harmonica', 'bagpipes',
+  // Brass (8)
+  'trumpet', 'trombone', 'french horn', 'tuba', 'flugelhorn', 'cornet', 'euphonium', 'brass ensemble',
+  // Mallet / pitched perc (8)
+  'marimba', 'vibraphone', 'xylophone', 'glockenspiel', 'tubular bells', 'kalimba', 'mbira', 'steel drum',
+  // World / special (10)
+  'tabla', 'kora', 'erhu', 'koto', 'shamisen', 'gamelan', 'didgeridoo', 'balafon', 'bouzouki', 'cuatro',
 ] as const
 
 // Pick 4 instruments, never more than 2 from the same family, deterministic per preset name.
@@ -883,9 +909,19 @@ async function loadAndCacheAudio(
     }
     
     const arrayBuffer = await response.arrayBuffer()
+    if (arrayBuffer.byteLength < 1000) return null  // tiny/empty file
     const audioBuffer = await ctx.decodeAudioData(arrayBuffer)
-    // Quality gate: reject samples shorter than 0.5 seconds
-    if (audioBuffer.duration < 0.5) return null
+    // Reject only the absolute minimum: < 30ms (impossible for any real sound)
+    if (audioBuffer.duration < 0.03) return null
+    // Sparse peak scan — reject if entirely silent
+    let peak = 0
+    for (let c = 0; c < audioBuffer.numberOfChannels && peak < 0.01; c++) {
+      const d = audioBuffer.getChannelData(c)
+      for (let i = 0; i < d.length; i += 64) {
+        const a = Math.abs(d[i]); if (a > peak) { peak = a; if (peak >= 0.01) break }
+      }
+    }
+    if (peak < 0.005) return null  // silent
     return audioBuffer
   } catch (err) {
     console.warn(`[v0] Audio load error for ${url}:`, err)
@@ -893,220 +929,64 @@ async function loadAndCacheAudio(
   }
 }
 
-// ---- SAMPLE REFINEMENT PIPELINE ----
-// Per-category cleaning: each sound type gets treatment appropriate to its character.
-// CRITICAL: if output would be near-blank, always returns the original input as fallback.
+// ---- SAMPLE REFINEMENT PIPELINE (MINIMAL, NON-DESTRUCTIVE) ----
+// Per user mandate: NO gain change, NO normalization, NO fades, NO trailing trim.
+// Only: trim leading silence + hard-cap at 4 seconds. Period.
+// Validates output is not silent — returns input as fallback if anything looks broken.
 async function refineAudioBuffer(
   input: AudioBuffer,
   ctx: BaseAudioContext,
-  category?: SoundCategory,
-  isLightTouch?: boolean
+  _category?: SoundCategory,
+  _isLightTouch?: boolean
 ): Promise<AudioBuffer> {
+  void _category; void _isLightTouch
   const sr = input.sampleRate
   const channels = input.numberOfChannels
+  const MAX_DUR_SAMPLES = Math.floor(4.0 * sr)
 
-  // Helper: find output peak
-  const getPeak = (buf: AudioBuffer, start = 0, len = buf.length): number => {
-    let p = 0
-    for (let c = 0; c < buf.numberOfChannels; c++) {
-      const d = buf.getChannelData(c)
-      for (let i = start; i < start + len && i < d.length; i++) {
-        const a = Math.abs(d[i]); if (a > p) p = a
-      }
+  // Peak check on input — if entirely silent reject (caller will use synth fallback)
+  let inputPeak = 0
+  for (let c = 0; c < channels; c++) {
+    const d = input.getChannelData(c)
+    for (let i = 0; i < d.length; i += 32) { // sparse scan
+      const a = Math.abs(d[i]); if (a > inputPeak) inputPeak = a
+      if (inputPeak > 0.1) break
     }
-    return p
+    if (inputPeak > 0.1) break
+  }
+  if (inputPeak < 0.005) {
+    // Input is essentially silent — return as-is (caller may fall back to synth)
+    return input
   }
 
-  // Light-touch mode (reroll): only prevent hard clipping, no trimming
-  if (isLightTouch) {
-    const peak = getPeak(input)
-    if (peak < 1e-6) return input
-    const gain = peak > 0.93 ? 0.92 / peak : 1  // only reduce if clipping
-    if (gain >= 1) return input
-    const out = ctx.createBuffer(channels, input.length, sr)
+  // Find first sample with any audible content (trim leading silence)
+  const silenceThreshold = 0.005
+  let firstNon = 0
+  outer: for (let i = 0; i < input.length; i++) {
     for (let c = 0; c < channels; c++) {
-      const src = input.getChannelData(c)
-      const dst = out.getChannelData(c)
-      for (let i = 0; i < input.length; i++) {
-        const v = src[i] * gain
-        dst[i] = v > 1 ? 1 : v < -1 ? -1 : v
-      }
+      if (Math.abs(input.getChannelData(c)[i]) > silenceThreshold) { firstNon = i; break outer }
     }
-    return out
+  }
+  // Don't trim more than 1 second of leading silence (safety)
+  const maxLeadingTrim = Math.floor(1.0 * sr)
+  if (firstNon > maxLeadingTrim) firstNon = maxLeadingTrim
+
+  const remainingLen = input.length - firstNon
+  const outLen = Math.min(remainingLen, MAX_DUR_SAMPLES)
+  if (outLen < Math.floor(0.05 * sr)) {
+    // Less than 50ms left after trimming — return original
+    return input
   }
 
-  const isPercussive = category === 'snare' || category === 'drum' || category === 'kick' || category === 'hihat'
-  const isFill = category === 'fill' || category === 'percussion'
-  const isBass = category === 'bass'
-  const isTonal = category === 'chord' || category === 'instrument' || category === 'short' || category === 'medium'
-  const isLong = category === 'long' || category === 'vocal'
-
-  // ── PERCUSSIVE (kick, snare, drum, hihat) ──────────────────────────────────
-  // Don't trim at all. Drums need their transient. Just normalize to prevent clip.
-  if (isPercussive) {
-    const peak = getPeak(input)
-    if (peak < 0.04) return input  // blank/near-silent: return as-is
-    const maxDur = (category === 'hihat') ? 1.2 : (category === 'kick') ? 1.8 : 2.0
-    const maxLen = Math.floor(maxDur * sr)
-    const len = Math.min(input.length, maxLen)
-    const gain = peak > 1e-6 ? Math.min(1.2, 0.89 / peak) : 1  // very conservative — max 1.2x
-    const out = ctx.createBuffer(channels, len, sr)
-    const fadeIn = Math.min(Math.floor(0.001 * sr), 10)   // 1ms
-    const fadeOut = Math.min(Math.floor(0.005 * sr), 220)  // 5ms
-    for (let c = 0; c < channels; c++) {
-      const src = input.getChannelData(c)
-      const dst = out.getChannelData(c)
-      for (let i = 0; i < len; i++) {
-        let v = src[i] * gain
-        if (i < fadeIn) v *= i / fadeIn
-        const tail = len - 1 - i
-        if (tail < fadeOut) v *= tail / fadeOut
-        dst[i] = v > 1 ? 1 : v < -1 ? -1 : v
-      }
+  const out = ctx.createBuffer(channels, outLen, sr)
+  for (let c = 0; c < channels; c++) {
+    const src = input.getChannelData(c)
+    const dst = out.getChannelData(c)
+    for (let i = 0; i < outLen; i++) {
+      dst[i] = src[firstNon + i]  // NO gain change at all — pure pass-through
     }
-    const outPeak = getPeak(out)
-    return outPeak < 0.04 ? input : out
   }
-
-  // ── FILL / PERCUSSION (fill, ensemble perc) ────────────────────────────────
-  // Same as percussive but allow longer duration
-  if (isFill) {
-    const peak = getPeak(input)
-    if (peak < 0.04) return input
-    const maxLen = Math.floor(3.5 * sr)
-    const len = Math.min(input.length, maxLen)
-    const gain = peak > 1e-6 ? Math.min(1.3, 0.89 / peak) : 1
-    const out = ctx.createBuffer(channels, len, sr)
-    const fadeIn = Math.min(Math.floor(0.002 * sr), 100)
-    const fadeOut = Math.min(Math.floor(0.01 * sr), 441)
-    for (let c = 0; c < channels; c++) {
-      const src = input.getChannelData(c)
-      const dst = out.getChannelData(c)
-      for (let i = 0; i < len; i++) {
-        let v = src[i] * gain
-        if (i < fadeIn) v *= i / fadeIn
-        const tail = len - 1 - i
-        if (tail < fadeOut) v *= tail / fadeOut
-        dst[i] = v > 1 ? 1 : v < -1 ? -1 : v
-      }
-    }
-    const outPeak = getPeak(out)
-    return outPeak < 0.04 ? input : out
-  }
-
-  // ── BASS ──────────────────────────────────────────────────────────────────
-  // Trim leading silence (only up to 200ms), keep body intact
-  if (isBass) {
-    const threshold = 0.01
-    const maxLeadingTrimSamples = Math.floor(0.2 * sr)
-    let firstNon = 0
-    outer_bass: for (let c = 0; c < channels; c++) {
-      const d = input.getChannelData(c)
-      for (let i = 0; i < Math.min(maxLeadingTrimSamples, d.length); i++) {
-        if (Math.abs(d[i]) > threshold) { firstNon = Math.min(firstNon === 0 ? i : firstNon, i); break outer_bass }
-      }
-    }
-    const maxLen = Math.floor(3.5 * sr)
-    const len = Math.min(input.length - firstNon, maxLen)
-    if (len < Math.floor(0.2 * sr)) return input
-    const peak = getPeak(input, firstNon, len)
-    if (peak < 0.04) return input
-    const gain = peak > 1e-6 ? Math.min(2.0, 0.89 / peak) : 1
-    const out = ctx.createBuffer(channels, len, sr)
-    const fadeIn = Math.min(Math.floor(0.003 * sr), len >> 3)
-    const fadeOut = Math.min(Math.floor(0.02 * sr), len >> 3)
-    for (let c = 0; c < channels; c++) {
-      const src = input.getChannelData(c)
-      const dst = out.getChannelData(c)
-      for (let i = 0; i < len; i++) {
-        let v = src[firstNon + i] * gain
-        if (i < fadeIn) v *= i / fadeIn
-        const tail = len - 1 - i
-        if (tail < fadeOut) v *= tail / fadeOut
-        dst[i] = v > 1 ? 1 : v < -1 ? -1 : v
-      }
-    }
-    const outPeak = getPeak(out)
-    return outPeak < 0.04 ? input : out
-  }
-
-  // ── TONAL (chord, instrument, short, medium) ───────────────────────────────
-  // Moderate trim, moderate gain cap
-  if (isTonal) {
-    const threshold = 0.005
-    const maxLeadingTrimSamples = Math.floor(0.5 * sr) // max 500ms trim
-    let firstNon = 0, lastNon = input.length - 1
-    for (let c = 0; c < channels; c++) {
-      const d = input.getChannelData(c)
-      for (let i = 0; i < Math.min(maxLeadingTrimSamples, d.length); i++) {
-        if (Math.abs(d[i]) > threshold) { if (i < firstNon || firstNon === 0) firstNon = i; break }
-      }
-      for (let i = d.length - 1; i >= Math.max(0, d.length - Math.floor(1.0 * sr)); i--) {
-        if (Math.abs(d[i]) > threshold) { if (i > lastNon) lastNon = i; break }
-      }
-    }
-    if (firstNon >= lastNon) { firstNon = 0; lastNon = input.length - 1 }
-    const maxLen = Math.floor(4.0 * sr)
-    const len = Math.min(lastNon - firstNon + 1, maxLen)
-    if (len < Math.floor(0.3 * sr)) return input
-    const peak = getPeak(input, firstNon, len)
-    if (peak < 0.03) return input
-    const gain = peak > 1e-6 ? Math.min(2.5, 0.89 / peak) : 1
-    const out = ctx.createBuffer(channels, len, sr)
-    const fadeIn = Math.min(Math.floor(0.005 * sr), len >> 4)
-    const fadeOut = Math.min(Math.floor(0.02 * sr), len >> 4)
-    for (let c = 0; c < channels; c++) {
-      const src = input.getChannelData(c)
-      const dst = out.getChannelData(c)
-      for (let i = 0; i < len; i++) {
-        let v = src[firstNon + i] * gain
-        if (i < fadeIn) v *= i / fadeIn
-        const tail = len - 1 - i
-        if (tail < fadeOut) v *= tail / fadeOut
-        dst[i] = v > 1 ? 1 : v < -1 ? -1 : v
-      }
-    }
-    const outPeak = getPeak(out)
-    return outPeak < 0.03 ? input : out
-  }
-
-  // ── LONG / VOCAL (long, vocal) ────────────────────────────────────────────
-  {
-    const threshold = 0.003
-    let firstNon = 0, lastNon = input.length - 1
-    for (let c = 0; c < channels; c++) {
-      const d = input.getChannelData(c)
-      for (let i = 0; i < d.length; i++) {
-        if (Math.abs(d[i]) > threshold) { if (i < firstNon || firstNon === 0) firstNon = i; break }
-      }
-      for (let i = d.length - 1; i >= 0; i--) {
-        if (Math.abs(d[i]) > threshold) { if (i > lastNon) lastNon = i; break }
-      }
-    }
-    if (firstNon >= lastNon) { firstNon = 0; lastNon = input.length - 1 }
-    const maxLen = Math.floor(5.0 * sr)
-    const len = Math.min(lastNon - firstNon + 1, maxLen)
-    if (len < Math.floor(0.4 * sr)) return input
-    const peak = getPeak(input, firstNon, len)
-    if (peak < 0.02) return input
-    const gain = peak > 1e-6 ? Math.min(2.0, 0.89 / peak) : 1
-    const out = ctx.createBuffer(channels, len, sr)
-    const fadeIn = Math.min(Math.floor(0.01 * sr), len >> 4)
-    const fadeOut = Math.min(Math.floor(0.05 * sr), len >> 4)
-    for (let c = 0; c < channels; c++) {
-      const src = input.getChannelData(c)
-      const dst = out.getChannelData(c)
-      for (let i = 0; i < len; i++) {
-        let v = src[firstNon + i] * gain
-        if (i < fadeIn) v *= i / fadeIn
-        const tail = len - 1 - i
-        if (tail < fadeOut) v *= tail / fadeOut
-        dst[i] = v > 1 ? 1 : v < -1 ? -1 : v
-      }
-    }
-    const outPeak = getPeak(out)
-    return outPeak < 0.02 ? input : out
-  }
+  return out
 }
 
 // ---- SYNTHESIZED PAD SOUNDS (up to ~6/32 per preset as fallback) ----
@@ -1408,10 +1288,9 @@ async function generatePresetSoundKit(
       try {
         const raw = await loadAndCacheAudio(chosen.previewUrl, ctx)
         if (raw) {
-          // Reroll = light touch (no destructive trimming). Default = per-category cleaning.
           const refined = await refineAudioBuffer(raw, ctx, category, isReroll)
-          const minDur = PERCUSSIVE_CATEGORIES.includes(category) ? 0.1 : 0.3
-          if (refined.duration >= minDur) {
+          // Accept any refined buffer >= 30ms; let synth fallback handle the rest
+          if (refined.duration >= 0.03) {
             chosen.audioBuffer = refined
             samples.set(padIdx, chosen)
           }
@@ -1435,32 +1314,25 @@ async function generatePresetSoundKit(
   }
   await Promise.all(tasks)
 
-  // Synth fallback: fill up to 6 failed pads (max 20% of 32) with synthesized sounds
-  if (!isReroll) {
-    const presetIndex = PRESETS.indexOf(preset)
-    let synthCount = 0
-    const MAX_SYNTH = 6
-    for (const slot of BLUEPRINT_SLOT_MAP) {
-      if (synthCount >= MAX_SYNTH) break
-      for (let i = 0; i < slot.padIds.length && synthCount < MAX_SYNTH; i++) {
-        const padIdx = slot.padIds[i]
-        if (!samples.has(padIdx)) {
-          const synthType = CATEGORY_SYNTH_MAP[slot.category]
-          if (synthType) {
-            try {
-              const buf = await synthesizePadSound(synthType, (presetIndex + i) % 27)
-              samples.set(padIdx, {
-                id: -(padIdx + 1),
-                name: `Synth ${slot.category} v${(presetIndex + i) % 27}`,
-                previewUrl: '',
-                audioBuffer: buf,
-              })
-              synthCount++
-            } catch (e) {
-              console.warn('[synth fallback] failed for pad', padIdx, e)
-            }
-          }
-        }
+  // GUARANTEED FALLBACK: every empty pad gets a synthesized sound. 32/32 always.
+  const presetIndex = Math.max(0, PRESETS.indexOf(preset))
+  for (const slot of BLUEPRINT_SLOT_MAP) {
+    for (let i = 0; i < slot.padIds.length; i++) {
+      const padIdx = slot.padIds[i]
+      if (samples.has(padIdx)) continue
+      const synthType = CATEGORY_SYNTH_MAP[slot.category] ?? 'synth_hit'
+      try {
+        // Variant seeded by preset+pad so each pad in each preset is unique
+        const variant = (presetIndex * 37 + padIdx * 13 + i * 7) % 27
+        const buf = await synthesizePadSound(synthType, variant)
+        samples.set(padIdx, {
+          id: -(presetIndex * 100 + padIdx + 1),
+          name: `Synth ${slot.category} #${variant}`,
+          previewUrl: '',
+          audioBuffer: buf,
+        })
+      } catch (e) {
+        console.warn('[synth fallback] failed for pad', padIdx, e)
       }
     }
   }
@@ -2675,6 +2547,27 @@ export default function AlphaDAW() {
   const [freesoundProgress, setFreesoundProgress] = useState({ loaded: 0, total: 32 })
   const [loadedPresets, setLoadedPresets] = useState<Set<PresetName>>(new Set())
   const [freesoundSamples, setFreesoundSamples] = useState<Map<number, FreesoundSample>>(new Map())
+  // Bind toggleFavoriteRef now that we have freesoundSamples in scope
+  useEffect(() => {
+    toggleFavoriteRef.current = (padIdx, sound) => {
+      const meta = freesoundSamples.get(padIdx)
+      const sourceId = meta?.id ?? -(padIdx + 1)
+      const label = (meta?.name || sound.label).slice(0, 22)
+      setFavorites(prev => {
+        const exists = prev.find(f => f.sourceId === sourceId)
+        if (exists) return prev.filter(f => f.favId !== exists.favId)
+        const next: FavoriteSound = {
+          favId: `fav_${Date.now()}_${padIdx}`,
+          label,
+          category: sound.category,
+          color: sound.color,
+          previewUrl: meta?.previewUrl || '',
+          sourceId,
+        }
+        return prev.length >= 32 ? [...prev.slice(1), next] : [...prev, next]
+      })
+    }
+  }, [freesoundSamples])
   // Pre-vetted manifest from /daw-presets.json — loaded once on mount
   type ManifestPad = { padIdx: number; id: number; name: string; previewUrl: string; duration: number; category: string; score: number }
   const [presetManifest, setPresetManifest] = useState<Record<string, ManifestPad[]> | null>(null)
@@ -2803,6 +2696,26 @@ export default function AlphaDAW() {
   const metroBeatCountRef = useRef(0)
   useEffect(() => { metronomeOnRef.current = metronomeOn }, [metronomeOn])
   useEffect(() => { metronomeRateRef.current = metronomeRate }, [metronomeRate])
+  // ── Favorites: persisted per device. Each favorite stores enough to re-load the sound. ──
+  type FavoriteSound = {
+    favId: string         // unique
+    label: string         // displayed name
+    category: SoundCategory
+    color: string
+    previewUrl: string    // freesound url; empty string => synth-only
+    sourceId: number      // freesound id, or negative for synth
+    synthType?: SynthPadType
+    synthVariant?: number
+  }
+  const FAV_KEY = 'daw-favorites-v1'
+  const [favorites, setFavorites] = useState<FavoriteSound[]>(() => {
+    try { return JSON.parse(localStorage.getItem(FAV_KEY) || '[]') } catch { return [] }
+  })
+  const [favoritesViewOpen, setFavoritesViewOpen] = useState(false)
+  useEffect(() => {
+    try { localStorage.setItem(FAV_KEY, JSON.stringify(favorites)) } catch { /* quota */ }
+  }, [favorites])
+  const toggleFavoriteRef = useRef<(padIdx: number, sound: typeof SOUND_BANK[number]) => void>(() => {})
   // Custom mode
   const [customMode, setCustomMode] = useState(false)
   // queue of loaded sample files awaiting drag onto pad
@@ -4049,6 +3962,15 @@ export default function AlphaDAW() {
             <option value="sixteenth">1/16</option>
           </select>
         </div>
+        {/* Favorites view */}
+        <button
+          onClick={() => setFavoritesViewOpen(true)}
+          title={`Favorites (${favorites.length}/32) — saved per device`}
+          className="flex items-center gap-1 px-2 py-1.5 rounded-lg bg-slate-950 border border-slate-800 text-slate-300 hover:text-amber-300"
+        >
+          <Star size={14} className={favorites.length > 0 ? 'text-amber-400 fill-amber-400' : ''} />
+          <span className="text-xs">Favorites ({favorites.length})</span>
+        </button>
         {/* === EFFECTS RACK WITH LED INDICATORS === */}
         <div className="flex items-center gap-1 bg-slate-950 border border-slate-800 rounded-lg px-2 py-1.5 flex-wrap max-w-full">
           <span className="text-[10px] text-slate-500 uppercase tracking-wider mr-1">FX Rack</span>
@@ -4391,6 +4313,32 @@ export default function AlphaDAW() {
                         ))}
                       </div>
                     )}
+                    {/* Favorite star — top-left */}
+                    <span
+                      role="button"
+                      onClick={(e: React.MouseEvent) => {
+                        e.stopPropagation()
+                        toggleFavoriteRef.current(index, sound)
+                      }}
+                      title={(() => {
+                        const meta = freesoundSamples.get(index)
+                        const sid = meta?.id ?? -(index + 1)
+                        return favorites.some(f => f.sourceId === sid) ? 'Unfavorite' : 'Favorite this sound'
+                      })()}
+                      className="absolute top-1 left-1 w-4 h-4 flex items-center justify-center cursor-pointer hover:scale-125 transition-transform z-20"
+                    >
+                      {(() => {
+                        const meta = freesoundSamples.get(index)
+                        const sid = meta?.id ?? -(index + 1)
+                        const fav = favorites.some(f => f.sourceId === sid)
+                        return (
+                          <Star
+                            size={12}
+                            className={fav ? 'text-amber-300 fill-amber-300 drop-shadow' : 'text-white/60 hover:text-white'}
+                          />
+                        )
+                      })()}
+                    </span>
                   </motion.button>
                 )
               })}
@@ -5107,6 +5055,64 @@ export default function AlphaDAW() {
               >
                 Got it
               </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      {/* Favorites view modal */}
+      <AnimatePresence>
+        {favoritesViewOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4"
+            onClick={() => setFavoritesViewOpen(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-slate-950 border border-slate-800 rounded-2xl p-5 max-w-3xl w-full max-h-[80vh] overflow-y-auto"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <Star size={18} className="text-amber-400 fill-amber-400" />
+                  <h3 className="text-lg font-semibold text-slate-100">Favorites ({favorites.length}/32)</h3>
+                </div>
+                <button onClick={() => setFavoritesViewOpen(false)} className="text-slate-400 hover:text-slate-100">
+                  <X size={18} />
+                </button>
+              </div>
+              {favorites.length === 0 ? (
+                <p className="text-sm text-slate-400 py-12 text-center">
+                  No favorites yet. Tap the small star on any pad to save it here. Favorites are stored locally on this device.
+                </p>
+              ) : (
+                <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2">
+                  {favorites.map(fav => (
+                    <div
+                      key={fav.favId}
+                      className="relative rounded-lg p-2 h-20 flex items-end overflow-hidden group"
+                      style={{ background: fav.color }}
+                    >
+                      <span className="text-[10px] font-semibold text-white drop-shadow leading-tight">{fav.label}</span>
+                      <button
+                        onClick={() => setFavorites(prev => prev.filter(f => f.favId !== fav.favId))}
+                        title="Remove from favorites"
+                        className="absolute top-1 right-1 w-4 h-4 rounded-full bg-black/50 hover:bg-rose-600 flex items-center justify-center text-white"
+                      >
+                        <X size={10} />
+                      </button>
+                      <span className="absolute top-1 left-1 text-[8px] text-white/80 uppercase">{fav.category.slice(0, 3)}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <p className="text-[10px] text-slate-500 mt-4 leading-relaxed">
+                Favorites persist on this device via local storage. Star up to 32 sounds across any preset; oldest is replaced when full.
+              </p>
             </motion.div>
           </motion.div>
         )}
