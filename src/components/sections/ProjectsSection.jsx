@@ -351,6 +351,7 @@ export const PROJECTS = [
     title: 'Malaria Biomedical 3D Modeling System',
     desc: 'Interactive 3D visualization of P. falciparum cellular biology — rotatable RBC morphology, fluorescence microscopy, TEM cross-sections, SEIR infection dynamics, protein structure docking, and ML-based parasitemia detection. Built on Three.js with real biomedical data models.',
     tech: ['Three.js', 'React', 'JavaScript', 'Biomedical', 'Machine Learning', 'Data Visualization'],
+    link: '/malaria_biomedical_3d.jsx',
     img: imgMalariaBiomedical,
     type: 'jsx',
     component: LazyMalariaBiomedical,
