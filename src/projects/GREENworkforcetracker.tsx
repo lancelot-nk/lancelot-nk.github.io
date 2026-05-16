@@ -454,24 +454,32 @@ interface BarChartData {
 }
 
 function GreenBarChart({ data, title }: { data: BarChartData[]; title: string }) {
-  const maxValue = Math.max(...data.map(d => d.value))
+  const maxValue = Math.max(...data.map(d => d.value), 1)
   
   return (
-    <div className="rounded-xl bg-white p-5 shadow-lg border border-green-200">
+    <div className="rounded-xl bg-white p-5 shadow-lg border border-green-200 min-w-0">
       <h3 className="text-sm font-semibold text-green-900 mb-4">{title}</h3>
-      <div className="flex items-end justify-between gap-3 h-48">
-        {data.map((item, idx) => (
-          <div key={idx} className="flex flex-col items-center flex-1">
-            <span className="text-xs font-medium text-green-800 mb-1">
-              {formatNumber(item.value)}
-            </span>
-            <div 
-              className="w-full rounded-t-lg bg-gradient-to-t from-green-600 to-green-400 transition-all duration-500"
-              style={{ height: `${(item.value / maxValue) * 150}px` }}
-            />
-            <span className="text-xs text-green-700 mt-2 text-center">{item.label}</span>
-          </div>
-        ))}
+      <div className="overflow-x-auto">
+        <div
+          className="flex items-end gap-2"
+          style={{ minWidth: `${data.length * 52}px`, height: '192px', alignItems: 'flex-end' }}
+        >
+          {data.map((item, idx) => (
+            <div key={idx} className="flex flex-col items-center" style={{ minWidth: '44px', flex: '1 0 44px' }}>
+              <span className="text-[10px] font-medium text-green-800 mb-1 whitespace-nowrap">
+                {formatNumber(item.value)}
+              </span>
+              <div 
+                className="w-full rounded-t-lg bg-gradient-to-t from-green-600 to-green-400 transition-all duration-500"
+                style={{ height: `${Math.max(4, (item.value / maxValue) * 130)}px` }}
+              />
+              <span
+                className="text-[10px] text-green-700 mt-1.5 text-center leading-tight"
+                style={{ maxWidth: '52px', wordBreak: 'break-word' }}
+              >{item.label}</span>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   )

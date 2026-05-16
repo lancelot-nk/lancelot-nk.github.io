@@ -636,19 +636,79 @@ const BLUEPRINT_SLOT_MAP: Array<{
 
 // Generic fallback queries per category if themed query returns 0 results
 const FALLBACK_QUERIES: Record<SoundCategory, string[]> = {
-  long: ['ambient pad sustain', 'drone texture long'],
-  medium: ['music loop melody', 'melody loop instrument'],
-  short: ['sound effect hit', 'sfx one shot hit'],
-  chord: ['piano chord hit', 'synth chord hit'],
-  instrument: ['piano note single', 'guitar note single', 'synth note single', 'violin note single'],
-  snare: ['snare drum hit single', 'acoustic snare hit'],
-  drum: ['tom drum hit single', 'rimshot hit single'],
-  kick: ['kick drum hit single', 'bass drum hit'],
-  bass: ['bass note single hit', 'bass guitar hit'],
-  hihat: ['closed hihat hit', 'hihat click hit'],
-  fill: ['drum fill percussion ensemble', 'ensemble percussion break loop'],
-  percussion: ['marimba single hit note', 'xylophone note hit single', 'vibraphone hit note', 'conga hit single'],
-  vocal: ['vocal phrase sample', 'vocal chant loop'],
+  long: [
+    'ambient pad sustain long', 'drone texture long atmosphere',
+    'orchestral string pad sustain', 'synth pad long texture',
+    'soundscape ambient atmosphere', 'cinematic pad long sustain',
+  ],
+  medium: [
+    'melody loop instrument music', 'piano riff loop melody',
+    'guitar melody loop acoustic', 'saxophone melody phrase',
+    'flute melody loop folk', 'violin melody orchestral loop',
+    'trumpet melody jazz phrase', 'synth melody arpeggio loop',
+  ],
+  short: [
+    'sound effect one shot hit', 'instrument stab hit single',
+    'piano stab note short', 'guitar pluck note hit',
+    'synth hit short stab', 'brass stab hit short',
+    'wood block hit single', 'bell hit chime single',
+    'record scratch vinyl hit', 'glass break fx short',
+    'snap clap body percussion', 'zap laser fx hit',
+  ],
+  chord: [
+    'piano chord hit acoustic', 'guitar chord strum acoustic',
+    'organ chord hit jazz', 'synth chord pad hit',
+    'brass chord hit orchestral', 'string quartet chord hit',
+    'vibraphone chord hit jazz', 'marimba chord hit mallet',
+    'harp chord glissando hit', 'accordion chord hit',
+    'electric guitar power chord', 'harpsichord chord hit baroque',
+    'rhodes electric piano chord', 'flute ensemble chord harmony',
+    'vocal choir chord hit', 'trumpet ensemble chord fanfare',
+  ],
+  instrument: [
+    'piano note single acoustic', 'guitar note pluck single',
+    'violin note bow single', 'flute note single breath',
+    'saxophone note single jazz', 'trumpet note single bright',
+    'trombone note single mellow', 'cello note single bow',
+    'harp pluck note single', 'marimba note hit single',
+    'vibraphone note hit single', 'oboe note single orchestral',
+    'clarinet note single melodic', 'french horn note single',
+    'synth note single lead', 'organ note single church',
+    'rhodes note single warm', 'banjo pluck note single',
+    'sitar pluck note single', 'erhu note single chinese',
+    'didgeridoo note single', 'kalimba note thumb piano',
+  ],
+  snare: ['snare drum hit acoustic', 'snare crack tight hit', 'rimshot snare hit single', 'brushed snare hit soft'],
+  drum: ['tom drum hit single', 'rimshot hit drum single', 'floor tom hit deep', 'timbale hit latin single'],
+  kick: ['kick drum hit bass', 'bass drum thump hit', 'sub kick bass hit', 'electronic kick drum hit'],
+  bass: [
+    'bass guitar note hit single', 'upright bass pluck note',
+    'synth bass note hit', 'tuba bass note single',
+    'cello bass pizzicato note', 'bass piano low note hit',
+    '808 bass sub hit note', 'bass clarinet note low',
+  ],
+  hihat: ['closed hihat hit single', 'hihat click tight hit', 'open hihat sizzle hit', 'electronic hihat hit'],
+  fill: [
+    'drum fill percussion break ensemble', 'snare roll drum fill break',
+    'orchestral percussion fill roll', 'breakbeat drum break fill',
+    'timbale roll fill percussion', 'tom fill break rhythm',
+  ],
+  percussion: [
+    'marimba note hit single melody', 'xylophone note single hit',
+    'vibraphone note single jazz', 'glockenspiel bell note hit',
+    'conga hit single latin', 'bongo drum hit single',
+    'timbale hit single latin', 'cowbell hit single rhythm',
+    'woodblock hit single dry', 'agogo bell hit single',
+    'triangle hit single chime', 'claves hit single cuban',
+    'shaker hit single rattle', 'tambourine hit single',
+    'tubular bells hit single orchestral', 'steel drum note island single',
+  ],
+  vocal: [
+    'vocal phrase sample melody', 'vocal chant loop ethnic',
+    'choir vocal hit harmony', 'spoken word vocal sample',
+    'scat vocal jazz phrase', 'beatbox vocal rhythm hit',
+    'whistle vocal melodic phrase', 'throat singing vocal ethnic',
+  ],
 }
 
 // Drum categories — used to apply stricter quality filtering
@@ -681,14 +741,30 @@ const SOUND_SLOT_BLUEPRINT: SoundSlotConfig[] = [
 
 // Broad instrument families to enforce "max 2 from same family" rule.
 const INSTRUMENT_FAMILIES: Record<string, string> = {
-  piano: 'keys', rhodes: 'keys', organ: 'keys',
-  guitar: 'strings', violin: 'strings', cello: 'strings', harp: 'strings',
-  synth: 'synth', 'synth lead': 'synth', 'synth pluck': 'synth',
-  flute: 'wind', sax: 'wind', clarinet: 'wind',
-  brass: 'brass', trumpet: 'brass', horn: 'brass',
-  marimba: 'mallet', xylophone: 'mallet', vibraphone: 'mallet',
+  piano: 'keys', rhodes: 'keys', organ: 'keys', harpsichord: 'keys', clavinet: 'keys', wurlitzer: 'keys', accordion: 'keys',
+  guitar: 'strings', violin: 'strings', cello: 'strings', harp: 'strings', viola: 'strings', 'double bass': 'strings', mandolin: 'strings', banjo: 'strings', ukulele: 'strings', sitar: 'strings', oud: 'strings', lute: 'strings', dulcimer: 'strings',
+  synth: 'synth', 'synth lead': 'synth', 'synth pluck': 'synth', 'synth pad': 'synth', 'synth bass': 'synth', moog: 'synth',
+  flute: 'woodwind', sax: 'woodwind', clarinet: 'woodwind', oboe: 'woodwind', bassoon: 'woodwind', recorder: 'woodwind', piccolo: 'woodwind', 'pan flute': 'woodwind', 'tin whistle': 'woodwind', shakuhachi: 'woodwind',
+  trumpet: 'brass', trombone: 'brass', horn: 'brass', tuba: 'brass', 'french horn': 'brass', flugelhorn: 'brass', cornet: 'brass',
+  marimba: 'mallet', xylophone: 'mallet', vibraphone: 'mallet', glockenspiel: 'mallet', bells: 'mallet', kalimba: 'mallet', mbira: 'mallet',
+  tabla: 'world', sitar: 'world', kora: 'world', didgeridoo: 'world', gamelan: 'world', balafon: 'world', erhu: 'world',
 }
-const INSTRUMENT_POOL = ['piano', 'guitar', 'synth lead', 'violin', 'flute', 'brass', 'rhodes', 'marimba'] as const
+const INSTRUMENT_POOL = [
+  // Keys
+  'piano', 'rhodes', 'organ', 'harpsichord', 'accordion',
+  // Strings
+  'guitar', 'violin', 'cello', 'harp', 'mandolin', 'banjo', 'sitar',
+  // Synths
+  'synth lead', 'synth pad', 'synth pluck', 'moog',
+  // Woodwinds
+  'flute', 'sax', 'clarinet', 'oboe', 'pan flute', 'shakuhachi', 'recorder',
+  // Brass
+  'trumpet', 'trombone', 'french horn', 'tuba', 'flugelhorn',
+  // Mallet / pitched perc
+  'marimba', 'vibraphone', 'xylophone', 'glockenspiel', 'kalimba',
+  // World / special
+  'sitar', 'kora', 'erhu', 'gamelan', 'didgeridoo', 'balafon',
+] as const
 
 // Pick 4 instruments, never more than 2 from the same family, deterministic per preset name.
 function resolveInstrumentTerms(presetName: string): string[] {
