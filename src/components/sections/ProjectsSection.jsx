@@ -32,6 +32,7 @@ const LazyNGOBudget        = lazy(() => import('../../projects/NGOBudgetTracker'
 const LazySHEAnnual        = lazy(() => import('../../projects/SHEAnnualInteractive'));
 const LazyFXBInteractive   = lazy(() => import('../../projects/FXBInteractive'));
 const LazyMalariaBiomedical = lazy(() => import('../../projects/MalariaBiomedical3D'));
+const LazyElectroLarynx    = lazy(() => import('../../projects/realfinalelectrolarynx'));
 
 // ── Image Imports ────────────────────────────────────────────────────────────
 import img1 from '../../assets/project1.jpg';
@@ -66,6 +67,7 @@ import imgNGOBudget from '../../assets/project_ngo_budget.jpg';
 import imgSHEAnnual from '../../assets/project_she_annual.jpg';
 import imgFXBInteractive from '../../assets/project_fxb_interactive.jpg';
 import imgMalariaBiomedical from '../../assets/project_malaria_biomedical.jpg';
+import imgElectroLarynx from '../../assets/project_electrolarynx.jpg';
 
 // ── Brand Colors ─────────────────────────────────────────────────────────────
 const PINK   = '#B8004E';
@@ -356,6 +358,16 @@ export const PROJECTS = [
     type: 'jsx',
     component: LazyMalariaBiomedical,
     tags: ['data', 'ml', 'visualization'],
+  },
+  {
+    title: 'VRACS v5 — Electrolarynx Voice Restoration System',
+    desc: 'Real-time DSP pipeline for electrolarynx voice restoration — phase-by-phase noise cancellation, harmonic synthesis, bandwidth extension, and ML-enhanced intelligibility scoring. Record speech, simulate laryngectomy degradation, and compare 6+ restoration algorithms with PESQ/STOI metrics.',
+    tech: ['React', 'TypeScript', 'Web Audio API', 'DSP', 'Machine Learning', 'Signal Processing'],
+    link: '/vracs_electrolarynx.jsx',
+    img: imgElectroLarynx,
+    type: 'jsx',
+    component: LazyElectroLarynx,
+    tags: ['data', 'ml', 'audio'],
   },
 ];
 
