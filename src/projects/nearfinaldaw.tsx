@@ -162,15 +162,15 @@ const SOUND_SLOT_BLUEPRINT: SoundSlotConfig[] = [
   // All durations clamped to a hard 4.0s ceiling per spec.
   { padIds: [0, 1, 2], category: 'long', queryTerms: ['texture', 'pad', 'atmosphere'], durationFilter: 'duration:[2.0 TO 4.0]' },
   { padIds: [3, 4, 5], category: 'medium', queryTerms: ['loop', 'soundscape', 'melody'], durationFilter: 'duration:[1.0 TO 2.5]' },
-  { padIds: [6, 7, 8], category: 'short', queryTerms: ['fx', 'glitch', 'one shot'], durationFilter: 'duration:[0.1 TO 1.0]' },
+  { padIds: [6, 7, 8], category: 'short', queryTerms: ['fx', 'glitch', 'one shot'], durationFilter: 'duration:[0.5 TO 1.0]' },
   { padIds: [9, 10, 11], category: 'chord', queryTerms: ['major chord', 'minor chord', 'synth chord'], durationFilter: 'duration:[0.5 TO 3.0]' },
   // 4 instruments, max 2 of same family — rotated per-preset in resolveInstrumentTerms()
   { padIds: [12, 13, 14, 15], category: 'instrument', queryTerms: ['piano', 'guitar', 'synth lead', 'violin'], durationFilter: 'duration:[0.5 TO 3.0]' },
-  { padIds: [16, 17], category: 'snare', queryTerms: ['snare', 'snare drum'], durationFilter: 'duration:[0.1 TO 1.2]' },
-  { padIds: [18, 19], category: 'drum', queryTerms: ['drum', 'rimshot'], durationFilter: 'duration:[0.1 TO 1.2]' },
-  { padIds: [20, 21], category: 'kick', queryTerms: ['kick', 'sub kick'], durationFilter: 'duration:[0.1 TO 0.8]' },
+  { padIds: [16, 17], category: 'snare', queryTerms: ['snare', 'snare drum'], durationFilter: 'duration:[0.5 TO 1.2]' },
+  { padIds: [18, 19], category: 'drum', queryTerms: ['drum', 'rimshot'], durationFilter: 'duration:[0.5 TO 1.2]' },
+  { padIds: [20, 21], category: 'kick', queryTerms: ['kick', 'sub kick'], durationFilter: 'duration:[0.5 TO 0.8]' },
   { padIds: [22, 23], category: 'bass', queryTerms: ['bass hit', 'bass loop'], durationFilter: 'duration:[0.1 TO 2.5]' },
-  { padIds: [24, 25], category: 'hihat', queryTerms: ['hihat', 'closed hat'], durationFilter: 'duration:[0.1 TO 0.8]' },
+  { padIds: [24, 25], category: 'hihat', queryTerms: ['hihat', 'closed hat'], durationFilter: 'duration:[0.5 TO 0.8]' },
   { padIds: [26, 27], category: 'fill', queryTerms: ['drum fill', 'breakbeat'], durationFilter: 'duration:[1.0 TO 3.5]' },
   { padIds: [28, 29], category: 'percussion', queryTerms: ['percussion ensemble', 'tribal loop'], durationFilter: 'duration:[1.0 TO 4.0]' },
   { padIds: [30, 31], category: 'vocal', queryTerms: ['vocal chant', 'vocal phrase'], durationFilter: 'duration:[0.5 TO 3.0]' },
@@ -320,6 +320,8 @@ async function loadAndCacheAudio(
     
     const arrayBuffer = await response.arrayBuffer()
     const audioBuffer = await ctx.decodeAudioData(arrayBuffer)
+    // Quality gate: reject samples shorter than 0.5 seconds
+    if (audioBuffer.duration < 0.5) return null
     return audioBuffer
   } catch (err) {
     console.warn(`[v0] Audio load error for ${url}:`, err)
@@ -353,10 +355,22 @@ async function refineAudioBuffer(input: AudioBuffer, ctx: BaseAudioContext): Pro
     }
   }
   if (firstNon >= lastNon) { firstNon = 0; lastNon = input.length - 1 }
+  const MIN_DURATION_S = 0.5
   // Apply max duration clamp
   const maxLen = Math.floor(MAX_DURATION * sr)
   const trimmedLen = Math.min(lastNon - firstNon + 1, maxLen)
-  if (trimmedLen < 16) return input // pathological — skip refinement
+  if (trimmedLen < Math.floor(MIN_DURATION_S * sr)) return input // sample too short after trim
+  // Check RMS of trimmed content to reject silent regions that survived threshold
+  let rmsSum = 0
+  const rmsLen = Math.min(trimmedLen, Math.floor(sr * 0.5))
+  for (let c = 0; c < channels; c++) {
+    const d = input.getChannelData(c)
+    for (let i = firstNon; i < firstNon + rmsLen; i++) {
+      rmsSum += d[i] * d[i]
+    }
+  }
+  const rms = Math.sqrt(rmsSum / (rmsLen * channels))
+  if (rms < 0.01) return input // Mostly silent even within "non-silent" region
   // Find peak across trimmed window
   let peak = 0
   for (let c = 0; c < channels; c++) {
@@ -872,6 +886,11 @@ class AudioEngine {
   presetBuffers: Map<string, Map<number, AudioBuffer>> = new Map()
   // Active sources for polyphonic playback management
   activeSources: Map<string, AudioBufferSourceNode[]> = new Map()
+  // Flanger and Chorus nodes
+  flangerDelay: DelayNode | null = null
+  flangerFeedback: GainNode | null = null
+  flangerLFO: OscillatorNode | null = null
+  chorusDelay: DelayNode | null = null
   init() {
     if (this.ctx) return
     this.ctx = new (window.AudioContext || (window as any).webkitAudioContext)()
@@ -890,6 +909,32 @@ class AudioEngine {
     this.delayNode.connect(feedback)
     feedback.connect(this.delayNode)
     this.createDistortionCurve()
+    // Flanger
+    this.flangerDelay = this.ctx.createDelay(0.05)
+    this.flangerDelay.delayTime.value = 0.003
+    const flangerFB = this.ctx.createGain()
+    flangerFB.gain.value = 0.7
+    this.flangerDelay.connect(flangerFB)
+    flangerFB.connect(this.flangerDelay)
+    this.flangerFeedback = flangerFB
+    const flangerLFO = this.ctx.createOscillator()
+    const flangerDepth = this.ctx.createGain()
+    flangerLFO.frequency.value = 0.25
+    flangerDepth.gain.value = 0.002
+    flangerLFO.connect(flangerDepth)
+    flangerDepth.connect(this.flangerDelay.delayTime)
+    flangerLFO.start()
+    this.flangerLFO = flangerLFO
+    // Chorus
+    this.chorusDelay = this.ctx.createDelay(0.05)
+    this.chorusDelay.delayTime.value = 0.03
+    const chorusLFO = this.ctx.createOscillator()
+    const chorusDepth = this.ctx.createGain()
+    chorusLFO.frequency.value = 1.5
+    chorusDepth.gain.value = 0.008
+    chorusLFO.connect(chorusDepth)
+    chorusDepth.connect(this.chorusDelay.delayTime)
+    chorusLFO.start()
     // Compressor (auto-master) + brick-wall limiter to prevent clipping
     this.compressor = this.ctx.createDynamicsCompressor()
     this.compressor.threshold.value = -24
@@ -1105,6 +1150,39 @@ class AudioEngine {
       lastNode.connect(fxFilter)
       lastNode = fxFilter
     }
+    if (padSettings.fx.includes('Phaser')) {
+      const ap1 = this.ctx.createBiquadFilter()
+      const ap2 = this.ctx.createBiquadFilter()
+      ap1.type = 'allpass'; ap1.frequency.value = 350; ap1.Q.value = 5
+      ap2.type = 'allpass'; ap2.frequency.value = 800; ap2.Q.value = 5
+      lastNode.connect(ap1); ap1.connect(ap2)
+      lastNode = ap2
+    }
+    if (padSettings.fx.includes('Bitcrush')) {
+      const bc = this.ctx.createWaveShaper()
+      const steps = 8
+      const bcCurve = new Float32Array(256)
+      for (let i = 0; i < 256; i++) {
+        const x = (i / 128) - 1
+        bcCurve[i] = Math.round(x * steps) / steps
+      }
+      bc.curve = bcCurve
+      lastNode.connect(bc)
+      lastNode = bc
+    }
+    if (padSettings.fx.includes('Tremolo')) {
+      const tremoloGain = this.ctx.createGain()
+      const tremoloLFO = this.ctx.createOscillator()
+      const tremoloDepth = this.ctx.createGain()
+      tremoloLFO.frequency.value = 4
+      tremoloDepth.gain.value = 0.4
+      tremoloLFO.connect(tremoloDepth)
+      tremoloDepth.connect(tremoloGain.gain)
+      tremoloGain.gain.value = 0.6
+      tremoloLFO.start()
+      lastNode.connect(tremoloGain)
+      lastNode = tremoloGain
+    }
     lastNode.connect(panner)
     panner.connect(this.masterGain)
     // Sends
@@ -1116,7 +1194,18 @@ class AudioEngine {
       panner.connect(this.delayNode)
       this.delayNode.connect(this.masterGain)
     }
-    osc.connect(filter)
+    if (padSettings.fx.includes('Flanger') && this.flangerDelay) {
+      panner.connect(this.flangerDelay)
+      this.flangerDelay.connect(this.masterGain)
+    }
+    if (padSettings.fx.includes('Chorus') && this.chorusDelay) {
+      panner.connect(this.chorusDelay)
+      this.chorusDelay.connect(this.masterGain)
+    }
+    if (padSettings.fx.includes('Echo') && this.delayNode) {
+      panner.connect(this.delayNode)
+      this.delayNode.connect(this.masterGain)
+    }
     filter.connect(gain)
     panner.pan.value = padSettings.pan
     const velMult =
@@ -1391,24 +1480,26 @@ class AudioEngine {
     velocity: number,
     stepDuration: number,
     padSettings: PadSettings,
-    stretchable: boolean
+    stretchable: boolean,
+    snipMode: boolean = false
   ) {
     if (!this.ctx || !this.masterGain) return
-    
-    // Stop any existing source for this pad to prevent overlap/clipping
-    const existingSources = this.activeSources.get(padId) || []
-    existingSources.forEach(src => {
-      try { src.stop() } catch {}
-    })
-    this.activeSources.set(padId, [])
-    
+
+    // In snip mode, stop existing sources to cut sounds to step length.
+    // In timing mode, let sounds ring out naturally.
+    if (snipMode) {
+      const existingSources = this.activeSources.get(padId) || []
+      existingSources.forEach(src => { try { src.stop() } catch {} })
+      this.activeSources.set(padId, [])
+    }
+
     const source = this.ctx.createBufferSource()
     source.buffer = buffer
-    
+
     // Create gain node for envelope and volume control
     const gain = this.ctx.createGain()
     const panner = this.ctx.createStereoPanner()
-    
+
     // Normalize volume based on buffer's peak amplitude
     const channelData = buffer.getChannelData(0)
     let peak = 0
@@ -1417,33 +1508,48 @@ class AudioEngine {
       if (abs > peak) peak = abs
     }
     const normalizationFactor = peak > 0.001 ? 0.8 / peak : 1
-    
+
     // Apply velocity and pad volume with normalization
     const velMult = (velocity === 1 ? 0.4 : velocity === 2 ? 0.7 : 1.0)
     const baseVol = velMult * padSettings.volume * normalizationFactor * 0.7 // 0.7 headroom
-    
+
+    // Duration and looping logic based on mode
+    let duration: number
+    if (snipMode) {
+      // Snip mode: cut to step length (original behaviour)
+      duration = stretchable ? stepDuration : Math.min(buffer.duration, stepDuration * 2)
+    } else {
+      // Timing mode: let the sample ring out naturally
+      if (stretchable && stepDuration > buffer.duration) {
+        // Loop to fill the step duration
+        source.loop = true
+        duration = stepDuration
+      } else {
+        duration = buffer.duration
+      }
+    }
+
     // ADSR envelope
     const { a, d, s, r } = padSettings.adsr
     const t = time
-    const duration = stretchable ? stepDuration : Math.min(buffer.duration, stepDuration * 2)
     const attackTime = t + Math.min(a, duration * 0.25)
     const decayTime = attackTime + Math.min(d, duration * 0.25)
     const releaseTime = t + duration
-    
+
     gain.gain.setValueAtTime(0.001, t)
     gain.gain.exponentialRampToValueAtTime(Math.max(0.001, baseVol), attackTime)
     gain.gain.exponentialRampToValueAtTime(Math.max(0.001, baseVol * s), decayTime)
     gain.gain.setValueAtTime(Math.max(0.001, baseVol * s), Math.max(decayTime, releaseTime - r))
     gain.gain.exponentialRampToValueAtTime(0.001, releaseTime)
-    
+
     // Panning
     panner.pan.value = padSettings.pan
-    
+
     // Apply pitch/detune
     const pitchOffset = padSettings.pitch + padSettings.octave * 12 + padSettings.detune / 100
     source.playbackRate.value = Math.pow(2, pitchOffset / 12)
-    
-    // FX chain
+
+    // FX chain — inline effects modify lastNode before panner
     let lastNode: AudioNode = gain
     if (padSettings.fx.includes('Distortion') && this.distortionCurve) {
       const dist = this.ctx.createWaveShaper()
@@ -1459,10 +1565,43 @@ class AudioEngine {
       lastNode.connect(fxFilter)
       lastNode = fxFilter
     }
+    if (padSettings.fx.includes('Phaser')) {
+      const ap1 = this.ctx.createBiquadFilter()
+      const ap2 = this.ctx.createBiquadFilter()
+      ap1.type = 'allpass'; ap1.frequency.value = 350; ap1.Q.value = 5
+      ap2.type = 'allpass'; ap2.frequency.value = 800; ap2.Q.value = 5
+      lastNode.connect(ap1); ap1.connect(ap2)
+      lastNode = ap2
+    }
+    if (padSettings.fx.includes('Bitcrush')) {
+      const bc = this.ctx.createWaveShaper()
+      const steps = 8
+      const bcCurve = new Float32Array(256)
+      for (let i = 0; i < 256; i++) {
+        const x = (i / 128) - 1
+        bcCurve[i] = Math.round(x * steps) / steps
+      }
+      bc.curve = bcCurve
+      lastNode.connect(bc)
+      lastNode = bc
+    }
+    if (padSettings.fx.includes('Tremolo')) {
+      const tremoloGain = this.ctx.createGain()
+      const tremoloLFO = this.ctx.createOscillator()
+      const tremoloDepth = this.ctx.createGain()
+      tremoloLFO.frequency.value = 4
+      tremoloDepth.gain.value = 0.4
+      tremoloLFO.connect(tremoloDepth)
+      tremoloDepth.connect(tremoloGain.gain)
+      tremoloGain.gain.value = 0.6
+      tremoloLFO.start()
+      lastNode.connect(tremoloGain)
+      lastNode = tremoloGain
+    }
     lastNode.connect(panner)
     panner.connect(this.masterGain)
-    
-    // FX sends
+
+    // FX sends (tap from panner to effect bus)
     if (padSettings.fx.includes('Reverb') && this.reverbNode) {
       panner.connect(this.reverbNode)
       this.reverbNode.connect(this.masterGain)
@@ -1471,16 +1610,31 @@ class AudioEngine {
       panner.connect(this.delayNode)
       this.delayNode.connect(this.masterGain)
     }
-    
+    if (padSettings.fx.includes('Flanger') && this.flangerDelay) {
+      panner.connect(this.flangerDelay)
+      this.flangerDelay.connect(this.masterGain)
+    }
+    if (padSettings.fx.includes('Chorus') && this.chorusDelay) {
+      panner.connect(this.chorusDelay)
+      this.chorusDelay.connect(this.masterGain)
+    }
+    if (padSettings.fx.includes('Echo') && this.delayNode) {
+      panner.connect(this.delayNode)
+      this.delayNode.connect(this.masterGain)
+    }
+
     source.connect(gain)
     source.start(t)
-    source.stop(releaseTime + 0.1)
-    
+    // Only schedule an early stop in snip mode or when looping for stretch
+    if (snipMode || source.loop) {
+      source.stop(releaseTime + 0.1)
+    }
+
     // Track active source
     const sources = this.activeSources.get(padId) || []
     sources.push(source)
     this.activeSources.set(padId, sources)
-    
+
     // Clean up when done
     source.onended = () => {
       const currentSources = this.activeSources.get(padId) || []
@@ -1516,6 +1670,13 @@ export default function AlphaDAW() {
   const [activePadId, setActivePadId] = useState<string>(SOUND_BANK[0].id)
   const [prevPadId, setPrevPadId] = useState<string | null>(null)
   const [mobileSide, setMobileSide] = useState<'A' | 'B'>('A')
+  // Timing/Snip mode per pad
+  const [padTimingMode, setPadTimingMode] = useState<Record<string, 'timing' | 'snip'>>(() => {
+    try {
+      const stored = localStorage.getItem('daw-pad-timing-mode')
+      return stored ? JSON.parse(stored) : {}
+    } catch { return {} }
+  })
   // Freesound loading state
   const [freesoundLoading, setFreesoundLoading] = useState(false)
   const [freesoundProgress, setFreesoundProgress] = useState({ loaded: 0, total: 32 })
@@ -1722,6 +1883,7 @@ export default function AlphaDAW() {
   const clipsRef = useRef(clips)
   const isArrangementPlayingRef = useRef(isArrangementPlaying)
   const totalBarsRef = useRef(totalBars)
+  const padTimingModeRef = useRef(padTimingMode)
   // UI Playhead State
   const [uiStep, setUiStep] = useState(0)
   const [uiBeat, setUiBeat] = useState(0)
@@ -1772,6 +1934,12 @@ export default function AlphaDAW() {
     totalBarsRef.current = totalBars
   }, [totalBars])
   useEffect(() => {
+    padTimingModeRef.current = padTimingMode
+  }, [padTimingMode])
+  useEffect(() => {
+    try { localStorage.setItem('daw-pad-timing-mode', JSON.stringify(padTimingMode)) } catch {}
+  }, [padTimingMode])
+  useEffect(() => {
     engine.setVolume(volume)
   }, [volume])
   // Derived Timing Math
@@ -1779,6 +1947,7 @@ export default function AlphaDAW() {
   const beatsPerBar = getBeatsPerBar(timeSig)
   const subdivision = halfMode ? 4 : 2 // 2 = 8th notes (standard), 4 = 16th notes (half mode)
   const stepsPerBar = beatsPerBar * subdivision
+  const getTimingMode = (padId: string) => padTimingMode[padId] ?? 'timing'
   // Initialize data
   useEffect(() => {
     if (Object.keys(seqData).length === 0) {
@@ -1996,6 +2165,7 @@ export default function AlphaDAW() {
             // Try Freesound sample (second priority)
             const freesoundBuffer = engine.getFreesoundBuffer(currentPreset, index)
             if (freesoundBuffer) {
+              const isSnip = (padTimingModeRef.current[sound.id] ?? 'timing') === 'snip'
               engine.playFreesoundSample(
                 freesoundBuffer,
                 sound.id,
@@ -2004,6 +2174,7 @@ export default function AlphaDAW() {
                 step.length * stepDur,
                 adjusted,
                 sound.stretchable ?? false,
+                isSnip,
               )
               return
             }
@@ -2130,8 +2301,6 @@ export default function AlphaDAW() {
   }
   const handleStepMouseDown = (uiCol: number, e: React.MouseEvent) => {
     const isShift = e.shiftKey
-    const isAlt = e.altKey
-    const sound = SOUND_BANK.find((s) => s.id === activePadId)
     const dataIdx = halfMode ? uiCol : uiCol * 2
     const padSeq = seqData[activePadId] || []
     const headIdx = findStretchHead(padSeq, dataIdx)
@@ -2139,11 +2308,6 @@ export default function AlphaDAW() {
     if (isShift) {
       setDragState({ type: 'erase', startIdx: dataIdx })
       updateStep(dataIdx, 0, 1)
-      return
-    }
-    // Alt+click on filled stretchable cell → begin a new stretch drag from this head
-    if (isAlt && sound?.stretchable && isActive) {
-      setDragState({ type: 'stretch', startIdx: headIdx })
       return
     }
     // Click on any active cell (including the body of a stretched note) → fully erase the whole note
@@ -2165,6 +2329,14 @@ export default function AlphaDAW() {
     // Empty cell → paint
     setDragState({ type: 'paint', startIdx: dataIdx })
     updateStep(dataIdx, 2, 1)
+  }
+  const handleStepStretchStart = (uiCol: number) => {
+    const dataIdx = halfMode ? uiCol : uiCol * 2
+    const padSeq = seqData[activePadId] || []
+    const headIdx = findStretchHead(padSeq, dataIdx)
+    if (headIdx >= 0) {
+      setDragState({ type: 'stretch', startIdx: headIdx })
+    }
   }
   const handleStepMouseEnter = (uiCol: number) => {
     if (!dragState) return
@@ -2932,6 +3104,13 @@ export default function AlphaDAW() {
             </div>
             <div className="flex gap-2">
               <button
+                onClick={() => setPadTimingMode(p => ({ ...p, [activePadId]: getTimingMode(activePadId) === 'timing' ? 'snip' : 'timing' }))}
+                className={`px-3 py-1 text-xs rounded border ${getTimingMode(activePadId) === 'snip' ? 'bg-cyan-700 border-cyan-500 text-white' : 'bg-slate-800 border-slate-700 text-slate-300'}`}
+                title="Timing Mode: sound rings out naturally. Snip Mode: sound cut to exact step length."
+              >
+                {getTimingMode(activePadId) === 'snip' ? '✂ Snip' : '⏱ Timing'}
+              </button>
+              <button
                 onClick={clearCurrentPad}
                 className="px-3 py-1 text-xs rounded bg-slate-800 text-slate-400 hover:text-white border border-slate-700"
               >
@@ -3006,6 +3185,12 @@ export default function AlphaDAW() {
                               {Math.round(stepData.probability * 100)}%
                             </span>
                           )}
+                        {isActive && activeSound?.stretchable && (
+                          <div
+                            className="absolute top-0 right-0 h-full w-2 cursor-ew-resize bg-white/30 hover:bg-white/60 transition-colors rounded-r-md"
+                            onMouseDown={(e) => { e.stopPropagation(); handleStepStretchStart(uiCol) }}
+                          />
+                        )}
                       </div>
                     </div>
                   )

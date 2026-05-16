@@ -222,7 +222,7 @@ function bufferFromArray(
   ctx: AudioContext | OfflineAudioContext,
 ) {
   const b = ctx.createBuffer(1, arr.length, sr)
-  b.copyToChannel(arr, 0)
+  b.getChannelData(0).set(arr)
   return b
 }
 const phaseInvert = (b: AudioBuffer, c: AudioContext | OfflineAudioContext) =>
@@ -3789,7 +3789,7 @@ export function App() {
         }
         // 4. HF reconstruction
         const hfKey = `${combo.electro}_${combo.method}`
-        let hfBuf = hfCache.get(hfKey)
+        let hfBuf: AudioBuffer | null = hfCache.get(hfKey) ?? null
         if (!hfBuf) {
           const origForBwe =
             bufOriginal || customReferenceBuffer || customElectroBuffer!
