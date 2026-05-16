@@ -15,35 +15,30 @@ import * as THREE from "three";
 
 // ── PALETTE (drawn from actual microscopy imagery, NOT generic UI blue) ──────
 const P = {
-  bg:          "#06080C",
-  panel:       "#0C1018",
-  border:      "#1A2030",
-  text:        "#D4C8B8",
-  dim:         "#5A5048",
-  // fluorescence channels
-  dapi:        "#3A6FD8",   // DAPI nuclear blue
-  hsp70:       "#E03030",   // PfHSP70 red
-  msp1:        "#E85020",   // PfMSP1 orange-red
-  // giemsa / brightfield
-  rbc:         "#C87890",   // pink RBC cytoplasm
-  parasite:    "#7020A0",   // deep violet parasite chromatin
-  hemozoin:    "#8B6010",   // golden-brown hemozoin
-  // TEM colors
+  bg:          "#F8F8F8",
+  panel:       "#FFFFFF",
+  border:      "#222222",
+  text:        "#111111",
+  dim:         "#444444",
+  canvasBg:    "#3D0000",
+  dapi:        "#3A6FD8",
+  hsp70:       "#E03030",
+  msp1:        "#E85020",
+  rbc:         "#C87890",
+  parasite:    "#7020A0",
+  hemozoin:    "#8B6010",
   vacuole:     "#1A4A6A",
   crystal:     "#C8A020",
   membrane:    "#2060A0",
-  // protein structure (rainbow N→C terminus like ribbon diagrams)
   nterm:       "#E04040",
   midA:        "#E08020",
   midB:        "#D0C020",
   midC:        "#20A040",
   midD:        "#2080C0",
   cterm:       "#6040C0",
-  // electrostatic
-  positive:    "#1A40C0",   // blue = positive (standard convention)
-  negative:    "#C01A1A",   // red = negative
+  positive:    "#1A40C0",
+  negative:    "#C01A1A",
   neutral:     "#D0C8C0",
-  // data viz
   infected:    "#C83028",
   healthy:     "#3A8040",
   exposed:     "#C87820",
@@ -738,19 +733,316 @@ function useSegmentation3D(canvasRef, params) {
 }
 
 /* ════════════════════════════════════════════════════════════════════════════
+   NEW HOOKS — LIFECYCLE, CLUSTERING, RBC MEMBRANE, BLOOD FIELD
+════════════════════════════════════════════════════════════════════════════ */
+function useMalariaLifecycle3D(ref) {
+  useEffect(() => {
+    if (!ref.current) return;
+    const el = ref.current;
+    const W = el.clientWidth, H = el.clientHeight;
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(W, H);
+    renderer.setClearColor(0x3D0000);
+    el.appendChild(renderer.domElement);
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(50, W/H, 0.1, 100);
+    camera.position.set(0, 3, 8);
+    camera.lookAt(0, 0, 0);
+
+    const stages = [
+      { name: "Mosquito Bite", color: 0x8B4513, angle: 0 },
+      { name: "Sporozoites",   color: 0x00CED1, angle: Math.PI*2/8 },
+      { name: "Liver Stage",   color: 0xFF8C00, angle: Math.PI*4/8 },
+      { name: "Merozoites",    color: 0xFFD700, angle: Math.PI*6/8 },
+      { name: "Ring Form",     color: 0xFF69B4, angle: Math.PI*8/8 },
+      { name: "Trophozoite",   color: 0xFF4500, angle: Math.PI*10/8 },
+      { name: "Schizont",      color: 0x9370DB, angle: Math.PI*12/8 },
+      { name: "Gametocyte",    color: 0x8B008B, angle: Math.PI*14/8 },
+    ];
+
+    const radius = 3;
+    const meshes = stages.map(s => {
+      const geo = new THREE.SphereGeometry(0.3, 16, 16);
+      const mat = new THREE.MeshPhongMaterial({ color: s.color, emissive: s.color, emissiveIntensity: 0.4 });
+      const mesh = new THREE.Mesh(geo, mat);
+      mesh.position.set(radius * Math.cos(s.angle), Math.sin(s.angle * 0.5) * 0.8, radius * Math.sin(s.angle));
+      scene.add(mesh);
+      return mesh;
+    });
+
+    for (let i = 0; i < stages.length; i++) {
+      const a = meshes[i].position, b = meshes[(i+1)%stages.length].position;
+      const mid = new THREE.Vector3((a.x+b.x)/2, (a.y+b.y)/2+1, (a.z+b.z)/2);
+      const curve = new THREE.QuadraticBezierCurve3(a.clone(), mid, b.clone());
+      const pts = curve.getPoints(30);
+      const geo = new THREE.BufferGeometry().setFromPoints(pts);
+      scene.add(new THREE.Line(geo, new THREE.LineBasicMaterial({ color: 0xFFFFFF, opacity: 0.3, transparent: true })));
+    }
+
+    const particleGeo = new THREE.SphereGeometry(0.05, 8, 8);
+    const particles = stages.map((s, i) => {
+      const mesh = new THREE.Mesh(particleGeo, new THREE.MeshBasicMaterial({ color: s.color }));
+      mesh.userData = { progress: i / stages.length };
+      scene.add(mesh);
+      return mesh;
+    });
+
+    scene.add(new THREE.AmbientLight(0xffffff, 0.4));
+    const pt = new THREE.PointLight(0xff4444, 1, 20); pt.position.set(0, 3, 0); scene.add(pt);
+
+    const orbit = makeOrbitControl(camera, el, 8);
+    let t = 0;
+    let rafId;
+    const anim = () => {
+      rafId = requestAnimationFrame(anim);
+      t += 0.008;
+      particles.forEach((p, i) => {
+        const prog = ((t * 0.3 + i / stages.length) % 1);
+        const fromIdx = Math.floor(prog * stages.length) % stages.length;
+        const toIdx = (fromIdx + 1) % stages.length;
+        const frac = (prog * stages.length) % 1;
+        const from = meshes[fromIdx].position, to = meshes[toIdx].position;
+        p.position.lerpVectors(from, to, frac);
+        p.position.y += Math.sin(frac * Math.PI) * 0.5;
+      });
+      orbit.update(t * 0.2);
+      renderer.render(scene, camera);
+    };
+    anim();
+    return () => {
+      cancelAnimationFrame(rafId);
+      orbit.dispose();
+      renderer.dispose();
+      if (renderer.domElement.parentNode) renderer.domElement.parentNode.removeChild(renderer.domElement);
+    };
+  }, []);
+}
+
+function useCellClustering3D(ref) {
+  useEffect(() => {
+    if (!ref.current) return;
+    const el = ref.current;
+    const W = el.clientWidth, H = el.clientHeight;
+    const { renderer, scene, camera } = initScene(el, W, H, 0x3D0000);
+    scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+    const dir = new THREE.DirectionalLight(0xffffff, 0.8); dir.position.set(5, 8, 5); scene.add(dir);
+    camera.position.set(0, 3, 10);
+    const orbit = makeOrbitControl(camera, el, 10);
+    addAxisArrows(scene);
+
+    const clusters = [
+      { name: "Ring",         color: 0xFF69B4, center: [2.5, 1, 0] },
+      { name: "Trophozoite",  color: 0x00CED1, center: [-2.5, 1, 1] },
+      { name: "Schizont",     color: 0x9370DB, center: [0, 2.5, -2] },
+      { name: "Merozoite",    color: 0xFF1493, center: [2.5, -1, 2] },
+      { name: "Liver Stage",  color: 0xFF8C00, center: [-2.5, -1, -1] },
+      { name: "Gametocyte",   color: 0x8B008B, center: [0, -2.5, 2] },
+    ];
+
+    clusters.forEach(cluster => {
+      for (let i = 0; i < 80; i++) {
+        const geo = new THREE.SphereGeometry(0.06 + Math.random() * 0.04, 6, 5);
+        const mat = new THREE.MeshPhongMaterial({ color: cluster.color, emissive: cluster.color, emissiveIntensity: 0.2, shininess: 60 });
+        const mesh = new THREE.Mesh(geo, mat);
+        mesh.position.set(
+          cluster.center[0] + (Math.random() - 0.5) * 1.5,
+          cluster.center[1] + (Math.random() - 0.5) * 1.5,
+          cluster.center[2] + (Math.random() - 0.5) * 1.5,
+        );
+        scene.add(mesh);
+      }
+    });
+
+    let raf;
+    const animate = () => {
+      raf = requestAnimationFrame(animate);
+      scene.rotation.y += 0.003;
+      renderer.render(scene, camera);
+    };
+    animate();
+    return () => { cancelAnimationFrame(raf); orbit.dispose(); renderer.dispose(); };
+  }, []);
+}
+
+function useRBCMembrane3D(ref) {
+  useEffect(() => {
+    if (!ref.current) return;
+    const el = ref.current;
+    const W = el.clientWidth, H = el.clientHeight;
+    const { renderer, scene, camera } = initScene(el, W, H, 0x3D0000);
+    scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+    const dir = new THREE.DirectionalLight(0xffffff, 1.0); dir.position.set(5, 8, 5); scene.add(dir);
+    const dir2 = new THREE.DirectionalLight(0x8888ff, 0.4); dir2.position.set(-4, -3, -3); scene.add(dir2);
+    camera.position.set(0, 2, 8);
+    const orbit = makeOrbitControl(camera, el, 8);
+
+    // LEFT: Healthy RBC
+    const healthyGroup = new THREE.Group();
+    healthyGroup.position.set(-2.5, 0, 0);
+
+    const lathePoints = [];
+    for (let i = 0; i <= 20; i++) {
+      const t = i / 20;
+      const r = 1.0 * Math.sin(t * Math.PI);
+      const y = 0.35 * (Math.cos(t * Math.PI * 2) * 0.4);
+      lathePoints.push(new THREE.Vector2(Math.max(0, r), y));
+    }
+    const latheGeo = new THREE.LatheGeometry(lathePoints, 32);
+    const latheMat = new THREE.MeshPhongMaterial({ color: 0xC87890, transparent: true, opacity: 0.85, side: THREE.DoubleSide, shininess: 60 });
+    healthyGroup.add(new THREE.Mesh(latheGeo, latheMat));
+
+    for (let i = 0; i < 8; i++) {
+      const a = (i / 8) * Math.PI * 2;
+      const pts = [];
+      for (let j = 0; j <= 20; j++) {
+        const t = j / 20;
+        const r = 0.95 * Math.sin(t * Math.PI);
+        const y = 0.35 * (Math.cos(t * Math.PI * 2) * 0.4);
+        pts.push(new THREE.Vector3(Math.max(0, r) * Math.cos(a), y + 0.01, Math.max(0, r) * Math.sin(a)));
+      }
+      const geo = new THREE.BufferGeometry().setFromPoints(pts);
+      healthyGroup.add(new THREE.Line(geo, new THREE.LineBasicMaterial({ color: 0x00CCDD, opacity: 0.5, transparent: true })));
+    }
+
+    for (let i = 0; i < 12; i++) {
+      const a = Math.random() * Math.PI * 2, r = Math.random() * 0.7;
+      const dotGeo = new THREE.SphereGeometry(0.04, 5, 4);
+      const dot = new THREE.Mesh(dotGeo, new THREE.MeshBasicMaterial({ color: 0x00AA44 }));
+      dot.position.set(r * Math.cos(a), (Math.random() - 0.5) * 0.15, r * Math.sin(a));
+      healthyGroup.add(dot);
+    }
+    scene.add(healthyGroup);
+
+    // RIGHT: Infected RBC
+    const infectedGroup = new THREE.Group();
+    infectedGroup.position.set(2.5, 0, 0);
+
+    const infGeo = new THREE.SphereGeometry(1.0, 20, 16);
+    const infMat = new THREE.MeshPhongMaterial({ color: 0xC87890, transparent: true, opacity: 0.7, shininess: 40 });
+    infectedGroup.add(new THREE.Mesh(infGeo, infMat));
+
+    for (let i = 0; i < 25; i++) {
+      const a = Math.random() * Math.PI * 2, b = Math.random() * Math.PI;
+      const kGeo = new THREE.SphereGeometry(0.06, 5, 4);
+      const knob = new THREE.Mesh(kGeo, new THREE.MeshPhongMaterial({ color: 0xAA4060, shininess: 80 }));
+      knob.position.set(1.06 * Math.sin(b) * Math.cos(a), 1.06 * Math.cos(b), 1.06 * Math.sin(b) * Math.sin(a));
+      infectedGroup.add(knob);
+    }
+
+    for (let i = 0; i < 12; i++) {
+      const a = Math.random() * Math.PI * 2, b = Math.random() * Math.PI;
+      const sGeo = new THREE.CylinderGeometry(0.015, 0.015, 0.35, 5);
+      const spike = new THREE.Mesh(sGeo, new THREE.MeshPhongMaterial({ color: 0xFF4444, shininess: 100 }));
+      const nx = Math.sin(b)*Math.cos(a), ny = Math.cos(b), nz = Math.sin(b)*Math.sin(a);
+      spike.position.set(nx*1.18, ny*1.18, nz*1.18);
+      spike.lookAt(nx*2, ny*2, nz*2);
+      infectedGroup.add(spike);
+    }
+
+    const helixPts = [];
+    for (let i = 0; i <= 40; i++) {
+      const t = i / 40;
+      helixPts.push(new THREE.Vector3(Math.cos(t*Math.PI*6)*0.3, t*0.8-0.4, Math.sin(t*Math.PI*6)*0.3));
+    }
+    infectedGroup.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(helixPts), new THREE.LineBasicMaterial({ color: 0xFFDD00 })));
+
+    for (let i = 0; i < 6; i++) {
+      const a = (i/6)*Math.PI*2;
+      const fPts = [new THREE.Vector3(0,0,0), new THREE.Vector3(Math.cos(a)*0.6,(Math.random()-0.5)*0.4,Math.sin(a)*0.6)];
+      infectedGroup.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(fPts), new THREE.LineBasicMaterial({ color: 0xFF8800, opacity: 0.7, transparent: true })));
+    }
+    scene.add(infectedGroup);
+
+    let raf;
+    const animate = () => {
+      raf = requestAnimationFrame(animate);
+      healthyGroup.rotation.y += 0.006;
+      infectedGroup.rotation.y -= 0.005;
+      renderer.render(scene, camera);
+    };
+    animate();
+    return () => { cancelAnimationFrame(raf); orbit.dispose(); renderer.dispose(); };
+  }, []);
+}
+
+function useBloodField3D(ref) {
+  useEffect(() => {
+    if (!ref.current) return;
+    const el = ref.current;
+    const W = el.clientWidth, H = el.clientHeight;
+    const { renderer, scene, camera } = initScene(el, W, H, 0x3D0000);
+    scene.add(new THREE.AmbientLight(0xffeedd, 0.3));
+    const dir = new THREE.DirectionalLight(0xffffff, 1.2); dir.position.set(5, 8, 3); scene.add(dir);
+    const pt = new THREE.PointLight(0xFF2222, 2, 20); pt.position.set(0, 3, 0); scene.add(pt);
+    camera.position.set(0, 0, 12);
+    const orbit = makeOrbitControl(camera, el, 12);
+
+    const cells = [];
+    const N = 150;
+
+    for (let i = 0; i < N; i++) {
+      const rand = Math.random();
+      let mesh;
+      if (rand < 0.85) {
+        const geo = new THREE.TorusGeometry(0.25, 0.08, 6, 18);
+        const mat = new THREE.MeshPhongMaterial({ color: 0xCC6688, shininess: 40, transparent: true, opacity: 0.9 });
+        mesh = new THREE.Mesh(geo, mat);
+        mesh.rotation.x = Math.random() * Math.PI;
+        mesh.rotation.z = Math.random() * Math.PI;
+      } else if (rand < 0.95) {
+        const geo = new THREE.SphereGeometry(0.18, 10, 8);
+        geo.scale(1, 2.2, 1);
+        const mat = new THREE.MeshPhongMaterial({ color: 0x44CC44, emissive: 0x114411, shininess: 60 });
+        mesh = new THREE.Mesh(geo, mat);
+        mesh.rotation.x = Math.random() * Math.PI;
+      } else {
+        const geo = new THREE.SphereGeometry(0.08, 7, 6);
+        const mat = new THREE.MeshPhongMaterial({ color: 0xFFDD00, emissive: 0x886600, shininess: 120 });
+        mesh = new THREE.Mesh(geo, mat);
+      }
+      mesh.position.set((Math.random()-0.5)*10, (Math.random()-0.5)*6, (Math.random()-0.5)*10);
+      mesh.userData = {
+        vx: (Math.random()-0.5)*0.005, vy: (Math.random()-0.5)*0.005, vz: (Math.random()-0.5)*0.005,
+        rx: (Math.random()-0.5)*0.003, rz: (Math.random()-0.5)*0.003,
+      };
+      scene.add(mesh);
+      cells.push(mesh);
+    }
+
+    let raf;
+    const animate = () => {
+      raf = requestAnimationFrame(animate);
+      cells.forEach(c => {
+        c.position.x += c.userData.vx;
+        c.position.y += c.userData.vy;
+        c.position.z += c.userData.vz;
+        c.rotation.x += c.userData.rx;
+        c.rotation.z += c.userData.rz;
+        if (Math.abs(c.position.x) > 5.5) c.userData.vx *= -1;
+        if (Math.abs(c.position.y) > 3.5) c.userData.vy *= -1;
+        if (Math.abs(c.position.z) > 5.5) c.userData.vz *= -1;
+      });
+      renderer.render(scene, camera);
+    };
+    animate();
+    return () => { cancelAnimationFrame(raf); orbit.dispose(); renderer.dispose(); };
+  }, []);
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
    3D CANVAS WRAPPER
 ════════════════════════════════════════════════════════════════════════════ */
 function ThreeCanvas({ hook, hookArgs = [], width = "100%", height = 340, label, sublabel }) {
   const canvasRef = useRef(null);
   hook(canvasRef, ...hookArgs);
   return (
-    <div style={{ position: "relative", background: "#030507", borderRadius: 4, overflow: "hidden", border: `1px solid ${P.border}` }}>
+    <div style={{ position: "relative", background: P.canvasBg, borderRadius: 4, overflow: "hidden", border: `1px solid ${P.border}` }}>
       <canvas ref={canvasRef} style={{ width, height, display: "block" }} />
       <div style={{ position: "absolute", top: 10, left: 12, pointerEvents: "none" }}>
-        <div style={{ fontSize: 9, letterSpacing: 2, color: "#D4C8B8", fontFamily: "monospace", textTransform: "uppercase" }}>{label}</div>
-        {sublabel && <div style={{ fontSize: 8, color: "#5A5048", fontFamily: "monospace", marginTop: 2 }}>{sublabel}</div>}
+        <div style={{ fontSize: 9, letterSpacing: 2, color: "#FFFFFF", fontFamily: "monospace", textTransform: "uppercase" }}>{label}</div>
+        {sublabel && <div style={{ fontSize: 8, color: "#FFCCCC", fontFamily: "monospace", marginTop: 2 }}>{sublabel}</div>}
       </div>
-      <div style={{ position: "absolute", bottom: 8, right: 10, fontSize: 8, color: "#3A3028", fontFamily: "monospace", pointerEvents: "none" }}>DRAG TO ROTATE · SCROLL TO ZOOM</div>
+      <div style={{ position: "absolute", bottom: 8, right: 10, fontSize: 8, color: "#AA8888", fontFamily: "monospace", pointerEvents: "none" }}>DRAG TO ROTATE · SCROLL TO ZOOM</div>
     </div>
   );
 }
@@ -764,37 +1056,42 @@ export default function MalariaBiomedical3D() {
   const [fluorChannel, setFluorChannel] = useState("HSP70");
   const [showDrug, setShowDrug] = useState(true);
   const [compound, setCompound] = useState("18");
+  const [simKeys, setSimKeys] = useState({});
 
   const tabs = [
-    { id: "smear",    label: "GIEMSA SMEAR",     sub: "3D RBC scatter + ring forms" },
-    { id: "fluor",    label: "FLUORESCENCE",      sub: "DAPI + PfHSP70 / PfMSP1" },
-    { id: "tem",      label: "TEM CROSS-SECTION", sub: "Digestive vacuole · hemozoin" },
-    { id: "seir",     label: "SEIR DYNAMICS",     sub: "3D infection trajectory" },
-    { id: "protein",  label: "PROTEIN STRUCTURE", sub: "PfHSP70 ribbon + drug docking" },
-    { id: "electro",  label: "ELECTROSTATIC",     sub: "Binding pocket potential map" },
-    { id: "seg",      label: "SEGMENTATION",      sub: "Computational parasitemia" },
+    { id: "smear",       label: "GIEMSA SMEAR",     sub: "3D RBC scatter + ring forms" },
+    { id: "fluor",       label: "FLUORESCENCE",      sub: "DAPI + PfHSP70 / PfMSP1" },
+    { id: "tem",         label: "TEM CROSS-SECTION", sub: "Digestive vacuole · hemozoin" },
+    { id: "seir",        label: "SEIR DYNAMICS",     sub: "3D infection trajectory" },
+    { id: "protein",     label: "PROTEIN STRUCTURE", sub: "PfHSP70 ribbon + drug docking" },
+    { id: "electro",     label: "ELECTROSTATIC",     sub: "Binding pocket potential map" },
+    { id: "seg",         label: "SEGMENTATION",      sub: "Computational parasitemia" },
+    { id: "lifecycle",   label: "LIFECYCLE",         sub: "Malaria life cycle 3D" },
+    { id: "clustering",  label: "CELL CLUSTERING",   sub: "Stage cluster scatter 3D" },
+    { id: "rbcmembrane", label: "RBC MEMBRANE",      sub: "Healthy vs infected structure" },
+    { id: "bloodfield",  label: "BLOOD FIELD",       sub: "3D blood cell field" },
   ];
 
   return (
     <div style={{ minHeight: "100vh", background: P.bg, color: P.text, fontFamily: "'Courier New', monospace" }}>
       <style>{`
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-track { background: #04060A; } ::-webkit-scrollbar-thumb { background: #1A2030; }
+        ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-track { background: #F0F0F0; } ::-webkit-scrollbar-thumb { background: #CCCCCC; }
         canvas { cursor: grab; } canvas:active { cursor: grabbing; }
-        input[type=range] { -webkit-appearance: none; appearance: none; height: 3px; background: #1A2030; border-radius: 2px; outline: none; }
-        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; border-radius: 50%; background: #8B6040; cursor: pointer; }
+        input[type=range] { -webkit-appearance: none; appearance: none; height: 3px; background: #DDDDDD; border-radius: 2px; outline: none; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; border-radius: 50%; background: #8B0000; cursor: pointer; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
       `}</style>
 
       {/* ── HEADER ── */}
-      <div style={{ borderBottom: `1px solid ${P.border}`, padding: "12px 24px", display: "flex", alignItems: "center", justifyContent: "space-between", background: P.panel }}>
+      <div style={{ borderBottom: `2px solid #222222`, padding: "12px 24px", display: "flex", alignItems: "center", justifyContent: "space-between", background: "#FFFFFF" }}>
         <div>
-          <div style={{ fontSize: 13, letterSpacing: 3, color: "#E8D8C8", textTransform: "uppercase" }}>Malaria Biomedical 3D Modeling System</div>
-          <div style={{ fontSize: 9, color: P.dim, letterSpacing: 2, marginTop: 3 }}>P.FALCIPARUM CELLULAR SIMULATION · ALL SCENES INTERACTIVE + ROTATABLE</div>
+          <div style={{ fontSize: 13, letterSpacing: 3, color: "#111111", textTransform: "uppercase" }}>Malaria Biomedical 3D Modeling System</div>
+          <div style={{ fontSize: 9, color: "#444444", letterSpacing: 2, marginTop: 3 }}>P.FALCIPARUM CELLULAR SIMULATION · ALL SCENES INTERACTIVE + ROTATABLE</div>
         </div>
         <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
-          <div style={{ fontSize: 9, color: P.dim }}>PARASITEMIA <span style={{ color: "#C83028" }}>{(params.infectionLoad*65).toFixed(1)}%</span></div>
-          <div style={{ fontSize: 9, color: P.dim }}>IMMUNE <span style={{ color: "#3A8040" }}>{(params.immuneStrength*100).toFixed(0)}%</span></div>
+          <div style={{ fontSize: 9, color: "#444444" }}>PARASITEMIA <span style={{ color: "#C83028" }}>{(params.infectionLoad*65).toFixed(1)}%</span></div>
+          <div style={{ fontSize: 9, color: "#444444" }}>IMMUNE <span style={{ color: "#3A8040" }}>{(params.immuneStrength*100).toFixed(0)}%</span></div>
           <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#3A8040", boxShadow: "0 0 8px #3A8040" }} />
         </div>
       </div>
@@ -802,26 +1099,26 @@ export default function MalariaBiomedical3D() {
       <div style={{ display: "flex" }}>
 
         {/* ── LEFT SIDEBAR ── */}
-        <div style={{ width: 200, background: P.panel, borderRight: `1px solid ${P.border}`, padding: "16px 0", minHeight: "calc(100vh - 57px)", flexShrink: 0 }}>
+        <div style={{ width: 200, background: "#FFFFFF", borderRight: `2px solid #222222`, padding: "16px 0", minHeight: "calc(100vh - 57px)", flexShrink: 0 }}>
           {tabs.map(t => (
             <button key={t.id} onClick={() => setActiveTab(t.id)}
               style={{
                 width: "100%", textAlign: "left", padding: "10px 16px",
-                background: activeTab === t.id ? `${P.border}` : "transparent",
-                border: "none", borderLeft: `2px solid ${activeTab === t.id ? "#8B6040" : "transparent"}`,
+                background: activeTab === t.id ? "#FFF0F0" : "transparent",
+                border: "none", borderLeft: `2px solid ${activeTab === t.id ? "#8B0000" : "transparent"}`,
                 cursor: "pointer", transition: "all 0.15s",
               }}>
-              <div style={{ fontSize: 9, color: activeTab === t.id ? "#D4B890" : "#5A5048", letterSpacing: 2 }}>{t.label}</div>
-              <div style={{ fontSize: 8, color: activeTab === t.id ? "#7A6050" : "#302820", marginTop: 2, lineHeight: 1.4 }}>{t.sub}</div>
+              <div style={{ fontSize: 9, color: activeTab === t.id ? "#111111" : "#666666", letterSpacing: 2 }}>{t.label}</div>
+              <div style={{ fontSize: 8, color: activeTab === t.id ? "#8B0000" : "#999999", marginTop: 2, lineHeight: 1.4 }}>{t.sub}</div>
             </button>
           ))}
 
           {/* Global params */}
           <div style={{ padding: "20px 16px", borderTop: `1px solid ${P.border}`, marginTop: 10 }}>
-            <div style={{ fontSize: 8, color: P.dim, letterSpacing: 2, marginBottom: 12 }}>GLOBAL PARAMS</div>
+            <div style={{ fontSize: 8, color: "#444444", letterSpacing: 2, marginBottom: 12 }}>GLOBAL PARAMS</div>
             <div style={{ marginBottom: 10 }}>
               <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-                <span style={{ fontSize: 8, color: P.dim }}>INFECTION β</span>
+                <span style={{ fontSize: 8, color: "#444444" }}>INFECTION β</span>
                 <span style={{ fontSize: 8, color: "#C83028" }}>{params.infectionLoad.toFixed(2)}</span>
               </div>
               <input type="range" min={0.1} max={1} step={0.01} value={params.infectionLoad}
@@ -830,7 +1127,7 @@ export default function MalariaBiomedical3D() {
             </div>
             <div>
               <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-                <span style={{ fontSize: 8, color: P.dim }}>IMMUNE γ</span>
+                <span style={{ fontSize: 8, color: "#444444" }}>IMMUNE γ</span>
                 <span style={{ fontSize: 8, color: "#3A8040" }}>{params.immuneStrength.toFixed(2)}</span>
               </div>
               <input type="range" min={0.1} max={1} step={0.01} value={params.immuneStrength}
@@ -847,10 +1144,14 @@ export default function MalariaBiomedical3D() {
           {activeTab === "smear" && (
             <div>
               <div style={{ marginBottom: 12 }}>
-                <div style={{ fontSize: 11, color: "#D4B890", letterSpacing: 3, marginBottom: 4 }}>GIEMSA-STAINED BLOOD SMEAR — 3D SPATIAL RECONSTRUCTION</div>
+                <div style={{ fontSize: 11, color: "#111111", letterSpacing: 3, marginBottom: 4 }}>GIEMSA-STAINED BLOOD SMEAR — 3D SPATIAL RECONSTRUCTION</div>
                 <div style={{ fontSize: 9, color: P.dim }}>Biconcave RBCs scattered in XZ plane · Y-axis encodes infection severity · Ring-form tori · Schizont burst sphere · Hemozoin crystals (golden) · Merozoites radiating from schizont</div>
               </div>
-              <ThreeCanvas hook={useGiemsa3D} hookArgs={[params]} height={500} label="GIEMSA 3D" sublabel="P.FALCIPARUM RING FORMS + SCHIZONT" />
+              <button
+                onClick={() => setSimKeys(k => ({...k, [activeTab]: (k[activeTab]||0)+1}))}
+                style={{ padding:"6px 16px", fontSize:11, fontFamily:"monospace", background:"#8B0000", color:"#FFFFFF", border:"2px solid #000", borderRadius:3, cursor:"pointer", marginBottom:10, letterSpacing:2, display:"block" }}
+              >⟳ RERUN SIMULATION</button>
+              <ThreeCanvas key={simKeys[activeTab]||0} hook={useGiemsa3D} hookArgs={[params]} height={500} label="GIEMSA 3D" sublabel="P.FALCIPARUM RING FORMS + SCHIZONT" />
               <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginTop: 12 }}>
                 {[
                   { label: "Healthy RBC", shape: "Biconcave disc", color: P.rbc },
@@ -860,7 +1161,7 @@ export default function MalariaBiomedical3D() {
                 ].map((k, i) => (
                   <div key={i} style={{ padding: "10px 12px", border: `1px solid ${P.border}`, borderRadius: 3, background: P.panel }}>
                     <div style={{ width: 8, height: 8, borderRadius: "50%", background: k.color, marginBottom: 6 }} />
-                    <div style={{ fontSize: 9, color: "#C4B4A4" }}>{k.label}</div>
+                    <div style={{ fontSize: 9, color: "#111111" }}>{k.label}</div>
                     <div style={{ fontSize: 8, color: P.dim, marginTop: 2 }}>{k.shape}</div>
                   </div>
                 ))}
@@ -872,7 +1173,7 @@ export default function MalariaBiomedical3D() {
           {activeTab === "fluor" && (
             <div>
               <div style={{ marginBottom: 12 }}>
-                <div style={{ fontSize: 11, color: "#D4B890", letterSpacing: 3, marginBottom: 6 }}>FLUORESCENCE MICROSCOPY — CONFOCAL 3D RECONSTRUCTION</div>
+                <div style={{ fontSize: 11, color: "#111111", letterSpacing: 3, marginBottom: 6 }}>FLUORESCENCE MICROSCOPY — CONFOCAL 3D RECONSTRUCTION</div>
                 <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
                   {["HSP70", "MSP1"].map(ch => (
                     <button key={ch} onClick={() => setFluorChannel(ch)}
@@ -886,7 +1187,11 @@ export default function MalariaBiomedical3D() {
                 </div>
                 <div style={{ fontSize: 9, color: P.dim }}>Blue: DAPI nuclear stain · Red: Pf{fluorChannel} protein localization · Transparent shells: RBC membrane · Point clouds: protein distribution within parasite cytoplasm</div>
               </div>
-              <ThreeCanvas hook={useFluorescence3D} hookArgs={[fluorChannel]} height={480} label={`FLUORESCENCE · Pf${fluorChannel} + DAPI`} sublabel="CONFOCAL Z-STACK SIMULATION" />
+              <button
+                onClick={() => setSimKeys(k => ({...k, [activeTab]: (k[activeTab]||0)+1}))}
+                style={{ padding:"6px 16px", fontSize:11, fontFamily:"monospace", background:"#8B0000", color:"#FFFFFF", border:"2px solid #000", borderRadius:3, cursor:"pointer", marginBottom:10, letterSpacing:2, display:"block" }}
+              >⟳ RERUN SIMULATION</button>
+              <ThreeCanvas key={simKeys[activeTab]||0} hook={useFluorescence3D} hookArgs={[fluorChannel]} height={480} label={`FLUORESCENCE · Pf${fluorChannel} + DAPI`} sublabel="CONFOCAL Z-STACK SIMULATION" />
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginTop: 12 }}>
                 {[
                   { label: "DAPI (nuclear)", color: P.dapi, desc: "DNA-binding stain. Blue signal = nucleus. Bright in early ring stage, fragmented in schizont." },
@@ -895,7 +1200,7 @@ export default function MalariaBiomedical3D() {
                   <div key={i} style={{ padding: "12px 14px", border: `1px solid ${P.border}`, borderRadius: 3, background: P.panel }}>
                     <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 6 }}>
                       <div style={{ width: 10, height: 10, borderRadius: "50%", background: k.color, boxShadow: `0 0 6px ${k.color}` }} />
-                      <span style={{ fontSize: 9, color: "#C4B4A4", letterSpacing: 1 }}>{k.label}</span>
+                      <span style={{ fontSize: 9, color: "#111111", letterSpacing: 1 }}>{k.label}</span>
                     </div>
                     <div style={{ fontSize: 8, color: P.dim, lineHeight: 1.5 }}>{k.desc}</div>
                   </div>
@@ -908,10 +1213,14 @@ export default function MalariaBiomedical3D() {
           {activeTab === "tem" && (
             <div>
               <div style={{ marginBottom: 12 }}>
-                <div style={{ fontSize: 11, color: "#D4B890", letterSpacing: 3, marginBottom: 4 }}>TEM ULTRASTRUCTURE — INFECTED RBC CROSS-SECTION</div>
+                <div style={{ fontSize: 11, color: "#111111", letterSpacing: 3, marginBottom: 4 }}>TEM ULTRASTRUCTURE — INFECTED RBC CROSS-SECTION</div>
                 <div style={{ fontSize: 9, color: P.dim }}>Based on transmission electron microscopy of P.falciparum-infected RBC. Digestive vacuole contains hemozoin crystal (golden). PVM encloses parasite. Knobs visible on outer membrane surface.</div>
               </div>
-              <ThreeCanvas hook={useTEM3D} hookArgs={[]} height={520} label="TEM CROSS-SECTION" sublabel="DIGESTIVE VACUOLE · HEMOZOIN · PVM" />
+              <button
+                onClick={() => setSimKeys(k => ({...k, [activeTab]: (k[activeTab]||0)+1}))}
+                style={{ padding:"6px 16px", fontSize:11, fontFamily:"monospace", background:"#8B0000", color:"#FFFFFF", border:"2px solid #000", borderRadius:3, cursor:"pointer", marginBottom:10, letterSpacing:2, display:"block" }}
+              >⟳ RERUN SIMULATION</button>
+              <ThreeCanvas key={simKeys[activeTab]||0} hook={useTEM3D} hookArgs={[]} height={520} label="TEM CROSS-SECTION" sublabel="DIGESTIVE VACUOLE · HEMOZOIN · PVM" />
               <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 8, marginTop: 12 }}>
                 {[
                   { label: "Host RBC", color: "#C870A0", desc: "Outer membrane" },
@@ -922,7 +1231,7 @@ export default function MalariaBiomedical3D() {
                 ].map((k, i) => (
                   <div key={i} style={{ padding: "8px 10px", border: `1px solid ${P.border}`, borderRadius: 3, background: P.panel }}>
                     <div style={{ width: 7, height: 7, borderRadius: "50%", background: k.color, marginBottom: 5 }} />
-                    <div style={{ fontSize: 9, color: "#C4B4A4" }}>{k.label}</div>
+                    <div style={{ fontSize: 9, color: "#111111" }}>{k.label}</div>
                     <div style={{ fontSize: 8, color: P.dim, marginTop: 2 }}>{k.desc}</div>
                   </div>
                 ))}
@@ -934,10 +1243,14 @@ export default function MalariaBiomedical3D() {
           {activeTab === "seir" && (
             <div>
               <div style={{ marginBottom: 12 }}>
-                <div style={{ fontSize: 11, color: "#D4B890", letterSpacing: 3, marginBottom: 4 }}>SEIR INFECTION DYNAMICS — 3D XYZ TRAJECTORY</div>
+                <div style={{ fontSize: 11, color: "#111111", letterSpacing: 3, marginBottom: 4 }}>SEIR INFECTION DYNAMICS — 3D XYZ TRAJECTORY</div>
                 <div style={{ fontSize: 9, color: P.dim }}>X = Time (days) · Y = Compartment size · Z = Compartment offset. Four SEIR trajectories rendered as tube paths. Adjust parameters in sidebar to reshape infection curves in real-time.</div>
               </div>
-              <ThreeCanvas hook={useSEIR3D} hookArgs={[params]} height={500} label="SEIR 3D TRAJECTORY" sublabel="SUSCEPTIBLE · EXPOSED · INFECTED · RECOVERED" />
+              <button
+                onClick={() => setSimKeys(k => ({...k, [activeTab]: (k[activeTab]||0)+1}))}
+                style={{ padding:"6px 16px", fontSize:11, fontFamily:"monospace", background:"#8B0000", color:"#FFFFFF", border:"2px solid #000", borderRadius:3, cursor:"pointer", marginBottom:10, letterSpacing:2, display:"block" }}
+              >⟳ RERUN SIMULATION</button>
+              <ThreeCanvas key={simKeys[activeTab]||0} hook={useSEIR3D} hookArgs={[params]} height={500} label="SEIR 3D TRAJECTORY" sublabel="SUSCEPTIBLE · EXPOSED · INFECTED · RECOVERED" />
               <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginTop: 12 }}>
                 {[
                   { label: "S — Susceptible", color: P.recovered, val: "Healthy uninfected RBC" },
@@ -958,7 +1271,7 @@ export default function MalariaBiomedical3D() {
           {activeTab === "protein" && (
             <div>
               <div style={{ marginBottom: 12 }}>
-                <div style={{ fontSize: 11, color: "#D4B890", letterSpacing: 3, marginBottom: 6 }}>PfHSP70 PROTEIN STRUCTURE — RIBBON DIAGRAM</div>
+                <div style={{ fontSize: 11, color: "#111111", letterSpacing: 3, marginBottom: 6 }}>PfHSP70 PROTEIN STRUCTURE — RIBBON DIAGRAM</div>
                 <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 8 }}>
                   <span style={{ fontSize: 9, color: P.dim }}>DRUG BINDING:</span>
                   <button onClick={() => setShowDrug(s => !s)}
@@ -968,7 +1281,11 @@ export default function MalariaBiomedical3D() {
                 </div>
                 <div style={{ fontSize: 9, color: P.dim }}>Rainbow N→C terminus coloring (red=N-term, blue/purple=C-term). Three drug binding regions labeled. Yellow stick ligands at binding pockets. Auto-rotates.</div>
               </div>
-              <ThreeCanvas hook={useProteinRibbon3D} hookArgs={[showDrug]} height={520} label="PfHSP70 RIBBON" sublabel="MULTICHAIN · N→C RAINBOW · DRUG BINDING SITES" />
+              <button
+                onClick={() => setSimKeys(k => ({...k, [activeTab]: (k[activeTab]||0)+1}))}
+                style={{ padding:"6px 16px", fontSize:11, fontFamily:"monospace", background:"#8B0000", color:"#FFFFFF", border:"2px solid #000", borderRadius:3, cursor:"pointer", marginBottom:10, letterSpacing:2, display:"block" }}
+              >⟳ RERUN SIMULATION</button>
+              <ThreeCanvas key={simKeys[activeTab]||0} hook={useProteinRibbon3D} hookArgs={[showDrug]} height={520} label="PfHSP70 RIBBON" sublabel="MULTICHAIN · N→C RAINBOW · DRUG BINDING SITES" />
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginTop: 12 }}>
                 {[
                   { col: "#E04040", label: "N-terminus", desc: "Chain entry point, ATPase domain" },
@@ -977,7 +1294,7 @@ export default function MalariaBiomedical3D() {
                 ].map((k, i) => (
                   <div key={i} style={{ padding: "10px 12px", border: `1px solid ${P.border}`, borderRadius: 3, background: P.panel }}>
                     <div style={{ width: 28, height: 4, background: k.col, marginBottom: 6, borderRadius: 2 }} />
-                    <div style={{ fontSize: 9, color: "#C4B4A4" }}>{k.label}</div>
+                    <div style={{ fontSize: 9, color: "#111111" }}>{k.label}</div>
                     <div style={{ fontSize: 8, color: P.dim, marginTop: 3 }}>{k.desc}</div>
                   </div>
                 ))}
@@ -989,7 +1306,7 @@ export default function MalariaBiomedical3D() {
           {activeTab === "electro" && (
             <div>
               <div style={{ marginBottom: 12 }}>
-                <div style={{ fontSize: 11, color: "#D4B890", letterSpacing: 3, marginBottom: 6 }}>ELECTROSTATIC POTENTIAL — BINDING POCKET SURFACE</div>
+                <div style={{ fontSize: 11, color: "#111111", letterSpacing: 3, marginBottom: 6 }}>ELECTROSTATIC POTENTIAL — BINDING POCKET SURFACE</div>
                 <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
                   <span style={{ fontSize: 9, color: P.dim }}>COMPOUND:</span>
                   {["18","19","20","28"].map(c => (
@@ -1001,7 +1318,11 @@ export default function MalariaBiomedical3D() {
                 </div>
                 <div style={{ fontSize: 9, color: P.dim }}>Blue = electropositive surface · Red = electronegative · White = neutral. Yellow ligand sticks shown in binding cavity. Standard molecular visualization convention (APBS/PyMOL).</div>
               </div>
-              <ThreeCanvas hook={useElectrostatic3D} hookArgs={[compound]} height={500} label={`ELECTROSTATIC — COMPOUND ${compound}`} sublabel="PfHSP70 BINDING POCKET · APBS POTENTIAL" />
+              <button
+                onClick={() => setSimKeys(k => ({...k, [activeTab]: (k[activeTab]||0)+1}))}
+                style={{ padding:"6px 16px", fontSize:11, fontFamily:"monospace", background:"#8B0000", color:"#FFFFFF", border:"2px solid #000", borderRadius:3, cursor:"pointer", marginBottom:10, letterSpacing:2, display:"block" }}
+              >⟳ RERUN SIMULATION</button>
+              <ThreeCanvas key={simKeys[activeTab]||0} hook={useElectrostatic3D} hookArgs={[compound]} height={500} label={`ELECTROSTATIC — COMPOUND ${compound}`} sublabel="PfHSP70 BINDING POCKET · APBS POTENTIAL" />
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginTop: 12 }}>
                 {[
                   { col: P.positive, label: "Electropositive (+)", desc: "Favors negatively charged/polar drug moieties" },
@@ -1010,7 +1331,7 @@ export default function MalariaBiomedical3D() {
                 ].map((k, i) => (
                   <div key={i} style={{ padding: "10px 12px", border: `1px solid ${P.border}`, borderRadius: 3, background: P.panel }}>
                     <div style={{ width: 24, height: 24, borderRadius: "50%", background: k.col, marginBottom: 6 }} />
-                    <div style={{ fontSize: 9, color: "#C4B4A4" }}>{k.label}</div>
+                    <div style={{ fontSize: 9, color: "#111111" }}>{k.label}</div>
                     <div style={{ fontSize: 8, color: P.dim, marginTop: 3 }}>{k.desc}</div>
                   </div>
                 ))}
@@ -1022,10 +1343,14 @@ export default function MalariaBiomedical3D() {
           {activeTab === "seg" && (
             <div>
               <div style={{ marginBottom: 12 }}>
-                <div style={{ fontSize: 11, color: "#D4B890", letterSpacing: 3, marginBottom: 4 }}>COMPUTATIONAL PARASITEMIA DETECTION — 3D SEGMENTATION</div>
+                <div style={{ fontSize: 11, color: "#111111", letterSpacing: 3, marginBottom: 4 }}>COMPUTATIONAL PARASITEMIA DETECTION — 3D SEGMENTATION</div>
                 <div style={{ fontSize: 9, color: P.dim }}>Directly inspired by image 1(a)/(b) segmentation output. Pink blobs = healthy RBC segments. Elevated magenta cells = classified infected. Bright magenta inner sphere = detected parasite chromatin spot. Y-axis = classification confidence score.</div>
               </div>
-              <ThreeCanvas hook={useSegmentation3D} hookArgs={[params]} height={500} label="SEGMENTATION 3D" sublabel="ML PARASITEMIA DETECTION · Y = CONFIDENCE" />
+              <button
+                onClick={() => setSimKeys(k => ({...k, [activeTab]: (k[activeTab]||0)+1}))}
+                style={{ padding:"6px 16px", fontSize:11, fontFamily:"monospace", background:"#8B0000", color:"#FFFFFF", border:"2px solid #000", borderRadius:3, cursor:"pointer", marginBottom:10, letterSpacing:2, display:"block" }}
+              >⟳ RERUN SIMULATION</button>
+              <ThreeCanvas key={simKeys[activeTab]||0} hook={useSegmentation3D} hookArgs={[params]} height={500} label="SEGMENTATION 3D" sublabel="ML PARASITEMIA DETECTION · Y = CONFIDENCE" />
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginTop: 12 }}>
                 {[
                   { col: P.rbc, label: "Healthy RBC (classified)", desc: "Y ≈ 0. Normal biconcave morphology. Low signal intensity. No parasite inclusion detected." },
@@ -1034,7 +1359,7 @@ export default function MalariaBiomedical3D() {
                   <div key={i} style={{ padding: "12px 14px", border: `1px solid ${P.border}`, borderRadius: 3, background: P.panel, display: "flex", gap: 12, alignItems: "flex-start" }}>
                     <div style={{ width: 12, height: 12, borderRadius: "50%", background: k.col, flexShrink: 0, marginTop: 2, boxShadow: `0 0 8px ${k.col}` }} />
                     <div>
-                      <div style={{ fontSize: 9, color: "#C4B4A4", marginBottom: 4 }}>{k.label}</div>
+                      <div style={{ fontSize: 9, color: "#111111", marginBottom: 4 }}>{k.label}</div>
                       <div style={{ fontSize: 8, color: P.dim, lineHeight: 1.5 }}>{k.desc}</div>
                     </div>
                   </div>
@@ -1043,7 +1368,148 @@ export default function MalariaBiomedical3D() {
             </div>
           )}
 
+          {/* ── LIFECYCLE ── */}
+          {activeTab === "lifecycle" && (
+            <div>
+              <div style={{ marginBottom: 12 }}>
+                <div style={{ fontSize: 11, color: "#111111", letterSpacing: 3, marginBottom: 4 }}>MALARIA LIFE CYCLE — 3D ORBITAL MODEL</div>
+                <div style={{ fontSize: 9, color: "#444444" }}>8 lifecycle stages arranged in a 3D orbit. Animated particles travel between nodes following the biological pathway: Mosquito Bite → Sporozoites → Liver → Merozoites → Ring Form → Trophozoite → Schizont → Gametocyte → Mosquito.</div>
+              </div>
+              <button
+                onClick={() => setSimKeys(k => ({...k, [activeTab]: (k[activeTab]||0)+1}))}
+                style={{ padding:"6px 16px",fontSize:11,fontFamily:"monospace",background:"#8B0000",color:"#FFFFFF",border:"2px solid #000",borderRadius:3,cursor:"pointer",marginBottom:10,letterSpacing:2,display:"block" }}
+              >⟳ RERUN SIMULATION</button>
+              <ThreeCanvas key={simKeys[activeTab]||0} hook={useMalariaLifecycle3D} hookArgs={[]} height={500} label="MALARIA LIFECYCLE" sublabel="8 STAGES · ANIMATED PARTICLES" />
+              <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:8, marginTop:12 }}>
+                {[
+                  { label:"Mosquito Bite", color:"#8B4513", desc:"Anopheles bite injects sporozoites into bloodstream" },
+                  { label:"Liver Stage", color:"#FF8C00", desc:"Sporozoites infect hepatocytes, develop into schizonts" },
+                  { label:"Merozoites", color:"#FFD700", desc:"Liver schizonts rupture, release merozoites into blood" },
+                  { label:"Gametocyte", color:"#8B008B", desc:"Sexual stage cells; ingested by mosquito to complete cycle" },
+                ].map((k,i) => (
+                  <div key={i} style={{ padding:"10px 12px",border:`1px solid ${P.border}`,borderRadius:3,background:P.panel }}>
+                    <div style={{ width:8,height:8,borderRadius:"50%",background:k.color,marginBottom:6 }} />
+                    <div style={{ fontSize:9,color:"#111111" }}>{k.label}</div>
+                    <div style={{ fontSize:8,color:"#444444",marginTop:2 }}>{k.desc}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ── CELL CLUSTERING ── */}
+          {activeTab === "clustering" && (
+            <div>
+              <div style={{ marginBottom: 12 }}>
+                <div style={{ fontSize: 11, color: "#111111", letterSpacing: 3, marginBottom: 4 }}>CELL STAGE CLUSTERING — 3D SCATTER PLOT</div>
+                <div style={{ fontSize: 9, color: "#444444" }}>3D scatter visualization of cell stage clusters inspired by in vivo flow cytometry / UMAP data. Each cluster of ~80 spheres represents a distinct developmental stage. Colors match biological imaging conventions.</div>
+              </div>
+              <button
+                onClick={() => setSimKeys(k => ({...k, [activeTab]: (k[activeTab]||0)+1}))}
+                style={{ padding:"6px 16px",fontSize:11,fontFamily:"monospace",background:"#8B0000",color:"#FFFFFF",border:"2px solid #000",borderRadius:3,cursor:"pointer",marginBottom:10,letterSpacing:2,display:"block" }}
+              >⟳ RERUN SIMULATION</button>
+              <ThreeCanvas key={simKeys[activeTab]||0} hook={useCellClustering3D} hookArgs={[]} height={500} label="CELL STAGE CLUSTERING" sublabel="6 STAGE CLUSTERS · 3D SCATTER" />
+              <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:8, marginTop:12 }}>
+                {[
+                  { label:"Ring Form", color:"#FF69B4", desc:"Early intraerythrocytic stage — small ring-shaped trophozoite" },
+                  { label:"Trophozoite", color:"#00CED1", desc:"Growing stage — hemoglobin digestion active" },
+                  { label:"Schizont", color:"#9370DB", desc:"Late stage — multiple merozoites forming inside RBC" },
+                  { label:"Merozoite", color:"#FF1493", desc:"Free-floating invasive stage — invades new RBCs" },
+                  { label:"Liver Stage", color:"#FF8C00", desc:"Hepatic schizont — silent pre-blood phase" },
+                  { label:"Gametocyte", color:"#8B008B", desc:"Sexual form — transmissible to Anopheles mosquito" },
+                ].map((k,i) => (
+                  <div key={i} style={{ padding:"10px 12px",border:`1px solid ${P.border}`,borderRadius:3,background:P.panel }}>
+                    <div style={{ width:8,height:8,borderRadius:"50%",background:k.color,marginBottom:6 }} />
+                    <div style={{ fontSize:9,color:"#111111" }}>{k.label}</div>
+                    <div style={{ fontSize:8,color:"#444444",marginTop:2,lineHeight:1.4 }}>{k.desc}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ── RBC MEMBRANE ── */}
+          {activeTab === "rbcmembrane" && (
+            <div>
+              <div style={{ marginBottom: 12 }}>
+                <div style={{ fontSize: 11, color: "#111111", letterSpacing: 3, marginBottom: 4 }}>RBC MEMBRANE STRUCTURE — HEALTHY vs INFECTED</div>
+                <div style={{ fontSize: 9, color: "#444444" }}>LEFT: Healthy biconcave RBC with spectrin cytoskeleton (cyan lines) and ankyrin anchor points (green dots). RIGHT: P.falciparum-infected RBC — swollen sphere with PfEMP1 surface knobs (pink), spike proteins (red), KAHRP helix (yellow), and actin filaments (orange).</div>
+              </div>
+              <button
+                onClick={() => setSimKeys(k => ({...k, [activeTab]: (k[activeTab]||0)+1}))}
+                style={{ padding:"6px 16px",fontSize:11,fontFamily:"monospace",background:"#8B0000",color:"#FFFFFF",border:"2px solid #000",borderRadius:3,cursor:"pointer",marginBottom:10,letterSpacing:2,display:"block" }}
+              >⟳ RERUN SIMULATION</button>
+              <ThreeCanvas key={simKeys[activeTab]||0} hook={useRBCMembrane3D} hookArgs={[]} height={500} label="RBC MEMBRANE STRUCTURE" sublabel="HEALTHY (LEFT) · INFECTED (RIGHT)" />
+              <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:8, marginTop:12 }}>
+                {[
+                  { label:"Spectrin (cyan)", color:"#00CCDD", desc:"RBC cytoskeletal network. Gives healthy cell biconcave shape." },
+                  { label:"Ankyrin (green)", color:"#00AA44", desc:"Membrane anchor proteins connecting spectrin to lipid bilayer." },
+                  { label:"PfEMP1 knobs", color:"#AA4060", desc:"Parasite-exported virulence protein. Mediates sequestration." },
+                  { label:"KAHRP helix", color:"#FFDD00", desc:"Knob-associated histidine-rich protein — scaffolds knob structure." },
+                ].map((k,i) => (
+                  <div key={i} style={{ padding:"10px 12px",border:`1px solid ${P.border}`,borderRadius:3,background:P.panel }}>
+                    <div style={{ width:8,height:8,borderRadius:"50%",background:k.color,marginBottom:6 }} />
+                    <div style={{ fontSize:9,color:"#111111" }}>{k.label}</div>
+                    <div style={{ fontSize:8,color:"#444444",marginTop:2,lineHeight:1.4 }}>{k.desc}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ── BLOOD FIELD ── */}
+          {activeTab === "bloodfield" && (
+            <div>
+              <div style={{ marginBottom: 12 }}>
+                <div style={{ fontSize: 11, color: "#111111", letterSpacing: 3, marginBottom: 4 }}>3D BLOOD CELL FIELD — MIXED POPULATION</div>
+                <div style={{ fontSize: 9, color: "#444444" }}>Field of 150 blood cells drifting in 3D space. 85% healthy RBCs (red tori), 10% infected elongated forms (green), 5% sporozoites (yellow spheres). Cells drift and bounce slowly — simulating blood flow dynamics.</div>
+              </div>
+              <button
+                onClick={() => setSimKeys(k => ({...k, [activeTab]: (k[activeTab]||0)+1}))}
+                style={{ padding:"6px 16px",fontSize:11,fontFamily:"monospace",background:"#8B0000",color:"#FFFFFF",border:"2px solid #000",borderRadius:3,cursor:"pointer",marginBottom:10,letterSpacing:2,display:"block" }}
+              >⟳ RERUN SIMULATION</button>
+              <ThreeCanvas key={simKeys[activeTab]||0} hook={useBloodField3D} hookArgs={[]} height={520} label="BLOOD FIELD 3D" sublabel="150 CELLS · DRIFT SIMULATION" />
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:10, marginTop:12 }}>
+                {[
+                  { col:"#CC6688", label:"Healthy RBC (85%)", desc:"Biconcave torus discs. Normal hemoglobin-loaded erythrocyte. No parasite." },
+                  { col:"#44CC44", label:"Infected RBC (10%)", desc:"Elongated/sickled form. P.falciparum-infected. Reduced deformability." },
+                  { col:"#FFDD00", label:"Sporozoite (5%)", desc:"Invasive pre-erythrocytic form injected by Anopheles. Targets hepatocytes." },
+                ].map((k,i) => (
+                  <div key={i} style={{ padding:"12px 14px",border:`1px solid ${P.border}`,borderRadius:3,background:P.panel }}>
+                    <div style={{ width:12,height:12,borderRadius:"50%",background:k.col,marginBottom:6,boxShadow:`0 0 6px ${k.col}` }} />
+                    <div style={{ fontSize:9,color:"#111111",marginBottom:4 }}>{k.label}</div>
+                    <div style={{ fontSize:8,color:"#444444",lineHeight:1.5 }}>{k.desc}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
         </div>
+      </div>
+
+      {/* ─── PROJECT FOOTER ────────────────────────────────────── */}
+      <div style={{
+        borderTop: "2px solid #222222",
+        padding: "20px 28px",
+        background: "#FAFAFA",
+        fontFamily: "'Courier New', monospace",
+        fontSize: 12,
+        color: "#333333",
+        lineHeight: 1.9,
+      }}>
+        <p style={{ margin: "0 0 6px 0" }}>
+          <strong style={{ color: "#111111", fontSize: 13 }}>Lancelot Napier-Kane</strong>
+        </p>
+        <p style={{ margin: "0 0 4px 0" }}>
+          <strong style={{ color: "#111111" }}>Stack:</strong> React (JSX), Three.js (WebGL — custom geometry, orbit controls, shader materials), Python (SciPy, NumPy, scikit-learn — simulation reference), MATLAB (computational parasitemia detection reference), P. falciparum proteome data (PlasmoDB), WHO Global Malaria Report 2023 epidemiological data
+        </p>
+        <p style={{ margin: "0 0 4px 0" }}>
+          <strong style={{ color: "#111111" }}>Methods:</strong> 3D RBC morphology modeling using Three.js LatheGeometry and custom vertex displacement; SEIR epidemic dynamics on 3D XYZ phase plane; fluorescence channel simulation (DAPI blue / PfHSP70 red / PfMSP1 orange); TEM ultrastructure cross-section (digestive vacuole, hemozoin crystals, parasite chromatin); protein ribbon diagram (N→C terminus rainbow coloring); electrostatic potential surface (positive blue / negative red convention); ML-based parasitemia detection score visualization; all scenes fully interactive and rotatable
+        </p>
+        <p style={{ margin: 0 }}>
+          <strong style={{ color: "#111111" }}>Sources:</strong> WHO World Malaria Report 2023; PlasmoDB P. falciparum 3D7 proteome; Cowman et al. (2016) Cell 167(3) — malaria parasite biology review; Bhatt et al. (2015) Nature — malaria burden estimation; Maier et al. (2009) — PfEMP3 and KAHRP knob structure; KEGG malaria metabolic pathway database; MARA (Mapping Malaria Risk in Africa) geospatial dataset
+        </p>
       </div>
     </div>
   );

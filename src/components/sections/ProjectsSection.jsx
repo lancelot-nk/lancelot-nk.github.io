@@ -31,6 +31,7 @@ const LazyGreenWorkforce   = lazy(() => import('../../projects/GREENworkforcetra
 const LazyNGOBudget        = lazy(() => import('../../projects/NGOBudgetTracker'));
 const LazySHEAnnual        = lazy(() => import('../../projects/SHEAnnualInteractive'));
 const LazyFXBInteractive   = lazy(() => import('../../projects/FXBInteractive'));
+const LazyMalariaBiomedical = lazy(() => import('../../projects/MalariaBiomedical3D'));
 
 // ── Image Imports ────────────────────────────────────────────────────────────
 import img1 from '../../assets/project1.jpg';
@@ -64,6 +65,7 @@ import imgGreenWorkforce from '../../assets/project_green_workforce.jpg';
 import imgNGOBudget from '../../assets/project_ngo_budget.jpg';
 import imgSHEAnnual from '../../assets/project_she_annual.jpg';
 import imgFXBInteractive from '../../assets/project_fxb_interactive.jpg';
+import imgMalariaBiomedical from '../../assets/project_malaria_biomedical.jpg';
 
 // ── Brand Colors ─────────────────────────────────────────────────────────────
 const PINK   = '#B8004E';
@@ -344,6 +346,15 @@ export const PROJECTS = [
     type: 'jsx',
     component: LazyPrimeFields,
     img: img5,
+  },
+  {
+    title: 'Malaria Biomedical 3D Modeling System',
+    desc: 'Interactive 3D visualization of P. falciparum cellular biology — rotatable RBC morphology, fluorescence microscopy, TEM cross-sections, SEIR infection dynamics, protein structure docking, and ML-based parasitemia detection. Built on Three.js with real biomedical data models.',
+    tech: ['Three.js', 'React', 'JavaScript', 'Biomedical', 'Machine Learning', 'Data Visualization'],
+    img: imgMalariaBiomedical,
+    type: 'jsx',
+    component: LazyMalariaBiomedical,
+    tags: ['data', 'ml', 'visualization'],
   },
 ];
 
