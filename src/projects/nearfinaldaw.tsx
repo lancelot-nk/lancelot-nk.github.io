@@ -995,10 +995,10 @@ type SynthPadType = 'synth_kick' | 'synth_snare' | 'synth_hat' | 'synth_bass' | 
 
 async function synthesizePadSound(type: SynthPadType, variant: number): Promise<AudioBuffer> {
   const SR = 44100
-  const v = Math.max(0, variant % 27) // clamp variant to preset range
+  const v = Math.abs(variant) % 128 // expanded range → far more distinct sounds
 
   if (type === 'synth_kick') {
-    const dur = 0.65
+    const dur = 0.5 + (v % 8) * 0.04  // vary length 0.5-0.78s
     const off = new OfflineAudioContext(1, Math.floor(dur * SR), SR)
     const gain = off.createGain()
     gain.connect(off.destination)
@@ -1006,29 +1006,35 @@ async function synthesizePadSound(type: SynthPadType, variant: number): Promise<
     gain.gain.exponentialRampToValueAtTime(0.001, dur - 0.01)
     const osc = off.createOscillator()
     osc.type = 'sine'
-    const baseFreq = 40 + v * 2.5
-    osc.frequency.setValueAtTime(baseFreq * 4, 0)
-    osc.frequency.exponentialRampToValueAtTime(baseFreq, 0.05)
-    osc.frequency.exponentialRampToValueAtTime(baseFreq * 0.6, 0.3)
+    // Wide frequency spread: 30-70Hz base, 4x-8x start multiplier
+    const baseFreq = 30 + (v % 24) * 1.8
+    const startMult = 4 + (v % 5)
+    const midFreq  = baseFreq * (1.1 + (v % 10) * 0.08)
+    osc.frequency.setValueAtTime(baseFreq * startMult, 0)
+    osc.frequency.exponentialRampToValueAtTime(midFreq, 0.04 + (v % 6) * 0.003)
+    osc.frequency.exponentialRampToValueAtTime(baseFreq * 0.55, 0.28)
     osc.connect(gain)
     osc.start(0); osc.stop(dur)
-    // click transient
+    // click transient — varies in frequency and level
     const clickGain = off.createGain()
     clickGain.connect(off.destination)
-    clickGain.gain.setValueAtTime(0.4, 0)
-    clickGain.gain.exponentialRampToValueAtTime(0.001, 0.008)
+    clickGain.gain.setValueAtTime(0.3 + (v % 6) * 0.06, 0)
+    clickGain.gain.exponentialRampToValueAtTime(0.001, 0.006 + (v % 4) * 0.001)
     const clickOsc = off.createOscillator()
-    clickOsc.type = 'square'
-    clickOsc.frequency.setValueAtTime(1200 + v * 30, 0)
+    clickOsc.type = v % 3 === 0 ? 'square' : v % 3 === 1 ? 'triangle' : 'sawtooth'
+    clickOsc.frequency.setValueAtTime(900 + v * 22, 0)
     clickOsc.connect(clickGain)
-    clickOsc.start(0); clickOsc.stop(0.01)
+    clickOsc.start(0); clickOsc.stop(0.012)
     return off.startRendering()
   }
 
   if (type === 'synth_snare') {
-    const dur = 0.35
+    // Vary between: tight snare, wide snare, rimshot, snappy, ghost, heavy
+    const flavors = ['tight', 'wide', 'rimshot', 'snappy', 'ghost', 'heavy', 'crack', 'brush']
+    const flavor = flavors[v % flavors.length]
+    const dur = flavor === 'brush' ? 0.5 : flavor === 'ghost' ? 0.15 : flavor === 'heavy' ? 0.45 : 0.28 + (v % 8) * 0.012
     const off = new OfflineAudioContext(1, Math.floor(dur * SR), SR)
-    // Noise part
+    // Noise component
     const noiseLen = Math.floor(dur * SR)
     const noiseBuf = off.createBuffer(1, noiseLen, SR)
     const nd = noiseBuf.getChannelData(0)
@@ -1036,44 +1042,55 @@ async function synthesizePadSound(type: SynthPadType, variant: number): Promise<
     const noiseSource = off.createBufferSource()
     noiseSource.buffer = noiseBuf
     const noiseFilter = off.createBiquadFilter()
-    noiseFilter.type = 'highpass'
-    noiseFilter.frequency.value = 800 + v * 40
+    noiseFilter.type = flavor === 'brush' ? 'lowpass' : 'highpass'
+    noiseFilter.frequency.value = flavor === 'brush' ? 3000 : 700 + v * 30
+    noiseFilter.Q.value = flavor === 'rimshot' ? 8 : 1 + (v % 6)
     noiseSource.connect(noiseFilter)
     const noiseGain = off.createGain()
-    noiseGain.gain.setValueAtTime(0.65, 0)
+    const noiseLevel = flavor === 'ghost' ? 0.25 : flavor === 'crack' ? 0.8 : 0.5 + (v % 8) * 0.05
+    noiseGain.gain.setValueAtTime(noiseLevel, 0)
     noiseGain.gain.exponentialRampToValueAtTime(0.001, dur - 0.01)
     noiseFilter.connect(noiseGain)
     noiseGain.connect(off.destination)
     noiseSource.start(0); noiseSource.stop(dur)
-    // Tone part
+    // Body tone — frequency varies by flavor
+    const toneFreq = flavor === 'heavy' ? 110 + v * 3 : flavor === 'brush' ? 200 + v * 5 : 160 + v * 6
     const toneGain = off.createGain()
-    toneGain.gain.setValueAtTime(0.35, 0)
-    toneGain.gain.exponentialRampToValueAtTime(0.001, 0.15)
+    toneGain.gain.setValueAtTime(flavor === 'ghost' ? 0.15 : 0.4, 0)
+    toneGain.gain.exponentialRampToValueAtTime(0.001, flavor === 'brush' ? 0.3 : 0.12)
     const toneOsc = off.createOscillator()
-    toneOsc.type = 'triangle'
-    toneOsc.frequency.setValueAtTime(180 + v * 7, 0)
+    toneOsc.type = flavor === 'rimshot' ? 'square' : 'triangle'
+    toneOsc.frequency.setValueAtTime(toneFreq, 0)
     toneOsc.connect(toneGain)
     toneGain.connect(off.destination)
-    toneOsc.start(0); toneOsc.stop(0.2)
+    toneOsc.start(0); toneOsc.stop(dur)
     return off.startRendering()
   }
 
   if (type === 'synth_hat') {
-    const isOpen = v > 13
-    const dur = isOpen ? 0.45 : 0.18
+    // Vary: closed, open, pedal, chick, ride-like, sizzle, crash-like
+    const hatTypes = ['closed', 'open', 'pedal', 'chick', 'ride', 'sizzle']
+    const hatType = hatTypes[v % hatTypes.length]
+    const dur = hatType === 'open' ? 0.5 + (v % 4) * 0.1
+              : hatType === 'ride' ? 0.6 + (v % 5) * 0.08
+              : hatType === 'sizzle' ? 0.35 + (v % 6) * 0.05
+              : 0.06 + (v % 12) * 0.01
     const off = new OfflineAudioContext(1, Math.floor(dur * SR), SR)
-    // 6 detuned square oscillators (classic hat synthesis)
-    const freqs = [250, 320, 510, 720, 1020, 1440]
+    // 6 detuned square/square oscillators — frequencies vary by type
+    const baseFreqs = hatType === 'ride'  ? [320, 400, 630, 890, 1260, 1780]
+                    : hatType === 'sizzle'? [200, 260, 400, 580, 820, 1160]
+                    : [250, 320, 510, 720, 1020, 1440]
     const masterGain = off.createGain()
-    masterGain.gain.setValueAtTime(0.7, 0)
-    masterGain.gain.exponentialRampToValueAtTime(0.001, dur - 0.01)
+    masterGain.gain.setValueAtTime(hatType === 'pedal' ? 0.5 : 0.7, 0)
+    masterGain.gain.exponentialRampToValueAtTime(0.001, dur - 0.005)
     const hp = off.createBiquadFilter()
-    hp.type = 'highpass'; hp.frequency.value = 7000
+    hp.type = 'highpass'
+    hp.frequency.value = hatType === 'ride' ? 4000 : hatType === 'sizzle' ? 3000 : 6000 + v * 50
     hp.connect(masterGain); masterGain.connect(off.destination)
-    freqs.forEach((f, i) => {
+    baseFreqs.forEach((f, i) => {
       const o = off.createOscillator()
       o.type = 'square'
-      o.frequency.value = f * (1 + (v * 0.003) * (i % 2 === 0 ? 1 : -1))
+      o.frequency.value = f * (1 + (v * 0.007) * (i % 2 === 0 ? 1 : -1))
       o.connect(hp)
       o.start(0); o.stop(dur)
     })
@@ -1081,47 +1098,83 @@ async function synthesizePadSound(type: SynthPadType, variant: number): Promise<
   }
 
   if (type === 'synth_bass') {
-    const dur = 1.2
+    // Many distinct bass flavors: sub, synth, plucked, picked, slap, moog, acid, tuba
+    const flavors = ['sub', 'synth', 'pluck', 'slap', 'moog', 'acid', 'tuba', 'fretless']
+    const flavor = flavors[v % flavors.length]
+    const dur = flavor === 'pluck' ? 0.6 + (v % 8) * 0.05
+              : flavor === 'slap'  ? 0.5 + (v % 6) * 0.04
+              : flavor === 'acid'  ? 0.7 + (v % 9) * 0.05
+              : 1.1 + (v % 12) * 0.06
     const off = new OfflineAudioContext(1, Math.floor(dur * SR), SR)
-    // MIDI bass notes: 28,30,31,33,35,36 → Hz
-    const midiNotes = [28, 30, 31, 33, 35, 36, 38, 40]
+    // MIDI bass notes across 3 octaves
+    const midiNotes = [24, 26, 28, 29, 31, 33, 34, 36, 38, 40, 41, 43, 45, 46, 48, 50]
     const midi = midiNotes[v % midiNotes.length]
     const freq = 440 * Math.pow(2, (midi - 69) / 12)
     const osc = off.createOscillator()
-    osc.type = v % 2 === 0 ? 'sawtooth' : 'square'
+    osc.type = flavor === 'sub'  ? 'sine'
+             : flavor === 'moog' ? 'sawtooth'
+             : flavor === 'acid' ? 'sawtooth'
+             : flavor === 'tuba' ? 'square'
+             : flavor === 'pluck'? 'sawtooth'
+             : 'square'
     osc.frequency.value = freq
+    if (flavor === 'acid') {
+      osc.frequency.setValueAtTime(freq * 2, 0)
+      osc.frequency.exponentialRampToValueAtTime(freq, 0.04)
+    }
     const filt = off.createBiquadFilter()
     filt.type = 'lowpass'
-    filt.frequency.setValueAtTime(800 + v * 20, 0)
-    filt.frequency.exponentialRampToValueAtTime(180 + v * 5, 0.4)
-    filt.Q.value = 1.5 + (v % 5) * 0.4
+    filt.frequency.setValueAtTime(
+      flavor === 'sub'  ? 200 + v * 4
+      : flavor === 'moog' ? 1200 + v * 18
+      : flavor === 'acid' ? 2000 + v * 40
+      : 900 + v * 15, 0)
+    filt.frequency.exponentialRampToValueAtTime(
+      flavor === 'sub' ? 80 : 150 + v * 5, dur * 0.5)
+    filt.Q.value = flavor === 'acid' ? 6 + (v % 8) : 1.5 + (v % 5) * 0.4
     osc.connect(filt)
     const g = off.createGain()
+    const attack = flavor === 'slap' ? 0.002 : flavor === 'pluck' ? 0.003 : 0.008
     g.gain.setValueAtTime(0, 0)
-    g.gain.linearRampToValueAtTime(0.8, 0.005)
-    g.gain.setValueAtTime(0.8, 0.1)
-    g.gain.exponentialRampToValueAtTime(0.001, dur - 0.05)
+    g.gain.linearRampToValueAtTime(0.85, attack)
+    if (flavor === 'pluck' || flavor === 'slap') {
+      g.gain.exponentialRampToValueAtTime(0.001, dur - 0.02)
+    } else {
+      g.gain.setValueAtTime(0.85, 0.12)
+      g.gain.exponentialRampToValueAtTime(0.001, dur - 0.05)
+    }
     filt.connect(g); g.connect(off.destination)
     osc.start(0); osc.stop(dur)
     return off.startRendering()
   }
 
   if (type === 'synth_pad') {
-    const dur = 2.5
+    // Many pad flavors across wider frequency range
+    const flavors = ['warm', 'bright', 'string', 'choir', 'glass', 'organ', 'bells', 'hollow', 'dark', 'lush']
+    const flavor = flavors[v % flavors.length]
+    const dur = 2.0 + (v % 10) * 0.2
     const off = new OfflineAudioContext(2, Math.floor(dur * SR), SR)
-    const baseFreq = 220 * Math.pow(2, (v % 12) / 12)
-    const detunes = [0, 5, -3, 8]
+    // 24 chromatic pitches spread across 2 octaves
+    const semitone = v % 24
+    const baseFreq = 110 * Math.pow(2, semitone / 12)
     const masterGain = off.createGain()
     masterGain.gain.setValueAtTime(0, 0)
-    masterGain.gain.linearRampToValueAtTime(0.5, 0.3)
-    masterGain.gain.setValueAtTime(0.5, dur - 0.5)
+    masterGain.gain.linearRampToValueAtTime(0.55, 0.4)
+    masterGain.gain.setValueAtTime(0.55, dur - 0.6)
     masterGain.gain.linearRampToValueAtTime(0, dur)
     masterGain.connect(off.destination)
+    // Layered oscillators — waveform depends on flavor
+    const waveTypes: OscillatorType[] = flavor === 'bright' ? ['sawtooth', 'sawtooth', 'square']
+                                      : flavor === 'hollow' ? ['square', 'square', 'triangle']
+                                      : flavor === 'organ'  ? ['square', 'square', 'sine']
+                                      : ['sine', 'triangle', 'sine']
+    const detunes = [0, 7, -5, 12]
     detunes.forEach((cents, i) => {
       const o = off.createOscillator()
-      o.type = 'sine'
+      o.type = waveTypes[i % waveTypes.length]
       o.frequency.value = baseFreq * Math.pow(2, cents / 1200)
-      const g = off.createGain(); g.gain.value = 0.3 - i * 0.04
+      if (flavor === 'choir') o.detune.value = (i % 2 === 0 ? 1 : -1) * (12 + v % 18)
+      const g = off.createGain(); g.gain.value = 0.28 - i * 0.05
       o.connect(g); g.connect(masterGain)
       o.start(0); o.stop(dur)
     })
@@ -1129,55 +1182,99 @@ async function synthesizePadSound(type: SynthPadType, variant: number): Promise<
   }
 
   if (type === 'synth_hit') {
-    const dur = 0.5
+    // Short attack hit — FM/inharmonic partials only, NO noise (noise = static)
+    const hitFlavors = ['metallic', 'mallet', 'rimshot', 'clap', 'click', 'blip', 'plink', 'snap']
+    const hitFlavor = hitFlavors[v % hitFlavors.length]
+    const dur = hitFlavor === 'mallet' ? 0.6 + (v % 8) * 0.04
+              : hitFlavor === 'clap'   ? 0.15 + (v % 5) * 0.02
+              : 0.25 + (v % 10) * 0.02
     const off = new OfflineAudioContext(1, Math.floor(dur * SR), SR)
-    const isMetallic = v % 2 === 0
     const masterGain = off.createGain()
     masterGain.connect(off.destination)
-    if (isMetallic) {
-      const partials = [1, 2.756, 5.404].map(r => r * (300 + v * 25))
-      partials.forEach((f, i) => {
-        const o = off.createOscillator(); o.type = 'sine'; o.frequency.value = f
+    if (hitFlavor === 'mallet') {
+      // Marimba/xylophone inharmonic partials
+      const fundamental = 220 + v * 18
+      const ratios = [1, 3.87, 9.97, 18.2]
+      const levels  = [0.7, 0.3, 0.12, 0.06]
+      ratios.forEach((r, i) => {
+        const o = off.createOscillator(); o.type = 'sine'; o.frequency.value = fundamental * r
         const g = off.createGain()
-        g.gain.setValueAtTime(0.4 / (i + 1), 0)
-        g.gain.exponentialRampToValueAtTime(0.001, 0.3 - i * 0.08)
+        g.gain.setValueAtTime(levels[i], 0)
+        g.gain.exponentialRampToValueAtTime(0.001, dur * (0.95 - i * 0.2))
         o.connect(g); g.connect(masterGain)
         o.start(0); o.stop(dur)
       })
+    } else if (hitFlavor === 'clap') {
+      // Very short burst of noise-like FM at body freq
+      const modFreq = 500 + v * 40
+      const mod = off.createOscillator(); mod.type = 'sine'; mod.frequency.value = modFreq * 3
+      const modG = off.createGain(); modG.gain.value = modFreq * 2
+      mod.connect(modG)
+      const car = off.createOscillator(); car.type = 'sine'; car.frequency.value = modFreq
+      modG.connect((car.frequency as AudioParam))
+      const cg = off.createGain(); cg.gain.setValueAtTime(0.7, 0); cg.gain.exponentialRampToValueAtTime(0.001, dur)
+      car.connect(cg); cg.connect(masterGain)
+      mod.start(0); mod.stop(dur); car.start(0); car.stop(dur)
     } else {
-      const noiseLen = Math.floor(dur * SR)
-      const nBuf = off.createBuffer(1, noiseLen, SR)
-      const nd = nBuf.getChannelData(0)
-      for (let i = 0; i < noiseLen; i++) nd[i] = Math.random() * 2 - 1
-      const ns = off.createBufferSource(); ns.buffer = nBuf
-      const bp = off.createBiquadFilter(); bp.type = 'bandpass'
-      bp.frequency.value = 400 + v * 60; bp.Q.value = 4 + (v % 6)
-      ns.connect(bp)
-      const g = off.createGain()
-      g.gain.setValueAtTime(0.7, 0)
-      g.gain.exponentialRampToValueAtTime(0.001, dur - 0.02)
-      bp.connect(g); g.connect(masterGain)
-      ns.start(0); ns.stop(dur)
+      // Metallic/blip/click: inharmonic series at varying frequencies
+      const baseFreq = hitFlavor === 'click' ? 2000 + v * 60
+                     : hitFlavor === 'blip'  ? 600 + v * 30
+                     : hitFlavor === 'plink' ? 900 + v * 25
+                     : hitFlavor === 'snap'  ? 1400 + v * 45
+                     : 300 + v * 25 // metallic/rimshot
+      const partials = [1, 2.756, 5.404, 8.9]
+      partials.forEach((r, i) => {
+        const o = off.createOscillator(); o.type = 'sine'; o.frequency.value = baseFreq * r
+        const g = off.createGain()
+        g.gain.setValueAtTime(0.5 / (i + 1), 0)
+        g.gain.exponentialRampToValueAtTime(0.001, Math.max(0.02, dur - i * 0.06))
+        o.connect(g); g.connect(masterGain)
+        o.start(0); o.stop(dur)
+      })
     }
     return off.startRendering()
   }
 
   if (type === 'synth_perc') {
-    const dur = 0.9
+    // Many distinct percussion types: bongo, conga, clave, woodblock, cowbell, shaker, tamb, agogo, castanet, stick, tom, surdo
+    const percTypes = ['bongo', 'conga', 'clave', 'woodblock', 'cowbell', 'shaker', 'tamb', 'agogo', 'castanet', 'stick', 'tom', 'surdo']
+    const percType = percTypes[v % percTypes.length]
+    const dur = percType === 'cowbell' ? 0.9 + (v % 6) * 0.06
+              : percType === 'conga'   ? 0.6 + (v % 8) * 0.05
+              : percType === 'tamb'    ? 0.5 + (v % 7) * 0.04
+              : 0.2 + (v % 10) * 0.03
     const off = new OfflineAudioContext(1, Math.floor(dur * SR), SR)
-    const fundamental = 261.63 + v * 14  // C4 + variant shift
-    // Inharmonic mallet ratios (marimba-like: 1 : 3.87 : 9.97)
-    const ratios = [1, 3.87, 9.97]
-    const gains = [1, 0.35, 0.12]
-    ratios.forEach((r, i) => {
-      const o = off.createOscillator(); o.type = 'sine'
-      o.frequency.value = fundamental * r
-      const g = off.createGain()
-      g.gain.setValueAtTime(gains[i], 0)
-      g.gain.exponentialRampToValueAtTime(0.001, dur * (0.8 - i * 0.2))
-      o.connect(g); g.connect(off.destination)
-      o.start(0); o.stop(dur)
-    })
+    const mg = off.createGain()
+    mg.gain.setValueAtTime(0.8, 0)
+    mg.gain.exponentialRampToValueAtTime(0.001, dur - 0.01)
+    mg.connect(off.destination)
+
+    if (percType === 'cowbell') {
+      ;[540 + v * 8, 845 + v * 12].forEach(f => {
+        const o = off.createOscillator(); o.type = 'square'; o.frequency.value = f
+        o.connect(mg); o.start(0); o.stop(dur)
+      })
+    } else if (percType === 'shaker' || percType === 'tamb') {
+      const nb = off.createBuffer(1, Math.floor(dur * SR), SR)
+      const nd = nb.getChannelData(0)
+      for (let i = 0; i < nd.length; i++) nd[i] = Math.random() * 2 - 1
+      const ns = off.createBufferSource(); ns.buffer = nb
+      const hpf = off.createBiquadFilter(); hpf.type = 'highpass'
+      hpf.frequency.value = percType === 'tamb' ? 6000 + v * 80 : 8000 + v * 60
+      ns.connect(hpf); hpf.connect(mg); ns.start(0); ns.stop(dur)
+    } else {
+      const freqMap: Record<string, number> = {
+        bongo: 200 + v * 6, conga: 130 + v * 5, clave: 1200 + v * 15,
+        woodblock: 900 + v * 20, agogo: 700 + v * 14, castanet: 1100 + v * 18,
+        stick: 1500 + v * 22, tom: 80 + v * 4, surdo: 50 + v * 3
+      }
+      const freq = freqMap[percType] ?? 300 + v * 8
+      const o = off.createOscillator()
+      o.type = percType === 'clave' || percType === 'woodblock' ? 'square' : 'sine'
+      o.frequency.setValueAtTime(freq * 1.8, 0)
+      o.frequency.exponentialRampToValueAtTime(freq, 0.015 + (v % 5) * 0.002)
+      o.connect(mg); o.start(0); o.stop(dur)
+    }
     return off.startRendering()
   }
 
@@ -1210,19 +1307,19 @@ async function synthesizePadSound(type: SynthPadType, variant: number): Promise<
 
 // Map SoundCategory to a synth fallback type
 const CATEGORY_SYNTH_MAP: Partial<Record<SoundCategory, SynthPadType>> = {
-  kick: 'synth_kick',
-  snare: 'synth_snare',
-  hihat: 'synth_hat',
-  drum: 'synth_snare',
-  bass: 'synth_bass',
-  long: 'synth_pad',
-  medium: 'synth_hit',
-  short: 'synth_hit',
-  fill: 'synth_hit',
-  percussion: 'synth_perc',
-  chord: 'synth_chord',
-  instrument: 'synth_perc',
-  vocal: 'synth_pad',
+  kick:        'synth_kick',
+  snare:       'synth_snare',
+  hihat:       'synth_hat',
+  drum:        'synth_snare',
+  bass:        'synth_bass',
+  long:        'synth_pad',
+  medium:      'synth_pad',
+  short:       'synth_hit',
+  fill:        'synth_perc',    // fills are ensemble percussion, NOT static noise hits
+  percussion:  'synth_perc',
+  chord:       'synth_chord',
+  instrument:  'synth_chord',   // instruments use chord-like tonal synth
+  vocal:       'synth_pad',
 }
 
 // Generate a complete 32-sound kit for a preset using explicit per-preset blueprints
@@ -1322,8 +1419,8 @@ async function generatePresetSoundKit(
       if (samples.has(padIdx)) continue
       const synthType = CATEGORY_SYNTH_MAP[slot.category] ?? 'synth_hit'
       try {
-        // Variant seeded by preset+pad so each pad in each preset is unique
-        const variant = (presetIndex * 37 + padIdx * 13 + i * 7) % 27
+        // Variant seeded by preset+pad so each pad in each preset is unique (128-space)
+        const variant = (presetIndex * 37 + padIdx * 13 + i * 7) % 128
         const buf = await synthesizePadSound(synthType, variant)
         samples.set(padIdx, {
           id: -(presetIndex * 100 + padIdx + 1),
@@ -2360,18 +2457,11 @@ class AudioEngine {
     const gain = this.ctx.createGain()
     const panner = this.ctx.createStereoPanner()
 
-    // Normalize volume based on buffer's peak amplitude
-    const channelData = buffer.getChannelData(0)
-    let peak = 0
-    for (let i = 0; i < channelData.length; i++) {
-      const abs = Math.abs(channelData[i])
-      if (abs > peak) peak = abs
-    }
-    const normalizationFactor = peak > 0.001 ? 0.8 / peak : 1
-
-    // Apply velocity and pad volume with normalization
+    // ── NO normalization — applying 0.8/peak during playback amplifies quiet samples
+    // into clipping range and destroys drum transients. Samples are already at the
+    // correct level from the original recording. Just apply velocity + pad volume.
     const velMult = (velocity === 1 ? 0.4 : velocity === 2 ? 0.7 : 1.0)
-    const baseVol = velMult * padSettings.volume * normalizationFactor * 0.7 // 0.7 headroom
+    const baseVol = Math.min(1.0, velMult * padSettings.volume)
 
     // Duration logic:
     // - Stretched note (step.length > 1): loop/truncate to exact stretched duration regardless of mode
@@ -2949,6 +3039,22 @@ export default function AlphaDAW() {
             loaded++
             setFreesoundProgress({ loaded, total: 32 })
           }))
+          // SYNTH FALLBACK for any manifest pads that failed to load (403 etc)
+          const presetIndex = Math.max(0, PRESETS.indexOf(preset))
+          for (const slot of BLUEPRINT_SLOT_MAP) {
+            for (let i = 0; i < slot.padIds.length; i++) {
+              const padIdx = slot.padIds[i]
+              if (buffers.has(padIdx)) continue
+              const synthType = CATEGORY_SYNTH_MAP[slot.category] ?? 'synth_hit'
+              try {
+                const variant = (presetIndex * 37 + padIdx * 13 + i * 7) % 128
+                const buf = await synthesizePadSound(synthType, variant)
+                const sample: FreesoundSample = { id: -(presetIndex * 100 + padIdx + 1), name: `Synth ${slot.category} #${variant}`, previewUrl: '', audioBuffer: buf }
+                samples.set(padIdx, sample)
+                buffers.set(padIdx, buf)
+              } catch (e) { console.warn('[manifest synth fallback] pad', padIdx, e) }
+            }
+          }
           engine.setPresetBuffers(preset, buffers)
           setFreesoundSamples(samples)
           setLoadedPresets(prev => new Set(prev).add(preset))
@@ -2970,6 +3076,22 @@ export default function AlphaDAW() {
             loaded++
             setFreesoundProgress({ loaded, total: 32 })
           }))
+          // SYNTH FALLBACK for any cache pads that failed to load
+          const presetIndex = Math.max(0, PRESETS.indexOf(preset))
+          for (const slot of BLUEPRINT_SLOT_MAP) {
+            for (let i = 0; i < slot.padIds.length; i++) {
+              const padIdx = slot.padIds[i]
+              if (buffers.has(padIdx)) continue
+              const synthType = CATEGORY_SYNTH_MAP[slot.category] ?? 'synth_hit'
+              try {
+                const variant = (presetIndex * 37 + padIdx * 13 + i * 7) % 128
+                const buf = await synthesizePadSound(synthType, variant)
+                const sample: FreesoundSample = { id: -(presetIndex * 100 + padIdx + 1), name: `Synth ${slot.category} #${variant}`, previewUrl: '', audioBuffer: buf }
+                samples.set(padIdx, sample)
+                buffers.set(padIdx, buf)
+              } catch (e) { console.warn('[cache synth fallback] pad', padIdx, e) }
+            }
+          }
           engine.setPresetBuffers(preset, buffers)
           setFreesoundSamples(samples)
           setLoadedPresets(prev => new Set(prev).add(preset))
