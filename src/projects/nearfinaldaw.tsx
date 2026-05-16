@@ -624,11 +624,11 @@ const BLUEPRINT_SLOT_MAP: Array<{
   { key: 'short',  padIds: [6, 7, 8],          durationFilter: 'duration:[0.5 TO 1.0]', category: 'short' },
   { key: 'chord',  padIds: [9, 10, 11],        durationFilter: 'duration:[0.5 TO 3.0]', category: 'chord' },
   { key: 'inst',   padIds: [12, 13, 14, 15],   durationFilter: 'duration:[0.5 TO 3.0]', category: 'instrument' },
-  { key: 'snare',  padIds: [16, 17],           durationFilter: 'duration:[0.5 TO 1.5]', category: 'snare' },
-  { key: 'drum',   padIds: [18, 19],           durationFilter: 'duration:[0.5 TO 1.5]', category: 'drum' },
-  { key: 'kick',   padIds: [20, 21],           durationFilter: 'duration:[0.5 TO 1.5]', category: 'kick' },
+  { key: 'snare',  padIds: [16, 17],           durationFilter: 'duration:[0.1 TO 2.0]', category: 'snare' },
+  { key: 'drum',   padIds: [18, 19],           durationFilter: 'duration:[0.1 TO 2.0]', category: 'drum' },
+  { key: 'kick',   padIds: [20, 21],           durationFilter: 'duration:[0.1 TO 2.0]', category: 'kick' },
   { key: 'bass',   padIds: [22, 23],           durationFilter: 'duration:[0.3 TO 2.5]', category: 'bass' },
-  { key: 'hihat',  padIds: [24, 25],           durationFilter: 'duration:[0.5 TO 1.0]', category: 'hihat' },
+  { key: 'hihat',  padIds: [24, 25],           durationFilter: 'duration:[0.05 TO 1.2]', category: 'hihat' },
   { key: 'fill',   padIds: [26, 27],           durationFilter: 'duration:[1.0 TO 3.5]', category: 'fill' },
   { key: 'perc',   padIds: [28, 29],           durationFilter: 'duration:[1.0 TO 4.0]', category: 'percussion' },
   { key: 'vocal',  padIds: [30, 31],           durationFilter: 'duration:[0.5 TO 3.0]', category: 'vocal' },
@@ -646,8 +646,8 @@ const FALLBACK_QUERIES: Record<SoundCategory, string[]> = {
   kick: ['kick drum hit single', 'bass drum hit'],
   bass: ['bass note single hit', 'bass guitar hit'],
   hihat: ['closed hihat hit', 'hihat click hit'],
-  fill: ['drum fill break', 'drum break roll'],
-  percussion: ['percussion loop rhythm', 'shaker loop'],
+  fill: ['drum fill percussion ensemble', 'ensemble percussion break loop'],
+  percussion: ['marimba single hit note', 'xylophone note hit single', 'vibraphone hit note', 'conga hit single'],
   vocal: ['vocal phrase sample', 'vocal chant loop'],
 }
 
@@ -818,76 +818,455 @@ async function loadAndCacheAudio(
 }
 
 // ---- SAMPLE REFINEMENT PIPELINE ----
-// Trim silence, hard-clamp to <=4.0s, peak-normalize to -1dBFS, bake 5ms/15ms fades.
-// Returns a NEW AudioBuffer; original is discarded so all downstream code sees a clean sample.
-async function refineAudioBuffer(input: AudioBuffer, ctx: BaseAudioContext): Promise<AudioBuffer> {
-  const MAX_DURATION = 4.0
-  const SILENCE_THRESHOLD = 0.003 // ~-50 dBFS
+// Per-category cleaning: each sound type gets treatment appropriate to its character.
+// CRITICAL: if output would be near-blank, always returns the original input as fallback.
+async function refineAudioBuffer(
+  input: AudioBuffer,
+  ctx: BaseAudioContext,
+  category?: SoundCategory,
+  isLightTouch?: boolean
+): Promise<AudioBuffer> {
   const sr = input.sampleRate
   const channels = input.numberOfChannels
-  // Find first/last non-silent sample across all channels
-  let firstNon = input.length, lastNon = 0
-  for (let c = 0; c < channels; c++) {
-    const d = input.getChannelData(c)
-    for (let i = 0; i < d.length; i++) {
-      if (Math.abs(d[i]) > SILENCE_THRESHOLD) {
-        if (i < firstNon) firstNon = i
-        break
+
+  // Helper: find output peak
+  const getPeak = (buf: AudioBuffer, start = 0, len = buf.length): number => {
+    let p = 0
+    for (let c = 0; c < buf.numberOfChannels; c++) {
+      const d = buf.getChannelData(c)
+      for (let i = start; i < start + len && i < d.length; i++) {
+        const a = Math.abs(d[i]); if (a > p) p = a
       }
     }
-    for (let i = d.length - 1; i >= 0; i--) {
-      if (Math.abs(d[i]) > SILENCE_THRESHOLD) {
-        if (i > lastNon) lastNon = i
-        break
+    return p
+  }
+
+  // Light-touch mode (reroll): only prevent hard clipping, no trimming
+  if (isLightTouch) {
+    const peak = getPeak(input)
+    if (peak < 1e-6) return input
+    const gain = peak > 0.93 ? 0.92 / peak : 1  // only reduce if clipping
+    if (gain >= 1) return input
+    const out = ctx.createBuffer(channels, input.length, sr)
+    for (let c = 0; c < channels; c++) {
+      const src = input.getChannelData(c)
+      const dst = out.getChannelData(c)
+      for (let i = 0; i < input.length; i++) {
+        const v = src[i] * gain
+        dst[i] = v > 1 ? 1 : v < -1 ? -1 : v
       }
     }
+    return out
   }
-  if (firstNon >= lastNon) { firstNon = 0; lastNon = input.length - 1 }
-  const MIN_DURATION_S = 0.5
-  // Apply max duration clamp
-  const maxLen = Math.floor(MAX_DURATION * sr)
-  const trimmedLen = Math.min(lastNon - firstNon + 1, maxLen)
-  if (trimmedLen < Math.floor(MIN_DURATION_S * sr)) return input // sample too short after trim
-  // Check RMS of trimmed content to reject silent regions that survived threshold
-  let rmsSum = 0
-  const rmsLen = Math.min(trimmedLen, Math.floor(sr * 0.5))
-  for (let c = 0; c < channels; c++) {
-    const d = input.getChannelData(c)
-    for (let i = firstNon; i < firstNon + rmsLen; i++) {
-      rmsSum += d[i] * d[i]
+
+  const isPercussive = category === 'snare' || category === 'drum' || category === 'kick' || category === 'hihat'
+  const isFill = category === 'fill' || category === 'percussion'
+  const isBass = category === 'bass'
+  const isTonal = category === 'chord' || category === 'instrument' || category === 'short' || category === 'medium'
+  const isLong = category === 'long' || category === 'vocal'
+
+  // ── PERCUSSIVE (kick, snare, drum, hihat) ──────────────────────────────────
+  // Don't trim at all. Drums need their transient. Just normalize to prevent clip.
+  if (isPercussive) {
+    const peak = getPeak(input)
+    if (peak < 0.04) return input  // blank/near-silent: return as-is
+    const maxDur = (category === 'hihat') ? 1.2 : (category === 'kick') ? 1.8 : 2.0
+    const maxLen = Math.floor(maxDur * sr)
+    const len = Math.min(input.length, maxLen)
+    const gain = peak > 1e-6 ? Math.min(1.2, 0.89 / peak) : 1  // very conservative — max 1.2x
+    const out = ctx.createBuffer(channels, len, sr)
+    const fadeIn = Math.min(Math.floor(0.001 * sr), 10)   // 1ms
+    const fadeOut = Math.min(Math.floor(0.005 * sr), 220)  // 5ms
+    for (let c = 0; c < channels; c++) {
+      const src = input.getChannelData(c)
+      const dst = out.getChannelData(c)
+      for (let i = 0; i < len; i++) {
+        let v = src[i] * gain
+        if (i < fadeIn) v *= i / fadeIn
+        const tail = len - 1 - i
+        if (tail < fadeOut) v *= tail / fadeOut
+        dst[i] = v > 1 ? 1 : v < -1 ? -1 : v
+      }
     }
+    const outPeak = getPeak(out)
+    return outPeak < 0.04 ? input : out
   }
-  const rms = Math.sqrt(rmsSum / (rmsLen * channels))
-  if (rms < 0.01) return input // Mostly silent even within "non-silent" region
-  // Find peak across trimmed window
-  let peak = 0
-  for (let c = 0; c < channels; c++) {
-    const d = input.getChannelData(c)
-    for (let i = firstNon; i < firstNon + trimmedLen; i++) {
-      const a = Math.abs(d[i]); if (a > peak) peak = a
+
+  // ── FILL / PERCUSSION (fill, ensemble perc) ────────────────────────────────
+  // Same as percussive but allow longer duration
+  if (isFill) {
+    const peak = getPeak(input)
+    if (peak < 0.04) return input
+    const maxLen = Math.floor(3.5 * sr)
+    const len = Math.min(input.length, maxLen)
+    const gain = peak > 1e-6 ? Math.min(1.3, 0.89 / peak) : 1
+    const out = ctx.createBuffer(channels, len, sr)
+    const fadeIn = Math.min(Math.floor(0.002 * sr), 100)
+    const fadeOut = Math.min(Math.floor(0.01 * sr), 441)
+    for (let c = 0; c < channels; c++) {
+      const src = input.getChannelData(c)
+      const dst = out.getChannelData(c)
+      for (let i = 0; i < len; i++) {
+        let v = src[i] * gain
+        if (i < fadeIn) v *= i / fadeIn
+        const tail = len - 1 - i
+        if (tail < fadeOut) v *= tail / fadeOut
+        dst[i] = v > 1 ? 1 : v < -1 ? -1 : v
+      }
     }
+    const outPeak = getPeak(out)
+    return outPeak < 0.04 ? input : out
   }
-  const targetPeak = 0.89 // ~-1 dBFS
-  // Cap gain at 3x maximum — prevents amplifying noise floor of quiet samples into static
-  const gain = peak > 1e-6 ? Math.min(3, targetPeak / peak) : 1
-  // Build new buffer using AudioContext.createBuffer (works for both online + OfflineAudioContext)
-  const out = ctx.createBuffer(channels, trimmedLen, sr)
-  const fadeInSamples = Math.min(Math.floor(0.005 * sr), Math.floor(trimmedLen * 0.1))
-  const fadeOutSamples = Math.min(Math.floor(0.015 * sr), Math.floor(trimmedLen * 0.2))
-  for (let c = 0; c < channels; c++) {
-    const src = input.getChannelData(c)
-    const dst = out.getChannelData(c)
-    for (let i = 0; i < trimmedLen; i++) {
-      let v = src[firstNon + i] * gain
-      if (i < fadeInSamples) v *= i / fadeInSamples
-      const tailIdx = trimmedLen - 1 - i
-      if (tailIdx < fadeOutSamples) v *= tailIdx / fadeOutSamples
-      // Safety hard clip just in case
-      if (v > 1) v = 1; else if (v < -1) v = -1
-      dst[i] = v
+
+  // ── BASS ──────────────────────────────────────────────────────────────────
+  // Trim leading silence (only up to 200ms), keep body intact
+  if (isBass) {
+    const threshold = 0.01
+    const maxLeadingTrimSamples = Math.floor(0.2 * sr)
+    let firstNon = 0
+    outer_bass: for (let c = 0; c < channels; c++) {
+      const d = input.getChannelData(c)
+      for (let i = 0; i < Math.min(maxLeadingTrimSamples, d.length); i++) {
+        if (Math.abs(d[i]) > threshold) { firstNon = Math.min(firstNon === 0 ? i : firstNon, i); break outer_bass }
+      }
     }
+    const maxLen = Math.floor(3.5 * sr)
+    const len = Math.min(input.length - firstNon, maxLen)
+    if (len < Math.floor(0.2 * sr)) return input
+    const peak = getPeak(input, firstNon, len)
+    if (peak < 0.04) return input
+    const gain = peak > 1e-6 ? Math.min(2.0, 0.89 / peak) : 1
+    const out = ctx.createBuffer(channels, len, sr)
+    const fadeIn = Math.min(Math.floor(0.003 * sr), len >> 3)
+    const fadeOut = Math.min(Math.floor(0.02 * sr), len >> 3)
+    for (let c = 0; c < channels; c++) {
+      const src = input.getChannelData(c)
+      const dst = out.getChannelData(c)
+      for (let i = 0; i < len; i++) {
+        let v = src[firstNon + i] * gain
+        if (i < fadeIn) v *= i / fadeIn
+        const tail = len - 1 - i
+        if (tail < fadeOut) v *= tail / fadeOut
+        dst[i] = v > 1 ? 1 : v < -1 ? -1 : v
+      }
+    }
+    const outPeak = getPeak(out)
+    return outPeak < 0.04 ? input : out
   }
-  return out
+
+  // ── TONAL (chord, instrument, short, medium) ───────────────────────────────
+  // Moderate trim, moderate gain cap
+  if (isTonal) {
+    const threshold = 0.005
+    const maxLeadingTrimSamples = Math.floor(0.5 * sr) // max 500ms trim
+    let firstNon = 0, lastNon = input.length - 1
+    for (let c = 0; c < channels; c++) {
+      const d = input.getChannelData(c)
+      for (let i = 0; i < Math.min(maxLeadingTrimSamples, d.length); i++) {
+        if (Math.abs(d[i]) > threshold) { if (i < firstNon || firstNon === 0) firstNon = i; break }
+      }
+      for (let i = d.length - 1; i >= Math.max(0, d.length - Math.floor(1.0 * sr)); i--) {
+        if (Math.abs(d[i]) > threshold) { if (i > lastNon) lastNon = i; break }
+      }
+    }
+    if (firstNon >= lastNon) { firstNon = 0; lastNon = input.length - 1 }
+    const maxLen = Math.floor(4.0 * sr)
+    const len = Math.min(lastNon - firstNon + 1, maxLen)
+    if (len < Math.floor(0.3 * sr)) return input
+    const peak = getPeak(input, firstNon, len)
+    if (peak < 0.03) return input
+    const gain = peak > 1e-6 ? Math.min(2.5, 0.89 / peak) : 1
+    const out = ctx.createBuffer(channels, len, sr)
+    const fadeIn = Math.min(Math.floor(0.005 * sr), len >> 4)
+    const fadeOut = Math.min(Math.floor(0.02 * sr), len >> 4)
+    for (let c = 0; c < channels; c++) {
+      const src = input.getChannelData(c)
+      const dst = out.getChannelData(c)
+      for (let i = 0; i < len; i++) {
+        let v = src[firstNon + i] * gain
+        if (i < fadeIn) v *= i / fadeIn
+        const tail = len - 1 - i
+        if (tail < fadeOut) v *= tail / fadeOut
+        dst[i] = v > 1 ? 1 : v < -1 ? -1 : v
+      }
+    }
+    const outPeak = getPeak(out)
+    return outPeak < 0.03 ? input : out
+  }
+
+  // ── LONG / VOCAL (long, vocal) ────────────────────────────────────────────
+  {
+    const threshold = 0.003
+    let firstNon = 0, lastNon = input.length - 1
+    for (let c = 0; c < channels; c++) {
+      const d = input.getChannelData(c)
+      for (let i = 0; i < d.length; i++) {
+        if (Math.abs(d[i]) > threshold) { if (i < firstNon || firstNon === 0) firstNon = i; break }
+      }
+      for (let i = d.length - 1; i >= 0; i--) {
+        if (Math.abs(d[i]) > threshold) { if (i > lastNon) lastNon = i; break }
+      }
+    }
+    if (firstNon >= lastNon) { firstNon = 0; lastNon = input.length - 1 }
+    const maxLen = Math.floor(5.0 * sr)
+    const len = Math.min(lastNon - firstNon + 1, maxLen)
+    if (len < Math.floor(0.4 * sr)) return input
+    const peak = getPeak(input, firstNon, len)
+    if (peak < 0.02) return input
+    const gain = peak > 1e-6 ? Math.min(2.0, 0.89 / peak) : 1
+    const out = ctx.createBuffer(channels, len, sr)
+    const fadeIn = Math.min(Math.floor(0.01 * sr), len >> 4)
+    const fadeOut = Math.min(Math.floor(0.05 * sr), len >> 4)
+    for (let c = 0; c < channels; c++) {
+      const src = input.getChannelData(c)
+      const dst = out.getChannelData(c)
+      for (let i = 0; i < len; i++) {
+        let v = src[firstNon + i] * gain
+        if (i < fadeIn) v *= i / fadeIn
+        const tail = len - 1 - i
+        if (tail < fadeOut) v *= tail / fadeOut
+        dst[i] = v > 1 ? 1 : v < -1 ? -1 : v
+      }
+    }
+    const outPeak = getPeak(out)
+    return outPeak < 0.02 ? input : out
+  }
+}
+
+// ---- SYNTHESIZED PAD SOUNDS (up to ~6/32 per preset as fallback) ----
+// Generates genuinely different AudioBuffers from scratch via OfflineAudioContext.
+type SynthPadType = 'synth_kick' | 'synth_snare' | 'synth_hat' | 'synth_bass' | 'synth_pad' | 'synth_hit' | 'synth_perc' | 'synth_chord'
+
+async function synthesizePadSound(type: SynthPadType, variant: number): Promise<AudioBuffer> {
+  const SR = 44100
+  const v = Math.max(0, variant % 27) // clamp variant to preset range
+
+  if (type === 'synth_kick') {
+    const dur = 0.65
+    const off = new OfflineAudioContext(1, Math.floor(dur * SR), SR)
+    const gain = off.createGain()
+    gain.connect(off.destination)
+    gain.gain.setValueAtTime(1.0, 0)
+    gain.gain.exponentialRampToValueAtTime(0.001, dur - 0.01)
+    const osc = off.createOscillator()
+    osc.type = 'sine'
+    const baseFreq = 40 + v * 2.5
+    osc.frequency.setValueAtTime(baseFreq * 4, 0)
+    osc.frequency.exponentialRampToValueAtTime(baseFreq, 0.05)
+    osc.frequency.exponentialRampToValueAtTime(baseFreq * 0.6, 0.3)
+    osc.connect(gain)
+    osc.start(0); osc.stop(dur)
+    // click transient
+    const clickGain = off.createGain()
+    clickGain.connect(off.destination)
+    clickGain.gain.setValueAtTime(0.4, 0)
+    clickGain.gain.exponentialRampToValueAtTime(0.001, 0.008)
+    const clickOsc = off.createOscillator()
+    clickOsc.type = 'square'
+    clickOsc.frequency.setValueAtTime(1200 + v * 30, 0)
+    clickOsc.connect(clickGain)
+    clickOsc.start(0); clickOsc.stop(0.01)
+    return off.startRendering()
+  }
+
+  if (type === 'synth_snare') {
+    const dur = 0.35
+    const off = new OfflineAudioContext(1, Math.floor(dur * SR), SR)
+    // Noise part
+    const noiseLen = Math.floor(dur * SR)
+    const noiseBuf = off.createBuffer(1, noiseLen, SR)
+    const nd = noiseBuf.getChannelData(0)
+    for (let i = 0; i < noiseLen; i++) nd[i] = Math.random() * 2 - 1
+    const noiseSource = off.createBufferSource()
+    noiseSource.buffer = noiseBuf
+    const noiseFilter = off.createBiquadFilter()
+    noiseFilter.type = 'highpass'
+    noiseFilter.frequency.value = 800 + v * 40
+    noiseSource.connect(noiseFilter)
+    const noiseGain = off.createGain()
+    noiseGain.gain.setValueAtTime(0.65, 0)
+    noiseGain.gain.exponentialRampToValueAtTime(0.001, dur - 0.01)
+    noiseFilter.connect(noiseGain)
+    noiseGain.connect(off.destination)
+    noiseSource.start(0); noiseSource.stop(dur)
+    // Tone part
+    const toneGain = off.createGain()
+    toneGain.gain.setValueAtTime(0.35, 0)
+    toneGain.gain.exponentialRampToValueAtTime(0.001, 0.15)
+    const toneOsc = off.createOscillator()
+    toneOsc.type = 'triangle'
+    toneOsc.frequency.setValueAtTime(180 + v * 7, 0)
+    toneOsc.connect(toneGain)
+    toneGain.connect(off.destination)
+    toneOsc.start(0); toneOsc.stop(0.2)
+    return off.startRendering()
+  }
+
+  if (type === 'synth_hat') {
+    const isOpen = v > 13
+    const dur = isOpen ? 0.45 : 0.18
+    const off = new OfflineAudioContext(1, Math.floor(dur * SR), SR)
+    // 6 detuned square oscillators (classic hat synthesis)
+    const freqs = [250, 320, 510, 720, 1020, 1440]
+    const masterGain = off.createGain()
+    masterGain.gain.setValueAtTime(0.7, 0)
+    masterGain.gain.exponentialRampToValueAtTime(0.001, dur - 0.01)
+    const hp = off.createBiquadFilter()
+    hp.type = 'highpass'; hp.frequency.value = 7000
+    hp.connect(masterGain); masterGain.connect(off.destination)
+    freqs.forEach((f, i) => {
+      const o = off.createOscillator()
+      o.type = 'square'
+      o.frequency.value = f * (1 + (v * 0.003) * (i % 2 === 0 ? 1 : -1))
+      o.connect(hp)
+      o.start(0); o.stop(dur)
+    })
+    return off.startRendering()
+  }
+
+  if (type === 'synth_bass') {
+    const dur = 1.2
+    const off = new OfflineAudioContext(1, Math.floor(dur * SR), SR)
+    // MIDI bass notes: 28,30,31,33,35,36 → Hz
+    const midiNotes = [28, 30, 31, 33, 35, 36, 38, 40]
+    const midi = midiNotes[v % midiNotes.length]
+    const freq = 440 * Math.pow(2, (midi - 69) / 12)
+    const osc = off.createOscillator()
+    osc.type = v % 2 === 0 ? 'sawtooth' : 'square'
+    osc.frequency.value = freq
+    const filt = off.createBiquadFilter()
+    filt.type = 'lowpass'
+    filt.frequency.setValueAtTime(800 + v * 20, 0)
+    filt.frequency.exponentialRampToValueAtTime(180 + v * 5, 0.4)
+    filt.Q.value = 1.5 + (v % 5) * 0.4
+    osc.connect(filt)
+    const g = off.createGain()
+    g.gain.setValueAtTime(0, 0)
+    g.gain.linearRampToValueAtTime(0.8, 0.005)
+    g.gain.setValueAtTime(0.8, 0.1)
+    g.gain.exponentialRampToValueAtTime(0.001, dur - 0.05)
+    filt.connect(g); g.connect(off.destination)
+    osc.start(0); osc.stop(dur)
+    return off.startRendering()
+  }
+
+  if (type === 'synth_pad') {
+    const dur = 2.5
+    const off = new OfflineAudioContext(2, Math.floor(dur * SR), SR)
+    const baseFreq = 220 * Math.pow(2, (v % 12) / 12)
+    const detunes = [0, 5, -3, 8]
+    const masterGain = off.createGain()
+    masterGain.gain.setValueAtTime(0, 0)
+    masterGain.gain.linearRampToValueAtTime(0.5, 0.3)
+    masterGain.gain.setValueAtTime(0.5, dur - 0.5)
+    masterGain.gain.linearRampToValueAtTime(0, dur)
+    masterGain.connect(off.destination)
+    detunes.forEach((cents, i) => {
+      const o = off.createOscillator()
+      o.type = 'sine'
+      o.frequency.value = baseFreq * Math.pow(2, cents / 1200)
+      const g = off.createGain(); g.gain.value = 0.3 - i * 0.04
+      o.connect(g); g.connect(masterGain)
+      o.start(0); o.stop(dur)
+    })
+    return off.startRendering()
+  }
+
+  if (type === 'synth_hit') {
+    const dur = 0.5
+    const off = new OfflineAudioContext(1, Math.floor(dur * SR), SR)
+    const isMetallic = v % 2 === 0
+    const masterGain = off.createGain()
+    masterGain.connect(off.destination)
+    if (isMetallic) {
+      const partials = [1, 2.756, 5.404].map(r => r * (300 + v * 25))
+      partials.forEach((f, i) => {
+        const o = off.createOscillator(); o.type = 'sine'; o.frequency.value = f
+        const g = off.createGain()
+        g.gain.setValueAtTime(0.4 / (i + 1), 0)
+        g.gain.exponentialRampToValueAtTime(0.001, 0.3 - i * 0.08)
+        o.connect(g); g.connect(masterGain)
+        o.start(0); o.stop(dur)
+      })
+    } else {
+      const noiseLen = Math.floor(dur * SR)
+      const nBuf = off.createBuffer(1, noiseLen, SR)
+      const nd = nBuf.getChannelData(0)
+      for (let i = 0; i < noiseLen; i++) nd[i] = Math.random() * 2 - 1
+      const ns = off.createBufferSource(); ns.buffer = nBuf
+      const bp = off.createBiquadFilter(); bp.type = 'bandpass'
+      bp.frequency.value = 400 + v * 60; bp.Q.value = 4 + (v % 6)
+      ns.connect(bp)
+      const g = off.createGain()
+      g.gain.setValueAtTime(0.7, 0)
+      g.gain.exponentialRampToValueAtTime(0.001, dur - 0.02)
+      bp.connect(g); g.connect(masterGain)
+      ns.start(0); ns.stop(dur)
+    }
+    return off.startRendering()
+  }
+
+  if (type === 'synth_perc') {
+    const dur = 0.9
+    const off = new OfflineAudioContext(1, Math.floor(dur * SR), SR)
+    const fundamental = 261.63 + v * 14  // C4 + variant shift
+    // Inharmonic mallet ratios (marimba-like: 1 : 3.87 : 9.97)
+    const ratios = [1, 3.87, 9.97]
+    const gains = [1, 0.35, 0.12]
+    ratios.forEach((r, i) => {
+      const o = off.createOscillator(); o.type = 'sine'
+      o.frequency.value = fundamental * r
+      const g = off.createGain()
+      g.gain.setValueAtTime(gains[i], 0)
+      g.gain.exponentialRampToValueAtTime(0.001, dur * (0.8 - i * 0.2))
+      o.connect(g); g.connect(off.destination)
+      o.start(0); o.stop(dur)
+    })
+    return off.startRendering()
+  }
+
+  // synth_chord
+  {
+    const dur = 2.0
+    const off = new OfflineAudioContext(2, Math.floor(dur * SR), SR)
+    const roots = [130.81, 138.59, 146.83, 155.56, 164.81, 174.61, 184.99, 195.99, 207.65, 220.00, 233.08, 246.94]
+    const root = roots[v % roots.length]
+    const isMinor = v % 3 === 0
+    const intervals = isMinor ? [1, 1.189, 1.498] : [1, 1.260, 1.498]
+    const masterGain = off.createGain()
+    masterGain.gain.setValueAtTime(0, 0)
+    masterGain.gain.linearRampToValueAtTime(0.45, 0.08)
+    masterGain.gain.setValueAtTime(0.45, dur - 0.3)
+    masterGain.gain.linearRampToValueAtTime(0, dur)
+    masterGain.connect(off.destination)
+    const filt = off.createBiquadFilter(); filt.type = 'lowpass'; filt.frequency.value = 2000
+    filt.connect(masterGain)
+    intervals.forEach((r) => {
+      const o = off.createOscillator(); o.type = 'sawtooth'
+      o.frequency.value = root * r
+      const g = off.createGain(); g.gain.value = 0.4
+      o.connect(g); g.connect(filt)
+      o.start(0); o.stop(dur)
+    })
+    return off.startRendering()
+  }
+}
+
+// Map SoundCategory to a synth fallback type
+const CATEGORY_SYNTH_MAP: Partial<Record<SoundCategory, SynthPadType>> = {
+  kick: 'synth_kick',
+  snare: 'synth_snare',
+  hihat: 'synth_hat',
+  drum: 'synth_snare',
+  bass: 'synth_bass',
+  long: 'synth_pad',
+  medium: 'synth_hit',
+  short: 'synth_hit',
+  fill: 'synth_hit',
+  percussion: 'synth_perc',
+  chord: 'synth_chord',
+  instrument: 'synth_perc',
+  vocal: 'synth_pad',
 }
 
 // Generate a complete 32-sound kit for a preset using explicit per-preset blueprints
@@ -895,7 +1274,8 @@ async function generatePresetSoundKit(
   preset: PresetName,
   ctx: AudioContext,
   onProgress?: (loaded: number, total: number) => void,
-  forceRefresh: boolean = false
+  forceRefresh: boolean = false,
+  isReroll: boolean = false
 ): Promise<PresetSoundKit> {
   const blueprint = FULL_PRESET_BLUEPRINTS[preset]
   const samples = new Map<number, FreesoundSample>()
@@ -903,6 +1283,8 @@ async function generatePresetSoundKit(
   const totalPads = 32
   const globalUsedIds = new Set<number>()
   const { pageOffset, resultOffset } = blueprint
+  // Track which padIdx→category for synth fallback
+  const padCategoryMap = new Map<number, SoundCategory>()
 
   // Load a single pad: try explicit query, then fallback queries
   async function loadPad(
@@ -912,6 +1294,7 @@ async function generatePresetSoundKit(
     category: SoundCategory,
     queryVariant: number
   ): Promise<void> {
+    padCategoryMap.set(padIdx, category)
     // Use pageOffset to get different pages across presets (pages 1-5)
     const page = 1 + (pageOffset % 5)
     // Try rated results first, then downloads, then score
@@ -949,9 +1332,9 @@ async function generatePresetSoundKit(
       try {
         const raw = await loadAndCacheAudio(chosen.previewUrl, ctx)
         if (raw) {
-          const refined = await refineAudioBuffer(raw, ctx)
-          // For percussive categories, skip if refined is shorter than 0.3s (likely bad trim)
-          const minDur = PERCUSSIVE_CATEGORIES.includes(category) ? 0.3 : 0.5
+          // Reroll = light touch (no destructive trimming). Default = per-category cleaning.
+          const refined = await refineAudioBuffer(raw, ctx, category, isReroll)
+          const minDur = PERCUSSIVE_CATEGORIES.includes(category) ? 0.1 : 0.3
           if (refined.duration >= minDur) {
             chosen.audioBuffer = refined
             samples.set(padIdx, chosen)
@@ -975,6 +1358,36 @@ async function generatePresetSoundKit(
     })
   }
   await Promise.all(tasks)
+
+  // Synth fallback: fill up to 6 failed pads (max 20% of 32) with synthesized sounds
+  if (!isReroll) {
+    const presetIndex = PRESETS.indexOf(preset)
+    let synthCount = 0
+    const MAX_SYNTH = 6
+    for (const slot of BLUEPRINT_SLOT_MAP) {
+      if (synthCount >= MAX_SYNTH) break
+      for (let i = 0; i < slot.padIds.length && synthCount < MAX_SYNTH; i++) {
+        const padIdx = slot.padIds[i]
+        if (!samples.has(padIdx)) {
+          const synthType = CATEGORY_SYNTH_MAP[slot.category]
+          if (synthType) {
+            try {
+              const buf = await synthesizePadSound(synthType, (presetIndex + i) % 27)
+              samples.set(padIdx, {
+                id: -(padIdx + 1),
+                name: `Synth ${slot.category} v${(presetIndex + i) % 27}`,
+                previewUrl: '',
+                audioBuffer: buf,
+              })
+              synthCount++
+            } catch (e) {
+              console.warn('[synth fallback] failed for pad', padIdx, e)
+            }
+          }
+        }
+      }
+    }
+  }
 
   return { preset, samples, loadedAt: Date.now() }
 }
@@ -2305,6 +2718,15 @@ export default function AlphaDAW() {
   const [bpmDraft, setBpmDraft] = useState(140)
   const [autoMaster, setAutoMaster] = useState(false)
   useEffect(() => { engine.setAutoMaster(autoMaster) }, [autoMaster])
+  // Metronome
+  const [metronomeOn, setMetronomeOn] = useState(false)
+  const [metronomeRate, setMetronomeRate] = useState<'half' | 'quarter' | 'eighth' | 'sixteenth'>('quarter')
+  const metronomeOnRef = useRef(false)
+  const metronomeRateRef = useRef<'half' | 'quarter' | 'eighth' | 'sixteenth'>('quarter')
+  const nextMetronomeTimeRef = useRef(0)
+  const metroBeatCountRef = useRef(0)
+  useEffect(() => { metronomeOnRef.current = metronomeOn }, [metronomeOn])
+  useEffect(() => { metronomeRateRef.current = metronomeRate }, [metronomeRate])
   // Custom mode
   const [customMode, setCustomMode] = useState(false)
   // queue of loaded sample files awaiting drag onto pad
@@ -2572,7 +2994,9 @@ export default function AlphaDAW() {
           const kit = await generatePresetSoundKit(
             preset,
             engine.ctx!,
-            (loaded, total) => setFreesoundProgress({ loaded, total })
+            (loaded, total) => setFreesoundProgress({ loaded, total }),
+            false,
+            rerolledPresetsRef.current.has(preset)  // isReroll: light-touch cleaning
           )
           const buffers = new Map<number, AudioBuffer>()
           kit.samples.forEach((sample, padIdx) => {
@@ -2751,6 +3175,31 @@ export default function AlphaDAW() {
         scheduleNote(stepTime)
         nextNoteTimeRef.current += stepDur
       }
+      // Metronome click — runs independent of main step grid
+      if (metronomeOnRef.current && engine.ctx) {
+        const beatDur = 60 / bpmRef.current
+        const rateMap: Record<string, number> = { half: 2, quarter: 1, eighth: 0.5, sixteenth: 0.25 }
+        const metroDur = beatDur * (rateMap[metronomeRateRef.current] ?? 1)
+        const ctx = engine.ctx
+        while (nextMetronomeTimeRef.current < ctx.currentTime + 0.12) {
+          const t = nextMetronomeTimeRef.current
+          const isDownbeat = metroBeatCountRef.current % 4 === 0
+          // Synthesize metronome click inline
+          const g = ctx.createGain()
+          g.connect(ctx.destination)
+          const vol = isDownbeat ? 0.55 : 0.35
+          g.gain.setValueAtTime(vol, t)
+          g.gain.exponentialRampToValueAtTime(0.001, t + 0.055)
+          const o = ctx.createOscillator()
+          o.type = 'triangle'
+          o.frequency.setValueAtTime(isDownbeat ? 1750 : 1100, t)
+          o.frequency.exponentialRampToValueAtTime(isDownbeat ? 875 : 550, t + 0.04)
+          o.connect(g)
+          o.start(t); o.stop(t + 0.06)
+          nextMetronomeTimeRef.current += metroDur
+          metroBeatCountRef.current++
+        }
+      }
     }
     timerID = window.setInterval(scheduler, 25)
     return () => window.clearInterval(timerID)
@@ -2761,6 +3210,8 @@ export default function AlphaDAW() {
       if (engine.ctx?.state === 'suspended') engine.ctx.resume()
       isPlayingRef.current = true
       nextNoteTimeRef.current = engine.ctx!.currentTime + 0.05
+      nextMetronomeTimeRef.current = engine.ctx!.currentTime + 0.05
+      metroBeatCountRef.current = 0
       setIsPlaying(true)
     } else {
       isPlayingRef.current = false
@@ -3496,6 +3947,32 @@ export default function AlphaDAW() {
         >
           <Sparkles size={14} /> Auto-Master {autoMaster ? 'ON' : 'OFF'}
         </button>
+        {/* Metronome */}
+        <div className="flex items-center gap-1 bg-slate-950 border border-slate-800 rounded-lg px-2 py-1.5">
+          <button
+            onClick={() => setMetronomeOn(v => !v)}
+            title="Metronome — synced click track"
+            className={`flex items-center gap-1 text-xs px-1 py-0.5 rounded transition-colors ${metronomeOn ? 'text-amber-400' : 'text-slate-400 hover:text-white'}`}
+          >
+            <svg width="11" height="14" viewBox="0 0 11 14" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round">
+              <polyline points="5.5,1 10,13 1,13" />
+              <line x1="5.5" y1="1" x2="5.5" y2="13" strokeDasharray="1.5,1.5" strokeWidth="0.7"/>
+              <line x1="5.5" y1="7.5" x2="8.5" y2="4.5" strokeWidth="1.6"/>
+            </svg>
+            Metro {metronomeOn ? 'ON' : 'OFF'}
+          </button>
+          <select
+            value={metronomeRate}
+            onChange={e => setMetronomeRate(e.target.value as typeof metronomeRate)}
+            className="bg-transparent text-slate-300 text-xs border-none outline-none cursor-pointer"
+            title="Metronome rate"
+          >
+            <option value="half">½</option>
+            <option value="quarter">¼</option>
+            <option value="eighth">⅛</option>
+            <option value="sixteenth">1/16</option>
+          </select>
+        </div>
         {/* === EFFECTS RACK WITH LED INDICATORS === */}
         <div className="flex items-center gap-1 bg-slate-950 border border-slate-800 rounded-lg px-2 py-1.5 flex-wrap max-w-full">
           <span className="text-[10px] text-slate-500 uppercase tracking-wider mr-1">FX Rack</span>
@@ -3981,9 +4458,10 @@ export default function AlphaDAW() {
 
             {/* Grid Area */}
             <div
-              className="flex flex-col relative"
+              className="flex flex-col relative flex-1"
               style={{
                 width: `${totalBars * beatsPerBar * ((80 * zoom) / 100)}px`,
+                minWidth: '100%',
               }}
             >
               {/* Ruler */}

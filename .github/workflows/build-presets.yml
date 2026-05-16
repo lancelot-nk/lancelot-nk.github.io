@@ -1,0 +1,69 @@
+name: Build DAW Presets
+
+on:
+  workflow_dispatch:  # Trigger manually from GitHub Actions tab
+  # To run again: just click "Run workflow" in the Actions tab
+
+jobs:
+  build-presets:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75  # Allow up to 75 min for the full loop
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: V2
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --omit=dev
+
+      - name: Run preset curation (60 passes, 1/min)
+        env:
+          FREESOUND_TOKEN: ${{ secrets.FREESOUND_TOKEN || 'd37DSk0vV5S7Cc2DwOaeiuMizrwneXAYz4FBQjqX' }}
+        run: |
+          echo "Starting preset curation loop — 60 passes at 1-minute intervals"
+          for i in $(seq 1 60); do
+            echo ""
+            echo "═══ Pass $i / 60 ═══"
+            node scripts/build-daw-presets.mjs --max-requests 55 || true
+            # Check if all presets are complete (32 pads each)
+            complete=$(node -e "
+              const fs = require('fs');
+              try {
+                const d = JSON.parse(fs.readFileSync('public/daw-presets.json','utf8'));
+                const presets = d.presets || {};
+                const names = Object.keys(presets);
+                const done = names.filter(n => (presets[n]||[]).length >= 32).length;
+                console.log(done + '/' + names.length);
+                if (done === names.length) process.exit(0); else process.exit(1);
+              } catch { process.exit(1); }
+            " 2>/dev/null && echo "true" || echo "false")
+            echo "  Completion: $complete presets fully built"
+            if [ "$complete" = "true" ]; then
+              echo "All presets complete — stopping early"
+              break
+            fi
+            if [ $i -lt 60 ]; then
+              echo "  Waiting 60s before next pass…"
+              sleep 60
+            fi
+          done
+
+      - name: Commit updated daw-presets.json
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add public/daw-presets.json scripts/.preset-cache.json
+          git diff --staged --quiet && echo "No changes to commit" || \
+            git commit -m "chore: update daw-presets.json from curation run [skip ci]
+
+Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>"
+
+      - name: Push changes
+        run: git push origin V2
