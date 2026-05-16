@@ -1,13 +1,16 @@
-name: Build DAW Presets
+name: Build DAW Presets V2 (Wide Queries)
 
 on:
-  workflow_dispatch:  # Trigger manually from GitHub Actions tab
-  # To run again: just click "Run workflow" in the Actions tab
+  workflow_dispatch:   # Trigger manually from GitHub Actions tab
+
+# V2 strategy: simple 2-word queries that reliably find results.
+# Does NOT overwrite pads already found by V1 (.preset-cache.json).
+# Merges both into daw-presets.json with V1 taking priority.
 
 jobs:
-  build-presets:
+  build-presets-v2:
     runs-on: ubuntu-latest
-    timeout-minutes: 75  # Allow up to 75 min for the full loop
+    timeout-minutes: 75
 
     steps:
       - uses: actions/checkout@v4
@@ -23,16 +26,16 @@ jobs:
       - name: Install dependencies
         run: npm ci --omit=dev
 
-      - name: Run preset curation (60 passes, 1/min)
+      - name: Run V2 preset curation (60 passes, 1/min)
         env:
           FREESOUND_TOKEN: ${{ secrets.FREESOUND_TOKEN || 'd37DSk0vV5S7Cc2DwOaeiuMizrwneXAYz4FBQjqX' }}
         run: |
-          echo "Starting preset curation loop — 60 passes at 1-minute intervals"
+          echo "Starting V2 preset curation — 60 passes at 1-minute intervals"
+          echo "V2 uses 2-word queries; skips pads already vetted by V1"
           for i in $(seq 1 60); do
             echo ""
-            echo "═══ Pass $i / 60 ═══"
-            node scripts/build-daw-presets.mjs --max-requests 40 || true
-            # Check if all presets are complete (32 pads each)
+            echo "═══ V2 Pass $i / 60 ═══"
+            node scripts/build-daw-presets-v2.mjs --max-requests 40 || true
             complete=$(node -e "
               const fs = require('fs');
               try {
@@ -55,14 +58,14 @@ jobs:
             fi
           done
 
-      - name: Commit and push updated daw-presets.json
+      - name: Commit and push results
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add public/daw-presets.json scripts/.preset-cache.json
+          git add public/daw-presets.json scripts/.preset-cache-v2.json
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
-            git commit -m $'chore: update daw-presets.json [skip ci]\n\nCo-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>'
+            git commit -m $'chore: update daw-presets.json via V2 wide queries [skip ci]\n\nCo-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>'
             git push origin V2
           fi

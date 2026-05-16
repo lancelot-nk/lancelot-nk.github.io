@@ -3310,11 +3310,14 @@ export default function AlphaDAW() {
     setDragState({ type: 'paint', startIdx: dataIdx })
     updateStep(dataIdx, 2, 1)
   }
+  // Ref to track the last applied stretch length — avoids spamming setState on every mouseenter
+  const lastStretchLengthRef = useRef<number>(-1)
   const handleStepStretchStart = (uiCol: number) => {
     const dataIdx = halfMode ? uiCol : uiCol * 2
     const padSeq = seqData[activePadId] || []
     const headIdx = findStretchHead(padSeq, dataIdx)
     if (headIdx >= 0) {
+      lastStretchLengthRef.current = padSeq[headIdx]?.length ?? 1
       setDragState({ type: 'stretch', startIdx: headIdx })
     }
   }
@@ -3327,24 +3330,17 @@ export default function AlphaDAW() {
       updateStep(dataIdx, 0, 1)
     } else if (dragState.type === 'stretch') {
       if (dataIdx >= dragState.startIdx) {
-        // Calculate length in data indices
         const length = dataIdx - dragState.startIdx + 1
+        // Only update state when the length actually changes — prevents spaz re-renders
+        if (length === lastStretchLengthRef.current) return
+        lastStretchLengthRef.current = length
         setSeqData((prev) => {
-          const newData = {
-            ...prev,
-          }
+          const newData = { ...prev }
           const padSeq = [...newData[activePadId]]
-          padSeq[dragState.startIdx] = {
-            ...padSeq[dragState.startIdx],
-            length,
-          }
+          padSeq[dragState.startIdx] = { ...padSeq[dragState.startIdx], length }
           // Clear intermediate cells
           for (let i = dragState.startIdx + 1; i <= dataIdx; i++) {
-            padSeq[i] = {
-              velocity: 0,
-              length: 1,
-              probability: 1,
-            }
+            padSeq[i] = { velocity: 0, length: 1, probability: 1 }
           }
           newData[activePadId] = padSeq
           return newData
@@ -3352,7 +3348,10 @@ export default function AlphaDAW() {
       }
     }
   }
-  const handleMouseUp = () => setDragState(null)
+  const handleMouseUp = () => {
+    lastStretchLengthRef.current = -1
+    setDragState(null)
+  }
   useEffect(() => {
     window.addEventListener('mouseup', handleMouseUp)
     return () => window.removeEventListener('mouseup', handleMouseUp)

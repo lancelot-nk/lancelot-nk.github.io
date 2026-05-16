@@ -704,21 +704,27 @@ for (const presetName of presetNames) {
   }
 }
 
-// Write output JSON
+// Write output JSON — merge V2 checkpoint as fallback (V1 always wins)
+const CHECKPOINT_V2 = path.join(__dirname, '.preset-cache-v2.json')
+let checkpointV2 = {}
+try { if (fs.existsSync(CHECKPOINT_V2)) checkpointV2 = JSON.parse(fs.readFileSync(CHECKPOINT_V2, 'utf8')) } catch {}
+
 const output = {
-  version: 3,
+  version: 4,
   generated: new Date().toISOString(),
-  note: 'Pre-vetted Freesound IDs for the Alpha DAW. Reroll in the DAW to use random query system.',
+  note: 'Merged V1 (niche) + V2 (wide) Freesound curation. V1 takes priority.',
   presets: {},
 }
 
 for (const presetName of Object.keys(FULL_PRESET_BLUEPRINTS)) {
-  const pData = checkpoint[presetName] || {}
+  const pV1 = checkpoint[presetName] || {}
+  const pV2 = checkpointV2[presetName] || {}
   output.presets[presetName] = []
   for (const slot of SLOT_MAP) {
     for (let i = 0; i < slot.padIds.length; i++) {
       const padIdx = slot.padIds[i]
-      const entry = pData[`pad_${padIdx}`]
+      const ckKey  = `pad_${padIdx}`
+      const entry  = pV1[ckKey] || pV2[ckKey]   // V1 wins
       if (entry) {
         output.presets[presetName].push({
           padIdx,
@@ -728,6 +734,7 @@ for (const presetName of Object.keys(FULL_PRESET_BLUEPRINTS)) {
           duration: entry.duration,
           category: slot.cat,
           score: entry.score ?? 0,
+          source: pV1[ckKey] ? 'v1' : 'v2',
         })
       }
     }
