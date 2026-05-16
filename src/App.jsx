@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClientInstance } from '@/lib/query-client';
 import Home from './pages/Home';
+import DAWPage from './pages/DAWPage';
 import PageNotFound from './pages/PageNotFound';
 
 function App() {
@@ -12,10 +13,8 @@ function App() {
         <Routes>
           {/* Main Entry Point */}
           <Route path="/" element={<Home />} />
-          
-          {/* Optional: If you want a specific 404 page, 
-            change path="*" to PageNotFound 
-          */}
+          {/* Alpha DAW fullscreen page */}
+          <Route path="/daw" element={<DAWPage />} />
           <Route path="*" element={<Home />} /> 
         </Routes>
         <Toaster />

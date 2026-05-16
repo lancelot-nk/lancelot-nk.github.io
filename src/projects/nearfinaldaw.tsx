@@ -148,7 +148,8 @@ const FX_TYPES = ['Reverb', 'Delay', 'Distortion', 'Filter', 'Flanger', 'Phaser'
 // === FREESOUND API CONFIGURATION ===
 const FREESOUND_API_TOKEN = 'd37DSk0vV5S7Cc2DwOaeiuMizrwneXAYz4FBQjqX'
 const FREESOUND_API_BASE = 'https://freesound.org/apiv2/search/text/'
-const CACHE_NAME = 'sequencer-preset-cache'
+const CACHE_NAME = 'sequencer-preset-cache-v2'
+const MANIFEST_PREFIX = 'preset-meta-v2-'
 
 // 32-Sound Structural Blueprint per Preset
 type SoundSlotConfig = {
@@ -481,7 +482,7 @@ async function generatePresetSoundKit(
 // Check if we have cached metadata for a preset
 function getCachedPresetMetadata(preset: PresetName): PresetSoundKit | null {
   try {
-    const key = `preset-meta-${preset}`
+    const key = `${MANIFEST_PREFIX}${preset}`
     const stored = localStorage.getItem(key)
     if (stored) {
       const parsed = JSON.parse(stored)
@@ -503,7 +504,7 @@ function getCachedPresetMetadata(preset: PresetName): PresetSoundKit | null {
 // Save preset metadata to localStorage (audio buffers loaded separately via Cache API)
 function savePresetMetadata(kit: PresetSoundKit): void {
   try {
-    const key = `preset-meta-${kit.preset}`
+    const key = `${MANIFEST_PREFIX}${kit.preset}`
     const serializable = {
       preset: kit.preset,
       samples: Object.fromEntries(
@@ -520,7 +521,7 @@ function savePresetMetadata(kit: PresetSoundKit): void {
 // Wipe a preset's manifest + cached audio so the next load re-rolls fresh sounds.
 async function clearPresetCache(preset: PresetName): Promise<void> {
   try {
-    localStorage.removeItem(`preset-meta-${preset}`)
+    localStorage.removeItem(`${MANIFEST_PREFIX}${preset}`)
     // Optional: also evict the cached MP3 blobs so the new kit can't reuse them.
     if (typeof caches !== 'undefined') {
       const cache = await caches.open(CACHE_NAME)
@@ -1887,6 +1888,8 @@ export default function AlphaDAW() {
   const isArrangementPlayingRef = useRef(isArrangementPlaying)
   const totalBarsRef = useRef(totalBars)
   const padTimingModeRef = useRef(padTimingMode)
+  const perPadEffectsRef = useRef(perPadEffects)
+  const effectScopesRef = useRef(effectScopes)
   // UI Playhead State
   const [uiStep, setUiStep] = useState(0)
   const [uiBeat, setUiBeat] = useState(0)
@@ -1939,6 +1942,8 @@ export default function AlphaDAW() {
   useEffect(() => {
     padTimingModeRef.current = padTimingMode
   }, [padTimingMode])
+  useEffect(() => { perPadEffectsRef.current = perPadEffects }, [perPadEffects])
+  useEffect(() => { effectScopesRef.current = effectScopes }, [effectScopes])
   useEffect(() => {
     try { localStorage.setItem('daw-pad-timing-mode', JSON.stringify(padTimingMode)) } catch {}
   }, [padTimingMode])
@@ -2156,9 +2161,14 @@ export default function AlphaDAW() {
               }
             }
             if (m.darkness > 0 && smod) smod.filter *= 1 - m.darkness * 0.7
+            // Merge effective FX: base padSettings.fx + per-pad CURRENT scope + WHOLE scope
+            const padFxBase: string[] = pSettings?.fx ?? []
+            const padFxCurrent = Array.from(perPadEffectsRef.current[sound.id] ?? [])
+            const wholeFx = EFFECT_LIST.filter(e => effectScopesRef.current[e] === 'whole')
+            const effectiveFx = [...new Set([...padFxBase, ...padFxCurrent, ...wholeFx])]
             const adjusted: PadSettings = m.width > 0
-              ? { ...pSettings, pan: Math.max(-1, Math.min(1, (pSettings?.pan ?? 0) + (Math.random() - 0.5) * m.width * 2)) }
-              : pSettings
+              ? { ...pSettings, fx: effectiveFx, pan: Math.max(-1, Math.min(1, (pSettings?.pan ?? 0) + (Math.random() - 0.5) * m.width * 2)) }
+              : { ...pSettings, fx: effectiveFx }
             // Custom sample mapping (highest priority)
             const custom = customMapRef.current[sound.id]
             if (custom) {

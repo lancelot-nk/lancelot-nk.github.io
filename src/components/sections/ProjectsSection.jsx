@@ -376,7 +376,7 @@ export const PROJECTS = [
     title: 'Alpha DAW — Browser-Native Sequencer',
     desc: '32-pad step sequencer with live Freesound sample packs, real-time DSP (reverb, delay, distortion, filter, chorus, bitcrush), ADSR envelope editor, chaos engine, composition timeline, BPM-synced recording, and 27 genre presets. Sounds are cached per device via Cache API + localStorage.',
     tech: ['React', 'TypeScript', 'Web Audio API', 'Freesound API', 'framer-motion', 'DSP', 'Step Sequencer'],
-    link: '/alpha_daw.jsx',
+    link: '/daw',
     img: imgDAW,
     type: 'jsx',
     component: LazyDAW,
