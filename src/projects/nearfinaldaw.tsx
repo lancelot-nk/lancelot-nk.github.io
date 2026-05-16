@@ -2186,6 +2186,17 @@ export default function AlphaDAW() {
   const [freesoundProgress, setFreesoundProgress] = useState({ loaded: 0, total: 32 })
   const [loadedPresets, setLoadedPresets] = useState<Set<PresetName>>(new Set())
   const [freesoundSamples, setFreesoundSamples] = useState<Map<number, FreesoundSample>>(new Map())
+  // Pre-vetted manifest from /daw-presets.json — loaded once on mount
+  type ManifestPad = { padIdx: number; id: number; name: string; previewUrl: string; duration: number; category: string; score: number }
+  const [presetManifest, setPresetManifest] = useState<Record<string, ManifestPad[]> | null>(null)
+  // Track which presets have been rerolled this session (session-only, reset on page reload)
+  const rerolledPresetsRef = useRef<Set<PresetName>>(new Set())
+  useEffect(() => {
+    fetch('/daw-presets.json')
+      .then(r => r.ok ? r.json() : null)
+      .then(data => { if (data?.presets) setPresetManifest(data.presets) })
+      .catch(() => { /* manifest unavailable, use query system */ })
+  }, [])
   // === Rate Limit Cooldown (Freesound 60 req/min protection) ===
   const COOLDOWN_MS = 60_000
   const LAST_FETCH_KEY = 'freesound-last-fetch-ts'
@@ -2501,17 +2512,41 @@ export default function AlphaDAW() {
       
       setFreesoundLoading(true)
       setFreesoundProgress({ loaded: 0, total: 32 })
-      
+
       try {
-        // Check localStorage for cached metadata
-        const cachedMeta = getCachedPresetMetadata(preset)
-        
-        if (cachedMeta) {
-          // Reload audio buffers from Cache API
+        const isRerolled = rerolledPresetsRef.current.has(preset)
+        const manifestPads = presetManifest?.[preset]
+        const useManifest = !isRerolled && manifestPads && manifestPads.length >= 28
+
+        if (useManifest) {
+          // ── MANIFEST PATH: use pre-vetted sound IDs ──
           const samples = new Map<number, FreesoundSample>()
           const buffers = new Map<number, AudioBuffer>()
           let loaded = 0
-          
+          await Promise.all(manifestPads.map(async (entry) => {
+            if (entry.previewUrl) {
+              try {
+                const buf = await loadAndCacheAudio(entry.previewUrl, engine.ctx!)
+                if (buf) {
+                  const refined = await refineAudioBuffer(buf, engine.ctx!)
+                  const sample: FreesoundSample = { id: entry.id, name: entry.name, previewUrl: entry.previewUrl, audioBuffer: refined }
+                  samples.set(entry.padIdx, sample)
+                  buffers.set(entry.padIdx, refined)
+                }
+              } catch (e) { console.warn('[manifest] pad', entry.padIdx, e) }
+            }
+            loaded++
+            setFreesoundProgress({ loaded, total: 32 })
+          }))
+          engine.setPresetBuffers(preset, buffers)
+          setFreesoundSamples(samples)
+          setLoadedPresets(prev => new Set(prev).add(preset))
+        } else if (getCachedPresetMetadata(preset)) {
+          // ── CACHE PATH: restore from localStorage + CacheStorage ──
+          const cachedMeta = getCachedPresetMetadata(preset)!
+          const samples = new Map<number, FreesoundSample>()
+          const buffers = new Map<number, AudioBuffer>()
+          let loaded = 0
           await Promise.all(Array.from(cachedMeta.samples.entries()).map(async ([padIdx, sample]) => {
             if (sample.previewUrl) {
               const buf = await loadAndCacheAudio(sample.previewUrl, engine.ctx!)
@@ -2524,12 +2559,11 @@ export default function AlphaDAW() {
             loaded++
             setFreesoundProgress({ loaded, total: 32 })
           }))
-          
           engine.setPresetBuffers(preset, buffers)
           setFreesoundSamples(samples)
           setLoadedPresets(prev => new Set(prev).add(preset))
         } else {
-          // Generate new sound kit from Freesound API
+          // ── QUERY PATH: fetch from Freesound API (reroll or no manifest/cache) ──
           if (!checkCooldown()) {
             setFreesoundLoading(false)
             return
@@ -2540,19 +2574,12 @@ export default function AlphaDAW() {
             engine.ctx!,
             (loaded, total) => setFreesoundProgress({ loaded, total })
           )
-          
-          // Store buffers in engine
           const buffers = new Map<number, AudioBuffer>()
           kit.samples.forEach((sample, padIdx) => {
-            if (sample.audioBuffer) {
-              buffers.set(padIdx, sample.audioBuffer)
-            }
+            if (sample.audioBuffer) buffers.set(padIdx, sample.audioBuffer)
           })
           engine.setPresetBuffers(preset, buffers)
-          
-          // Save metadata to localStorage
           savePresetMetadata(kit)
-          
           setFreesoundSamples(kit.samples)
           setLoadedPresets(prev => new Set(prev).add(preset))
         }
@@ -2564,7 +2591,7 @@ export default function AlphaDAW() {
     }
     
     loadPreset()
-  }, [preset, loadedPresets])
+  }, [preset, loadedPresets, presetManifest])
   // Audio Scheduler Loop
   useEffect(() => {
     let timerID: number
@@ -3428,6 +3455,17 @@ export default function AlphaDAW() {
         {/* Random Skim */}
         <button onClick={randomSkim} className="flex items-center gap-1 px-2 py-1.5 rounded-lg bg-gradient-to-r from-fuchsia-700 to-indigo-700 text-white hover:opacity-90">
           <Wand2 size={14} /> Random Skim
+        </button>
+        {/* Reroll Sounds — reload preset sounds from Freesound API (query system, full duration) */}
+        <button
+          onClick={() => {
+            rerolledPresetsRef.current.add(preset)
+            setLoadedPresets(prev => { const n = new Set(prev); n.delete(preset); return n })
+          }}
+          title="Fetch new sounds for this preset using the query system (ignores pre-vetted defaults)"
+          className="flex items-center gap-1 px-2 py-1.5 rounded-lg bg-gradient-to-r from-violet-700 to-pink-700 text-white hover:opacity-90"
+        >
+          <Wand2 size={14} /> Reroll Sounds
         </button>
         {/* Snapshots */}
         <button onClick={saveSnapshot} className="flex items-center gap-1 px-2 py-1.5 rounded-lg bg-slate-950 border border-slate-800 text-slate-300 hover:text-white">

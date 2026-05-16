@@ -1,0 +1,381 @@
+{
+  "version": 3,
+  "generated": "2026-05-16T17:01:50.078Z",
+  "note": "Pre-vetted Freesound IDs for the Alpha DAW. Reroll in the DAW to use random query system.",
+  "presets": {
+    "Dubstep Club": [
+      {
+        "padIdx": 1,
+        "id": 652579,
+        "name": "Dark Reece Drone 2",
+        "previewUrl": "https://cdn.freesound.org/previews/652/652579_12396721-hq.mp3",
+        "duration": 2.65723,
+        "category": "long",
+        "score": 20
+      },
+      {
+        "padIdx": 2,
+        "id": 110523,
+        "name": "Nandoo Messany - Space Poch.wav",
+        "previewUrl": "https://cdn.freesound.org/previews/110/110523_1293335-hq.mp3",
+        "duration": 3.43304,
+        "category": "long",
+        "score": 77.33333333333333
+      },
+      {
+        "padIdx": 3,
+        "id": 539125,
+        "name": "Wobblelooper.wav",
+        "previewUrl": "https://cdn.freesound.org/previews/539/539125_2019171-hq.mp3",
+        "duration": 1.65517,
+        "category": "medium",
+        "score": 50
+      },
+      {
+        "padIdx": 4,
+        "id": 371757,
+        "name": "da dhumm da.mp3",
+        "previewUrl": "https://cdn.freesound.org/previews/371/371757_5611089-hq.mp3",
+        "duration": 1.89494,
+        "category": "medium",
+        "score": 38
+      },
+      {
+        "padIdx": 5,
+        "id": 38601,
+        "name": "estratab1.wav",
+        "previewUrl": "https://cdn.freesound.org/previews/38/38601_395016-hq.mp3",
+        "duration": 1.92878,
+        "category": "medium",
+        "score": 47.4
+      },
+      {
+        "padIdx": 12,
+        "id": 578222,
+        "name": "Herald Goblin.mp3",
+        "previewUrl": "https://cdn.freesound.org/previews/578/578222_7123687-hq.mp3",
+        "duration": 1.0329,
+        "category": "instrument",
+        "score": 25
+      },
+      {
+        "padIdx": 14,
+        "id": 677224,
+        "name": "ReFX Nexus 4 Bullet Time Pluck Preset (One-Shot)",
+        "previewUrl": "https://cdn.freesound.org/previews/677/677224_10403690-hq.mp3",
+        "duration": 0.5,
+        "category": "instrument",
+        "score": 49
+      },
+      {
+        "padIdx": 15,
+        "id": 785951,
+        "name": "Electric Guitar Scrape Pick Up",
+        "previewUrl": "https://cdn.freesound.org/previews/785/785951_10643461-hq.mp3",
+        "duration": 1.10933,
+        "category": "instrument",
+        "score": 46.8
+      }
+    ],
+    "Trap Soul": [
+      {
+        "padIdx": 13,
+        "id": 786341,
+        "name": "Evil 808 (5)",
+        "previewUrl": "https://cdn.freesound.org/previews/786/786341_15762055-hq.mp3",
+        "duration": 1.84351,
+        "category": "instrument",
+        "score": 30
+      }
+    ],
+    "House Pulse": [
+      {
+        "padIdx": 4,
+        "id": 786753,
+        "name": "Beat Loop 123.wav",
+        "previewUrl": "https://cdn.freesound.org/previews/786/786753_2520418-hq.mp3",
+        "duration": 2,
+        "category": "medium",
+        "score": 30
+      },
+      {
+        "padIdx": 31,
+        "id": 752962,
+        "name": "Alphabet Junkyard - 95 BPM - D Major - Glitch Vocal 4.flac",
+        "previewUrl": "https://cdn.freesound.org/previews/752/752962_8462944-hq.mp3",
+        "duration": 2.52633,
+        "category": "vocal",
+        "score": 50
+      }
+    ],
+    "Lo-Fi Tape": [
+      {
+        "padIdx": 7,
+        "id": 531375,
+        "name": "SFX (6).wav",
+        "previewUrl": "https://cdn.freesound.org/previews/531/531375_9121616-hq.mp3",
+        "duration": 0.747551,
+        "category": "short",
+        "score": 5
+      }
+    ],
+    "Techno": [
+      {
+        "padIdx": 4,
+        "id": 517198,
+        "name": "Loop _ MS Acid _ A _ 127.wav",
+        "previewUrl": "https://cdn.freesound.org/previews/517/517198_11357619-hq.mp3",
+        "duration": 1.99717,
+        "category": "medium",
+        "score": 20
+      },
+      {
+        "padIdx": 23,
+        "id": 32052,
+        "name": "HM Loop 1.wav",
+        "previewUrl": "https://cdn.freesound.org/previews/32/32052_199517-hq.mp3",
+        "duration": 1.88819,
+        "category": "bass",
+        "score": 60
+      }
+    ],
+    "Drum&Bass": [
+      {
+        "padIdx": 3,
+        "id": 323270,
+        "name": "eardigi_drums_18",
+        "previewUrl": "https://cdn.freesound.org/previews/323/323270_5512320-hq.mp3",
+        "duration": 1.74644,
+        "category": "medium",
+        "score": 50
+      },
+      {
+        "padIdx": 21,
+        "id": 26878,
+        "name": "Bass stab.wav",
+        "previewUrl": "https://cdn.freesound.org/previews/26/26878_113878-hq.mp3",
+        "duration": 0.524286,
+        "category": "kick",
+        "score": 6.962962962962962
+      },
+      {
+        "padIdx": 27,
+        "id": 816436,
+        "name": "Random Drums",
+        "previewUrl": "https://cdn.freesound.org/previews/816/816436_16183844-hq.mp3",
+        "duration": 2.82352,
+        "category": "fill",
+        "score": 103
+      }
+    ],
+    "Ambient": [
+      {
+        "padIdx": 2,
+        "id": 257064,
+        "name": "Artificial Simulated Space Sound 05",
+        "previewUrl": "https://cdn.freesound.org/previews/257/257064_4062622-hq.mp3",
+        "duration": 3.566,
+        "category": "long",
+        "score": 100
+      }
+    ],
+    "Industrial": [
+      {
+        "padIdx": 14,
+        "id": 337868,
+        "name": "small-metal-hit-07.wav",
+        "previewUrl": "https://cdn.freesound.org/previews/337/337868_4067257-hq.mp3",
+        "duration": 1.2039,
+        "category": "instrument",
+        "score": 28
+      },
+      {
+        "padIdx": 15,
+        "id": 475793,
+        "name": "Pearl SS Medium [2]",
+        "previewUrl": "https://cdn.freesound.org/previews/475/475793_1954411-hq.mp3",
+        "duration": 2.00156,
+        "category": "instrument",
+        "score": -10
+      },
+      {
+        "padIdx": 17,
+        "id": 625937,
+        "name": "HyperCompV1_snare016.wav",
+        "previewUrl": "https://cdn.freesound.org/previews/625/625937_13850632-hq.mp3",
+        "duration": 0.923084,
+        "category": "snare",
+        "score": 58
+      },
+      {
+        "padIdx": 18,
+        "id": 387672,
+        "name": "Metal Bucket Percussion",
+        "previewUrl": "https://cdn.freesound.org/previews/387/387672_4062622-hq.mp3",
+        "duration": 1.259,
+        "category": "drum",
+        "score": 62
+      },
+      {
+        "padIdx": 21,
+        "id": 431633,
+        "name": "DW Kick [3]",
+        "previewUrl": "https://cdn.freesound.org/previews/431/431633_1954411-hq.mp3",
+        "duration": 0.844785,
+        "category": "kick",
+        "score": -61.33333333333333
+      },
+      {
+        "padIdx": 22,
+        "id": 39291,
+        "name": "dissedbass1a.wav",
+        "previewUrl": "https://cdn.freesound.org/previews/39/39291_75486-hq.mp3",
+        "duration": 0.674671,
+        "category": "bass",
+        "score": 58
+      },
+      {
+        "padIdx": 26,
+        "id": 800141,
+        "name": "glass beaker small filling with water foley-002.wav",
+        "previewUrl": "https://cdn.freesound.org/previews/800/800141_2520418-hq.mp3",
+        "duration": 2.74907,
+        "category": "fill",
+        "score": 50
+      },
+      {
+        "padIdx": 28,
+        "id": 21353,
+        "name": "QuintoOL1.aif",
+        "previewUrl": "https://cdn.freesound.org/previews/21/21353_36084-hq.mp3",
+        "duration": 1.14825,
+        "category": "percussion",
+        "score": 69
+      },
+      {
+        "padIdx": 29,
+        "id": 136877,
+        "name": "noise rhythm001",
+        "previewUrl": "https://cdn.freesound.org/previews/136/136877_2482480-hq.mp3",
+        "duration": 3.99882,
+        "category": "percussion",
+        "score": 39
+      }
+    ],
+    "Latin": [],
+    "Jazz": [
+      {
+        "padIdx": 16,
+        "id": 459203,
+        "name": "hat39A-8.flac",
+        "previewUrl": "https://cdn.freesound.org/previews/459/459203_2127539-hq.mp3",
+        "duration": 0.496042,
+        "category": "snare",
+        "score": 3
+      },
+      {
+        "padIdx": 25,
+        "id": 459184,
+        "name": "cymbals75.flac",
+        "previewUrl": "https://cdn.freesound.org/previews/459/459184_2127539-hq.mp3",
+        "duration": 0.455708,
+        "category": "hihat",
+        "score": -120
+      }
+    ],
+    "Funk": [
+      {
+        "padIdx": 15,
+        "id": 799091,
+        "name": "bass slap fill - by_CVLTIV8R.wav",
+        "previewUrl": "https://cdn.freesound.org/previews/799/799091_2520418-hq.mp3",
+        "duration": 1.9361,
+        "category": "instrument",
+        "score": 51
+      }
+    ],
+    "K-Pop": [],
+    "Phonk": [],
+    "Hardstyle": [
+      {
+        "padIdx": 15,
+        "id": 564682,
+        "name": "SynthSnare.wav",
+        "previewUrl": "https://cdn.freesound.org/previews/564/564682_11046037-hq.mp3",
+        "duration": 2.09006,
+        "category": "instrument",
+        "score": 19
+      }
+    ],
+    "Cinematic": [],
+    "432Hz Heal": [],
+    "SoundFX Goofy": [
+      {
+        "padIdx": 30,
+        "id": 436157,
+        "name": "Nice Mouse Squirrel Cartoon",
+        "previewUrl": "https://cdn.freesound.org/previews/436/436157_1992856-hq.mp3",
+        "duration": 0.592109,
+        "category": "vocal",
+        "score": 86.4
+      }
+    ],
+    "1930s Vintage": [
+      {
+        "padIdx": 21,
+        "id": 547153,
+        "name": "Kick_Punchy4_10.1.14",
+        "previewUrl": "https://cdn.freesound.org/previews/547/547153_1973065-hq.mp3",
+        "duration": 0.348844,
+        "category": "kick",
+        "score": 10
+      },
+      {
+        "padIdx": 30,
+        "id": 801306,
+        "name": "Confused - Thats odd",
+        "previewUrl": "https://cdn.freesound.org/previews/801/801306_5287430-hq.mp3",
+        "duration": 1.18601,
+        "category": "vocal",
+        "score": 95
+      }
+    ],
+    "Nature Sounds": [
+      {
+        "padIdx": 1,
+        "id": 258170,
+        "name": "PAUL_Oceane_2014_nature.wav",
+        "previewUrl": "https://cdn.freesound.org/previews/258/258170_907124-hq.mp3",
+        "duration": 2.87823,
+        "category": "long",
+        "score": 40
+      },
+      {
+        "padIdx": 2,
+        "id": 267245,
+        "name": "wave hydrophone 001.wav",
+        "previewUrl": "https://cdn.freesound.org/previews/267/267245_1648170-hq.mp3",
+        "duration": 3.15792,
+        "category": "long",
+        "score": 39.42857142857143
+      },
+      {
+        "padIdx": 29,
+        "id": 21362,
+        "name": "QuintoRO1.aif",
+        "previewUrl": "https://cdn.freesound.org/previews/21/21362_36084-hq.mp3",
+        "duration": 1.05867,
+        "category": "percussion",
+        "score": 70
+      }
+    ],
+    "Chiptune 8-bit": [],
+    "Vaporwave": [],
+    "Tribal Drums": [],
+    "Bossa Nova": [],
+    "Synthwave 80s": [],
+    "Grime UK": [],
+    "Reggaeton": [],
+    "Math Rock": []
+  }
+}
