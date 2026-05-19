@@ -143,7 +143,44 @@ export default function NYCEventsOutreachSystem() {
     }}>
       <style>{`
 @media (max-width: 640px) {
-  .ec-main { padding: 20px 16px !important; }
+  /* Hex nav: reposition from right-fixed to top horizontal strip */
+  .hex-nav {
+    position: relative !important;
+    right: auto !important; top: auto !important;
+    transform: none !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    padding: 8px 4px !important;
+    gap: 4px !important;
+    background: rgba(245,241,232,0.95);
+    border-bottom: 1px solid #d9d2c4;
+    z-index: 100;
+  }
+  .hex-item {
+    width: 52px !important;
+    height: 60px !important;
+  }
+  .hex-icon { font-size: 14px !important; margin-bottom: 2px !important; }
+  .hex-label { font-size: 6px !important; }
+
+  /* Main content: remove right padding reserved for hex nav */
+  .ec-main {
+    padding: 20px 16px !important;
+    padding-right: 16px !important;
+  }
+
+  /* Header: scale down */
+  .ec-main header h1.serif-header { font-size: 26px !important; }
+  .ec-main header p { font-size: 12px !important; }
+  .ec-main header > div { flex-direction: column !important; align-items: flex-start !important; gap: 12px !important; }
+  .ec-main header > div > div:last-child { flex-direction: row !important; flex-wrap: wrap !important; align-items: center !important; gap: 8px !important; }
+
+  /* Grids: single column on mobile */
+  .ec-main .data-card { padding: 14px !important; }
+  .ec-main .serif-header { font-size: 18px !important; }
+
+  /* Footer */
   .ec-footer { padding: 16px !important; flex-direction: column !important; gap: 8px; }
 }
 `}</style>

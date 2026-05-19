@@ -283,7 +283,16 @@ export default function DCOilTrainSafetyNewsletter() {
     <style>{`
       @media (max-width: 640px) {
         .oiltrain-report-root section { padding-top: 40px !important; padding-bottom: 40px !important; padding-left: 16px !important; padding-right: 16px !important; min-height: unset !important; }
-        .oiltrain-report-root section.pt-24 { padding-top: 60px !important; }
+        .oiltrain-report-root section.pt-24 { padding-top: 80px !important; }
+        /* Header — wrap and shrink on narrow screens */
+        .oiltrain-header-inner { flex-wrap: wrap !important; gap: 4px 12px !important; padding-top: 6px !important; padding-bottom: 6px !important; }
+        .oiltrain-header-stats { flex-wrap: wrap !important; gap: 6px 10px !important; }
+        .oiltrain-header-divider { display: none !important; }
+        .oiltrain-header-layer { display: none !important; }
+        .oiltrain-report-root header .text-xs { font-size: 10px !important; }
+        .oiltrain-report-root header .text-\[10px\] { font-size: 9px !important; }
+        /* First section — extra top space for wrapped header */
+        .oiltrain-report-root > div > section:first-of-type { padding-top: 88px !important; }
       }
     `}</style>
     <div ref={containerRef} className="oiltrain-report-root min-h-screen bg-white">
@@ -297,10 +306,10 @@ export default function DCOilTrainSafetyNewsletter() {
 
       {/* Fixed Header Bar */}
       <header className="fixed top-1 left-0 right-0 z-40 bg-white/95 border-b border-neutral-200 backdrop-blur-sm">
-        <div className="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between">
+        <div className="oiltrain-header-inner max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-neutral-900 rounded flex items-center justify-center">
+              <div className="w-8 h-8 bg-neutral-900 rounded flex items-center justify-center shrink-0">
                 <span className="text-white text-xs font-bold">FRA</span>
               </div>
               <div>
@@ -310,20 +319,20 @@ export default function DCOilTrainSafetyNewsletter() {
             </div>
           </div>
           
-          <div className="flex items-center gap-6 text-xs">
+          <div className="oiltrain-header-stats flex items-center gap-6 text-xs">
             <div className="flex items-center gap-2">
               <span className="text-neutral-500">CORRIDOR RISK:</span>
               <span className={`font-mono font-semibold ${aggregateRisk > 0.25 ? "text-red-600" : aggregateRisk > 0.15 ? "text-amber-600" : "text-emerald-600"}`}>
                 {(aggregateRisk * 100).toFixed(1)}%
               </span>
             </div>
-            <div className="h-4 w-px bg-neutral-300" />
+            <div className="oiltrain-header-divider h-4 w-px bg-neutral-300" />
             <div className="flex items-center gap-2">
               <span className="text-neutral-500">ACTIVE TRAINS:</span>
               <span className="font-mono font-semibold text-neutral-900">{trains.length}</span>
             </div>
-            <div className="h-4 w-px bg-neutral-300" />
-            <div className="flex items-center gap-2">
+            <div className="oiltrain-header-divider h-4 w-px bg-neutral-300" />
+            <div className="oiltrain-header-layer flex items-center gap-2">
               <span className="text-neutral-500">LAYER:</span>
               <span className="font-mono font-semibold text-neutral-900">{activeLayer}/7</span>
             </div>
@@ -391,68 +400,146 @@ export default function DCOilTrainSafetyNewsletter() {
             </p>
           </div>
 
-          {/* Fixed DC Rail Map Visualization */}
-          <div className="relative bg-neutral-100 border border-neutral-200 rounded-lg overflow-hidden" style={{ height: "500px" }}>
-            {/* Satellite-style base layer */}
-            <div className="absolute inset-0 bg-gradient-to-br from-neutral-200 via-neutral-150 to-neutral-200 opacity-50" />
-            
-            {/* Grid overlay */}
-            <div className="absolute inset-0 opacity-20">
-              {[...Array(10)].map((_, i) => (
-                <div key={`h-${i}`} className="absolute w-full h-px bg-neutral-400" style={{ top: `${i * 10}%` }} />
+          {/* Geographic DC Rail Map — Anacostia corridor, lat 38.9072 / lon -77.0369 */}
+          <div className="relative border border-neutral-200 rounded-lg overflow-hidden" style={{ height: "500px", background: "#e0d8c0" }}>
+            {/* SVG geographic base layer — viewBox anchored to real DC bounds */}
+            {/* Bounds: lat 38.83–38.97, lon -77.13 to -76.92 */}
+            {/* x(lon) = (lon+77.13)/0.21 * 800 ; y(lat) = (38.97-lat)/0.14 * 500 */}
+            <svg className="absolute inset-0 w-full h-full" viewBox="0 0 800 500" preserveAspectRatio="xMidYMid meet">
+              {/* Land base */}
+              <rect width="800" height="500" fill="#d4ccb4" />
+              {/* DC interior land — lighter tone */}
+              <polygon
+                points="388,8 618,138 628,492 402,492 148,338 138,108"
+                fill="#e2dac2"
+              />
+              {/* Potomac River body — north bank to south edge */}
+              <path
+                d="M 0,298 C 48,290 96,286 138,290 C 172,292 204,278 236,260 C 260,274 286,288 308,320 C 328,350 348,374 362,394 C 380,424 414,434 462,446 C 510,458 578,468 680,478 L 800,484 L 800,500 L 0,500 Z"
+                fill="#5b9fcc"
+                opacity="0.70"
+              />
+              {/* Tidal Basin */}
+              <ellipse cx="340" cy="336" rx="26" ry="15" fill="#5b9fcc" opacity="0.62" />
+              {/* Anacostia River — flows SW from Bladensburg (NE corner) to Potomac confluence */}
+              <path
+                d="M 716,100 C 692,130 666,164 642,194 C 620,220 600,242 576,266 C 550,292 526,318 504,342 C 484,362 464,378 446,394 C 436,402 426,408 418,416"
+                stroke="#5b9fcc"
+                strokeWidth="15"
+                fill="none"
+                strokeLinecap="round"
+                opacity="0.72"
+              />
+              <path
+                d="M 716,100 C 692,130 666,164 642,194 C 620,220 600,242 576,266 C 550,292 526,318 504,342 C 484,362 464,378 446,394 C 436,402 426,408 418,416"
+                stroke="#3a80b4"
+                strokeWidth="4"
+                fill="none"
+                strokeLinecap="round"
+                opacity="0.45"
+              />
+              {/* National Mall — green band */}
+              <rect x="364" y="268" width="94" height="22" rx="2" fill="#7ab368" opacity="0.62" />
+              {/* Faint geographic grid */}
+              {[1,2,3,4,5,6,7].map(i => (
+                <line key={`hg-${i}`} x1="0" y1={i*62} x2="800" y2={i*62} stroke="rgba(80,60,20,0.07)" strokeWidth="0.5" />
               ))}
-              {[...Array(10)].map((_, i) => (
-                <div key={`v-${i}`} className="absolute h-full w-px bg-neutral-400" style={{ left: `${i * 10}%` }} />
+              {[1,2,3,4,5,6,7].map(i => (
+                <line key={`vg-${i}`} x1={i*100} y1="0" x2={i*100} y2="500" stroke="rgba(80,60,20,0.07)" strokeWidth="0.5" />
               ))}
-            </div>
-
-            {/* Rail corridor lines */}
-            <svg className="absolute inset-0 w-full h-full">
-              {/* Main CSX line */}
-              <path 
-                d="M 50 480 Q 150 400 250 350 Q 350 280 450 250 Q 550 200 650 150" 
-                stroke="#374151" 
-                strokeWidth="4" 
+              {/* CSX Main Freight Line — Virginia Ave Tunnel → Union Station → Rhode Island Ave → Benning Rd */}
+              <path
+                d="M 376,152 C 398,174 418,206 438,234 C 452,254 464,263 472,263 C 480,263 498,248 518,223 C 538,200 560,190 600,202 C 634,213 664,226 714,244"
+                stroke="#1f2937"
+                strokeWidth="3.5"
                 fill="none"
                 strokeDasharray={activeLayer >= 2 ? "0" : "8 4"}
+                opacity={activeLayer >= 2 ? 0.95 : 0.3}
                 className="transition-all duration-1000"
-                opacity={activeLayer >= 2 ? 1 : 0.3}
               />
-              {/* Norfolk Southern branch */}
-              <path 
-                d="M 250 350 Q 300 380 350 420 Q 400 450 500 470" 
-                stroke="#6B7280" 
-                strokeWidth="3" 
+              {/* Rail tie dashes */}
+              <path
+                d="M 376,152 C 398,174 418,206 438,234 C 452,254 464,263 472,263 C 480,263 498,248 518,223 C 538,200 560,190 600,202 C 634,213 664,226 714,244"
+                stroke="#fff"
+                strokeWidth="1.5"
                 fill="none"
-                opacity={activeLayer >= 2 ? 0.8 : 0.2}
+                strokeDasharray="5 7"
+                opacity={activeLayer >= 2 ? 0.42 : 0}
+                className="transition-all duration-1000"
               />
-              {/* Risk gradient overlays */}
+              {/* Virginia Ave Tunnel approach from SW */}
+              <path
+                d="M 370,376 C 390,352 408,334 422,318 C 436,302 450,283 462,265"
+                stroke="#4b5563"
+                strokeWidth="2"
+                fill="none"
+                opacity={activeLayer >= 2 ? 0.72 : 0.2}
+              />
+              {/* Risk gradient overlays at geographic segment positions */}
               {RAIL_SEGMENTS.map((seg, idx) => {
                 const risk = calculateHazmatRiskPropagation(seg, "crude_oil", weather)
-                const x = 100 + idx * 90
-                const y = 400 - idx * 50
+                const geoPos = [
+                  { x: 418, y: 326 }, // SEG-01 Virginia Ave Tunnel Approach
+                  { x: 442, y: 382 }, // SEG-02 Anacostia River Crossing
+                  { x: 472, y: 263 }, // SEG-03 Union Station Rail Yard
+                  { x: 518, y: 223 }, // SEG-04 Rhode Island Ave Corridor
+                  { x: 618, y: 214 }, // SEG-05 Benning Rd Industrial
+                  { x: 386, y: 164 }, // SEG-06 CSX Metropolitan Branch
+                ]
+                const pos = geoPos[idx] ?? { x: 100 + idx * 90, y: 400 - idx * 50 }
                 return (
                   <circle
                     key={seg.id}
-                    cx={x}
-                    cy={y}
+                    cx={pos.x}
+                    cy={pos.y}
                     r={activeLayer >= 2 ? 30 + risk * 40 : 10}
-                    fill={risk > 0.25 ? "rgba(220, 38, 38, 0.2)" : risk > 0.15 ? "rgba(245, 158, 11, 0.2)" : "rgba(16, 185, 129, 0.15)"}
+                    fill={risk > 0.25 ? "rgba(220, 38, 38, 0.22)" : risk > 0.15 ? "rgba(245, 158, 11, 0.22)" : "rgba(16, 185, 129, 0.18)"}
                     className="transition-all duration-1000"
                   />
                 )
               })}
+              {/* Landmark labels */}
+              <circle cx="464" cy="282" r="4.5" fill="#dc2626" />
+              <text x="472" y="286" fontSize="9.5" fill="#111" fontWeight="700">CAPITOL</text>
+              <circle cx="472" cy="263" r="3.5" fill="#374151" />
+              <text x="480" y="267" fontSize="9" fill="#111" fontWeight="600">UNION ST.</text>
+              <circle cx="476" cy="350" r="3.5" fill="#374151" />
+              <text x="484" y="354" fontSize="9" fill="#111" fontWeight="600">NAVY YARD</text>
+              <circle cx="552" cy="374" r="3.5" fill="#374151" />
+              <text x="560" y="378" fontSize="9" fill="#111" fontWeight="600">ANACOSTIA</text>
+              <text x="367" y="283" fontSize="8" fill="#3a6628" fontStyle="italic">Nat'l Mall</text>
+              <text x="174" y="246" fontSize="8" fill="#555" fontStyle="italic">Georgetown</text>
+              <text x="366" y="382" fontSize="8" fill="#3a80b4" fontStyle="italic">Anacostia R.</text>
+              <text x="612" y="128" fontSize="8" fill="#3a80b4" fontStyle="italic">Anacostia R.</text>
+              {/* Compass */}
+              <text x="758" y="33" fontSize="13" fill="#374151" fontWeight="700" textAnchor="middle">N</text>
+              <polygon points="758,14 754,38 758,35 762,38" fill="#374151" opacity="0.70" />
+              {/* Scale bar */}
+              <line x1="660" y1="478" x2="760" y2="478" stroke="#555" strokeWidth="1.5" />
+              <line x1="660" y1="473" x2="660" y2="483" stroke="#555" strokeWidth="1.5" />
+              <line x1="760" y1="473" x2="760" y2="483" stroke="#555" strokeWidth="1.5" />
+              <text x="710" y="494" fontSize="8" fill="#555" textAnchor="middle">~2 mi</text>
             </svg>
 
-            {/* Train position indicators */}
+            {/* Train position indicators — percentage-based along geographic rail path */}
             {trains.map(train => {
-              const x = 80 + (train.position / 100) * 500
-              const y = 420 - (train.position / 100) * 300
+              const progress = train.position / 100
+              // Piecewise-linear approximation of the SVG rail path (viewBox 800×500)
+              let svgX: number, svgY: number
+              if (progress <= 0.4) {
+                const t = progress / 0.4
+                svgX = 376 + t * (472 - 376)
+                svgY = 152 + t * (263 - 152)
+              } else {
+                const t = (progress - 0.4) / 0.6
+                svgX = 472 + t * (714 - 472)
+                svgY = 263 + t * (244 - 263)
+              }
               return (
                 <div
                   key={train.id}
                   className="absolute w-4 h-4 bg-amber-500 border-2 border-white rounded-full shadow-lg transition-all duration-1000"
-                  style={{ left: x, top: y, transform: "translate(-50%, -50%)" }}
+                  style={{ left: `${(svgX / 800) * 100}%`, top: `${(svgY / 500) * 100}%`, transform: "translate(-50%, -50%)" }}
                 >
                   <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-neutral-900 text-white text-[9px] px-1.5 py-0.5 rounded whitespace-nowrap">
                     {train.id}
@@ -492,8 +579,12 @@ export default function DCOilTrainSafetyNewsletter() {
               <div className="font-semibold text-neutral-700 mb-2">MAP LEGEND</div>
               <div className="space-y-1.5">
                 <div className="flex items-center gap-2">
-                  <div className="w-6 h-0.5 bg-neutral-700" />
+                  <div className="w-6 h-0.5 bg-neutral-800" />
                   <span className="text-neutral-600">CSX Freight Line</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-2 rounded" style={{ background: "rgba(91,159,204,0.70)" }} />
+                  <span className="text-neutral-600">Potomac / Anacostia</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-2.5 h-2.5 bg-amber-500 rounded-full" />

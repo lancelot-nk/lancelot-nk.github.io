@@ -1092,11 +1092,25 @@ export default function WAHMISBackendSystem() {
 @media (max-width: 640px) {
   .hsd-layout { flex-direction: column !important; }
   .hsd-sidebar { width: 100% !important; min-height: unset !important; max-height: 220px; overflow-y: auto; border-right: none !important; border-bottom: 1px solid #dbe5eb; }
+  .hsd-main { overflow-x: hidden !important; }
+  .hsd-header { flex-wrap: wrap !important; padding: 8px 12px !important; }
+  .hsd-header .text-2xl { font-size: 1rem !important; }
+  .hsd-header .h-12 { width: 36px !important; height: 36px !important; }
+  .hsd-tab-bar { overflow-x: auto !important; -webkit-overflow-scrolling: touch; flex-wrap: nowrap !important; }
+  .hsd-tab-bar button { white-space: nowrap; flex-shrink: 0; padding: 8px 12px !important; font-size: 11px !important; }
+  .grid.grid-cols-4 { grid-template-columns: repeat(2,1fr) !important; }
+  .grid.grid-cols-3 { grid-template-columns: repeat(2,1fr) !important; }
+  .grid.grid-cols-\\[1\\.1fr\\,0\\.9fr\\] { grid-template-columns: 1fr !important; }
+  .grid.grid-cols-2 { grid-template-columns: 1fr !important; }
+  .hsd-map { width: 100% !important; height: 200px !important; }
+  .text-4xl { font-size: 1.5rem !important; }
+  .text-3xl { font-size: 1.2rem !important; }
+  .p-5, .p-6 { padding: 0.75rem !important; }
 }
 `}</style>
       {/* HEADER */}
       <div className="sticky top-0 z-50 border-b border-[#dbe5eb] bg-white/95 backdrop-blur">
-        <div className="flex items-center justify-between px-6 py-4">
+        <div className="flex items-center justify-between px-6 py-4 hsd-header">
           <div className="flex items-center gap-4">
             <button className="rounded-xl border border-[#dbe5eb] bg-white p-2">
               <Menu size={20} />
@@ -1266,7 +1280,7 @@ export default function WAHMISBackendSystem() {
         </div>
 
         {/* CONTENT */}
-        <div className="flex-1 p-5">
+        <div className="flex-1 p-5 hsd-main">
           {activeSection === "Dashboard" &&
             renderDashboard()}
 

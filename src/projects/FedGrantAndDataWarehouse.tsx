@@ -1318,9 +1318,68 @@ export default function SentinelDashboard() {
     <>
     <style>{`
       @media (max-width: 640px) {
+        /* Prevent horizontal overflow */
         .fedgrant-root { overflow-x: hidden !important; }
-        .fedgrant-root .grid-cols-3, .fedgrant-root .grid-cols-4 { grid-template-columns: 1fr 1fr !important; }
-        .fedgrant-root .grid-cols-5, .fedgrant-root .grid-cols-6 { grid-template-columns: 1fr 1fr !important; }
+        .fedgrant-root main { overflow-x: hidden !important; width: 100% !important; }
+
+        /* Header: wrap flex, shrink text */
+        .fedgrant-root header { padding: 6px 10px !important; }
+        .fedgrant-root header .flex { flex-wrap: wrap !important; gap: 4px !important; }
+        .fedgrant-root header .flex-nowrap { flex-wrap: wrap !important; }
+        .fedgrant-root header .whitespace-nowrap { white-space: normal !important; }
+        .fedgrant-root header * { font-size: 0.65rem !important; }
+        .fedgrant-root header .text-xl,
+        .fedgrant-root header .text-lg { font-size: 0.8rem !important; }
+        .fedgrant-root header .w-10.h-10 { width: 1.75rem !important; height: 1.75rem !important; }
+        .fedgrant-root header .gap-8 { gap: 4px !important; }
+        .fedgrant-root header .gap-6 { gap: 4px !important; }
+        .fedgrant-root header .px-6 { padding-left: 8px !important; padding-right: 8px !important; }
+        .fedgrant-root header .py-3 { padding-top: 6px !important; padding-bottom: 6px !important; }
+
+        /* Grid fixes: collapse multi-column grids */
+        .fedgrant-root .grid-cols-2 { grid-template-columns: 1fr !important; }
+        .fedgrant-root .grid-cols-3,
+        .fedgrant-root .grid-cols-4 { grid-template-columns: 1fr 1fr !important; }
+        .fedgrant-root .grid-cols-5,
+        .fedgrant-root .grid-cols-6 { grid-template-columns: 1fr 1fr !important; }
+        .fedgrant-root .md\\:grid-cols-3,
+        .fedgrant-root .md\\:grid-cols-4 { grid-template-columns: 1fr 1fr !important; }
+
+        /* Tables: horizontally scrollable */
+        .fedgrant-root table { font-size: 0.65rem !important; min-width: 480px; }
+        .fedgrant-root .overflow-x-auto { overflow-x: auto !important; -webkit-overflow-scrolling: touch; }
+
+        /* Hub: stack absolute-positioned quadrant panels */
+        .fedgrant-root .relative.w-full.max-w-5xl { height: auto !important; min-height: unset !important; }
+        .fedgrant-root .h-\\[600px\\] { height: 0 !important; }
+        .fedgrant-root .absolute.top-0.left-0.w-\\[45\\%\\],
+        .fedgrant-root .absolute.top-0.right-0.w-\\[45\\%\\],
+        .fedgrant-root .absolute.bottom-0.left-0.w-\\[45\\%\\],
+        .fedgrant-root .absolute.bottom-0.right-0.w-\\[45\\%\\] {
+          position: relative !important;
+          width: 100% !important;
+          top: auto !important; left: auto !important;
+          right: auto !important; bottom: auto !important;
+          margin-bottom: 16px;
+        }
+        .fedgrant-root .absolute.left-1\\/2.top-1\\/2 {
+          position: relative !important;
+          transform: none !important;
+          margin: 0 auto 16px auto;
+          display: flex; justify-content: center;
+        }
+
+        /* Main content padding */
+        .fedgrant-root .p-6 { padding: 12px !important; }
+        .fedgrant-root .px-6 { padding-left: 12px !important; padding-right: 12px !important; }
+        .fedgrant-root .p-8 { padding: 12px !important; }
+
+        /* Cards full width */
+        .fedgrant-root .max-w-4xl { max-width: 100% !important; }
+        .fedgrant-root .max-w-5xl { max-width: 100% !important; }
+
+        /* Remove fixed widths in detail panel */
+        .fedgrant-root .fixed.inset-0 .max-w-4xl { width: 100% !important; margin: 0 8px !important; }
       }
     `}</style>
     <div className="fedgrant-root min-h-screen bg-gray-50">

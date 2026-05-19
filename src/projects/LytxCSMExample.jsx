@@ -547,15 +547,63 @@ export default function EnterprisePlatform() {
     <div>
     <style>{`
 @media (max-width: 640px) {
-  .lytx-root { height: auto !important; min-height: unset !important; overflow: visible !important; flex-direction: column !important; }
-  .lytx-root .w-\[220px\] { width: 100% !important; height: auto !important; max-height: 200px; overflow-y: auto; }
+  /* Root: keep row layout, remove fixed height */
+  .lytx-root { height: auto !important; min-height: 100vh !important; overflow: visible !important; flex-direction: row !important; }
+
+  /* Sidebar: narrow to 56px, icon-only */
+  .lytx-root .lytx-sidebar { width: 56px !important; min-width: 56px !important; max-width: 56px !important; overflow: hidden !important; flex-shrink: 0 !important; }
+  /* Hide text labels in sidebar */
+  .lytx-root .lytx-sidebar .text-base { display: none !important; }
+  .lytx-root .lytx-sidebar .text-\\[9px\\] { display: none !important; }
+  .lytx-root .lytx-sidebar .text-\\[13px\\] { display: none !important; }
+  .lytx-root .lytx-sidebar .text-sm { display: none !important; }
+  .lytx-root .lytx-sidebar .text-base.font-black { display: none !important; }
+  /* Compress sidebar padding */
+  .lytx-root .lytx-sidebar .p-4 { padding: 6px !important; }
+  .lytx-root .lytx-sidebar .p-3 { padding: 4px !important; }
+  .lytx-root .lytx-sidebar .p-2\\.5 { padding: 4px !important; }
+  .lytx-root .lytx-sidebar .gap-3 { gap: 4px !important; }
+  .lytx-root .lytx-sidebar .gap-2 { gap: 2px !important; }
+  /* Nav buttons: icon only */
+  .lytx-root .lytx-sidebar button { padding: 6px !important; justify-content: center !important; }
+  /* Metrics grid: hide on narrow sidebar */
+  .lytx-root .lytx-sidebar .grid-cols-2 { display: none !important; }
+  /* Footer: hide on narrow sidebar */
+  .lytx-root .lytx-sidebar .text-base.font-bold { display: none !important; }
+
+  /* Main area: take remaining space, allow overflow */
+  .lytx-root > div.flex-1 { flex: 1 !important; overflow: hidden !important; min-width: 0 !important; }
+  /* Scale down main content fonts ~15% */
+  .lytx-root > div.flex-1 { font-size: 0.85em !important; }
+  .lytx-root > div.flex-1 .text-2xl { font-size: 1.2rem !important; }
+  .lytx-root > div.flex-1 .text-xl { font-size: 1rem !important; }
+  .lytx-root > div.flex-1 .text-3xl { font-size: 1.4rem !important; }
+
+  /* Top bar: compress */
+  .lytx-root > div.flex-1 .h-\\[74px\\] { height: auto !important; padding: 8px 10px !important; flex-wrap: wrap !important; }
+  .lytx-root > div.flex-1 .h-\\[74px\\] .text-2xl { font-size: 0.95rem !important; }
+  .lytx-root > div.flex-1 .h-\\[74px\\] .flex.gap-3 { gap: 4px !important; flex-wrap: wrap !important; }
+  .lytx-root > div.flex-1 .h-\\[74px\\] .min-w-\\[150px\\] { min-width: 90px !important; padding: 4px 8px !important; }
+
+  /* Decision tree: cap max widths */
+  .lytx-root .max-w-\\[1050px\\] { max-width: 100% !important; }
+  .lytx-root .max-w-\\[980px\\] { max-width: 100% !important; }
+  .lytx-root .max-w-\\[700px\\] { max-width: 100% !important; }
+  .lytx-root .max-w-\\[1320px\\] { max-width: 100% !important; }
+  .lytx-root .max-w-\\[1500px\\] { max-width: 100% !important; }
+  .lytx-root .grid-cols-4 { grid-template-columns: 1fr 1fr !important; }
+  .lytx-root .grid-cols-3 { grid-template-columns: 1fr 1fr !important; }
+
+  /* Tables */
+  .lytx-root table { font-size: 0.7rem !important; }
+  .lytx-root .overflow-x-auto { overflow-x: auto !important; -webkit-overflow-scrolling: touch; }
 }
 `}</style>
     <div className="w-full bg-[#f3f5f7] text-[#1e293b] flex lytx-root" style={{height: "760px", minHeight: "600px", overflow: "hidden"}}>
 
       {/* SIDEBAR */}
 
-      <div className="w-[220px] bg-white border-r border-slate-200 flex flex-col z-10 shrink-0">
+    <div className="w-[220px] bg-white border-r border-slate-200 flex flex-col z-10 shrink-0 lytx-sidebar">
 
         <div className="p-4 border-b border-slate-200">
 

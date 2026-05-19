@@ -1085,10 +1085,29 @@ export default function NISTCyberSimulator() {
     <>
     <style>{`
       @media (max-width: 640px) {
-        .nist-old-root { overflow: visible !important; height: auto !important; }
+        .nist-old-root { overflow-x: hidden !important; height: auto !important; }
         .nist-old-root main { flex-direction: column !important; overflow: visible !important; height: auto !important; }
         .nist-old-root .flex.flex-1.overflow-hidden { flex-direction: column !important; overflow: visible !important; }
         .nist-old-root .w-80 { width: 100% !important; max-height: 220px; overflow-y: auto; }
+        .nist-old-root header { flex-wrap: wrap !important; height: auto !important; padding: 8px 12px !important; gap: 6px !important; }
+        .nist-old-root header .flex.items-center.gap-6 { gap: 8px !important; flex-wrap: wrap; }
+        .nist-old-root header .font-mono { font-size: 10px !important; }
+        .nist-old-root nav { height: auto !important; flex-wrap: nowrap !important; overflow-x: auto !important; -webkit-overflow-scrolling: touch; padding: 4px 8px !important; gap: 4px !important; }
+        .nist-old-root nav button { padding: 6px 10px !important; font-size: 10px !important; white-space: nowrap; flex-shrink: 0; }
+        .nist-old-root .h-16 { height: auto !important; flex-wrap: wrap !important; padding: 8px 12px !important; gap: 8px !important; }
+        .nist-old-root .h-16 .flex.items-center.gap-10 { gap: 12px !important; flex-wrap: wrap; }
+        .nist-old-root .h-16 .text-xl { font-size: 14px !important; }
+        .nist-old-root .h-16 .text-xs { font-size: 9px !important; }
+        .nist-old-root .grid-cols-4 { grid-template-columns: repeat(2,1fr) !important; }
+        .nist-old-root .grid-cols-3 { grid-template-columns: repeat(2,1fr) !important; }
+        .nist-old-root .grid-cols-2 { grid-template-columns: 1fr !important; }
+        .nist-old-root .p-4 { padding: 0.5rem !important; }
+        .nist-old-root .p-6 { padding: 0.75rem !important; }
+        .nist-old-root .text-lg, .nist-old-root .text-xl { font-size: 0.9rem !important; }
+        .nist-old-root .text-sm { font-size: 0.75rem !important; }
+        .nist-old-root .text-3xl, .nist-old-root .text-2xl { font-size: 1.2rem !important; }
+        .nist-old-root .flex-1.p-6.overflow-auto { padding: 0.5rem !important; overflow-x: hidden !important; }
+        .nist-old-root .min-w-\\[600px\\] { min-width: unset !important; width: 100% !important; }
       }
     `}</style>
     <div className="nist-old-root min-h-screen bg-white text-neutral-900 flex flex-col">

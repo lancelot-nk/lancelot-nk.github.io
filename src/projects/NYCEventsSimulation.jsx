@@ -659,6 +659,30 @@ const STYLES = `
     .nyc-tab { padding: 12px 16px; font-size: 11px; }
     .nyc-footer { flex-direction: column; gap: 16px; text-align: center; }
   }
+
+  @media (max-width: 640px) {
+    .nyc-root { overflow-x: hidden; }
+    .nyc-header {
+      padding: 10px 12px;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    .nyc-logo-title { font-size: 13px; }
+    .nyc-logo-sub { font-size: 9px; }
+    .nyc-sync-status { flex-wrap: wrap; gap: 6px; }
+    .nyc-sync-indicator { font-size: 9px; gap: 4px; padding: 4px 8px; }
+    .nyc-refresh-btn { font-size: 9px; padding: 5px 10px; }
+    .nyc-tabs-outer { overflow-x: auto !important; -webkit-overflow-scrolling: touch; flex-wrap: nowrap !important; }
+    .nyc-tabs-outer button { flex-shrink: 0; min-width: 60px; padding: 8px 10px !important; font-size: 9px !important; }
+    .nyc-tabs-outer button span:first-child { font-size: 14px !important; }
+    .nyc-content { padding: 12px; }
+    .nyc-grid-4 { grid-template-columns: repeat(2, 1fr); }
+    .nyc-stat-value { font-size: 24px; }
+    .nyc-map-container { height: 280px; }
+    .nyc-filters { gap: 8px; }
+    .nyc-filter-select { min-width: 110px; font-size: 11px; padding: 6px 8px; }
+  }
 `;
 
 // Sample Data Generation
@@ -990,7 +1014,7 @@ export default function NYCEventsTracker() {
       </div>
 
       {/* Tabs */}
-      <div style={{ background: "#ffffff", borderBottom: "2px solid #000000", display: "flex", flexWrap: "wrap", padding: "0 16px" }}>
+      <div className="nyc-tabs-outer" style={{ background: "#ffffff", borderBottom: "2px solid #000000", display: "flex", flexWrap: "wrap", padding: "0 16px" }}>
         {[
           { label: "Analytics Dashboard", icon: "📊" },
           { label: "Events Calendar", icon: "📅" },

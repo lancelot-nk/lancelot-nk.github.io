@@ -204,14 +204,31 @@ export default function PRICASSystem() {
   ]
 
   return (
-    <div style={{
+    <div className="pricas-root" style={{
       minHeight: "100vh",
       background: "linear-gradient(135deg, #0d0018 0%, #1a0530 50%, #3d0066 100%)",
       fontFamily: "'Crimson Pro', 'Georgia', serif",
       color: "#e8d5b7",
       position: "relative",
-      overflow: "hidden"
+      overflowX: "hidden"
     }}>
+      <style>{`
+        @media (max-width: 640px) {
+          .pricas-root { overflow-x: hidden !important; }
+          .pricas-header { flex-wrap: wrap !important; padding: 0.75rem 1rem !important; gap: 0.75rem !important; }
+          .pricas-header > div:last-child { flex-wrap: wrap !important; justify-content: flex-end !important; gap: 0.5rem !important; }
+          .pricas-module-grid { grid-template-columns: repeat(2, 1fr) !important; max-width: 100% !important; }
+          .pricas-dash-grid { grid-template-columns: 1fr !important; }
+          .pricas-stats-row { grid-template-columns: repeat(2, 1fr) !important; }
+          .pricas-reports-layout { flex-wrap: wrap !important; }
+          .pricas-table-wrap { overflow-x: auto !important; }
+          .pricas-detail-panel { width: 100% !important; max-width: 100% !important; box-sizing: border-box !important; }
+          .pricas-root main { padding: 1rem !important; }
+          .pricas-root h1 { font-size: 1.1rem !important; }
+          .pricas-root h3 { font-size: 0.9rem !important; word-break: break-word; overflow-wrap: break-word; }
+          .pricas-root p { word-break: break-word; overflow-wrap: break-word; }
+        }
+      `}</style>
       {/* Animated background pattern */}
       <div style={{
         position: "fixed",

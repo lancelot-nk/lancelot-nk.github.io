@@ -1120,13 +1120,21 @@ export default function FinOpsDashboard() {
         input:focus{outline:2px solid #2563eb !important;outline-offset:0;}
         @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
         @media (max-width: 640px) {
+          .finops-root { overflow-x: hidden !important; }
           .finops-root > div { flex-direction: column !important; }
           .finops-sidebar { width: 100% !important; min-width: unset !important; flex-shrink: 1 !important; }
+          .finops-root [style*="padding:\"0 24px\""] { padding: 0 12px !important; }
+          .finops-tab-bar { overflow-x: auto !important; -webkit-overflow-scrolling: touch; flex-wrap: nowrap !important; }
+          .finops-tab-bar button { padding: 8px 12px !important; font-size: 11px !important; white-space: nowrap; flex-shrink: 0; }
+          .finops-content { padding: 12px !important; max-width: 100% !important; overflow-x: hidden !important; }
+          .finops-header { flex-wrap: wrap; height: auto !important; padding: 8px 12px !important; gap: 6px !important; }
+          .finops-header span { font-size: 10px !important; }
+          .finops-header > div:last-child { display: none !important; }
         }
       `}</style>
 
       {/* ── HEADER BAR ── */}
-      <div style={{ background:C.navy, padding:"0 24px", display:"flex",
+      <div className="finops-header" style={{ background:C.navy, padding:"0 24px", display:"flex",
         alignItems:"center", gap:10, height:52, flexWrap:"wrap" }}>
         <div style={{ display:"flex", alignItems:"center", gap:10 }}>
           <div style={{ width:30, height:30, borderRadius:7, background:C.blue,
@@ -1159,7 +1167,7 @@ export default function FinOpsDashboard() {
             Costs are <strong>amortized</strong> and <strong>unblended</strong> · Azure + AWS multi-cloud simulation via Data Factory ingestion pipeline
           </div>
         </div>
-        <div style={{ display:"flex", gap:0, overflowX:"auto" }}>
+        <div className="finops-tab-bar" style={{ display:"flex", gap:0, overflowX:"auto" }}>
           {TABS.map(t=>(
             <button key={t.id} onClick={()=>setTab(t.id)} style={{
               padding:"10px 20px", background:"none", border:"none",
@@ -1175,7 +1183,7 @@ export default function FinOpsDashboard() {
       </div>
 
       {/* ── CONTENT ── */}
-      <div style={{ padding:"20px 24px", maxWidth:1440, margin:"0 auto" }}>
+      <div className="finops-content" style={{ padding:"20px 24px", maxWidth:1440, margin:"0 auto" }}>
 
         {/* BILLING CENTERS TAB */}
         {tab==="billing" && (

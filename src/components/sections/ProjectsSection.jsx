@@ -724,6 +724,28 @@ export default function ProjectsSection() {
       `}</style>
 
       <div ref={outerRef} className="ps-outer" style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+        {/* Mobile-only disclaimer */}
+        <div className="ps-mobile-disclaimer" style={{ display: 'none' }}>
+          <div style={{
+            background: 'rgba(184,0,78,0.12)',
+            border: '1px solid rgba(184,0,78,0.35)',
+            borderRadius: '0.5rem',
+            padding: '0.5rem 0.85rem',
+            marginBottom: '0.25rem',
+            fontSize: '0.75rem',
+            color: '#B8004E',
+            fontWeight: 600,
+            textAlign: 'center',
+            letterSpacing: '0.01em',
+          }}>
+            📱 Projects are better viewed on desktop but have correct mobile optimizations
+          </div>
+        </div>
+        <style>{`
+          @media (max-width: 640px) {
+            .ps-mobile-disclaimer { display: block !important; }
+          }
+        `}</style>
         {PROJECTS.map((p, i) => <ProjectTile key={p.title} project={p} i={i} resetToken={resetToken} />)}
 
         <div style={{

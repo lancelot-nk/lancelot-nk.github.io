@@ -193,7 +193,19 @@ export default function HRAEnterpriseApp() {
     <div className="min-h-screen bg-gray-50 text-gray-900 relative">
       <style>{`
         .hra-inner { padding: 52px 156px 80px; }
-        @media (max-width: 640px) { .hra-inner { padding: 28px 18px 64px !important; } }
+        @media (max-width: 640px) {
+          .hra-inner { padding: 28px 18px 64px !important; }
+          .hra-inner { overflow-x: hidden; }
+          .hra-nav { overflow-x: auto; -webkit-overflow-scrolling: touch; flex-wrap: nowrap !important; }
+          .hra-nav button { white-space: nowrap; flex-shrink: 0; padding: 6px 12px !important; font-size: 11px !important; }
+          .hra-pipeline-stage { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+          .hra-pipeline-stage > h2 { font-size: 12px; }
+          .hra-pipeline-cards { flex-direction: column !important; gap: 10px !important; }
+          .hra-pipeline-cards > div { min-width: unset !important; width: 100% !important; }
+          .hra-analytics-grid { grid-template-columns: 1fr 1fr !important; }
+          .hra-analytics-grid > div { padding: 12px !important; }
+          h1.text-3xl { font-size: 1.2rem !important; }
+        }
       `}</style>
       <div className="hra-inner w-full">
 
@@ -204,7 +216,7 @@ export default function HRAEnterpriseApp() {
         </div>
 
         {/* NAV */}
-        <div className="flex gap-2 mb-6">
+        <div className="flex gap-2 mb-6 hra-nav">
           {['form', 'pipeline', 'analytics'].map(t => (
             <button key={t} onClick={() => setTab(t)}
               className={`px-5 py-2 rounded-md border text-sm font-medium transition-colors ${tab === t ? 'bg-black text-white' : 'bg-white hover:bg-gray-100'}`}>
@@ -289,7 +301,7 @@ export default function HRAEnterpriseApp() {
                   </h2>
 
                   <div className="relative">
-                    <div className="flex gap-4 overflow-x-auto pb-4 snap-x">
+                    <div className="flex gap-4 overflow-x-auto pb-4 snap-x hra-pipeline-cards">
                       {grouped[stage].map(c => (
                         <div key={c.id} onClick={() => setSelected(c)}
                           className={`snap-start min-w-[300px] p-4 rounded-xl border cursor-pointer hover:shadow-md transition relative bg-white ${statusStyles[stage].split(' ')[0]}`}>
@@ -342,7 +354,7 @@ export default function HRAEnterpriseApp() {
         {tab === 'analytics' && (
           <div className="space-y-6">
             {/* KPI ROW */}
-            <div className="grid md:grid-cols-4 gap-4">
+            <div className="grid md:grid-cols-4 gap-4 hra-analytics-grid">
               <div className="p-5 bg-white border rounded-xl shadow-sm text-center">
                 <p className="text-sm text-gray-500 mb-1">Total Approval Rate</p>
                 <p className="text-3xl font-bold">{approvalRate}%</p>

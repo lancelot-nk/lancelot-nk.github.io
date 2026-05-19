@@ -536,9 +536,50 @@ export default function ArcGISWAStateTool() {
     <div className="h-screen w-full bg-stone-100 text-stone-800 flex flex-col overflow-hidden arcgis-root" style={{ fontFamily: "'Inter', -apple-system, sans-serif" }}>
       <style>{`
 @media (max-width: 640px) {
-  .arcgis-root { height: auto !important; overflow: visible !important; min-height: 100vh; }
-  .arcgis-body { flex-direction: column !important; overflow: visible !important; }
-  .arcgis-sidebar { width: 100% !important; flex-shrink: 0; max-height: 200px; overflow-y: auto; }
+  /* Root: no fixed height, allow scrolling */
+  .arcgis-root { height: auto !important; overflow: visible !important; min-height: 100vh; overflow-x: hidden !important; }
+
+  /* Header: reduce text, wrap items */
+  .arcgis-root header { height: auto !important; flex-wrap: wrap !important; padding: 6px 8px !important; gap: 4px !important; }
+  .arcgis-root header * { font-size: 0.6rem !important; }
+  .arcgis-root header .flex { flex-wrap: wrap !important; gap: 4px !important; }
+  .arcgis-root header .gap-6 { gap: 4px !important; }
+  .arcgis-root header .gap-4 { gap: 4px !important; }
+
+  /* Secondary nav: scrollable horizontally */
+  .arcgis-root nav { overflow-x: auto !important; flex-wrap: nowrap !important; -webkit-overflow-scrolling: touch; }
+  .arcgis-root nav * { font-size: 0.6rem !important; white-space: nowrap; }
+
+  /* Body: stack vertically — sidebar top, map + content below */
+  .arcgis-body { flex-direction: column !important; overflow: visible !important; height: auto !important; }
+
+  /* Left sidebar: full width, capped height */
+  .arcgis-sidebar { width: 100% !important; max-width: 100% !important; flex-shrink: 0 !important; max-height: 180px; overflow-y: auto !important; }
+
+  /* Main area: full width, proper height for map */
+  .arcgis-body > main { width: 100% !important; flex: none !important; overflow: visible !important; height: auto !important; }
+
+  /* Map container: give it a fixed height */
+  .arcgis-body > main > div:first-child { flex: none !important; height: auto !important; }
+  .arcgis-body > main .relative.bg-gradient-to-br { height: 220px !important; min-height: 220px !important; flex: none !important; }
+
+  /* Status bar: scrollable */
+  .arcgis-body > main .h-20 { height: auto !important; overflow-x: auto !important; }
+  .arcgis-body > main .grid-cols-8 { grid-template-columns: repeat(4, 1fr) !important; gap: 8px !important; }
+  .arcgis-body > main .grid-cols-8 * { font-size: 0.65rem !important; }
+  .arcgis-body > main .text-2xl { font-size: 1rem !important; }
+
+  /* Right panel: full width, below main */
+  .arcgis-root aside.w-80 { width: 100% !important; max-width: 100% !important; border-left: none !important; border-top: 1px solid #d6d3d1 !important; }
+
+  /* Report/forecast/audit content area */
+  .arcgis-body > main .flex-1.p-6 { padding: 10px !important; }
+  .arcgis-body > main .grid-cols-2 { grid-template-columns: 1fr !important; }
+  .arcgis-body > main table { font-size: 0.65rem !important; }
+  .arcgis-body > main .overflow-x-auto { overflow-x: auto !important; -webkit-overflow-scrolling: touch; }
+
+  /* Selected county panel: fit mobile */
+  .arcgis-root .absolute.top-4.left-4.w-72 { width: calc(100% - 32px) !important; max-width: 280px; }
 }
 `}</style>
       

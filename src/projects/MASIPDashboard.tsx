@@ -302,7 +302,7 @@ function HexagonSidebar({
   onSectionChange: (section: string) => void
 }) {
   return (
-    <aside className="fixed left-0 top-0 h-full w-20 bg-white border-r border-slate-200 z-50 flex flex-col">
+    <aside className="masip-sidebar-fixed fixed left-0 top-0 h-full w-20 bg-white border-r border-slate-200 z-50 flex flex-col">
       {/* Logo */}
       <div className="h-20 flex items-center justify-center border-b border-slate-100">
         <div className="relative w-12 h-14">
@@ -1399,7 +1399,52 @@ export default function MASIPDashboard() {
     <div className="min-h-screen bg-slate-50">
       <style>{`
 @media (max-width: 640px) {
-  .masip-main { margin-left: 0 !important; }
+  /* Sidebar: keep visible but narrow to 48px */
+  .masip-sidebar-fixed { width: 48px !important; min-width: 48px !important; }
+  /* Logo area: shrink */
+  .masip-sidebar-fixed .h-20 { height: 48px !important; }
+  .masip-sidebar-fixed .w-12.h-14 { width: 28px !important; height: 32px !important; }
+  /* Tooltip labels: hide on mobile */
+  .masip-sidebar-fixed .group\\/btn .absolute { display: none !important; }
+  /* Hexagon buttons: shrink */
+  .masip-sidebar-fixed button { width: 32px !important; height: 32px !important; padding: 0 !important; }
+  .masip-sidebar-fixed svg { width: 18px !important; height: 18px !important; }
+  /* Settings at bottom: fit */
+  .masip-sidebar-fixed .pb-6 { padding-bottom: 4px !important; }
+
+  /* Main content: offset by 48px to clear sidebar */
+  .masip-main { margin-left: 48px !important; overflow-x: hidden !important; }
+
+  /* Header: compact */
+  .masip-main header .px-8 { padding-left: 10px !important; padding-right: 10px !important; }
+  .masip-main header .py-4 { padding-top: 8px !important; padding-bottom: 8px !important; }
+  .masip-main header .flex { flex-wrap: wrap !important; gap: 6px !important; }
+  .masip-main header h1 { font-size: 0.85rem !important; }
+  .masip-main header p { font-size: 0.65rem !important; }
+  .masip-main header .gap-4 { gap: 6px !important; }
+  .masip-main header button { padding: 4px !important; }
+
+  /* Content area: reduce padding */
+  .masip-main .p-8 { padding: 12px !important; }
+  .masip-main .p-6 { padding: 10px !important; }
+
+  /* Grids: collapse */
+  .masip-main .grid-cols-2 { grid-template-columns: 1fr !important; }
+  .masip-main .grid-cols-3 { grid-template-columns: 1fr 1fr !important; }
+  .masip-main .grid-cols-4 { grid-template-columns: 1fr 1fr !important; }
+  .masip-main .grid-cols-5,
+  .masip-main .grid-cols-6 { grid-template-columns: 1fr 1fr !important; }
+
+  /* Tables */
+  .masip-main table { font-size: 0.65rem !important; }
+  .masip-main .overflow-x-auto { overflow-x: auto !important; -webkit-overflow-scrolling: touch; }
+
+  /* Footer */
+  .masip-main footer .flex { flex-wrap: wrap !important; gap: 4px !important; }
+  .masip-main footer * { font-size: 0.6rem !important; }
+
+  /* Data Lake visualization: shrink height */
+  .masip-main .h-48 { height: 120px !important; }
 }
 `}</style>
       {/* Hexagon Sidebar */}

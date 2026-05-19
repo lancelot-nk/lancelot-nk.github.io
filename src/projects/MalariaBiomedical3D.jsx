@@ -1081,6 +1081,34 @@ export default function MalariaBiomedical3D() {
         input[type=range] { -webkit-appearance: none; appearance: none; height: 3px; background: #DDDDDD; border-radius: 2px; outline: none; }
         input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; border-radius: 50%; background: #8B0000; cursor: pointer; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+        @media (max-width: 640px) {
+          .mal-layout { flex-direction: column !important; }
+          .mal-sidebar {
+            width: 100% !important;
+            min-height: 0 !important;
+            border-right: none !important;
+            border-bottom: 2px solid #222222 !important;
+            padding: 6px 0 !important;
+            display: flex !important;
+            flex-direction: row !important;
+            overflow-x: auto !important;
+            max-height: 88px !important;
+            flex-shrink: 0 !important;
+            -webkit-overflow-scrolling: touch;
+          }
+          .mal-sidebar button {
+            flex-shrink: 0 !important;
+            width: auto !important;
+            min-width: 76px !important;
+            padding: 6px 10px !important;
+            border-left: none !important;
+            border-bottom: 2px solid transparent !important;
+            text-align: center !important;
+          }
+          .mal-sidebar > div { display: none !important; }
+          .mal-main { width: 100% !important; overflow-y: auto; }
+          .mal-main canvas { width: 100% !important; height: 260px !important; }
+        }
       `}</style>
 
       {/* ── HEADER ── */}
@@ -1096,10 +1124,10 @@ export default function MalariaBiomedical3D() {
         </div>
       </div>
 
-      <div style={{ display: "flex" }}>
+      <div className="mal-layout" style={{ display: "flex" }}>
 
         {/* ── LEFT SIDEBAR ── */}
-        <div style={{ width: 200, background: "#FFFFFF", borderRight: `2px solid #222222`, padding: "16px 0", minHeight: "calc(100vh - 57px)", flexShrink: 0 }}>
+        <div className="mal-sidebar" style={{ width: 200, background: "#FFFFFF", borderRight: `2px solid #222222`, padding: "16px 0", minHeight: "calc(100vh - 57px)", flexShrink: 0 }}>
           {tabs.map(t => (
             <button key={t.id} onClick={() => setActiveTab(t.id)}
               style={{
@@ -1138,7 +1166,7 @@ export default function MalariaBiomedical3D() {
         </div>
 
         {/* ── MAIN CONTENT ── */}
-        <div style={{ flex: 1, padding: 20, overflowY: "auto", animation: "fadeIn 0.3s ease" }} key={activeTab}>
+        <div className="mal-main" style={{ flex: 1, padding: 20, overflowY: "auto", animation: "fadeIn 0.3s ease" }} key={activeTab}>
 
           {/* ── GIEMSA SMEAR ── */}
           {activeTab === "smear" && (

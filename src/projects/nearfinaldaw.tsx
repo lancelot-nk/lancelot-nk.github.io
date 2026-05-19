@@ -3790,8 +3790,28 @@ export default function AlphaDAW() {
   const activeColor = activeSound ? activeSound.color : 'bg-pink-500'
   return (
     <div className="min-h-screen bg-slate-950 text-slate-200 font-sans flex flex-col overflow-x-hidden select-none">
+      <style>{`
+        @media (max-width: 640px) {
+          /* Step sequencer grid rows must be at least 36px tall */
+          .daw-seq-grid > div { min-height: 36px !important; }
+          .daw-seq-grid > div > div { aspect-ratio: 1 !important; min-height: 32px !important; }
+          /* Transport header: keep play/record prominent, shrink secondary controls */
+          .daw-transport { padding: 8px 10px !important; gap: 8px !important; }
+          .daw-transport .daw-secondary { display: none !important; }
+          .daw-toolbar { font-size: 10px !important; padding: 4px 8px !important; gap: 4px !important; }
+          .daw-toolbar > * { font-size: 10px !important; }
+          /* Preset selector: smaller pills */
+          .daw-presets button { padding: 4px 10px !important; font-size: 11px !important; }
+          /* Sequencer section padding */
+          .daw-seq-section { padding: 10px !important; }
+          /* Mixer strip: compact */
+          .daw-mixer { flex-wrap: wrap; gap: 8px !important; }
+          /* Overall layout */
+          .min-h-screen { overflow-x: hidden; }
+        }
+      `}</style>
       {/* TOP TRANSPORT BAR */}
-      <header className="bg-slate-900 border-b border-slate-800 p-3 flex flex-wrap items-center justify-between gap-4 sticky top-0 z-50">
+      <header className="daw-transport bg-slate-900 border-b border-slate-800 p-3 flex flex-wrap items-center justify-between gap-4 sticky top-0 z-50">
         <div className="flex items-center gap-3">
           <button
             onClick={togglePlay}
@@ -3838,7 +3858,7 @@ export default function AlphaDAW() {
           </div>
         </div>
 
-        <div className="flex items-center gap-4 bg-slate-950/50 p-2 rounded-lg border border-slate-800/50">
+        <div className="daw-secondary flex items-center gap-4 bg-slate-950/50 p-2 rounded-lg border border-slate-800/50">
           <div className="flex flex-col items-center">
             <select
               value={timeSig}
@@ -3937,7 +3957,7 @@ export default function AlphaDAW() {
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="daw-secondary flex items-center gap-3">
           <button
             onClick={mutateBeat}
             className="p-2 text-indigo-400 hover:text-indigo-300 hover:bg-slate-800 rounded flex flex-col items-center"
@@ -3972,7 +3992,7 @@ export default function AlphaDAW() {
 
       {/* PRESET SELECTOR */}
       {/* === ADDITIVE STUDIO RACK === */}
-      <div className="bg-slate-900/70 border-b border-slate-800 px-3 py-2 flex flex-wrap items-center gap-2 text-xs">
+      <div className="daw-toolbar bg-slate-900/70 border-b border-slate-800 px-3 py-2 flex flex-wrap items-center gap-2 text-xs">
         {/* Undo / Redo / Copy / Paste */}
         <div className="flex items-center gap-1 bg-slate-950 rounded-lg p-1 border border-slate-800">
           <button onClick={undo} title="Undo" className="p-1.5 hover:bg-slate-800 rounded text-slate-300"><Undo2 size={14} /></button>
@@ -4198,7 +4218,7 @@ export default function AlphaDAW() {
           <span className="text-emerald-400 text-[10px]">{Object.keys(customMap).length} pads using custom samples</span>
         )}
       </div>
-      <div className="bg-slate-900/50 border-b border-slate-800/50 px-4 py-2 flex gap-2 overflow-x-auto no-scrollbar">
+      <div className="daw-presets bg-slate-900/50 border-b border-slate-800/50 px-4 py-2 flex gap-2 overflow-x-auto no-scrollbar">
         {PRESETS.map((p) => (
           <button
             key={p}
@@ -4241,7 +4261,7 @@ export default function AlphaDAW() {
 
       <main className="flex-1 flex flex-col p-4 gap-6 max-w-7xl mx-auto w-full">
         {/* SEQUENCER GRID */}
-        <section className="bg-slate-900 rounded-xl p-4 border border-slate-800 shadow-2xl relative">
+        <section className="daw-seq-section bg-slate-900 rounded-xl p-4 border border-slate-800 shadow-2xl relative">
           <div className="flex justify-between items-end mb-4">
             <div>
               <h2 className="text-lg font-bold flex items-center gap-2">
@@ -4272,7 +4292,7 @@ export default function AlphaDAW() {
             </div>
           </div>
 
-          <div className="flex flex-col gap-1">
+          <div className="daw-seq-grid flex flex-col gap-1">
             {Array.from({
               length: 4,
             }).map((_, row) => (

@@ -219,6 +219,21 @@ export default function KingmanIslandRFP() {
           .kingman-root table { min-width: unset !important; width: 100% !important; font-size: 11px !important; }
           .kingman-root table td, .kingman-root table th { padding: 4px 6px !important; }
           .kingman-root .tab-btn { padding: 8px 10px !important; font-size: 10px !important; }
+          /* Header — reduce padding and badge/title size to prevent crush */
+          .kingman-root header { padding-top: 1.25rem !important; padding-bottom: 1.25rem !important; }
+          .kingman-root header .inline-flex { font-size: 9px !important; padding: 5px 10px !important; letter-spacing: 0.18em !important; }
+          .kingman-root header h1 { font-size: 1.55rem !important; line-height: 1.15 !important; }
+          .kingman-root header > div > div:last-child { min-width: unset !important; width: 100% !important; margin-top: 0.5rem; }
+          /* Body/content text — reduce to ~0.8rem so containers are shorter */
+          .kingman-root main p,
+          .kingman-root main li,
+          .kingman-root main .text-sm,
+          .kingman-root main .text-\[15px\],
+          .kingman-root main .text-\[14px\],
+          .kingman-root main .leading-8,
+          .kingman-root main .leading-7 { font-size: 0.8rem !important; line-height: 1.5 !important; }
+          .kingman-root main .text-xs { font-size: 0.72rem !important; }
+          .kingman-root main .text-base { font-size: 0.8rem !important; }
         }
       `}</style>
       <style>{`

@@ -3061,6 +3061,10 @@ export function App() {
   const [topRenderCache, setTopRenderCache] = useState<
     Map<string, AudioBuffer>
   >(new Map())
+  // Pipeline processing guard
+  const [isProcessing, setIsProcessing] = useState(false)
+  const isProcessingRef = useRef(false)
+  const pipelineDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   // Custom electrolarynx mode
   const [customElectroMode, setCustomElectroMode] = useState(false)
   const [customElectroBuffer, setCustomElectroBuffer] =
@@ -3149,216 +3153,219 @@ export function App() {
       original: AudioBuffer | null,
     ) => {
       if (!original && !customElectroMode) return
-      const ctx = getCtx()
-      const order: Exclude<Stage, null>[] = [
-        'destructive',
-        'additive',
-        'electro',
-        'methods',
-        'fusion',
-        'boost',
-        'final',
-      ]
-      const startIdx = startStage ? order.indexOf(startStage as any) : 0
-      let curDestructive = bufDestructive
-      let curAdditive = bufAdditive
-      let curElectro = bufElectro
-      let curMethodBufs: Partial<Record<MethodId, AudioBuffer>> = {
-        ...methodBufs,
-      }
-      let curFused = bufFused
-      let curBoosted = bufFinalBoosted
-      if (startIdx <= 0 && original) {
-        setStageRunning('destructive')
-        const f0 = detectPitch(original.getChannelData(0), original.sampleRate)
-        setDetectedF0(f0)
-        const dest = await buildDestructive(choices.destructive, original, ctx)
-        curDestructive = dest
-        setBufDestructive(dest)
-        setBufCancel(sumBuffers(original, dest, ctx, 1, 1))
-        const dprev = await Promise.all(
-          DESTRUCTIVE_VARIANTS.map((v) =>
-            buildDestructive(v.id as DestructiveId, original, ctx),
-          ),
-        )
-        const dp: Partial<Record<DestructiveId, AudioBuffer>> = {}
-        DESTRUCTIVE_VARIANTS.forEach((v, i) => {
-          dp[v.id as DestructiveId] = dprev[i]
-        })
-        setDestructivePreviews(dp)
-      }
-      if (startIdx <= 1 && original) {
-        setStageRunning('additive')
-        const add = await buildAdditive(
-          choices.additive,
-          original,
-          ctx,
-          boostDb,
-        )
-        curAdditive = add
-        setBufAdditive(add)
-        setBufBoosted(
-          normalizeBuffer(sumBuffers(original, add, ctx, 1, 1), ctx, 0.95),
-        )
-        const aprev = await Promise.all(
-          ADDITIVE_VARIANTS.map((v) =>
-            buildAdditive(v.id as AdditiveId, original, ctx, boostDb),
-          ),
-        )
-        const ap: Partial<Record<AdditiveId, AudioBuffer>> = {}
-        ADDITIVE_VARIANTS.forEach((v, i) => {
-          ap[v.id as AdditiveId] = aprev[i]
-        })
-        setAdditivePreviews(ap)
-      }
-      if (startIdx <= 2) {
-        setStageRunning('electro')
-        let electro: AudioBuffer
-        if (customElectroMode && customElectroBuffer) {
-          electro = customElectroBuffer
-        } else if (original) {
-          electro = await synthElectrolarynx(
+      // Prevent overlapping pipeline runs
+      if (isProcessingRef.current) return
+      isProcessingRef.current = true
+      setIsProcessing(true)
+      const yield_ = () => new Promise<void>((r) => setTimeout(r, 0))
+      try {
+        const ctx = getCtx()
+        const order: Exclude<Stage, null>[] = [
+          'destructive',
+          'additive',
+          'electro',
+          'methods',
+          'fusion',
+          'boost',
+          'final',
+        ]
+        const startIdx = startStage ? order.indexOf(startStage as any) : 0
+        let curDestructive = bufDestructive
+        let curAdditive = bufAdditive
+        let curElectro = bufElectro
+        let curMethodBufs: Partial<Record<MethodId, AudioBuffer>> = {
+          ...methodBufs,
+        }
+        let curFused = bufFused
+        let curBoosted = bufFinalBoosted
+        if (startIdx <= 0 && original) {
+          setStageRunning('destructive')
+          await yield_()
+          const f0 = detectPitch(original.getChannelData(0), original.sampleRate)
+          setDetectedF0(f0)
+          const dest = await buildDestructive(choices.destructive, original, ctx)
+          curDestructive = dest
+          setBufDestructive(dest)
+          setBufCancel(sumBuffers(original, dest, ctx, 1, 1))
+          await yield_()
+          // Generate destructive previews sequentially to avoid flooding
+          const dp: Partial<Record<DestructiveId, AudioBuffer>> = {}
+          for (const v of DESTRUCTIVE_VARIANTS) {
+            dp[v.id as DestructiveId] = await buildDestructive(v.id as DestructiveId, original, ctx)
+            await yield_()
+          }
+          setDestructivePreviews(dp)
+        }
+        if (startIdx <= 1 && original) {
+          setStageRunning('additive')
+          await yield_()
+          const add = await buildAdditive(
+            choices.additive,
             original,
             ctx,
-            elPitch,
-            elTissue,
-            choices.electro,
+            boostDb,
           )
-        } else {
-          return // Cannot proceed without original or custom
+          curAdditive = add
+          setBufAdditive(add)
+          setBufBoosted(
+            normalizeBuffer(sumBuffers(original, add, ctx, 1, 1), ctx, 0.95),
+          )
+          await yield_()
+          const ap: Partial<Record<AdditiveId, AudioBuffer>> = {}
+          for (const v of ADDITIVE_VARIANTS) {
+            ap[v.id as AdditiveId] = await buildAdditive(v.id as AdditiveId, original, ctx, boostDb)
+            await yield_()
+          }
+          setAdditivePreviews(ap)
         }
-        curElectro = electro
-        setBufElectro(electro)
-        if (!customElectroMode && original) {
-          const eprev = await Promise.all(
-            ELECTRO_VARIANTS.map((v) =>
-              synthElectrolarynx(
+        if (startIdx <= 2) {
+          setStageRunning('electro')
+          await yield_()
+          let electro: AudioBuffer
+          if (customElectroMode && customElectroBuffer) {
+            electro = customElectroBuffer
+          } else if (original) {
+            electro = await synthElectrolarynx(
+              original,
+              ctx,
+              elPitch,
+              elTissue,
+              choices.electro,
+            )
+          } else {
+            return // Cannot proceed without original or custom
+          }
+          curElectro = electro
+          setBufElectro(electro)
+          if (!customElectroMode && original) {
+            await yield_()
+            const ep: Partial<Record<ElectroId, AudioBuffer>> = {}
+            for (const v of ELECTRO_VARIANTS) {
+              ep[v.id as ElectroId] = await synthElectrolarynx(
                 original,
                 ctx,
                 elPitch,
                 elTissue,
                 v.id as ElectroId,
-              ),
-            ),
-          )
-          const ep: Partial<Record<ElectroId, AudioBuffer>> = {}
-          ELECTRO_VARIANTS.forEach((v, i) => {
-            ep[v.id as ElectroId] = eprev[i]
-          })
-          setElectroPreviews(ep)
+              )
+              await yield_()
+            }
+            setElectroPreviews(ep)
+          }
         }
-      }
-      if (startIdx <= 3) {
-        setStageRunning('methods')
-        const electroForBwe = curElectro!
-        const origForBwe = original || customReferenceBuffer || electroForBwe
-        const allIds: MethodId[] = HF_VARIANTS.map((m) => m.id)
-        const bufs: Partial<Record<MethodId, AudioBuffer>> = {}
-        const results = await Promise.all(
-          allIds.map((id) => {
-            if (id === 'tts') return Promise.resolve(null)
-            return computeMethodBuffer(
-              id,
-              ctx,
-              origForBwe,
-              electroForBwe,
-              elPitch,
-              elTissue,
-              bweStrength,
-            )
-          }),
-        )
-        allIds.forEach((id, i) => {
-          if (results[i]) bufs[id] = results[i]!
-        })
-        curMethodBufs = bufs
-        setMethodBufs(bufs)
-      }
-      if (startIdx <= 4) {
-        setStageRunning('fusion')
-        const electroForFuse = curElectro!
-        const highBand =
-          choices.method !== 'tts'
-            ? curMethodBufs[choices.method] || null
-            : null
-        const fused = highBand
-          ? await fuseLowHigh(
-              electroForFuse,
-              highBand,
-              ctx,
-              choices.fusion,
-              crossHz,
-            )
-          : electroForFuse
-        curFused = fused
-        setBufFused(fused)
-        if (highBand) {
-          const fp = await Promise.all(
-            FUSION_VARIANTS.map((v) =>
-              fuseLowHigh(
+        if (startIdx <= 3) {
+          setStageRunning('methods')
+          await yield_()
+          const electroForBwe = curElectro!
+          const origForBwe = original || customReferenceBuffer || electroForBwe
+          const allIds: MethodId[] = HF_VARIANTS.map((m) => m.id)
+          const bufs: Partial<Record<MethodId, AudioBuffer>> = {}
+          for (const id of allIds) {
+            if (id !== 'tts') {
+              const result = await computeMethodBuffer(
+                id,
+                ctx,
+                origForBwe,
+                electroForBwe,
+                elPitch,
+                elTissue,
+                bweStrength,
+              )
+              if (result) bufs[id] = result
+            }
+            await yield_()
+          }
+          curMethodBufs = bufs
+          setMethodBufs(bufs)
+        }
+        if (startIdx <= 4) {
+          setStageRunning('fusion')
+          await yield_()
+          const electroForFuse = curElectro!
+          const highBand =
+            choices.method !== 'tts'
+              ? curMethodBufs[choices.method] || null
+              : null
+          const fused = highBand
+            ? await fuseLowHigh(
+                electroForFuse,
+                highBand,
+                ctx,
+                choices.fusion,
+                crossHz,
+              )
+            : electroForFuse
+          curFused = fused
+          setBufFused(fused)
+          if (highBand) {
+            await yield_()
+            const fpm: Partial<Record<FusionId, AudioBuffer>> = {}
+            for (const v of FUSION_VARIANTS) {
+              fpm[v.id as FusionId] = await fuseLowHigh(
                 electroForFuse,
                 highBand,
                 ctx,
                 v.id as FusionId,
                 crossHz,
-              ),
-            ),
+              )
+              await yield_()
+            }
+            setFusionPreviews(fpm)
+          }
+        }
+        if (startIdx <= 5) {
+          setStageRunning('boost')
+          await yield_()
+          const fusedForBoost = curFused!
+          const boosted = await applyBoost(
+            fusedForBoost,
+            ctx,
+            choices.boost,
+            boostDb,
           )
-          const fpm: Partial<Record<FusionId, AudioBuffer>> = {}
-          FUSION_VARIANTS.forEach((v, i) => {
-            fpm[v.id as FusionId] = fp[i]
-          })
-          setFusionPreviews(fpm)
+          curBoosted = boosted
+          setBufFinalBoosted(boosted)
+          await yield_()
+          const bpm: Partial<Record<BoostId, AudioBuffer>> = {}
+          for (const v of BOOST_VARIANTS) {
+            bpm[v.id as BoostId] = await applyBoost(fusedForBoost, ctx, v.id as BoostId, boostDb)
+            await yield_()
+          }
+          setBoostPreviews(bpm)
         }
-      }
-      if (startIdx <= 5) {
-        setStageRunning('boost')
-        const fusedForBoost = curFused!
-        const boosted = await applyBoost(
-          fusedForBoost,
-          ctx,
-          choices.boost,
-          boostDb,
+        if (startIdx <= 6) {
+          setStageRunning('final')
+          await yield_()
+          const boostedForClip = curBoosted!
+          const clipped = softClipBuf(boostedForClip, ctx, choices.clip, clipK)
+          const fin = normalizeBuffer(clipped, ctx, 0.95)
+          setBufFinal(fin)
+          await yield_()
+          const cp: Partial<Record<ClipType, AudioBuffer>> = {}
+          for (const v of CLIP_VARIANTS) {
+            const c = softClipBuf(boostedForClip, ctx, v.id as ClipType, clipK)
+            cp[v.id as ClipType] = normalizeBuffer(c, ctx, 0.95)
+            await yield_()
+          }
+          setClipPreviews(cp)
+          // Compute accuracy
+          const referenceBuffer =
+            customElectroMode && customReferenceBuffer
+              ? customReferenceBuffer
+              : original
+          if (referenceBuffer) {
+            const metrics = computeAccuracy(referenceBuffer, fin)
+            setCurrentAccuracy(metrics)
+          }
+        }
+        setStageRunning(null)
+        setStatusMsg(
+          'Pipeline complete. Try a new choice — then hit "Rerun Below" to regenerate.',
         )
-        curBoosted = boosted
-        setBufFinalBoosted(boosted)
-        const bp = await Promise.all(
-          BOOST_VARIANTS.map((v) =>
-            applyBoost(fusedForBoost, ctx, v.id as BoostId, boostDb),
-          ),
-        )
-        const bpm: Partial<Record<BoostId, AudioBuffer>> = {}
-        BOOST_VARIANTS.forEach((v, i) => {
-          bpm[v.id as BoostId] = bp[i]
-        })
-        setBoostPreviews(bpm)
+      } finally {
+        isProcessingRef.current = false
+        setIsProcessing(false)
       }
-      if (startIdx <= 6) {
-        setStageRunning('final')
-        const boostedForClip = curBoosted!
-        const clipped = softClipBuf(boostedForClip, ctx, choices.clip, clipK)
-        const fin = normalizeBuffer(clipped, ctx, 0.95)
-        setBufFinal(fin)
-        const cp: Partial<Record<ClipType, AudioBuffer>> = {}
-        for (const v of CLIP_VARIANTS) {
-          const c = softClipBuf(boostedForClip, ctx, v.id as ClipType, clipK)
-          cp[v.id as ClipType] = normalizeBuffer(c, ctx, 0.95)
-        }
-        setClipPreviews(cp)
-        // Compute accuracy
-        const referenceBuffer =
-          customElectroMode && customReferenceBuffer
-            ? customReferenceBuffer
-            : original
-        if (referenceBuffer) {
-          const metrics = computeAccuracy(referenceBuffer, fin)
-          setCurrentAccuracy(metrics)
-        }
-      }
-      setStageRunning(null)
-      setStatusMsg(
-        'Pipeline complete. Try a new choice — then hit "Rerun Below" to regenerate.',
-      )
       // eslint-disable-next-line react-hooks/exhaustive-deps
     },
     [
@@ -3562,11 +3569,20 @@ export function App() {
   )
   useEffect(() => {
     if (!bufOriginal && !customElectroMode) return
-    const t = window.setTimeout(
-      () => runFrom('destructive', applied, bufOriginal),
-      400,
-    )
-    return () => window.clearTimeout(t)
+    if (pipelineDebounceRef.current) clearTimeout(pipelineDebounceRef.current)
+    pipelineDebounceRef.current = setTimeout(() => {
+      pipelineDebounceRef.current = null
+      // Reset the guard so a fresh run can start after debounce
+      isProcessingRef.current = false
+      setIsProcessing(false)
+      runFrom('destructive', applied, bufOriginal)
+    }, 400)
+    return () => {
+      if (pipelineDebounceRef.current) {
+        clearTimeout(pipelineDebounceRef.current)
+        pipelineDebounceRef.current = null
+      }
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [elPitch, elTissue, boostDb, bweStrength, clipK, crossHz])
   useEffect(() => () => cleanup(), [cleanup])

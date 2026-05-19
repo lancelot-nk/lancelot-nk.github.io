@@ -1197,23 +1197,36 @@ export default function HRABudgetVarianceEngine() {
           .main-pad { padding: 12px 10px !important; }
           .hdr { flex-direction: column !important; }
         }
+        @media (max-width: 640px) {
+          .budget-header { padding: 10px 12px !important; overflow-x: hidden; }
+          .budget-header .hdr { flex-direction: column !important; gap: 6px !important; }
+          .budget-header .hdr > div:last-child { text-align: left !important; }
+          .budget-header h1 { font-size: 13px !important; line-height: 1.3 !important; }
+          .budget-header .hdr-agency { font-size: 8px !important; letter-spacing: 1px !important; }
+          .budget-header .hdr-sub { font-size: 10px !important; }
+          .budget-header .hdr-author { font-size: 12px !important; }
+          .budget-header .hdr-badges { gap: 4px !important; }
+          .budget-header .hdr-badges span { font-size: 8px !important; padding: 2px 5px !important; }
+          .budget-tabs { padding: 8px 10px !important; gap: 5px !important; }
+          .budget-tabs button { padding: 6px 8px !important; font-size: 10px !important; white-space: normal !important; line-height: 1.2 !important; }
+        }
       `}</style>
 
       {/* Header */}
-      <div style={{ background: "#0a0a0a", padding: "20px 28px", borderBottom: `3px solid ${T.amberLight}` }}>
+      <div className="budget-header" style={{ background: "#0a0a0a", padding: "20px 28px", borderBottom: `3px solid ${T.amberLight}` }}>
         <div className="hdr" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 12, marginBottom: 12 }}>
           <div>
-            <div style={{ fontSize: 10, color: T.amberLight, fontWeight: 700, letterSpacing: 2, textTransform: "uppercase", marginBottom: 5 }}>NYC HRA · SNAP/EBT · Benefit Issuance & Budget Variance Engine</div>
+            <div className="hdr-agency" style={{ fontSize: 10, color: T.amberLight, fontWeight: 700, letterSpacing: 2, textTransform: "uppercase", marginBottom: 5 }}>NYC HRA · SNAP/EBT · Benefit Issuance & Budget Variance Engine</div>
             <h1 style={{ margin: 0, fontSize: "clamp(16px, 3vw, 24px)", color: "#f8f9fa", fontWeight: 700, lineHeight: 1.2 }}>Automated Benefit Issuance & Budget Variance Engine</h1>
-            <div style={{ color: "#8a9a88", fontSize: 12, marginTop: 5 }}>WMS · dbt · SSIS · FY2025 USDA FNS Rules · $7.6B NYC SNAP Budget · 100,000 Synthetic Households</div>
+            <div className="hdr-sub" style={{ color: "#8a9a88", fontSize: 12, marginTop: 5 }}>WMS · dbt · SSIS · FY2025 USDA FNS Rules · $7.6B NYC SNAP Budget · 100,000 Synthetic Households</div>
           </div>
           <div style={{ textAlign: "right" }}>
             <div style={{ fontSize: 10, color: "#6a7a68", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 2 }}>Compiled by</div>
-            <div style={{ color: T.amberLight, fontWeight: 700, fontSize: 14, fontFamily: "'Georgia', serif" }}>Lancelot Napier-Kane</div>
+            <div className="hdr-author" style={{ color: T.amberLight, fontWeight: 700, fontSize: 14, fontFamily: "'Georgia', serif" }}>Lancelot Napier-Kane</div>
             <div style={{ fontSize: 11, color: "#6a7a68", marginTop: 3 }}>HRA Program & Data Manager · Nov 2023–Sep 2024</div>
           </div>
         </div>
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        <div className="hdr-badges" style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
           {[[`${AGG.total.toLocaleString()} Synthetic HH`, T.amberLight], ["FY2025 USDA FNS Rules", "#93c5fd"], ["dbt v2.4.1 + SSIS", "#6ee7b7"], [fmtM(AGG.totalIssued) + " Monthly Issued", T.amberLight], ["44 dbt Tests Passing", "#86efac"], ["$7.6B Budget", T.amberLight]].map(([l, c]) => (
             <span key={l} style={{ fontSize: 11, color: c, background: c + "20", padding: "3px 10px", borderRadius: 3, border: `1px solid ${c}40`, fontWeight: 700 }}>{l}</span>
           ))}
@@ -1221,7 +1234,7 @@ export default function HRABudgetVarianceEngine() {
       </div>
 
       {/* Tabs */}
-      <div style={{ background: "#ffffff", borderBottom: "2px solid #000000", padding: "12px 20px", display: "flex", gap: 8, flexWrap: "wrap" }}>
+      <div className="budget-tabs" style={{ background: "#ffffff", borderBottom: "2px solid #000000", padding: "12px 20px", display: "flex", gap: 8, flexWrap: "wrap" }}>
         {tabs.map((tab, i) => (
           <button key={i} onClick={() => setActiveTab(i)}
             style={{

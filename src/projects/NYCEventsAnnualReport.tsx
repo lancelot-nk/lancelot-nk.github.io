@@ -207,8 +207,23 @@ export default function AnnualReport() {
     <div className="nyc-annual-root relative min-h-screen bg-[#FDFBF7] text-[#1A1A1A]" style={{ fontFamily: "'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif" }}>
       <style>{`
         @media (max-width: 640px) {
-          .nyc-annual-root { overflow: visible !important; }
-          .nyc-scroll-area { height: auto !important; overflow-y: visible !important; }
+          .nyc-annual-root { overflow-x: hidden !important; }
+          .nyc-scroll-area { height: auto !important; overflow-y: visible !important; overflow-x: hidden !important; }
+          .nyc-annual-root section { padding-left: 1rem !important; padding-right: 1rem !important; }
+          .nyc-annual-root h1 { font-size: 2rem !important; line-height: 1.2 !important; }
+          .nyc-annual-root h2 { font-size: 1.75rem !important; }
+          .nyc-annual-root h3 { font-size: 1rem !important; }
+          .nyc-annual-root p, .nyc-annual-root li { word-break: break-word; overflow-wrap: break-word; }
+          .nyc-annual-root .grid-cols-3 { grid-template-columns: 1fr 1fr !important; }
+          .nyc-annual-root .grid-cols-4 { grid-template-columns: 1fr 1fr !important; }
+          .nyc-annual-root svg { max-width: 100%; }
+          .nyc-annual-root table { display: block !important; overflow-x: auto !important; max-width: 100% !important; }
+          .nyc-annual-root .text-5xl, .nyc-annual-root .text-7xl { font-size: 1.8rem !important; }
+          .nyc-annual-root .text-4xl { font-size: 1.5rem !important; }
+          .nyc-annual-root blockquote p { font-size: 1.1rem !important; }
+          .nyc-annual-root .w-64 { width: min(16rem, 80vw) !important; }
+          .nyc-annual-root .h-64 { overflow-x: auto; }
+          .fixed.top-4.right-6 { right: 0.5rem !important; top: 0.5rem !important; font-size: 0.65rem !important; padding: 0.35rem 0.5rem !important; }
         }
       `}</style>
       {/* Reading Progress Bar */}

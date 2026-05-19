@@ -265,6 +265,39 @@ const STYLES = `
   .fxb-cvl { flex: 1 1 auto; padding: 28px 24px; }
   .fxb-cvr { flex: 0 0 160px; }
 }
+
+@media (max-width: 640px) {
+  .fxb-root {
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    overflow: visible;
+    height: auto;
+    min-height: 100svh;
+  }
+  .fxb-book {
+    flex-shrink: 0;
+    width: 100%;
+    height: 72svh;
+    min-height: 380px;
+    max-height: 72svh;
+  }
+  .fxb-nav {
+    position: static !important;
+    bottom: auto !important;
+    left: auto !important;
+    transform: none !important;
+    width: 100%;
+    flex-shrink: 0;
+    padding: 10px 12px;
+    background: rgba(28,25,22,0.92);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .fxb-inner { padding: 18px 16px 14px 20px; }
+  .fxb-arr { padding: 8px 12px; font-size: 15px; }
+}
 `;
 
 const PAGE_LABELS = [

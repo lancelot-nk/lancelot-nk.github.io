@@ -1358,19 +1358,32 @@ export default function HRAFraudAuditTool() {
           .main-pad { padding: 12px 10px !important; }
           .header-row { flex-direction: column !important; }
         }
+        @media (max-width:640px) {
+          .fraud-header { padding: 10px 12px !important; overflow-x: hidden; }
+          .fraud-header .header-row { flex-direction: column !important; gap: 6px !important; }
+          .fraud-header .header-row > div:last-child { text-align: left !important; }
+          .fraud-header h1 { font-size: 13px !important; line-height: 1.3 !important; }
+          .fraud-header .hdr-agency { font-size: 8px !important; letter-spacing: 1px !important; }
+          .fraud-header .hdr-sub { font-size: 10px !important; }
+          .fraud-header .hdr-status { font-size: 11px !important; }
+          .fraud-header .hdr-badges { gap: 4px !important; }
+          .fraud-header .hdr-badges span { font-size: 8px !important; padding: 2px 5px !important; }
+          .fraud-tabs { padding: 0 4px !important; }
+          .fraud-tabs button { padding: 8px 5px !important; font-size: 9px !important; min-width: 0 !important; flex: 1 1 0 !important; }
+        }
       `}</style>
 
       {/* Header */}
-      <div style={{ background:D.headerBg, borderBottom:`3px solid ${D.primary}`, padding:"18px 28px" }}>
+      <div className="fraud-header" style={{ background:D.headerBg, borderBottom:`3px solid ${D.primary}`, padding:"18px 28px" }}>
         <div className="header-row" style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", flexWrap:"wrap", gap:12, marginBottom:12 }}>
           <div>
-            <div style={{ fontSize:10, color:D.primaryLight, fontWeight:700, letterSpacing:2, textTransform:"uppercase", fontFamily:"'IBM Plex Mono','Courier New',monospace", marginBottom:5 }}>NYC HRA · Program & Data Management · Fraud Detection Auditing Tool</div>
+            <div className="hdr-agency" style={{ fontSize:10, color:D.primaryLight, fontWeight:700, letterSpacing:2, textTransform:"uppercase", fontFamily:"'IBM Plex Mono','Courier New',monospace", marginBottom:5 }}>NYC HRA · Program & Data Management · Fraud Detection Auditing Tool</div>
             <h1 style={{ margin:0, fontSize:"clamp(16px,3.2vw,24px)", color:D.headerText, fontWeight:700, lineHeight:1.2 }}>Sovereign Integrity Engine — SNAP/EBT Fraud Detection System</h1>
-            <div style={{ color:D.headerText+"99", fontSize:12, marginTop:5 }}>WMS · ACCESS HRA · POS · NIST-800-53 Compliant · $7.6B Budget Oversight</div>
+            <div className="hdr-sub" style={{ color:D.headerText+"99", fontSize:12, marginTop:5 }}>WMS · ACCESS HRA · POS · NIST-800-53 Compliant · $7.6B Budget Oversight</div>
           </div>
           <div style={{ textAlign:"right" }}>
             <div style={{ fontSize:10, color:D.headerText+"88", textTransform:"uppercase", letterSpacing:0.5, marginBottom:2, fontFamily:"'IBM Plex Mono','Courier New',monospace" }}>System Status</div>
-            <div style={{ color:"#5da87a", fontWeight:700, fontSize:13, fontFamily:"'IBM Plex Mono','Courier New',monospace" }}>● OPERATIONAL — {pulse.uptime} uptime</div>
+            <div className="hdr-status" style={{ color:"#5da87a", fontWeight:700, fontSize:13, fontFamily:"'IBM Plex Mono','Courier New',monospace" }}>● OPERATIONAL — {pulse.uptime} uptime</div>
             <div style={{ fontSize:11, color:D.headerText+"88", marginTop:4 }}>Compiled by <strong style={{color:D.primaryLight}}>Lancelot Napier-Kane</strong></div>
             <div style={{ fontSize:10, color:D.headerText+"77" }}>HRA Program & Data Manager · Nov 2023–Sep 2024</div>
             <button
@@ -1387,7 +1400,7 @@ export default function HRAFraudAuditTool() {
             </button>
           </div>
         </div>
-        <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
+        <div className="hdr-badges" style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
           {[[`${pulse.txProcessed.toLocaleString()} Tx Today`,"#5da87a"],[`${pulse.packetsPerSec.toLocaleString()} pkt/s`,"#3fb899"],["NIST-800-53 Aligned",D.primaryLight],["34,306 NYC Fraud Cases Q1 '24","#e07070"],["$7.6B Budget Managed","#d08050"]].map(([l,c])=>(
             <span key={l} style={{ fontSize:11, color:c, background:c+"22", padding:"3px 10px", borderRadius:3, border:`1px solid ${c}44`, fontFamily:"'IBM Plex Mono','Courier New',monospace", fontWeight:700 }}>{l}</span>
           ))}
@@ -1395,7 +1408,7 @@ export default function HRAFraudAuditTool() {
       </div>
 
       {/* Tabs */}
-      <div style={{ background: D.headerBg, padding: "0 24px", display: "flex", alignItems: "stretch", borderBottom: `3px solid ${D.primary}`, flexWrap: "nowrap", overflowX: "auto", gap: 0 }}>
+      <div className="fraud-tabs" style={{ background: D.headerBg, padding: "0 24px", display: "flex", alignItems: "stretch", borderBottom: `3px solid ${D.primary}`, flexWrap: "nowrap", overflowX: "auto", gap: 0 }}>
         {tabs.map((tab, i) => (
           <button key={i} onClick={() => setActiveTab(i)}
             style={{

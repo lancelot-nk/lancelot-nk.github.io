@@ -571,6 +571,14 @@ export default function B2BChurnPredictorSimulation() {
         .b2b-root { overflow-x: hidden !important; }
         .b2b-root .grid-cols-3, .b2b-root .grid-cols-4 { grid-template-columns: 1fr 1fr !important; }
         .b2b-root .grid-cols-5, .b2b-root .grid-cols-6 { grid-template-columns: 1fr 1fr !important; }
+        /* Header bar */
+        .b2b-header-inner { flex-wrap: wrap !important; gap: 6px !important; }
+        .b2b-header-left { min-width: 0 !important; gap: 6px !important; flex-wrap: wrap !important; }
+        .b2b-header-left .b2b-header-separator { display: none !important; }
+        .b2b-header-left .b2b-header-live { display: none !important; }
+        .b2b-header-title h1 { font-size: 11px !important; }
+        .b2b-header-title p { font-size: 9px !important; }
+        .b2b-header-badges { display: none !important; }
       }
     `}</style>
     <TooltipProvider>
@@ -578,9 +586,9 @@ export default function B2BChurnPredictorSimulation() {
         {/* System Header Bar */}
         <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur-xl">
           <div className="mx-auto max-w-7xl px-4 py-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
+            <div className="b2b-header-inner flex items-center justify-between">
+              <div className="b2b-header-left flex items-center gap-4">
+                <div className="b2b-header-title flex items-center gap-2">
                   <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-slate-700">
                     <Truck className="h-5 w-5 text-white" />
                   </div>
@@ -589,15 +597,15 @@ export default function B2BChurnPredictorSimulation() {
                     <p className="text-[10px] text-slate-500">B2B Target Tracker & Churn Predictor</p>
                   </div>
                 </div>
-                <Separator orientation="vertical" className="h-8 bg-slate-300" />
-                <div className="flex items-center gap-2 text-xs text-slate-500">
+                <Separator orientation="vertical" className="b2b-header-separator h-8 bg-slate-300" />
+                <div className="b2b-header-live flex items-center gap-2 text-xs text-slate-500">
                   <Signal className="h-3.5 w-3.5 text-emerald-400 animate-pulse" />
                   <span>Live Simulation</span>
                   <span className="text-slate-600">•</span>
                   <span className="font-mono">{systemTime.toLocaleTimeString()}</span>
                 </div>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="b2b-header-badges flex items-center gap-3">
                 <Badge variant="outline" className="border-blue-200 bg-blue-50 text-blue-600 text-[10px]">
                   <Database className="mr-1 h-3 w-3" />
                   Salesforce Sync
