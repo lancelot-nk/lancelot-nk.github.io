@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState, useRef } from 'react'
+import { catalogSynth } from './dawSoundCatalog'
 import {
   Play,
   Pause,
@@ -1417,14 +1418,11 @@ async function generatePresetSoundKit(
     for (let i = 0; i < slot.padIds.length; i++) {
       const padIdx = slot.padIds[i]
       if (samples.has(padIdx)) continue
-      const synthType = CATEGORY_SYNTH_MAP[slot.category] ?? 'synth_hit'
       try {
-        // Variant seeded by preset+pad so each pad in each preset is unique (128-space)
-        const variant = (presetIndex * 37 + padIdx * 13 + i * 7) % 128
-        const buf = await synthesizePadSound(synthType, variant)
+        const buf = await catalogSynth(presetIndex, i, slot.category)
         samples.set(padIdx, {
           id: -(presetIndex * 100 + padIdx + 1),
-          name: `Synth ${slot.category} #${variant}`,
+          name: `Catalog ${slot.category} p${presetIndex}i${i}`,
           previewUrl: '',
           audioBuffer: buf,
         })
@@ -3045,11 +3043,9 @@ export default function AlphaDAW() {
             for (let i = 0; i < slot.padIds.length; i++) {
               const padIdx = slot.padIds[i]
               if (buffers.has(padIdx)) continue
-              const synthType = CATEGORY_SYNTH_MAP[slot.category] ?? 'synth_hit'
               try {
-                const variant = (presetIndex * 37 + padIdx * 13 + i * 7) % 128
-                const buf = await synthesizePadSound(synthType, variant)
-                const sample: FreesoundSample = { id: -(presetIndex * 100 + padIdx + 1), name: `Synth ${slot.category} #${variant}`, previewUrl: '', audioBuffer: buf }
+                const buf = await catalogSynth(presetIndex, i, slot.category)
+                const sample: FreesoundSample = { id: -(presetIndex * 100 + padIdx + 1), name: `Catalog ${slot.category} p${presetIndex}i${i}`, previewUrl: '', audioBuffer: buf }
                 samples.set(padIdx, sample)
                 buffers.set(padIdx, buf)
               } catch (e) { console.warn('[manifest synth fallback] pad', padIdx, e) }
@@ -3082,11 +3078,9 @@ export default function AlphaDAW() {
             for (let i = 0; i < slot.padIds.length; i++) {
               const padIdx = slot.padIds[i]
               if (buffers.has(padIdx)) continue
-              const synthType = CATEGORY_SYNTH_MAP[slot.category] ?? 'synth_hit'
               try {
-                const variant = (presetIndex * 37 + padIdx * 13 + i * 7) % 128
-                const buf = await synthesizePadSound(synthType, variant)
-                const sample: FreesoundSample = { id: -(presetIndex * 100 + padIdx + 1), name: `Synth ${slot.category} #${variant}`, previewUrl: '', audioBuffer: buf }
+                const buf = await catalogSynth(presetIndex, i, slot.category)
+                const sample: FreesoundSample = { id: -(presetIndex * 100 + padIdx + 1), name: `Catalog ${slot.category} p${presetIndex}i${i}`, previewUrl: '', audioBuffer: buf }
                 samples.set(padIdx, sample)
                 buffers.set(padIdx, buf)
               } catch (e) { console.warn('[cache synth fallback] pad', padIdx, e) }
