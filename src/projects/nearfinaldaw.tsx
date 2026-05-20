@@ -63,6 +63,10 @@ type PadSettings = {
   pitch: number
   octave: number
   detune: number
+  // When true the browser time-stretches the sample to keep the original pitch
+  // when playbackRate ≠ 1.0 (standard DAW "stretch" behaviour). When false,
+  // pitch shifts along with playback speed (classic tape/vinyl pitch behaviour).
+  preservesPitch: boolean
   adsr: {
     a: number
     d: number
@@ -1789,6 +1793,7 @@ const DEFAULT_PAD_SETTINGS: PadSettings = {
   pitch: 0,
   octave: 0,
   detune: 0,
+  preservesPitch: true,
   adsr: {
     a: 0.01,
     d: 0.3,
@@ -1978,6 +1983,7 @@ class AudioEngine {
     src.buffer = buf
     const playbackRate = Math.pow(2, ((padSettings.pitch + padSettings.octave * 12) / 12) + padSettings.detune / 1200)
     src.playbackRate.value = playbackRate
+    src.preservesPitch = padSettings.preservesPitch ?? true
     const gain = this.ctx.createGain()
     const panner = this.ctx.createStereoPanner()
     panner.pan.value = padSettings.pan
@@ -2494,6 +2500,9 @@ class AudioEngine {
     // Apply pitch/detune
     const pitchOffset = padSettings.pitch + padSettings.octave * 12 + padSettings.detune / 100
     source.playbackRate.value = Math.pow(2, pitchOffset / 12)
+    // Pitch-stretch toggle: when true browser time-stretches to keep original pitch (standard DAW
+    // "stretch" mode). When false pitch shifts with playback speed (tape/vinyl behaviour).
+    source.preservesPitch = padSettings.preservesPitch ?? true
 
     // FX chain — inline effects modify lastNode before panner
     let lastNode: AudioNode = gain
@@ -4925,6 +4934,40 @@ export default function AlphaDAW() {
                     }
                     className="w-full accent-indigo-500"
                   />
+                </div>
+
+                {/* Pitch-Stretch toggle */}
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-slate-400">Pitch Stretch</span>
+                  <button
+                    onClick={() =>
+                      setPadSettings((p) => ({
+                        ...p,
+                        [editingPad]: {
+                          ...p[editingPad],
+                          preservesPitch: !(p[editingPad]?.preservesPitch ?? true),
+                        },
+                      }))
+                    }
+                    title={
+                      (padSettings[editingPad]?.preservesPitch ?? true)
+                        ? 'Stretch ON — pitch held while speed changes (standard DAW mode). Click to switch to tape/vinyl mode.'
+                        : 'Stretch OFF — pitch shifts with speed (tape/vinyl). Click to switch to standard stretch mode.'
+                    }
+                    className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
+                      (padSettings[editingPad]?.preservesPitch ?? true)
+                        ? 'bg-indigo-600'
+                        : 'bg-slate-700'
+                    }`}
+                  >
+                    <span
+                      className={`inline-block h-3.5 w-3.5 rounded-full bg-white shadow transition-transform ${
+                        (padSettings[editingPad]?.preservesPitch ?? true)
+                          ? 'translate-x-4'
+                          : 'translate-x-1'
+                      }`}
+                    />
+                  </button>
                 </div>
 
                 <div>
