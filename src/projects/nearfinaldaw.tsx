@@ -2753,6 +2753,14 @@ export default function AlphaDAW() {
   const [liveRecord, setLiveRecord] = useState(false)
   const liveRecordRef = useRef(false)
   useEffect(() => { liveRecordRef.current = liveRecord }, [liveRecord])
+  // Live-record tap queue — taps are pushed here on the hot audio path (zero React overhead)
+  // and drained asynchronously via requestAnimationFrame so React re-renders never block the scheduler.
+  type LiveRecordEvent = { soundId: string; stepIdx: number }
+  const liveRecordQueueRef = useRef<LiveRecordEvent[]>([])
+  const liveRecordRafRef = useRef<number>(0)
+  // seqDataRef2 is kept current so the rAF drainer always sees latest seqData
+  const seqDataRef2 = useRef(seqData)
+  useEffect(() => { seqDataRef2.current = seqData }, [seqData])
   // Undo / Redo
   const [history, setHistory] = useState<SequencerData[]>([])
   const [future, setFuture] = useState<SequencerData[]>([])
@@ -3351,17 +3359,29 @@ export default function AlphaDAW() {
         }
       }
     }
-    // Live record: write to current playhead step on the tapped pad
+    // Live record: queue the tap for async processing via rAF — never blocks the audio scheduler
     if (liveRecordRef.current && isPlayingRef.current) {
       const writeIdx = halfMode ? currentStepRef.current : currentStepRef.current * 2
-      pushHistory(seqData)
-      setSeqData((prev) => {
-        const next = { ...prev }
-        const seq = [...(next[sound.id] || Array(80).fill({ velocity: 0, length: 1, probability: 1 }))]
-        seq[writeIdx] = { ...seq[writeIdx], velocity: 2, length: 1 }
-        next[sound.id] = seq
-        return next
-      })
+      liveRecordQueueRef.current.push({ soundId: sound.id, stepIdx: writeIdx })
+      // Schedule a drain if not already pending
+      if (!liveRecordRafRef.current) {
+        liveRecordRafRef.current = requestAnimationFrame(() => {
+          liveRecordRafRef.current = 0
+          const events = liveRecordQueueRef.current.splice(0)
+          if (events.length === 0) return
+          // Single history snapshot before applying all buffered taps
+          pushHistory(seqDataRef2.current)
+          setSeqData((prev) => {
+            const next = { ...prev }
+            for (const ev of events) {
+              const seq = [...(next[ev.soundId] || Array(80).fill({ velocity: 0, length: 1, probability: 1 }))]
+              seq[ev.stepIdx] = { ...seq[ev.stepIdx], velocity: 2, length: 1 }
+              next[ev.soundId] = seq
+            }
+            return next
+          })
+        })
+      }
     }
     if (activePadId !== sound.id) {
       setPrevPadId(activePadId)
@@ -4060,7 +4080,29 @@ export default function AlphaDAW() {
           <button onClick={pastePattern} title="Paste to active pad" className={`p-1.5 hover:bg-slate-800 rounded ${clipboardPattern ? 'text-emerald-400' : 'text-slate-500'}`}><ClipboardPaste size={14} /></button>
         </div>
         {/* Live Record */}
-        <button onClick={() => setLiveRecord((v) => !v)} title="Live Record: tap pads to write into grid" className={`flex items-center gap-1 px-2 py-1.5 rounded-lg border ${liveRecord ? 'bg-red-600 border-red-400 text-white animate-pulse' : 'bg-slate-950 border-slate-800 text-slate-300 hover:text-white'}`}>
+        <button onClick={() => setLiveRecord((v) => {
+          if (v) {
+            // Turning off: flush any queued taps immediately before stopping
+            if (liveRecordRafRef.current) {
+              cancelAnimationFrame(liveRecordRafRef.current)
+              liveRecordRafRef.current = 0
+            }
+            const remaining = liveRecordQueueRef.current.splice(0)
+            if (remaining.length > 0) {
+              pushHistory(seqDataRef2.current)
+              setSeqData((prev) => {
+                const next = { ...prev }
+                for (const ev of remaining) {
+                  const seq = [...(next[ev.soundId] || Array(80).fill({ velocity: 0, length: 1, probability: 1 }))]
+                  seq[ev.stepIdx] = { ...seq[ev.stepIdx], velocity: 2, length: 1 }
+                  next[ev.soundId] = seq
+                }
+                return next
+              })
+            }
+          }
+          return !v
+        })} title="Live Record: tap pads to write into grid" className={`flex items-center gap-1 px-2 py-1.5 rounded-lg border ${liveRecord ? 'bg-red-600 border-red-400 text-white animate-pulse' : 'bg-slate-950 border-slate-800 text-slate-300 hover:text-white'}`}>
           <Mic size={14} /> Live Rec
         </button>
         {/* Scene Mode */}
