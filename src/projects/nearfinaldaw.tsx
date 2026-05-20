@@ -3365,7 +3365,15 @@ export default function AlphaDAW() {
       updateStep(dataIdx, 0, 1)
       return
     }
-    // Click on any active cell (including the body of a stretched note) → fully erase the whole note
+    // Stretchable active cell: enter stretch mode from the head of the note instead of erasing.
+    // This makes clicking anywhere on a stretched note continue the stretch, not accidentally delete it.
+    // Shift+click still erases.
+    if (isActive && activeSound?.stretchable) {
+      lastStretchLengthRef.current = padSeq[headIdx]?.length ?? 1
+      setDragState({ type: 'stretch', startIdx: headIdx })
+      return
+    }
+    // Non-stretchable active cell → erase whole note
     if (isActive) {
       const head = headIdx
       const len = padSeq[head]?.length || 1
@@ -3499,24 +3507,28 @@ export default function AlphaDAW() {
   }
   const mutateBeat = () => {
     setSeqData((prev) => {
-      const newData = {
-        ...prev,
-      }
+      const newData = { ...prev }
       const padSeq = [...newData[activePadId]]
-      for (let i = 0; i < 80; i++) {
-        if (Math.random() > 0.8) {
-          padSeq[i] =
-            padSeq[i].velocity > 0
-              ? {
-                  velocity: 0,
-                  length: 1,
-                  probability: 1,
-                }
-              : {
-                  velocity: 2,
-                  length: 1,
-                  probability: 1,
-                }
+      // Count current density so we can bias toward removing when dense, adding when sparse
+      const activeCount = padSeq.filter((s) => s && s.velocity > 0).length
+      const total = padSeq.length
+      const density = activeCount / total  // 0..1
+      // Flip probability per step: always 15%, but the direction is biased by density.
+      // Above 50% → bias toward removing; below 50% → bias toward adding.
+      // This prevents runaway fill-up across repeated clicks.
+      const removeChance = 0.1 + density * 0.6   // 0.1 (empty) → 0.7 (full)
+      const addChance    = 0.7 - density * 0.6   // 0.7 (empty) → 0.1 (full)
+      for (let i = 0; i < total; i++) {
+        if (padSeq[i]?.velocity > 0) {
+          // Active step: remove with removeChance
+          if (Math.random() < removeChance * 0.25) {
+            padSeq[i] = { velocity: 0, length: 1, probability: 1 }
+          }
+        } else {
+          // Inactive step: add with addChance
+          if (Math.random() < addChance * 0.25) {
+            padSeq[i] = { velocity: 2, length: 1, probability: 1 }
+          }
         }
       }
       newData[activePadId] = padSeq
@@ -4320,11 +4332,11 @@ export default function AlphaDAW() {
                   return (
                     <div
                       key={col}
+                      onMouseEnter={() => handleStepMouseEnter(uiCol)}
                       className={`flex-1 relative aspect-[2/1] sm:aspect-square ${isBeatBoundary ? 'border-l-2 border-slate-700/50' : ''}`}
                     >
                       <div
                         onMouseDown={(e) => handleStepMouseDown(uiCol, e)}
-                        onMouseEnter={() => handleStepMouseEnter(uiCol)}
                         onContextMenu={(e) => {
                           e.preventDefault()
                           setEditingCell({
