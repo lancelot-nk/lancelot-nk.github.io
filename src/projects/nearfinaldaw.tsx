@@ -2911,6 +2911,7 @@ export default function AlphaDAW() {
   const perPadEffectsRef = useRef(perPadEffects)
   const effectScopesRef = useRef(effectScopes)
   const variationsRef = useRef(variations)
+  const freesoundLoadingRef = useRef(freesoundLoading)
   // UI Playhead State
   const [uiStep, setUiStep] = useState(0)
   const [uiBeat, setUiBeat] = useState(0)
@@ -2919,6 +2920,11 @@ export default function AlphaDAW() {
     type: 'paint' | 'erase' | 'stretch'
     startIdx: number
   } | null>(null)
+  const dragStateRef = useRef<{ type: 'paint' | 'erase' | 'stretch'; startIdx: number } | null>(null)
+  const setDragStateWithRef = (v: { type: 'paint' | 'erase' | 'stretch'; startIdx: number } | null) => {
+    dragStateRef.current = v
+    setDragState(v)
+  }
   // Sync refs
   useEffect(() => {
     seqDataRef.current = seqData
@@ -2974,6 +2980,7 @@ export default function AlphaDAW() {
   useEffect(() => { perPadEffectsRef.current = perPadEffects }, [perPadEffects])
   useEffect(() => { effectScopesRef.current = effectScopes }, [effectScopes])
   useEffect(() => { variationsRef.current = variations }, [variations])
+  useEffect(() => { freesoundLoadingRef.current = freesoundLoading }, [freesoundLoading])
   useEffect(() => {
     try { localStorage.setItem('daw-pad-timing-mode', JSON.stringify(padTimingMode)) } catch {}
   }, [padTimingMode])
@@ -3125,7 +3132,9 @@ export default function AlphaDAW() {
                   const isSnip = (padTimingModeRef.current[sound.id] ?? 'timing') === 'snip'
                   engine.playFreesoundSample(presetBuf, sound.id, time + jitter, step.velocity, stepDurVar, pSettings, sound.stretchable ?? false, isSnip)
                 } else {
-                  engine.playSynth(sound, time + jitter, stepDurVar, step.velocity, currentPreset, pSettings, isAmb, smod)
+                  if (!freesoundLoadingRef.current) {
+                    engine.playSynth(sound, time + jitter, stepDurVar, step.velocity, currentPreset, pSettings, isAmb, smod)
+                  }
                 }
               }
             })
@@ -3206,6 +3215,8 @@ export default function AlphaDAW() {
               )
               return
             }
+            // Suppress synth fallback while CDN samples are loading — avoids noisy placeholder sounds
+            if (freesoundLoadingRef.current) return
             // Fallback to synthesized sound
             engine.playSynth(
               sound,
@@ -3325,16 +3336,19 @@ export default function AlphaDAW() {
           isSnip,
         )
       } else {
-        engine.playSynth(
-          sound,
-          engine.ctx!.currentTime,
-          stepDur,
-          2,
-          preset,
-          pSettings,
-          isAmbient,
-          chaosMods?.[sound.id],
-        )
+        // Block synth fallback while CDN samples are loading
+        if (!freesoundLoading) {
+          engine.playSynth(
+            sound,
+            engine.ctx!.currentTime,
+            stepDur,
+            2,
+            preset,
+            pSettings,
+            isAmbient,
+            chaosMods?.[sound.id],
+          )
+        }
       }
     }
     // Live record: write to current playhead step on the tapped pad
@@ -3377,7 +3391,7 @@ export default function AlphaDAW() {
     const headIdx = findStretchHead(padSeq, dataIdx)
     const isActive = headIdx >= 0
     if (isShift) {
-      setDragState({ type: 'erase', startIdx: dataIdx })
+      setDragStateWithRef({ type: 'erase', startIdx: dataIdx })
       updateStep(dataIdx, 0, 1)
       return
     }
@@ -3386,7 +3400,7 @@ export default function AlphaDAW() {
     // Shift+click still erases.
     if (isActive && activeSound?.stretchable) {
       lastStretchLengthRef.current = padSeq[headIdx]?.length ?? 1
-      setDragState({ type: 'stretch', startIdx: headIdx })
+      setDragStateWithRef({ type: 'stretch', startIdx: headIdx })
       return
     }
     // Non-stretchable active cell → erase whole note
@@ -3402,11 +3416,11 @@ export default function AlphaDAW() {
         next[activePadId] = seq
         return next
       })
-      setDragState({ type: 'erase', startIdx: dataIdx })
+      setDragStateWithRef({ type: 'erase', startIdx: dataIdx })
       return
     }
     // Empty cell → paint
-    setDragState({ type: 'paint', startIdx: dataIdx })
+    setDragStateWithRef({ type: 'paint', startIdx: dataIdx })
     updateStep(dataIdx, 2, 1)
   }
   // Ref to track the last applied stretch length — avoids spamming setState on every mouseenter
@@ -3417,28 +3431,29 @@ export default function AlphaDAW() {
     const headIdx = findStretchHead(padSeq, dataIdx)
     if (headIdx >= 0) {
       lastStretchLengthRef.current = padSeq[headIdx]?.length ?? 1
-      setDragState({ type: 'stretch', startIdx: headIdx })
+      setDragStateWithRef({ type: 'stretch', startIdx: headIdx })
     }
   }
   const handleStepMouseEnter = (uiCol: number) => {
-    if (!dragState) return
+    const ds = dragStateRef.current
+    if (!ds) return
     const dataIdx = halfMode ? uiCol : uiCol * 2
-    if (dragState.type === 'paint') {
+    if (ds.type === 'paint') {
       updateStep(dataIdx, 2, 1)
-    } else if (dragState.type === 'erase') {
+    } else if (ds.type === 'erase') {
       updateStep(dataIdx, 0, 1)
-    } else if (dragState.type === 'stretch') {
-      if (dataIdx >= dragState.startIdx) {
-        const length = dataIdx - dragState.startIdx + 1
+    } else if (ds.type === 'stretch') {
+      if (dataIdx >= ds.startIdx) {
+        const length = dataIdx - ds.startIdx + 1
         // Only update state when the length actually changes — prevents spaz re-renders
         if (length === lastStretchLengthRef.current) return
         lastStretchLengthRef.current = length
         setSeqData((prev) => {
           const newData = { ...prev }
           const padSeq = [...newData[activePadId]]
-          padSeq[dragState.startIdx] = { ...padSeq[dragState.startIdx], length }
+          padSeq[ds.startIdx] = { ...padSeq[ds.startIdx], length }
           // Clear intermediate cells
-          for (let i = dragState.startIdx + 1; i <= dataIdx; i++) {
+          for (let i = ds.startIdx + 1; i <= dataIdx; i++) {
             padSeq[i] = { velocity: 0, length: 1, probability: 1 }
           }
           newData[activePadId] = padSeq
@@ -3449,7 +3464,7 @@ export default function AlphaDAW() {
   }
   const handleMouseUp = () => {
     lastStretchLengthRef.current = -1
-    setDragState(null)
+    setDragStateWithRef(null)
   }
   useEffect(() => {
     window.addEventListener('mouseup', handleMouseUp)
@@ -4426,7 +4441,15 @@ export default function AlphaDAW() {
 
         {/* PERFORMANCE PADS & MIXER */}
         <section className="flex flex-col gap-4">
-          <div className="bg-slate-900 rounded-xl p-4 border border-slate-800">
+          <div className="bg-slate-900 rounded-xl p-4 border border-slate-800 relative">
+            {/* Loading overlay — hides pads and suppresses interaction while CDN samples are loading */}
+            {freesoundLoading && (
+              <div className="absolute inset-0 z-20 rounded-xl bg-slate-950/90 flex flex-col items-center justify-center gap-3 backdrop-blur-sm">
+                <div className="w-8 h-8 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
+                <p className="text-amber-300 text-sm font-semibold">Loading sounds…</p>
+                <p className="text-slate-400 text-xs">{freesoundProgress.loaded} / {freesoundProgress.total} pads ready</p>
+              </div>
+            )}
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-sm font-bold text-slate-400 uppercase tracking-widest">
                 Performance Pads
