@@ -209,13 +209,13 @@ export const PRESET_ASSIGN: PresetConfig[] = [
   /* 4  Techno */          P( 4,'TR808','MFB512',        'synth_bass_2',         'woodblock',       'lead_6_voice',     'pad_3_polysynth',      'lead_5_charang',        'lead_8_bass__lead',     'synth_drum',            'pad_6_metallic',        'MusyngKite','cMin'),
   /* 5  Drum&Bass */       P( 5,'MFB512','TR808',        'slap_bass_2',          'agogo',           'voice_oohs',      'pad_8_sweep',          'lead_7_fifths',         'lead_2_sawtooth',       'synth_drum',            'lead_3_calliope',       'FluidR3_GM','dMin'),
   /* 6  Ambient */         P( 6,'CASIO_SK1','CASIO_SK1', 'fretless_bass',        'tinkle_bell',     'choir_aahs',      'pad_1_new_age',        'pad_4_choir',           'pad_2_warm',            'celesta',               'pad_7_halo',            'MusyngKite','eMin'),
-  /* 7  Industrial */      P( 7,'ROLAND_CR8000','TR808', 'overdriven_guitar',    'reverse_cymbal',  'lead_6_voice',     'pad_6_metallic',       'distortion_guitar',     'overdriven_guitar',     'gunshot',               'helicopter',            'FluidR3_GM','cMin'),
-  /* 8  Latin */           P( 8,'ROLAND_CR8000','LM2',   'acoustic_bass',        'taiko_drum',      'choir_aahs',      'acoustic_guitar_nylon','trumpet',               'acoustic_guitar_nylon', 'marimba',               'muted_trumpet',         'FluidR3_GM','dMin'),
+  /* 7  Industrial */      P( 7,'ROLAND_CR8000','TR808', 'overdriven_guitar',    'synth_drum',      'lead_6_voice',     'pad_6_metallic',       'distortion_guitar',     'overdriven_guitar',     'gunshot',               'helicopter',            'FluidR3_GM','cMin'),
+  /* 8  Latin */           P( 8,'ROLAND_CR8000','LM2',   'acoustic_bass',        'agogo',           'choir_aahs',      'acoustic_guitar_nylon','trumpet',               'acoustic_guitar_nylon', 'marimba',               'muted_trumpet',         'FluidR3_GM','dMin'),
   /* 9  Jazz */            P( 9,'YAMAHA_MR10','LM2',     'acoustic_bass',        'vibraphone',      'voice_oohs',      'electric_piano_1',     'alto_sax',              'tenor_sax',             'acoustic_guitar_nylon', 'soprano_sax',           'MusyngKite','bbMaj'),
   /*10  Funk */            P(10,'LM2','TR808',           'slap_bass_1',          'clavinet',        'lead_6_voice',     'clavinet',             'electric_guitar_clean', 'electric_guitar_muted', 'electric_guitar_jazz',  'trumpet',               'FluidR3_GM','ebMaj'),
   /*11  K-Pop */           P(11,'MINI808','TR808',       'synth_bass_1',         'glockenspiel',    'voice_oohs',      'electric_piano_1',     'lead_1_square',         'lead_2_sawtooth',       'celesta',               'string_ensemble_1',     'MusyngKite','cMaj'),
   /*12  Phonk */           P(12,'TR808','LM2',           'synth_bass_2',         'agogo',           'lead_6_voice',     'rock_organ',           'distortion_guitar',     'overdriven_guitar',     'synth_drum',            'lead_8_bass__lead',     'FluidR3_GM','cMin'),
-  /*13  Hardstyle */       P(13,'MFB512','TR808',        'synth_bass_2',         'reverse_cymbal',  'lead_6_voice',     'pad_3_polysynth',      'lead_8_bass__lead',     'lead_5_charang',        'synth_drum',            'pad_6_metallic',        'MusyngKite','cMin'),
+  /*13  Hardstyle */       P(13,'MFB512','TR808',        'synth_bass_2',         'woodblock',       'lead_6_voice',     'pad_3_polysynth',      'lead_8_bass__lead',     'lead_5_charang',        'synth_drum',            'pad_6_metallic',        'MusyngKite','cMin'),
   /*14  Cinematic */       P(14,'CASIO_RZ1','TR808',     'contrabass',           'timpani',         'choir_aahs',      'string_ensemble_1',    'french_horn',           'string_ensemble_2',     'pizzicato_strings',     'orchestral_harp',       'MusyngKite','dMin'),
   /*15  432Hz Heal */      P(15,'CASIO_SK1','CASIO_SK1', 'fretless_bass',        'tinkle_bell',     'choir_aahs',      'pad_1_new_age',        'pad_4_choir',           'pad_8_sweep',           'celesta',               'koto',                  'FatBoy',    'gMaj'),
   /*16  SoundFX Goofy */   P(16,'MINI808','LM2',         'synth_bass_1',         'woodblock',       'lead_6_voice',     'fx_3_crystal',         'ocarina',               'fx_5_brightness',       'bird_tweet',            'fx_8_scifi',            'FluidR3_GM','cMaj'),
@@ -227,7 +227,7 @@ export const PRESET_ASSIGN: PresetConfig[] = [
   /*22  Bossa Nova */      P(22,'YAMAHA_MR10','LM2',     'acoustic_bass',        'agogo',           'voice_oohs',      'acoustic_guitar_nylon','acoustic_guitar_nylon', 'tenor_sax',             'acoustic_guitar_nylon', 'flute',                 'FluidR3_GM','fMaj'),
   /*23  Synthwave 80s */   P(23,'MFB512','LM2',          'synth_bass_2',         'tinkle_bell',     'lead_6_voice',     'pad_2_warm',           'lead_2_sawtooth',       'lead_5_charang',        'fx_3_crystal',          'pad_3_polysynth',       'MusyngKite','aMin'),
   /*24  Grime UK */        P(24,'TR808','MFB512',        'synth_bass_1',         'agogo',           'lead_6_voice',     'pad_8_sweep',          'lead_2_sawtooth',       'lead_6_voice',          'synth_drum',            'lead_8_bass__lead',     'FluidR3_GM','cMin'),
-  /*25  Reggaeton */       P(25,'ROLAND_CR8000','TR808', 'slap_bass_1',          'taiko_drum',      'voice_oohs',      'acoustic_guitar_steel','trumpet',               'muted_trumpet',         'marimba',               'electric_guitar_clean', 'FluidR3_GM','aMin'),
+  /*25  Reggaeton */       P(25,'ROLAND_CR8000','TR808', 'slap_bass_1',          'marimba',         'voice_oohs',      'acoustic_guitar_steel','trumpet',               'muted_trumpet',         'marimba',               'electric_guitar_clean', 'FluidR3_GM','aMin'),
   /*26  Math Rock */       P(26,'MICRO_RH12','LM2',      'electric_bass_pick',   'marimba',         'lead_6_voice',     'electric_guitar_clean','electric_guitar_clean', 'electric_guitar_jazz',  'electric_guitar_muted', 'distortion_guitar',     'MusyngKite','gMaj'),
 ]
 
@@ -322,18 +322,22 @@ const POOL_ELECTRONIC: GenrePool = {
   ],
   perc: [
     tin('xylophone','C5'),
-    sf('MusyngKite','synth_drum','C4'),
+    sf('MusyngKite','woodblock','C5'),
     sf('FluidR3_GM','woodblock','C5'),
     sf('MusyngKite','agogo','C5'),
     sf('FluidR3_GM','steel_drums','C5'),
     sf('MusyngKite','glockenspiel','C6'),
     sf('FluidR3_GM','tinkle_bell','C6'),
+    dm('LM2','tambourine'),
+    dm('TR808','cowbell/cb'),
+    dm('TR808','clave/cl'),
+    dm('TR808','maraca/ma'),
   ],
   voc: [
     sf('FluidR3_GM','lead_6_voice','A3'),
     sf('MusyngKite','voice_oohs','A3'),
     sf('FluidR3_GM','choir_aahs','A3'),
-    tin('harmonium','A3'),
+    sf('MusyngKite','choir_aahs','A3'),
     sf('MusyngKite','pad_4_choir','C4'),
     sf('FluidR3_GM','lead_6_voice','C4'),
     sf('MusyngKite','lead_6_voice','C4'),
@@ -388,11 +392,11 @@ const POOL_URBAN: GenrePool = {  // trap / phonk / grime
   voc: [
     sf('FluidR3_GM','voice_oohs','A3'),
     sf('MusyngKite','lead_6_voice','A3'),
-    tin('harmonium','A4'),
+    sf('MusyngKite','voice_oohs','C4'),
     sf('FluidR3_GM','choir_aahs','C4'),
     sf('MusyngKite','pad_4_choir','A3'),
     sf('FluidR3_GM','lead_6_voice','A3'),
-    sf('MusyngKite','voice_oohs','C4'),
+    sf('FluidR3_GM','choir_aahs','A3'),
   ],
   altKits: ['Stark','LINN','Kit8','breakbeat13','R8','CR78','Kit3'],
 }
@@ -443,11 +447,11 @@ const POOL_ACOUSTIC: GenrePool = {  // lo-fi / rock-adjacent
   ],
   voc: [
     sf('FluidR3_GM','voice_oohs','A3'),
-    tin('harmonium','A3'),
+    sf('FluidR3_GM','voice_oohs','C4'),
     sf('MusyngKite','choir_aahs','A3'),
     sf('FluidR3_GM','lead_6_voice','A3'),
     sf('MusyngKite','pad_4_choir','C4'),
-    tin('harmonium','C4'),
+    sf('MusyngKite','lead_6_voice','A3'),
     sf('FluidR3_GM','choir_aahs','C4'),
   ],
   altKits: ['acoustic-kit','Stark','LINN','Kit3','CR78','Kit8'],
@@ -501,10 +505,10 @@ const POOL_AMBIENT: GenrePool = {
     sf('FluidR3_GM','choir_aahs','A3'),
     sf('MusyngKite','voice_oohs','A4'),
     sf('FluidR3_GM','pad_4_choir','C4'),
-    tin('harmonium','A3'),
+    sf('MusyngKite','choir_aahs','C4'),
     sf('MusyngKite','lead_6_voice','C4'),
     sf('FluidR3_GM','choir_aahs','C4'),
-    tin('harmonium','C4'),
+    sf('FluidR3_GM','lead_6_voice','A3'),
   ],
   altKits: ['CR78','KPR77','4OP-FM','Stark','Kit3','LINN','TheCheebacabra1'],
 }
@@ -556,10 +560,10 @@ const POOL_JAZZ: GenrePool = {
   voc: [
     sf('FluidR3_GM','voice_oohs','A3'),
     sf('MusyngKite','choir_aahs','A3'),
-    tin('harmonium','A3'),
+    sf('MusyngKite','voice_oohs','C4'),
     sf('FluidR3_GM','lead_6_voice','A3'),
     sf('MusyngKite','pad_4_choir','C4'),
-    tin('harmonium','C4'),
+    sf('FluidR3_GM','choir_aahs','C4'),
     sf('FluidR3_GM','voice_oohs','C4'),
   ],
   altKits: ['acoustic-kit','LINN','Stark','CR78','Kit3','TheCheebacabra1'],
@@ -614,9 +618,9 @@ const POOL_WORLD: GenrePool = {
     sf('MusyngKite','choir_aahs','A3'),
     sf('FluidR3_GM','lead_6_voice','A3'),
     sf('MusyngKite','pad_4_choir','C4'),
-    tin('harmonium','A3'),
-    sf('FluidR3_GM','shanai','C5'),
-    sf('MusyngKite','pan_flute','C5'),
+    sf('MusyngKite','lead_6_voice','C4'),
+    sf('FluidR3_GM','choir_aahs','C4'),
+    sf('MusyngKite','voice_oohs','C4'),
   ],
   altKits: ['Stark','breakbeat9','breakbeat13','Kit3','R8','CR78','LINN'],
 }
@@ -669,10 +673,10 @@ const POOL_ORCHESTRAL: GenrePool = {
     sf('FluidR3_GM','choir_aahs','A3'),
     sf('MusyngKite','voice_oohs','A3'),
     sf('FluidR3_GM','pad_4_choir','C4'),
-    tin('harmonium','C4'),
+    sf('MusyngKite','pad_4_choir','A3'),
     sf('MusyngKite','choir_aahs','C4'),
     sf('FluidR3_GM','lead_6_voice','A3'),
-    tin('harmonium','A3'),
+    sf('MusyngKite','lead_6_voice','A3'),
   ],
   altKits: ['Stark','Kit3','CR78','LINN','Casio-RZ1-substitute','LM-2-substitute'],
 }
@@ -727,7 +731,7 @@ const POOL_FX: GenrePool = {  // chiptune / sound-fx / goofy
     sf('FluidR3_GM','choir_aahs','A3'),
     sf('MusyngKite','pad_4_choir','C4'),
     sf('FluidR3_GM','lead_6_voice','C4'),
-    tin('harmonium','A3'),
+    sf('MusyngKite','choir_aahs','C4'),
     sf('MusyngKite','lead_6_voice','C4'),
   ],
   altKits: ['4OP-FM','KPR77','Kit8','LINN','CR78','Techno'],
@@ -941,34 +945,43 @@ export async function synthesizeFill(
   const sec = PRESET_SEC[presetIdx]
   if (!cfg) return null
 
-  // Choose URL list based on localIdx
+  // localIdx 0: rapid snare roll (8 hits at 16th-note spacing + kick at end)
+  // localIdx 1: descending tom fill (tom cascade tom1→tom2→tom3→kick)
   let urls: string[]
+  let offsets: number[]
+  let gains: number[]
+
   if (localIdx >= 1 && sec) {
     const kit = sec.altFillKit
+    // Tom cascade fill: tom1 tom1 tom2 tom2 tom3 kick
     urls = [
-      `${TONEJS_KIT_BASE}/${kit}/snare.mp3`,
-      `${TONEJS_KIT_BASE}/${kit}/snare.mp3`,
-      `${TONEJS_KIT_BASE}/${kit}/hihat.mp3`,
-      `${TONEJS_KIT_BASE}/${kit}/snare.mp3`,
       `${TONEJS_KIT_BASE}/${kit}/tom1.mp3`,
+      `${TONEJS_KIT_BASE}/${kit}/tom1.mp3`,
+      `${TONEJS_KIT_BASE}/${kit}/tom2.mp3`,
+      `${TONEJS_KIT_BASE}/${kit}/tom2.mp3`,
+      `${TONEJS_KIT_BASE}/${kit}/tom3.mp3`,
       `${TONEJS_KIT_BASE}/${kit}/kick.mp3`,
     ]
+    offsets = [0.00, 0.25, 0.50, 0.75, 1.00, 1.25]
+    gains   = [0.9, 0.9, 0.95, 0.95, 1.0, 1.0]
   } else {
     const samples = cfg.fill.samples
     if (!samples.length) return null
-    urls = samples.slice(0, 6).map(s => dmUrl(cfg.fill.machine, s))
+    // Snare roll: use same snare sample repeated 8 times at 16th-note intervals
+    const snareUrl = dmUrl(cfg.fill.machine, samples[0])
+    urls    = Array(8).fill(snareUrl)
+    // Crescendo: start quiet, get louder
+    offsets = [0.00, 0.125, 0.25, 0.375, 0.50, 0.625, 0.75, 0.875]
+    gains   = [0.35, 0.45, 0.55, 0.65, 0.75, 0.85, 0.95, 1.0]
   }
 
   const bufs = await Promise.all(urls.map(loader))
   const valid = bufs.filter((b): b is AudioBuffer => !!b)
   if (valid.length === 0) return null
 
-  const length = ctx.sampleRate * 1.4
+  const totalDuration = offsets[offsets.length - 1] + 0.5
+  const length = ctx.sampleRate * Math.min(totalDuration, 6)
   const offline = new OfflineAudioContext(2, length, ctx.sampleRate)
-  const offsets = localIdx % 2 === 0
-    ? [0.00, 0.10, 0.20, 0.30, 0.50, 0.80]
-    : [0.00, 0.08, 0.16, 0.24, 0.40, 0.70]
-  const gains   = [0.4, 0.5, 0.6, 0.7, 0.85, 1.0]
   offsets.forEach((t, i) => {
     const src = offline.createBufferSource()
     src.buffer = valid[i % valid.length]
