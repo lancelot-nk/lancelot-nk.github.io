@@ -2800,6 +2800,7 @@ export default function AlphaDAW() {
     try { return JSON.parse(localStorage.getItem(FAV_KEY) || '[]') } catch { return [] }
   })
   const [favoritesViewOpen, setFavoritesViewOpen] = useState(false)
+  const [favoritesMode, setFavoritesMode] = useState(false)
   useEffect(() => {
     try { localStorage.setItem(FAV_KEY, JSON.stringify(favorites)) } catch { /* quota */ }
   }, [favorites])
@@ -3003,117 +3004,36 @@ export default function AlphaDAW() {
     }
     
     const loadPreset = async () => {
-      // Ensure AudioContext is ready
-      if (!engine.ctx) {
-        engine.init()
-      }
+      // Phase A: catalogSynth-only preset loading — no Freesound API here.
+      // Freesound is exclusively used by Random Skim.
+      if (!engine.ctx) engine.init()
       if (!engine.ctx) return
-      
+
       setFreesoundLoading(true)
       setFreesoundProgress({ loaded: 0, total: 32 })
 
       try {
-        const isRerolled = rerolledPresetsRef.current.has(preset)
-        const manifestPads = presetManifest?.[preset]
-        const useManifest = !isRerolled && manifestPads && manifestPads.length >= 28
-
-        if (useManifest) {
-          // ── MANIFEST PATH: use pre-vetted sound IDs ──
-          const samples = new Map<number, FreesoundSample>()
-          const buffers = new Map<number, AudioBuffer>()
-          let loaded = 0
-          await Promise.all(manifestPads.map(async (entry) => {
-            if (entry.previewUrl) {
-              try {
-                const buf = await loadAndCacheAudio(entry.previewUrl, engine.ctx!)
-                if (buf) {
-                  const refined = await refineAudioBuffer(buf, engine.ctx!)
-                  const sample: FreesoundSample = { id: entry.id, name: entry.name, previewUrl: entry.previewUrl, audioBuffer: refined }
-                  samples.set(entry.padIdx, sample)
-                  buffers.set(entry.padIdx, refined)
-                }
-              } catch (e) { console.warn('[manifest] pad', entry.padIdx, e) }
-            }
+        const presetIndex = Math.max(0, PRESETS.indexOf(preset))
+        const samples = new Map<number, FreesoundSample>()
+        const buffers = new Map<number, AudioBuffer>()
+        let loaded = 0
+        for (const slot of BLUEPRINT_SLOT_MAP) {
+          for (let i = 0; i < slot.padIds.length; i++) {
+            const padIdx = slot.padIds[i]
+            try {
+              const buf = await catalogSynth(presetIndex, i, slot.category)
+              samples.set(padIdx, { id: -(presetIndex * 100 + padIdx + 1), name: `${slot.category} ${i + 1}`, previewUrl: '', audioBuffer: buf })
+              buffers.set(padIdx, buf)
+            } catch (e) { console.warn('[catalogSynth] pad', padIdx, e) }
             loaded++
             setFreesoundProgress({ loaded, total: 32 })
-          }))
-          // SYNTH FALLBACK for any manifest pads that failed to load (403 etc)
-          const presetIndex = Math.max(0, PRESETS.indexOf(preset))
-          for (const slot of BLUEPRINT_SLOT_MAP) {
-            for (let i = 0; i < slot.padIds.length; i++) {
-              const padIdx = slot.padIds[i]
-              if (buffers.has(padIdx)) continue
-              try {
-                const buf = await catalogSynth(presetIndex, i, slot.category)
-                const sample: FreesoundSample = { id: -(presetIndex * 100 + padIdx + 1), name: `Catalog ${slot.category} p${presetIndex}i${i}`, previewUrl: '', audioBuffer: buf }
-                samples.set(padIdx, sample)
-                buffers.set(padIdx, buf)
-              } catch (e) { console.warn('[manifest synth fallback] pad', padIdx, e) }
-            }
           }
-          engine.setPresetBuffers(preset, buffers)
-          setFreesoundSamples(samples)
-          setLoadedPresets(prev => new Set(prev).add(preset))
-        } else if (getCachedPresetMetadata(preset)) {
-          // ── CACHE PATH: restore from localStorage + CacheStorage ──
-          const cachedMeta = getCachedPresetMetadata(preset)!
-          const samples = new Map<number, FreesoundSample>()
-          const buffers = new Map<number, AudioBuffer>()
-          let loaded = 0
-          await Promise.all(Array.from(cachedMeta.samples.entries()).map(async ([padIdx, sample]) => {
-            if (sample.previewUrl) {
-              const buf = await loadAndCacheAudio(sample.previewUrl, engine.ctx!)
-              if (buf) {
-                const refined = await refineAudioBuffer(buf, engine.ctx!)
-                samples.set(padIdx, { ...sample, audioBuffer: refined })
-                buffers.set(padIdx, refined)
-              }
-            }
-            loaded++
-            setFreesoundProgress({ loaded, total: 32 })
-          }))
-          // SYNTH FALLBACK for any cache pads that failed to load
-          const presetIndex = Math.max(0, PRESETS.indexOf(preset))
-          for (const slot of BLUEPRINT_SLOT_MAP) {
-            for (let i = 0; i < slot.padIds.length; i++) {
-              const padIdx = slot.padIds[i]
-              if (buffers.has(padIdx)) continue
-              try {
-                const buf = await catalogSynth(presetIndex, i, slot.category)
-                const sample: FreesoundSample = { id: -(presetIndex * 100 + padIdx + 1), name: `Catalog ${slot.category} p${presetIndex}i${i}`, previewUrl: '', audioBuffer: buf }
-                samples.set(padIdx, sample)
-                buffers.set(padIdx, buf)
-              } catch (e) { console.warn('[cache synth fallback] pad', padIdx, e) }
-            }
-          }
-          engine.setPresetBuffers(preset, buffers)
-          setFreesoundSamples(samples)
-          setLoadedPresets(prev => new Set(prev).add(preset))
-        } else {
-          // ── QUERY PATH: fetch from Freesound API (reroll or no manifest/cache) ──
-          if (!checkCooldown()) {
-            setFreesoundLoading(false)
-            return
-          }
-          markFetchNow()
-          const kit = await generatePresetSoundKit(
-            preset,
-            engine.ctx!,
-            (loaded, total) => setFreesoundProgress({ loaded, total }),
-            false,
-            rerolledPresetsRef.current.has(preset)  // isReroll: light-touch cleaning
-          )
-          const buffers = new Map<number, AudioBuffer>()
-          kit.samples.forEach((sample, padIdx) => {
-            if (sample.audioBuffer) buffers.set(padIdx, sample.audioBuffer)
-          })
-          engine.setPresetBuffers(preset, buffers)
-          savePresetMetadata(kit)
-          setFreesoundSamples(kit.samples)
-          setLoadedPresets(prev => new Set(prev).add(preset))
         }
+        engine.setPresetBuffers(preset, buffers)
+        setFreesoundSamples(samples)
+        setLoadedPresets(prev => new Set(prev).add(preset))
       } catch (err) {
-        console.warn('[v0] Failed to load Freesound samples for preset:', preset, err)
+        console.warn('[loadPreset] Failed:', preset, err)
       } finally {
         setFreesoundLoading(false)
       }
@@ -3663,9 +3583,15 @@ export default function AlphaDAW() {
     }
     setCustomMap(newMap)
   }
-  // Random sound skimmer: generates 32 procedural random patches by overwriting padSettings + chaos
-  const randomSkim = () => {
+  // Random sound skimmer: fetches Freesound samples + randomizes patches.
+  // Freesound API is ONLY used here (not in preset loading).
+  const randomSkim = async () => {
     engine.init()
+    // Cooldown guard — only Freesound calls are rate-limited
+    if (!checkCooldown()) return
+    markFetchNow()
+
+    // Randomize pad settings and pattern
     const newSettings = { ...padSettings }
     const newChaos: any = {}
     SOUND_BANK.forEach((s) => {
@@ -3682,7 +3608,7 @@ export default function AlphaDAW() {
       newChaos[s.id] = { pitch: 0.3 + Math.random() * 2, filter: 0.2 + Math.random() * 3, decay: 0.2 + Math.random() * 2.5 }
     })
     setPadSettings(newSettings); setChaosMods(newChaos)
-    // also randomize the active pattern
+    // Randomize the active pattern
     pushHistory(seqData)
     setSeqData((prev) => {
       const next = { ...prev }
@@ -3691,6 +3617,31 @@ export default function AlphaDAW() {
       })
       return next
     })
+
+    // Fetch Freesound samples and apply to current preset
+    try {
+      setFreesoundLoading(true)
+      setFreesoundProgress({ loaded: 0, total: 32 })
+      const kit = await generatePresetSoundKit(
+        preset,
+        engine.ctx!,
+        (loaded, total) => setFreesoundProgress({ loaded, total }),
+        true,  // forceRefresh
+        true   // isReroll
+      )
+      const buffers = new Map<number, AudioBuffer>()
+      kit.samples.forEach((sample, padIdx) => {
+        if (sample.audioBuffer) buffers.set(padIdx, sample.audioBuffer)
+      })
+      engine.setPresetBuffers(preset, buffers)
+      setFreesoundSamples(kit.samples)
+      // Mark as loaded with fresh Freesound data
+      setLoadedPresets(prev => new Set(prev).add(preset))
+    } catch (err) {
+      console.warn('[randomSkim] Freesound fetch failed:', err)
+    } finally {
+      setFreesoundLoading(false)
+    }
   }
   // Undo / Redo
   const undo = () => {
@@ -4106,6 +4057,19 @@ export default function AlphaDAW() {
           <Star size={14} className={favorites.length > 0 ? 'text-amber-400 fill-amber-400' : ''} />
           <span className="text-xs">Favorites ({favorites.length})</span>
         </button>
+        {/* Favorites Mode — maps 32 pads to your saved favorites */}
+        <button
+          onClick={() => setFavoritesMode(m => !m)}
+          title="Favorites Mode: play your 32 saved favorites as pads"
+          className={`flex items-center gap-1 px-2 py-1.5 rounded-lg border text-xs font-semibold transition-all ${
+            favoritesMode
+              ? 'bg-amber-500 border-amber-400 text-slate-950'
+              : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-amber-300'
+          }`}
+        >
+          <Star size={14} className={favoritesMode ? 'fill-slate-950' : ''} />
+          Fav Mode
+        </button>
         {/* === EFFECTS RACK WITH LED INDICATORS === */}
         <div className="flex items-center gap-1 bg-slate-950 border border-slate-800 rounded-lg px-2 py-1.5 flex-wrap max-w-full">
           <span className="text-[10px] text-slate-500 uppercase tracking-wider mr-1">FX Rack</span>
@@ -4384,28 +4348,80 @@ export default function AlphaDAW() {
               </div>
             </div>
 
+            {/* Favorites mode banner */}
+            {favoritesMode && (
+              <div className="mb-3 px-3 py-2 rounded-lg bg-amber-500/20 border border-amber-500/40 text-amber-300 text-xs flex items-center gap-2">
+                <Star size={12} className="fill-amber-400 text-amber-400 flex-shrink-0" />
+                <span><strong>Favorites Mode</strong> — pads show your {favorites.length} saved favorite{favorites.length !== 1 ? 's' : ''}. Grey pads are empty slots.</span>
+              </div>
+            )}
             <div className={`grid grid-cols-4 md:grid-cols-8 gap-2 md:gap-3`}>
               {SOUND_BANK.map((sound, index) => {
                 if (typeof window !== 'undefined' && window.innerWidth < 768) {
                   if (mobileSide === 'A' && index >= 16) return null
                   if (mobileSide === 'B' && index < 16) return null
                 }
+                // Favorites mode: override pad display and click with favorite data
+                const fav = favoritesMode ? favorites[index] : null
+                const favEmpty = favoritesMode && !fav
+                const padLabel = fav ? fav.label : (!!customMap[sound.id] ? customMap[sound.id].name : sound.label)
+                const padColor = fav ? fav.color : sound.color
+
                 const isSelected = activePadId === sound.id
                 const pSettings = padSettings[sound.id]
                 const hasCustom = !!customMap[sound.id]
-                const dimmed = customMode && !hasCustom
+                const dimmed = favEmpty || (customMode && !hasCustom && !favoritesMode)
+
+                const handleFavPadClick = () => {
+                  if (favEmpty) return
+                  engine.init()
+                  if (!engine.ctx) return
+                  const ctx = engine.ctx
+                  // Play from stored preview URL or re-synthesize
+                  if (fav!.previewUrl) {
+                    loadAndCacheAudio(fav!.previewUrl, ctx).then(buf => {
+                      if (buf) {
+                        const src = ctx.createBufferSource(); src.buffer = buf
+                        const g = ctx.createGain(); g.gain.value = 0.8
+                        src.connect(g); g.connect(ctx.destination); src.start()
+                      }
+                    }).catch(() => {
+                      // fallback: re-synthesize
+                      const presetIdx = Math.max(0, PRESETS.indexOf(preset))
+                      catalogSynth(presetIdx, index % 2, fav!.category).then(buf => {
+                        const src = ctx.createBufferSource(); src.buffer = buf
+                        const g = ctx.createGain(); g.gain.value = 0.8
+                        src.connect(g); g.connect(ctx.destination); src.start()
+                      })
+                    })
+                  } else {
+                    // synthesized — re-synth from stored info
+                    const presetIdx = Math.max(0, PRESETS.indexOf(preset))
+                    catalogSynth(presetIdx, index % 2, fav!.category).then(buf => {
+                      const src = ctx.createBufferSource(); src.buffer = buf
+                      const g = ctx.createGain(); g.gain.value = 0.8
+                      src.connect(g); g.connect(ctx.destination); src.start()
+                    })
+                  }
+                  if (activePadId !== sound.id) { setPrevPadId(activePadId); setActivePadId(sound.id) }
+                }
+
                 return (
                   <motion.button
                     key={sound.id}
                     whileTap={{ scale: 0.92 }}
-                    onMouseDown={() => { if (!dimmed) handlePadClick(sound, index) }}
+                    onMouseDown={() => {
+                      if (dimmed) return
+                      if (favoritesMode) handleFavPadClick()
+                      else handlePadClick(sound, index)
+                    }}
                     onContextMenu={(e: React.MouseEvent) => {
                       e.preventDefault()
-                      setEditingPad(sound.id)
+                      if (!favoritesMode) setEditingPad(sound.id)
                     }}
-                    onDragOver={(e: React.DragEvent) => { if (customMode) { e.preventDefault(); e.dataTransfer.dropEffect = 'copy' } }}
+                    onDragOver={(e: React.DragEvent) => { if (customMode && !favoritesMode) { e.preventDefault(); e.dataTransfer.dropEffect = 'copy' } }}
                     onDrop={async (e: React.DragEvent) => {
-                      if (!customMode) return
+                      if (!customMode || favoritesMode) return
                       e.preventDefault()
                       const file = e.dataTransfer.files?.[0]
                       if (!file) return
@@ -4426,16 +4442,20 @@ export default function AlphaDAW() {
                     }}
                     className={`
                       aspect-square rounded-xl flex flex-col items-center justify-center relative overflow-hidden shadow-lg
-                      ${sound.color} bg-opacity-90 hover:bg-opacity-100 transition-all
-                      ${isSelected ? 'ring-4 ring-white ring-offset-2 ring-offset-slate-900 z-10 scale-105' : ''}
+                      ${favEmpty ? 'bg-slate-800' : padColor} bg-opacity-90 hover:bg-opacity-100 transition-all
+                      ${isSelected && !favoritesMode ? 'ring-4 ring-white ring-offset-2 ring-offset-slate-900 z-10 scale-105' : ''}
+                      ${favoritesMode && fav ? 'ring-2 ring-amber-400/60' : ''}
                       ${dimmed ? 'opacity-30 grayscale cursor-not-allowed' : ''}
-                      ${customMode && hasCustom ? 'ring-2 ring-emerald-400' : ''}
+                      ${customMode && hasCustom && !favoritesMode ? 'ring-2 ring-emerald-400' : ''}
                     `}
                   >
                     <span className="text-white font-bold text-xs sm:text-sm drop-shadow-md z-10 text-center px-1">
-                      {hasCustom ? customMap[sound.id].name : sound.label}
+                      {favEmpty ? `${index + 1}` : padLabel}
                     </span>
-                    {customMode && hasCustom && (
+                    {fav && (
+                      <span className="absolute bottom-1 left-1 text-[8px] text-amber-200 bg-amber-900/80 rounded px-1">{fav.category.slice(0, 3).toUpperCase()}</span>
+                    )}
+                    {!favoritesMode && customMode && hasCustom && (
                       <span className="absolute bottom-1 left-1 text-[8px] text-emerald-200 bg-emerald-900/80 rounded px-1">SMP</span>
                     )}
                     {pSettings?.fx.length > 0 && (
