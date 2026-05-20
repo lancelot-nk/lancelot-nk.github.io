@@ -573,12 +573,22 @@ export default function B2BChurnPredictorSimulation() {
         .b2b-root .grid-cols-5, .b2b-root .grid-cols-6 { grid-template-columns: 1fr 1fr !important; }
         /* Header bar */
         .b2b-header-inner { flex-wrap: wrap !important; gap: 6px !important; }
-        .b2b-header-left { min-width: 0 !important; gap: 6px !important; flex-wrap: wrap !important; }
+        .b2b-header-left { min-width: 0 !important; gap: 6px !important; flex-wrap: wrap !important; flex-shrink: 1 !important; overflow: hidden !important; }
         .b2b-header-left .b2b-header-separator { display: none !important; }
         .b2b-header-left .b2b-header-live { display: none !important; }
         .b2b-header-title h1 { font-size: 11px !important; }
         .b2b-header-title p { font-size: 9px !important; }
         .b2b-header-badges { display: none !important; }
+
+        /* Topbar: shrink icon container, clip overflow */
+        .b2b-root header { width: 100% !important; box-sizing: border-box !important; overflow: hidden !important; }
+        .b2b-root header > div { padding-left: 8px !important; padding-right: 8px !important; }
+        .b2b-header-title .h-9 { height: 28px !important; width: 28px !important; flex-shrink: 0 !important; }
+        .b2b-header-title .h-5 { height: 16px !important; width: 16px !important; }
+        .b2b-header-title { min-width: 0 !important; flex-shrink: 1 !important; overflow: hidden !important; }
+        .b2b-header-title > div:last-child { min-width: 0 !important; overflow: hidden !important; }
+        .b2b-header-title h1 { white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; }
+        .b2b-header-title p { white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; }
       }
     `}</style>
     <TooltipProvider>

@@ -1092,16 +1092,28 @@ export default function WAHMISBackendSystem() {
 @media (max-width: 640px) {
   .hsd-layout { flex-direction: column !important; }
   .hsd-sidebar { width: 100% !important; min-height: unset !important; max-height: 220px; overflow-y: auto; border-right: none !important; border-bottom: 1px solid #dbe5eb; }
-  .hsd-main { overflow-x: hidden !important; }
+  .hsd-main { overflow-x: hidden !important; max-width: 100vw !important; }
   .hsd-header { flex-wrap: wrap !important; padding: 8px 12px !important; }
   .hsd-header .text-2xl { font-size: 1rem !important; }
   .hsd-header .h-12 { width: 36px !important; height: 36px !important; }
   .hsd-tab-bar { overflow-x: auto !important; -webkit-overflow-scrolling: touch; flex-wrap: nowrap !important; }
   .hsd-tab-bar button { white-space: nowrap; flex-shrink: 0; padding: 8px 12px !important; font-size: 11px !important; }
+  /* Grid collapses */
   .grid.grid-cols-4 { grid-template-columns: repeat(2,1fr) !important; }
   .grid.grid-cols-3 { grid-template-columns: repeat(2,1fr) !important; }
   .grid.grid-cols-\\[1\\.1fr\\,0\\.9fr\\] { grid-template-columns: 1fr !important; }
   .grid.grid-cols-2 { grid-template-columns: 1fr !important; }
+  /* Sub-container containment: every child box must not exceed viewport */
+  .hsd-main * { box-sizing: border-box !important; max-width: 100% !important; }
+  /* Cards and stat tiles */
+  .hsd-main .rounded-2xl,
+  .hsd-main .rounded-3xl { min-width: 0 !important; overflow: hidden !important; }
+  /* Table wrappers: force horizontal scroll instead of bleed */
+  .hsd-main .overflow-hidden.rounded-2xl { overflow-x: auto !important; -webkit-overflow-scrolling: touch; }
+  table { min-width: 480px; }
+  /* Flex rows: wrap instead of overflow */
+  .hsd-main .flex.items-center.justify-between,
+  .hsd-main .flex.items-start.justify-between { flex-wrap: wrap !important; gap: 8px !important; }
   .hsd-map { width: 100% !important; height: 200px !important; }
   .text-4xl { font-size: 1.5rem !important; }
   .text-3xl { font-size: 1.2rem !important; }

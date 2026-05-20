@@ -897,16 +897,48 @@ export default function FleetSalesMatrixPage() {
         .sales-root table td, .sales-root table th { padding: 4px 6px !important; }
         .sales-root .grid-cols-3, .sales-root .grid-cols-4, .sales-root .grid-cols-5 { grid-template-columns: 1fr 1fr !important; }
         .sales-root .grid-cols-6, .sales-root .grid-cols-7 { grid-template-columns: repeat(3, 1fr) !important; }
+
+        /* Header: stack to prevent overflow */
+        .sales-header > div { padding: 8px 12px !important; }
+        .sales-header .sales-header-inner { flex-direction: column !important; align-items: flex-start !important; gap: 8px !important; }
+        .sales-header h1 { font-size: 0.9rem !important; }
+        .sales-header p { font-size: 0.65rem !important; }
+        .sales-header .sales-header-icon { width: 28px !important; height: 28px !important; }
+        /* Tab nav: wrap and shrink */
+        .sales-header .sales-header-nav { flex-wrap: wrap !important; gap: 4px !important; width: 100% !important; }
+        .sales-header .sales-header-nav button { padding: 4px 8px !important; font-size: 0.7rem !important; }
+        .sales-header .sales-header-nav button .w-4 { display: none !important; }
+        /* Status indicators: hide clock */
+        .sales-header .sales-header-status { font-size: 0.65rem !important; }
+        .sales-header .sales-header-clock { display: none !important; }
+
+        /* Main content: prevent overflow */
+        .sales-root main { padding: 10px 10px 20px !important; max-width: 100% !important; overflow-x: hidden !important; }
+        .sales-root .max-w-\\[1800px\\] { max-width: 100% !important; padding-left: 10px !important; padding-right: 10px !important; }
+
+        /* Horizontal flex containers above footnote: wrap */
+        .sales-root .flex.items-center.justify-between { flex-wrap: wrap !important; gap: 6px !important; }
+        .sales-root .flex.items-center.gap-6 { flex-wrap: wrap !important; gap: 6px !important; }
+        .sales-root .flex.items-center.gap-4 { flex-wrap: wrap !important; gap: 4px !important; }
+
+        /* Fixed-width containers that bleed */
+        .sales-root .w-10, .sales-root .h-10 { width: 28px !important; height: 28px !important; }
+
+        /* Footer: mobile-friendly */
+        .sales-footer > div { padding: 10px 12px !important; }
+        .sales-footer .flex.items-center.justify-between { flex-direction: column !important; align-items: flex-start !important; gap: 4px !important; }
+        .sales-footer .flex.items-center.gap-6 { flex-wrap: wrap !important; gap: 4px !important; }
+        .sales-footer .flex.items-center.gap-4 { flex-wrap: wrap !important; gap: 4px !important; }
       }
     `}</style>
     <div className="sales-root min-h-screen bg-gray-50 text-gray-900">
       {/* === HEADER === */}
-      <header className="bg-blue-600 text-white sticky top-0 z-50 shadow-lg">
+      <header className="sales-header bg-blue-600 text-white sticky top-0 z-50 shadow-lg">
         <div className="max-w-[1800px] mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
+          <div className="sales-header-inner flex items-center justify-between">
             <div className="flex items-center gap-6">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center">
+                <div className="sales-header-icon w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center">
                   <Icon name="TRUCK" className="w-6 h-6 text-white" />
                 </div>
                 <div>
@@ -917,7 +949,7 @@ export default function FleetSalesMatrixPage() {
             </div>
             
             {/* Tab Navigation */}
-            <nav className="flex items-center gap-1">
+            <nav className="sales-header-nav flex items-center gap-1">
               {[
                 { id: "matrix", label: "Decision Matrix", icon: "GRID" },
                 { id: "pipeline", label: "CRM Pipeline", icon: "USERS" },
@@ -940,12 +972,12 @@ export default function FleetSalesMatrixPage() {
             </nav>
             
             {/* Status Indicators */}
-            <div className="flex items-center gap-4">
+            <div className="sales-header-status flex items-center gap-4">
               <div className="flex items-center gap-2 text-sm text-blue-100">
                 <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
                 <span>Live</span>
               </div>
-              <div className="text-sm font-mono bg-white/10 px-3 py-1 rounded">
+              <div className="sales-header-clock text-sm font-mono bg-white/10 px-3 py-1 rounded">
                 {formatTime(simulationTime)}
               </div>
             </div>
@@ -1570,7 +1602,7 @@ export default function FleetSalesMatrixPage() {
       </main>
       
       {/* === FOOTER === */}
-      <footer className="border-t border-gray-200 bg-white mt-12">
+      <footer className="sales-footer border-t border-gray-200 bg-white mt-12">
         <div className="max-w-[1800px] mx-auto px-6 py-6">
           <div className="flex items-center justify-between text-xs text-gray-500">
             <div className="flex items-center gap-6">

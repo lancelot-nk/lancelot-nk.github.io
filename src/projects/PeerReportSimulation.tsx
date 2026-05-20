@@ -215,16 +215,92 @@ export default function PRICASSystem() {
       <style>{`
         @media (max-width: 640px) {
           .pricas-root { overflow-x: hidden !important; }
-          .pricas-header { flex-wrap: wrap !important; padding: 0.75rem 1rem !important; gap: 0.75rem !important; }
-          .pricas-header > div:last-child { flex-wrap: wrap !important; justify-content: flex-end !important; gap: 0.5rem !important; }
-          .pricas-module-grid { grid-template-columns: repeat(2, 1fr) !important; max-width: 100% !important; }
-          .pricas-dash-grid { grid-template-columns: 1fr !important; }
-          .pricas-stats-row { grid-template-columns: repeat(2, 1fr) !important; }
-          .pricas-reports-layout { flex-wrap: wrap !important; }
-          .pricas-table-wrap { overflow-x: auto !important; }
-          .pricas-detail-panel { width: 100% !important; max-width: 100% !important; box-sizing: border-box !important; }
+
+          /* ── Header ── */
+          .pricas-header {
+            flex-wrap: wrap !important;
+            padding: 0.75rem 1rem !important;
+            gap: 0.5rem !important;
+            height: auto !important;
+            align-items: flex-start !important;
+          }
+          .pricas-header > div:first-child { min-width: 0; flex-shrink: 1; }
+          .pricas-header-right {
+            flex-wrap: wrap !important;
+            width: 100% !important;
+            gap: 0.5rem !important;
+            justify-content: flex-start !important;
+            align-items: center !important;
+          }
+          /* Sync button & user info: natural size, no stretch */
+          .pricas-header-right > button,
+          .pricas-header-right > div {
+            flex-shrink: 0 !important;
+            height: auto !important;
+          }
+          /* Last-sync text block: smaller */
+          .pricas-header-right > div:nth-child(2) { font-size: 0.7rem !important; }
+          /* Hide user full name block on very tight screens */
+          .pricas-header-right > div:last-child { display: none !important; }
+
+          /* ── Module selector grid: 2 columns ── */
+          .pricas-module-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+            max-width: 100% !important;
+            gap: 0.75rem !important;
+          }
+          .pricas-module-grid > button { padding: 1rem !important; }
+
+          /* ── Stats ribbon: unwrap from pill ── */
+          .pricas-stats-ribbon {
+            border-radius: 16px !important;
+            padding: 1rem !important;
+            gap: 0.75rem !important;
+            flex-wrap: wrap !important;
+            justify-content: space-around !important;
+          }
+          .pricas-stats-ribbon > div { min-width: 42% !important; }
+          .pricas-stats-ribbon .font-bold,
+          .pricas-stats-ribbon [style*="1.75rem"] { font-size: 1.25rem !important; }
+
+          /* ── Dashboard view grid: single column ── */
+          .pricas-dash-grid {
+            grid-template-columns: 1fr !important;
+            gap: 1rem !important;
+          }
+          /* Metrics row: 2-column inside single-col outer */
+          .pricas-metrics-row {
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 0.5rem !important;
+          }
+          .pricas-metrics-row > div { padding: 0.75rem !important; }
+
+          /* ── Reports layout: stack vertically ── */
+          .pricas-reports-layout {
+            flex-direction: column !important;
+            gap: 1rem !important;
+          }
+
+          /* ── Reports table: horizontal scroll ── */
+          .pricas-table-wrap {
+            overflow-x: auto !important;
+            overflow-y: hidden !important;
+            -webkit-overflow-scrolling: touch;
+          }
+          .pricas-table-inner,
+          .pricas-table-rows { min-width: 620px !important; }
+
+          /* ── Detail panel: full width ── */
+          .pricas-detail-panel {
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+          }
+
+          /* ── General layout ── */
           .pricas-root main { padding: 1rem !important; }
           .pricas-root h1 { font-size: 1.1rem !important; }
+          .pricas-root h2 { font-size: 1.3rem !important; }
           .pricas-root h3 { font-size: 0.9rem !important; word-break: break-word; overflow-wrap: break-word; }
           .pricas-root p { word-break: break-word; overflow-wrap: break-word; }
         }
@@ -243,7 +319,7 @@ export default function PRICASSystem() {
       }} />
 
       {/* Header */}
-      <header style={{
+      <header className="pricas-header" style={{
         position: "relative",
         zIndex: 10,
         padding: "1.5rem 2rem",
@@ -289,7 +365,7 @@ export default function PRICASSystem() {
           </div>
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: "1.5rem" }}>
+        <div className="pricas-header-right" style={{ display: "flex", alignItems: "center", gap: "1.5rem" }}>
           {/* Sync indicator */}
           <button
             onClick={handleSync}
@@ -436,7 +512,7 @@ export default function PRICASSystem() {
             </div>
 
             {/* Module selector - circular arrangement */}
-            <div style={{
+            <div className="pricas-module-grid" style={{
               display: "grid",
               gridTemplateColumns: "repeat(4, 1fr)",
               gap: "1rem",
@@ -523,7 +599,7 @@ export default function PRICASSystem() {
             </div>
 
             {/* Quick stats ribbon */}
-            <div style={{
+            <div className="pricas-stats-ribbon" style={{
               display: "flex",
               gap: "2rem",
               padding: "1.5rem 3rem",
@@ -720,14 +796,14 @@ function DashboardView({ reports, hotspots, complianceMetrics, pulseEffect }: {
   }
 
   return (
-    <div style={{
+    <div className="pricas-dash-grid" style={{
       display: "grid",
       gridTemplateColumns: "repeat(3, 1fr)",
       gap: "1.5rem",
       animation: "slideIn 0.5s ease-out"
     }}>
       {/* Key Metrics Row */}
-      <div style={{
+      <div className="pricas-metrics-row" style={{
         gridColumn: "1 / -1",
         display: "grid",
         gridTemplateColumns: "repeat(5, 1fr)",
@@ -1113,7 +1189,7 @@ function ReportsView({
   animatingMetric: string | null
 }) {
   return (
-    <div style={{ display: "flex", gap: "1.5rem", animation: "slideIn 0.5s ease-out" }}>
+    <div className="pricas-reports-layout" style={{ display: "flex", gap: "1.5rem", animation: "slideIn 0.5s ease-out" }}>
       {/* Reports List */}
       <div style={{ flex: 1 }}>
         {/* Filters */}
@@ -1194,13 +1270,13 @@ function ReportsView({
         </div>
 
         {/* Reports table */}
-        <div style={{
+        <div className="pricas-table-wrap" style={{
           background: "rgba(26, 0, 48, 0.8)",
           borderRadius: "16px",
           border: "1px solid rgba(232, 213, 183, 0.1)",
           overflow: "hidden"
         }}>
-          <div style={{
+          <div className="pricas-table-inner" style={{
             display: "grid",
             gridTemplateColumns: "120px 1fr 120px 100px 100px 80px",
             padding: "1rem",
@@ -1218,7 +1294,7 @@ function ReportsView({
             <span>Status</span>
             <span>Days</span>
           </div>
-          <div style={{ maxHeight: "500px", overflowY: "auto" }}>
+          <div className="pricas-table-rows" style={{ maxHeight: "500px", overflowY: "auto" }}>
             {reports.map(report => (
               <div
                 key={report.id}
@@ -1313,7 +1389,7 @@ function ReportsView({
 
       {/* Report Detail Panel */}
       {selectedReport && (
-        <div style={{
+        <div className="pricas-detail-panel" style={{
           width: "400px",
           background: "rgba(26, 0, 48, 0.9)",
           borderRadius: "16px",

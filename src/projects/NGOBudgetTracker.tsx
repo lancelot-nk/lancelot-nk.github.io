@@ -385,11 +385,48 @@ export default function BudgetAuditPage() {
       @media (max-width: 640px) {
         .ngo-layout { flex-direction: column !important; }
         .ngo-sidebar { width: 100% !important; position: static !important; max-height: 200px; overflow-y: auto; border-right: none !important; border-bottom: 1px solid #a7f3d0; }
+
+        /* Outer root */
+        .ngo-root { overflow-x: hidden !important; }
+
+        /* Header: stack vertically, auto height, smaller fonts */
+        .ngo-header { height: auto !important; }
+        .ngo-header > div { padding: 8px 12px !important; }
+        .ngo-header .flex.items-center.justify-between { flex-direction: column !important; align-items: flex-start !important; gap: 8px !important; }
+        .ngo-header h1 { font-size: 0.95rem !important; line-height: 1.3 !important; }
+        .ngo-header p { font-size: 0.7rem !important; }
+        .ngo-header .flex.items-center.gap-4 { gap: 8px !important; }
+        .ngo-header .p-2 { padding: 4px !important; }
+        .ngo-header .w-8 { width: 1.2rem !important; height: 1.2rem !important; }
+
+        /* Sub-containers: prevent overflow */
+        .ngo-root .ngo-layout > * { max-width: 100% !important; box-sizing: border-box !important; overflow: hidden !important; }
+        .ngo-layout main { padding: 10px !important; }
+
+        /* Grid containers: collapse */
+        .ngo-root .grid-cols-5 { grid-template-columns: 1fr 1fr !important; }
+        .ngo-root .grid-cols-4 { grid-template-columns: 1fr 1fr !important; }
+        .ngo-root .grid-cols-3 { grid-template-columns: 1fr 1fr !important; }
+        .ngo-root .grid-cols-2 { grid-template-columns: 1fr !important; }
+
+        /* KPI/stat cards: smaller text and padding */
+        .ngo-root .text-3xl { font-size: 1.1rem !important; }
+        .ngo-root .text-2xl { font-size: 1rem !important; }
+        .ngo-root .p-5 { padding: 8px !important; }
+        .ngo-root .p-6 { padding: 10px !important; }
+
+        /* Tables: horizontal scroll */
+        .ngo-root .overflow-x-auto { overflow-x: auto !important; -webkit-overflow-scrolling: touch !important; max-width: 100% !important; }
+        .ngo-root table { min-width: 480px; }
+        .ngo-root .w-48 { width: 80px !important; }
+
+        /* Fix bar chart row overflow */
+        .ngo-root .flex.items-center.gap-4 { flex-wrap: wrap !important; }
       }
     `}</style>
-    <div className="min-h-screen bg-gradient-to-br from-emerald-100 via-green-50 to-teal-100">
+    <div className="ngo-root min-h-screen bg-gradient-to-br from-emerald-100 via-green-50 to-teal-100">
       {/* Header Banner */}
-      <header className="bg-gradient-to-r from-emerald-800 via-green-700 to-teal-800 text-white shadow-lg">
+      <header className="ngo-header bg-gradient-to-r from-emerald-800 via-green-700 to-teal-800 text-white shadow-lg">
         <div className="max-w-[1800px] mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">

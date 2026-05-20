@@ -597,6 +597,39 @@ export default function EnterprisePlatform() {
   /* Tables */
   .lytx-root table { font-size: 0.7rem !important; }
   .lytx-root .overflow-x-auto { overflow-x: auto !important; -webkit-overflow-scrolling: touch; }
+
+  /* ── TILE / CARD HEIGHT FIXES ────────────────────────────────── */
+
+  /* ModuleCard: remove fixed min-height, reduce padding and font sizes */
+  .lytx-root .min-h-\\[220px\\] { min-height: auto !important; }
+  .lytx-root .min-h-\\[230px\\] { min-height: auto !important; }
+  /* Target rounded-[28px] as the ModuleCard wrapper */
+  .lytx-root .rounded-\\[28px\\] { padding: 10px !important; }
+  .lytx-root .rounded-\\[28px\\] .text-xl { font-size: 0.8rem !important; }
+  .lytx-root .rounded-\\[28px\\] .text-4xl { font-size: 1.3rem !important; }
+  .lytx-root .rounded-\\[28px\\] .mt-6 { margin-top: 6px !important; }
+  .lytx-root .rounded-\\[28px\\] .mt-7 { margin-top: 6px !important; }
+  .lytx-root .rounded-\\[28px\\] .space-y-3 > * + * { margin-top: 4px !important; }
+  .lytx-root .rounded-\\[28px\\] .text-sm { font-size: 0.7rem !important; }
+
+  /* Decision-tree child cards: reduce height and padding */
+  .lytx-root .rounded-3xl.p-4.text-left { padding: 8px !important; }
+  .lytx-root .rounded-3xl .font-black.text-lg { font-size: 0.8rem !important; }
+  .lytx-root .rounded-3xl .text-sm.text-slate-600 { font-size: 0.7rem !important; }
+  .lytx-root .rounded-3xl .mt-4 { margin-top: 6px !important; }
+  .lytx-root .rounded-3xl .mt-5 { margin-top: 6px !important; }
+
+  /* Accounts tab: fix fixed-width sub-containers */
+  .lytx-root .w-\\[380px\\] { width: 100% !important; max-width: 100% !important; }
+  .lytx-root .w-\\[420px\\] { width: 100% !important; max-width: 100% !important; }
+  .lytx-root .rounded-\\[30px\\] { border-radius: 12px !important; padding: 10px !important; }
+  .lytx-root .rounded-\\[30px\\] .flex.justify-between.gap-10 { flex-direction: column !important; gap: 6px !important; }
+  .lytx-root .text-4xl.font-black { font-size: 1.4rem !important; }
+  .lytx-root .p-7 { padding: 10px !important; }
+  .lytx-root .p-8 { padding: 10px !important; }
+
+  /* Tab content scroll areas: allow proper vertical scrolling */
+  .lytx-root .h-full.overflow-auto.p-8 { padding: 8px !important; }
 }
 `}</style>
     <div className="w-full bg-[#f3f5f7] text-[#1e293b] flex lytx-root" style={{height: "760px", minHeight: "600px", overflow: "hidden"}}>

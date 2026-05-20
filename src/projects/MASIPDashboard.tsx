@@ -550,7 +550,7 @@ function DataFlowVisualization({ agencies, streams }: { agencies: Agency[]; stre
   const centerY = 96             // vertical center of 192px (h-48) container
 
   return (
-    <div ref={containerRef} className="relative h-48 bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl overflow-hidden border border-slate-200">
+    <div ref={containerRef} className="masip-dataflow relative h-48 bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl overflow-hidden border border-slate-200">
       {/* Left side - Agency nodes */}
       <div className="absolute left-6 top-0 bottom-0 flex flex-col justify-around py-4">
         {connectedAgencies.map((agency, idx) => (
@@ -1443,8 +1443,15 @@ export default function MASIPDashboard() {
   .masip-main footer .flex { flex-wrap: wrap !important; gap: 4px !important; }
   .masip-main footer * { font-size: 0.6rem !important; }
 
-  /* Data Lake visualization: shrink height */
-  .masip-main .h-48 { height: 120px !important; }
+  /* Data flow: taller on mobile so nodes aren't clipped */
+  .masip-main .masip-dataflow { height: 300px !important; overflow: hidden !important; }
+  /* Scale down agency nodes (w-10 h-10) */
+  .masip-main .masip-dataflow .w-10.h-10 { width: 1.75rem !important; height: 1.75rem !important; font-size: 0.5rem !important; }
+  /* Scale down Data Lake center (w-20 h-20) */
+  .masip-main .masip-dataflow .w-20.h-20 { width: 3rem !important; height: 3rem !important; }
+  .masip-main .masip-dataflow .w-20.h-20 svg { width: 18px !important; height: 18px !important; }
+  /* Scale down output nodes (w-16 h-8) */
+  .masip-main .masip-dataflow .w-16.h-8 { width: 3rem !important; height: 1.5rem !important; font-size: 0.6rem !important; }
 }
 `}</style>
       {/* Hexagon Sidebar */}

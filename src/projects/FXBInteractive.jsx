@@ -270,17 +270,19 @@ const STYLES = `
   .fxb-root {
     flex-direction: column;
     justify-content: flex-start;
-    align-items: center;
+    align-items: stretch;
     overflow: visible;
     height: auto;
-    min-height: 100svh;
+    min-height: 0;
+    perspective: none;
   }
   .fxb-book {
-    flex-shrink: 0;
+    flex: 1 1 auto;
     width: 100%;
-    height: 72svh;
-    min-height: 380px;
-    max-height: 72svh;
+    height: auto;
+    min-height: 55vh;
+    max-height: 70vh;
+    overflow: hidden;
   }
   .fxb-nav {
     position: static !important;
@@ -294,6 +296,8 @@ const STYLES = `
     display: flex;
     justify-content: space-between;
     align-items: center;
+    pointer-events: all;
+    z-index: auto;
   }
   .fxb-inner { padding: 18px 16px 14px 20px; }
   .fxb-arr { padding: 8px 12px; font-size: 15px; }

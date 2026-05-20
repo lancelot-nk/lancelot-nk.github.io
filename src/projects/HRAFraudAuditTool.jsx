@@ -1368,8 +1368,9 @@ export default function HRAFraudAuditTool() {
           .fraud-header .hdr-status { font-size: 11px !important; }
           .fraud-header .hdr-badges { gap: 4px !important; }
           .fraud-header .hdr-badges span { font-size: 8px !important; padding: 2px 5px !important; }
-          .fraud-tabs { padding: 0 4px !important; }
-          .fraud-tabs button { padding: 8px 5px !important; font-size: 9px !important; min-width: 0 !important; flex: 1 1 0 !important; }
+          .fraud-tabs { padding: 0 2px !important; flex-wrap: wrap !important; overflow-x: visible !important; gap: 1px !important; }
+          .fraud-tabs button { padding: 7px 4px !important; font-size: 9px !important; min-width: 0 !important; flex: 1 1 auto !important; white-space: normal !important; text-align: center !important; }
+          .fraud-tabs button span { font-size: 8px !important; }
         }
       `}</style>
 

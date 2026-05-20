@@ -739,13 +739,8 @@ function useMalariaLifecycle3D(ref) {
   useEffect(() => {
     if (!ref.current) return;
     const el = ref.current;
-    const W = el.clientWidth, H = el.clientHeight;
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(W, H);
-    renderer.setClearColor(0x3D0000);
-    el.appendChild(renderer.domElement);
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(50, W/H, 0.1, 100);
+    const W = el.clientWidth || 600, H = el.clientHeight || 500;
+    const { renderer, scene, camera } = initScene(el, W, H, 0x3D0000);
     camera.position.set(0, 3, 8);
     camera.lookAt(0, 0, 0);
 
@@ -813,7 +808,6 @@ function useMalariaLifecycle3D(ref) {
       cancelAnimationFrame(rafId);
       orbit.dispose();
       renderer.dispose();
-      if (renderer.domElement.parentNode) renderer.domElement.parentNode.removeChild(renderer.domElement);
     };
   }, []);
 }
@@ -1030,8 +1024,157 @@ function useBloodField3D(ref) {
 }
 
 /* ════════════════════════════════════════════════════════════════════════════
-   3D CANVAS WRAPPER
+   SCENE 9 — HUMAN VASCULAR / VEIN STRUCTURE 3D
+   • Full-body simplified circulatory system
+   • Arteries = red, Veins = blue, Capillary beds = pink
+   • Heart = pulsing central sphere
+   • Major vessels: aorta, vena cava, carotid, subclavian, brachial, radial,
+     pulmonary, iliac, femoral, popliteal, jugular
 ════════════════════════════════════════════════════════════════════════════ */
+function useVeinStructure3D(ref) {
+  useEffect(() => {
+    if (!ref.current) return;
+    const el = ref.current;
+    const W = el.clientWidth || 600, H = el.clientHeight || 500;
+    const { renderer, scene, camera } = initScene(el, W, H, 0x06080E);
+    scene.add(new THREE.AmbientLight(0xffffff, 0.35));
+    const dir = new THREE.DirectionalLight(0xffeeee, 1.1); dir.position.set(4, 8, 5); scene.add(dir);
+    const pt = new THREE.PointLight(0xff2222, 1.5, 20); pt.position.set(0, 1, 3); scene.add(pt);
+    const ptB = new THREE.PointLight(0x2244ff, 1.2, 20); ptB.position.set(0, 1, -3); scene.add(ptB);
+    camera.position.set(0, 0, 9);
+    camera.lookAt(0, 0, 0);
+    const orbit = makeOrbitControl(camera, el, 9);
+
+    // Helper: build tube from point array
+    function addTube(pts, color, radius = 0.06) {
+      if (pts.length < 2) return;
+      const curve = new THREE.CatmullRomCurve3(pts.map(p => new THREE.Vector3(...p)));
+      const geo = new THREE.TubeGeometry(curve, pts.length * 4, radius, 6, false);
+      const mat = new THREE.MeshPhongMaterial({ color, emissive: color, emissiveIntensity: 0.18, shininess: 70 });
+      scene.add(new THREE.Mesh(geo, mat));
+    }
+
+    const RED  = 0xCC1100; // arteries
+    const BLUE = 0x0033BB; // veins
+    const PINK = 0xDD6688; // capillary beds
+    const PULM_RED  = 0xFF6644; // pulmonary arteries (deoxygenated in reality but shown orange-red)
+    const PULM_BLUE = 0x3366DD; // pulmonary veins
+
+    // ── HEART (central) ──────────────────────────────────────────────────────
+    const heartGeo = new THREE.SphereGeometry(0.28, 16, 14);
+    const heartMat = new THREE.MeshPhongMaterial({ color: 0xCC0000, emissive: 0x880000, shininess: 80 });
+    const heart = new THREE.Mesh(heartGeo, heartMat);
+    heart.position.set(-0.1, 0.2, 0);
+    scene.add(heart);
+
+    // ── AORTA (large, artery, arches from heart upward then down) ────────────
+    addTube([[-.1,.5,0],[-.2,1.0,0],[0,1.5,0],[0.1,1.2,0],[0.1,0.5,0],[0.1,-0.5,0],[0.1,-2.5,0],[0.1,-4.2,0]], RED, 0.11);
+
+    // ── ASCENDING AORTA arch detail ──────────────────────────────────────────
+    addTube([[-.1,.5,0],[-.4,1.1,0],[-.3,1.4,0],[0,1.5,0]], RED, 0.09);
+
+    // ── SUPERIOR VENA CAVA ──────────────────────────────────────────────────
+    addTube([[.3,1.5,0],[.3,1.0,0],[.25,.5,0],[.2,.2,0]], BLUE, 0.09);
+
+    // ── INFERIOR VENA CAVA ──────────────────────────────────────────────────
+    addTube([[.2,.2,0],[.2,-1.0,0],[.2,-2.5,0],[.2,-4.0,0]], BLUE, 0.10);
+
+    // ── PULMONARY ARTERIES (heart → lungs) ───────────────────────────────────
+    addTube([[-.1,.3,0],[-.6,.4,.3],[-.9,.5,.4],[-.9,.3,.4],[-.7,.1,.3]], PULM_RED, 0.07);  // left
+    addTube([[-.1,.3,0],[.4,.4,.3],[.7,.5,.4],[.7,.3,.4],[.5,.1,.3]], PULM_RED, 0.07);   // right
+
+    // ── PULMONARY VEINS (lungs → heart) ─────────────────────────────────────
+    addTube([[-.8,.2,.4],[-.7,.4,.3],[-.5,.4,.2],[-.2,.3,0]], PULM_BLUE, 0.06);  // left
+    addTube([[.6,.2,.4],[.5,.4,.3],[.3,.4,.2],[.1,.3,0]], PULM_BLUE, 0.06);   // right
+
+    // ── CAROTID ARTERIES ─────────────────────────────────────────────────────
+    addTube([[0,1.5,0],[-.15,2.0,0],[-.15,2.6,0],[-.15,3.0,.1]], RED, 0.055);  // left
+    addTube([[0,1.5,0],[.2,2.0,0],[.2,2.6,0],[.2,3.0,.1]], RED, 0.055);       // right
+
+    // ── JUGULAR VEINS ────────────────────────────────────────────────────────
+    addTube([[-.25,3.0,.1],[-.25,2.5,0],[-.3,2.0,0],[.3,1.5,0]], BLUE, 0.05);  // left
+    addTube([[.3,3.0,.1],[.3,2.5,0],[.35,2.0,0],[.35,1.5,0]], BLUE, 0.05);    // right
+
+    // ── SUBCLAVIAN ARTERIES ──────────────────────────────────────────────────
+    addTube([[0,1.5,0],[-.5,1.6,0],[-.9,1.5,0],[-.9,1.0,0]], RED, 0.06);   // left
+    addTube([[0,1.5,0],[.5,1.6,0],[.9,1.5,0],[.9,1.0,0]], RED, 0.06);     // right
+
+    // ── BRACHIAL / RADIAL ARTERIES (arms) ────────────────────────────────────
+    addTube([[-.9,1.0,0],[-.95,.4,0],[-.95,-.2,.1],[-.9,-.8,.2],[-.85,-1.2,.2],[-.8,-1.6,.2]], RED, 0.045);  // left
+    addTube([[.9,1.0,0],[.95,.4,0],[.95,-.2,.1],[.9,-.8,.2],[.85,-1.2,.2],[.8,-1.6,.2]], RED, 0.045);   // right
+
+    // ── BRACHIAL VEINS (arms) ─────────────────────────────────────────────────
+    addTube([[-.8,-1.6,.2],[-.82,-.8,.2],[-.88,-.2,.1],[-.9,.4,0],[-.9,1.0,0],[-.5,1.4,0],[.3,1.5,0]], BLUE, 0.04);  // left
+    addTube([[.8,-1.6,.2],[.82,-.8,.2],[.88,-.2,.1],[.9,.4,0],[.9,1.0,0],[.5,1.4,0],[.35,1.5,0]], BLUE, 0.04);   // right
+
+    // ── COMMON ILIAC ARTERIES ────────────────────────────────────────────────
+    addTube([[.1,-4.2,0],[-.3,-4.5,0],[-.4,-5.0,0],[-.4,-5.5,0]], RED, 0.07);  // left
+    addTube([[.1,-4.2,0],[.4,-4.5,0],[.5,-5.0,0],[.5,-5.5,0]], RED, 0.07);    // right
+
+    // ── ILIAC VEINS ─────────────────────────────────────────────────────────
+    addTube([[-.35,-5.5,0],[-.35,-4.8,0],[-.25,-4.2,0],[.2,-4.0,0]], BLUE, 0.07);  // left
+    addTube([[.45,-5.5,0],[.45,-4.8,0],[.35,-4.2,0],[.2,-4.0,0]], BLUE, 0.07);   // right
+
+    // ── FEMORAL ARTERIES (legs) ───────────────────────────────────────────────
+    addTube([[-.4,-5.5,0],[-.42,-6.2,0],[-.42,-6.9,0],[-.4,-7.4,0],[-.38,-7.8,0]], RED, 0.055);  // left
+    addTube([[.5,-5.5,0],[.52,-6.2,0],[.52,-6.9,0],[.5,-7.4,0],[.48,-7.8,0]], RED, 0.055);     // right
+
+    // ── FEMORAL VEINS ────────────────────────────────────────────────────────
+    addTube([[-.35,-7.8,0],[-.38,-7.0,0],[-.38,-6.2,0],[-.38,-5.5,0],[-.35,-5.0,0],[-.3,-4.5,0]], BLUE, 0.05);  // left
+    addTube([[.45,-7.8,0],[.48,-7.0,0],[.48,-6.2,0],[.48,-5.5,0],[.45,-5.0,0],[.42,-4.5,0]], BLUE, 0.05);     // right
+
+    // ── POPLITEAL / TIBIAL (lower legs) ──────────────────────────────────────
+    addTube([[-.38,-7.8,0],[-.36,-8.3,.1],[-.34,-8.7,.15]], RED, 0.04);  // left ant tibial
+    addTube([[-.38,-7.8,0],[-.40,-8.3,-.1],[-.40,-8.7,-.1]], RED, 0.04); // left post tibial
+    addTube([[.48,-7.8,0],[.46,-8.3,.1],[.44,-8.7,.15]], RED, 0.04);    // right ant tibial
+    addTube([[.48,-7.8,0],[.50,-8.3,-.1],[.50,-8.7,-.1]], RED, 0.04);   // right post tibial
+
+    // ── CAPILLARY BEDS (small pink clusters at extremities) ──────────────────
+    const capPositions = [
+      [-.15,3.1,.1],[.2,3.1,.1],          // head/brain
+      [-.8,-1.65,.2],[.8,-1.65,.2],        // hands
+      [-.35,-8.7,.15],[.44,-8.7,.15],      // feet
+    ];
+    capPositions.forEach(([cx,cy,cz]) => {
+      for (let i = 0; i < 12; i++) {
+        const geo = new THREE.SphereGeometry(0.015 + Math.random()*0.01, 4, 3);
+        const mat = new THREE.MeshBasicMaterial({ color: PINK });
+        const m = new THREE.Mesh(geo, mat);
+        m.position.set(cx+(Math.random()-.5)*.18, cy+(Math.random()-.5)*.18, cz+(Math.random()-.5)*.18);
+        scene.add(m);
+      }
+    });
+
+    // ── BODY SILHOUETTE (faint wireframe for spatial reference) ──────────────
+    // Torso
+    const torsoGeo = new THREE.CylinderGeometry(0.65, 0.5, 5.5, 10, 1);
+    const torsoMat = new THREE.MeshPhongMaterial({ color: 0xd4c5b5, transparent: true, opacity: 0.05, wireframe: false, side: THREE.DoubleSide, depthWrite: false });
+    const torso = new THREE.Mesh(torsoGeo, torsoMat);
+    torso.position.set(0, -1.5, 0);
+    scene.add(torso);
+    // Head
+    const headGeo = new THREE.SphereGeometry(0.55, 10, 8);
+    const headMat = new THREE.MeshPhongMaterial({ color: 0xd4c5b5, transparent: true, opacity: 0.05, side: THREE.DoubleSide, depthWrite: false });
+    const headM = new THREE.Mesh(headGeo, headMat);
+    headM.position.set(0, 2.6, 0);
+    scene.add(headM);
+
+    let raf;
+    const animate = () => {
+      raf = requestAnimationFrame(animate);
+      const t = Date.now() * 0.001;
+      // Heart pulse
+      const pulse = 1 + 0.08 * Math.abs(Math.sin(t * 1.3));
+      heart.scale.set(pulse, pulse, pulse);
+      pt.intensity = 1.2 + Math.abs(Math.sin(t * 1.3)) * 0.8;
+      renderer.render(scene, camera);
+    };
+    animate();
+    return () => { cancelAnimationFrame(raf); orbit.dispose(); renderer.dispose(); };
+  }, []);
+}
+
+
 function ThreeCanvas({ hook, hookArgs = [], width = "100%", height = 340, label, sublabel }) {
   const canvasRef = useRef(null);
   hook(canvasRef, ...hookArgs);
@@ -1070,6 +1213,7 @@ export default function MalariaBiomedical3D() {
     { id: "clustering",  label: "CELL CLUSTERING",   sub: "Stage cluster scatter 3D" },
     { id: "rbcmembrane", label: "RBC MEMBRANE",      sub: "Healthy vs infected structure" },
     { id: "bloodfield",  label: "BLOOD FIELD",       sub: "3D blood cell field" },
+    { id: "veinstructure", label: "VEIN STRUCTURE",  sub: "Human circulatory system 3D" },
   ];
 
   return (
@@ -1513,10 +1657,39 @@ export default function MalariaBiomedical3D() {
             </div>
           )}
 
-        </div>
-      </div>
+          {/* ── VEIN STRUCTURE ── */}
+          {activeTab === "veinstructure" && (
+            <div>
+              <div style={{ marginBottom: 12 }}>
+                <div style={{ fontSize: 11, color: "#111111", letterSpacing: 3, marginBottom: 4 }}>HUMAN CIRCULATORY SYSTEM — FULL BODY VASCULAR 3D</div>
+                <div style={{ fontSize: 9, color: "#444444" }}>Procedural 3D model of major human blood vessels. Red = arteries (oxygenated). Blue = veins (deoxygenated). Orange-red = pulmonary arteries. Orange-blue = pulmonary veins. Pink clusters = capillary beds at extremities. Faint silhouette for anatomical reference. Pulsing heart at center.</div>
+              </div>
+              <button
+                onClick={() => setSimKeys(k => ({...k, [activeTab]: (k[activeTab]||0)+1}))}
+                style={{ padding:"6px 16px",fontSize:11,fontFamily:"monospace",background:"#8B0000",color:"#FFFFFF",border:"2px solid #000",borderRadius:3,cursor:"pointer",marginBottom:10,letterSpacing:2,display:"block" }}
+              >⟳ RESET VIEW</button>
+              <ThreeCanvas key={simKeys[activeTab]||0} hook={useVeinStructure3D} hookArgs={[]} height={580} label="HUMAN VASCULAR SYSTEM" sublabel="ARTERIES · VEINS · CAPILLARY BEDS · DRAG TO ROTATE" />
+              <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:8, marginTop:12 }}>
+                {[
+                  { col:"#CC1100", label:"Arteries", desc:"Aorta, carotid, subclavian, brachial, radial, iliac, femoral, tibial — carry oxygenated blood from heart" },
+                  { col:"#0033BB", label:"Veins", desc:"Vena cava (sup/inf), jugular, brachial, iliac, femoral — return deoxygenated blood to heart" },
+                  { col:"#DD6688", label:"Capillary Beds", desc:"Microcirculation at extremities (head, hands, feet) — site of O₂/CO₂ gas exchange" },
+                  { col:"#FF6644", label:"Pulmonary Arteries", desc:"Heart → lungs — carries deoxygenated blood for reoxygenation in alveoli" },
+                  { col:"#3366DD", label:"Pulmonary Veins", desc:"Lungs → heart — returns oxygenated blood to left atrium" },
+                  { col:"#CC0000", label:"Heart", desc:"Central pump. Pulsing animation represents cardiac cycle (~72 bpm). Drives entire circulatory system." },
+                ].map((k,i) => (
+                  <div key={i} style={{ padding:"10px 12px",border:`1px solid ${P.border}`,borderRadius:3,background:P.panel }}>
+                    <div style={{ width:8,height:8,borderRadius:"50%",background:k.col,marginBottom:6,boxShadow:`0 0 4px ${k.col}` }} />
+                    <div style={{ fontSize:9,color:"#111111" }}>{k.label}</div>
+                    <div style={{ fontSize:8,color:"#444444",marginTop:2,lineHeight:1.4 }}>{k.desc}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
-      {/* ─── PROJECT FOOTER ────────────────────────────────────── */}
+        </div>{/* end mal-main */}
+      </div>{/* end mal-layout */} ────────────────────────────────────── */}
       <div style={{
         borderTop: "2px solid #222222",
         padding: "20px 28px",

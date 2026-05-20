@@ -1350,8 +1350,16 @@ export default function SentinelDashboard() {
         .fedgrant-root .overflow-x-auto { overflow-x: auto !important; -webkit-overflow-scrolling: touch; }
 
         /* Hub: stack absolute-positioned quadrant panels */
-        .fedgrant-root .relative.w-full.max-w-5xl { height: auto !important; min-height: unset !important; }
+        .fedgrant-root .relative.w-full.max-w-5xl {
+          height: auto !important;
+          min-height: unset !important;
+          display: flex !important;
+          flex-direction: column !important;
+          align-items: stretch !important;
+        }
         .fedgrant-root .h-\\[600px\\] { height: 0 !important; }
+        /* Hide SVG connection lines — meaningless when stacked */
+        .fedgrant-root .relative.w-full.max-w-5xl > svg.absolute { display: none !important; }
         .fedgrant-root .absolute.top-0.left-0.w-\\[45\\%\\],
         .fedgrant-root .absolute.top-0.right-0.w-\\[45\\%\\],
         .fedgrant-root .absolute.bottom-0.left-0.w-\\[45\\%\\],
@@ -1362,11 +1370,21 @@ export default function SentinelDashboard() {
           right: auto !important; bottom: auto !important;
           margin-bottom: 16px;
         }
+        /* Data Warehouse circle hub: centered above tiles */
         .fedgrant-root .absolute.left-1\\/2.top-1\\/2 {
           position: relative !important;
           transform: none !important;
-          margin: 0 auto 16px auto;
-          display: flex; justify-content: center;
+          width: 100% !important;
+          display: flex !important;
+          justify-content: center !important;
+          align-items: center !important;
+          margin: 0 auto 24px auto !important;
+          order: -1;
+        }
+        .fedgrant-root .absolute.left-1\\/2.top-1\\/2 > div {
+          display: block !important;
+          margin: 0 auto !important;
+          flex-shrink: 0 !important;
         }
 
         /* Main content padding */

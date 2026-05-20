@@ -205,6 +205,9 @@ export default function HRAEnterpriseApp() {
           .hra-analytics-grid { grid-template-columns: 1fr 1fr !important; }
           .hra-analytics-grid > div { padding: 12px !important; }
           h1.text-3xl { font-size: 1.2rem !important; }
+          .hra-pipeline-controls { flex-wrap: wrap !important; gap: 8px !important; }
+          .hra-pipeline-controls input { min-width: 0 !important; flex: 1 1 140px !important; }
+          .hra-pipeline-controls select { min-width: 0 !important; max-width: 100% !important; flex: 1 1 140px !important; box-sizing: border-box !important; }
         }
       `}</style>
       <div className="hra-inner w-full">
@@ -283,7 +286,7 @@ export default function HRAEnterpriseApp() {
         {/* PIPELINE */}
         {tab === 'pipeline' && (
           <div className="bg-white p-6 rounded-xl border shadow-sm">
-            <div className="flex gap-4 mb-6">
+            <div className="flex gap-4 mb-6 hra-pipeline-controls">
               <input className="border p-2 rounded flex-grow outline-none focus:ring-2 focus:ring-black" placeholder="Search by name or ID..." onChange={e => setSearch(e.target.value)} />
               <select className="border p-2 rounded outline-none" onChange={e => setSort(e.target.value)}>
                 <option value="urgency">Sort: Action Needed</option>

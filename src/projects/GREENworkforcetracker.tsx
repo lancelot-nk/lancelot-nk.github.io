@@ -921,11 +921,94 @@ export default function GreenWorkforceTrackerSimulation() {
 
   return (
     <>
-    <div className="min-h-screen bg-gradient-to-br from-green-200 via-green-100 to-lime-100">
+    <div className="gwt-root min-h-screen bg-gradient-to-br from-green-200 via-green-100 to-lime-100">
       <style>{`
 @media (max-width: 640px) {
+  /* ── Layout: sidebar above main ── */
   .gwt-layout { flex-direction: column !important; }
-  .gwt-sidebar { width: 100% !important; min-height: unset !important; max-height: 220px; overflow-y: auto; border-right: none !important; border-bottom: 1px solid #86efac; }
+  .gwt-sidebar {
+    width: 100% !important;
+    min-height: unset !important;
+    max-height: 220px;
+    overflow-y: auto;
+    border-right: none !important;
+    border-bottom: 1px solid #86efac;
+  }
+  /* Compact sidebar internals */
+  .gwt-root .gwt-sidebar .mb-6 { margin-bottom: 0.5rem !important; }
+  .gwt-root .gwt-sidebar nav { display: flex; flex-wrap: wrap; gap: 0.25rem; }
+  .gwt-root .gwt-sidebar nav button { flex: 1 1 auto; min-width: 44%; padding: 0.4rem 0.5rem !important; font-size: 0.75rem !important; }
+  .gwt-root .gwt-sidebar .mt-8 { margin-top: 0.5rem !important; }
+  .gwt-root .gwt-sidebar .mt-6 { margin-top: 0.5rem !important; }
+
+  /* ── Header ── */
+  .gwt-root header { padding: 0.5rem 1rem !important; }
+  .gwt-root header h1 { font-size: 0.9rem !important; line-height: 1.2; }
+  .gwt-root header .flex { flex-wrap: wrap !important; gap: 0.5rem !important; }
+  .gwt-root header p { font-size: 0.65rem !important; }
+
+  /* ── Main content padding ── */
+  .gwt-root main.flex-1 { padding: 0.75rem !important; }
+
+  /* ── Grid overrides: collapse on mobile ── */
+  .gwt-root .grid-cols-5 { grid-template-columns: repeat(2, 1fr) !important; }
+  .gwt-root .grid-cols-4 { grid-template-columns: repeat(2, 1fr) !important; }
+  .gwt-root .grid-cols-3 { grid-template-columns: 1fr !important; }
+  .gwt-root .grid-cols-2 { grid-template-columns: 1fr !important; }
+
+  /* ── KPI cards: shrink large numbers ── */
+  .gwt-root .text-3xl { font-size: 1.25rem !important; overflow-wrap: break-word; word-break: break-word; }
+  .gwt-root .text-2xl { font-size: 1.1rem !important; overflow-wrap: break-word; word-break: break-word; }
+  .gwt-root .text-lg { font-size: 0.9rem !important; }
+
+  /* ── Chart & graph containers ── */
+  .gwt-root .overflow-x-auto { overflow-x: auto !important; -webkit-overflow-scrolling: touch; }
+  .gwt-root .rounded-xl.bg-white { max-width: 100% !important; overflow: hidden; }
+
+  /* ── SVG charts: contain within parent ── */
+  .gwt-root svg { max-width: 100% !important; overflow: visible; }
+  .gwt-root .relative.w-32.h-32 { width: 5.5rem !important; height: 5.5rem !important; }
+
+  /* ── Bar chart: scroll if needed ── */
+  .gwt-root .flex.items-end.gap-2 { overflow-x: auto !important; }
+
+  /* ── Text overflow prevention ── */
+  .gwt-root p,
+  .gwt-root span,
+  .gwt-root h1,
+  .gwt-root h2,
+  .gwt-root h3,
+  .gwt-root h4 {
+    overflow-wrap: break-word !important;
+    word-break: break-word !important;
+  }
+
+  /* ── Filter bar ── */
+  .gwt-root .flex.items-center.justify-between.flex-wrap.gap-4 {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+  .gwt-root .flex.items-center.gap-4 { flex-wrap: wrap !important; }
+
+  /* ── Tables ── */
+  .gwt-root .overflow-x-auto table { font-size: 0.65rem !important; }
+  .gwt-root table th,
+  .gwt-root table td { padding: 0.4rem 0.5rem !important; white-space: nowrap; }
+
+  /* ── Gap & padding reduction ── */
+  .gwt-root .gap-6 { gap: 0.75rem !important; }
+  .gwt-root .mb-6 { margin-bottom: 0.75rem !important; }
+  .gwt-root .p-6 { padding: 0.75rem !important; }
+  .gwt-root .p-5 { padding: 0.75rem !important; }
+
+  /* ── Grant cards & impact tiles ── */
+  .gwt-root .p-4 { padding: 0.6rem !important; }
+
+  /* ── Site map container ── */
+  .gwt-root .relative.h-64 { height: 10rem !important; }
+
+  /* ── Footer footnote ── */
+  .gwt-root + div[style*="background:#0f172a"] { padding: 12px 16px !important; font-size: 10px !important; }
 }
 `}</style>
       {/* Top Header Banner */}
