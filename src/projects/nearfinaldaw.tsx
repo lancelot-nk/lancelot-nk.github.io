@@ -620,6 +620,9 @@ const FULL_PRESET_BLUEPRINTS: Record<PresetName, FullPresetBlueprint> = {
 }
 
 // Map blueprint keys to pad indices and duration filters
+// padIds must match SOUND_BANK order from generateSoundBank():
+// 0-2:long 3-5:med 6-8:short 9-11:chord 12-13:snare 14-15:drum 16-17:kick
+// 18-19:bass 20-21:hihat 22-23:fill 24-25:perc 26-27:vocal 28-31:inst
 const BLUEPRINT_SLOT_MAP: Array<{
   key: keyof FullPresetBlueprint
   padIds: number[]
@@ -630,15 +633,15 @@ const BLUEPRINT_SLOT_MAP: Array<{
   { key: 'medium', padIds: [3, 4, 5],          durationFilter: 'duration:[1.0 TO 2.5]', category: 'medium' },
   { key: 'short',  padIds: [6, 7, 8],          durationFilter: 'duration:[0.5 TO 1.0]', category: 'short' },
   { key: 'chord',  padIds: [9, 10, 11],        durationFilter: 'duration:[0.5 TO 3.0]', category: 'chord' },
-  { key: 'inst',   padIds: [12, 13, 14, 15],   durationFilter: 'duration:[0.5 TO 3.0]', category: 'instrument' },
-  { key: 'snare',  padIds: [16, 17],           durationFilter: 'duration:[0.1 TO 2.0]', category: 'snare' },
-  { key: 'drum',   padIds: [18, 19],           durationFilter: 'duration:[0.1 TO 2.0]', category: 'drum' },
-  { key: 'kick',   padIds: [20, 21],           durationFilter: 'duration:[0.1 TO 2.0]', category: 'kick' },
-  { key: 'bass',   padIds: [22, 23],           durationFilter: 'duration:[0.3 TO 2.5]', category: 'bass' },
-  { key: 'hihat',  padIds: [24, 25],           durationFilter: 'duration:[0.05 TO 1.2]', category: 'hihat' },
-  { key: 'fill',   padIds: [26, 27],           durationFilter: 'duration:[1.0 TO 3.5]', category: 'fill' },
-  { key: 'perc',   padIds: [28, 29],           durationFilter: 'duration:[1.0 TO 4.0]', category: 'percussion' },
-  { key: 'vocal',  padIds: [30, 31],           durationFilter: 'duration:[0.5 TO 3.0]', category: 'vocal' },
+  { key: 'snare',  padIds: [12, 13],           durationFilter: 'duration:[0.1 TO 2.0]', category: 'snare' },
+  { key: 'drum',   padIds: [14, 15],           durationFilter: 'duration:[0.1 TO 2.0]', category: 'drum' },
+  { key: 'kick',   padIds: [16, 17],           durationFilter: 'duration:[0.1 TO 2.0]', category: 'kick' },
+  { key: 'bass',   padIds: [18, 19],           durationFilter: 'duration:[0.3 TO 2.5]', category: 'bass' },
+  { key: 'hihat',  padIds: [20, 21],           durationFilter: 'duration:[0.05 TO 1.2]', category: 'hihat' },
+  { key: 'fill',   padIds: [22, 23],           durationFilter: 'duration:[1.0 TO 3.5]', category: 'fill' },
+  { key: 'perc',   padIds: [24, 25],           durationFilter: 'duration:[1.0 TO 4.0]', category: 'percussion' },
+  { key: 'vocal',  padIds: [26, 27],           durationFilter: 'duration:[0.5 TO 3.0]', category: 'vocal' },
+  { key: 'inst',   padIds: [28, 29, 30, 31],   durationFilter: 'duration:[0.5 TO 3.0]', category: 'instrument' },
 ]
 
 // Generic fallback queries per category if themed query returns 0 results
@@ -734,16 +737,16 @@ const SOUND_SLOT_BLUEPRINT: SoundSlotConfig[] = [
   { padIds: [3, 4, 5], category: 'medium', queryTerms: ['loop', 'soundscape', 'melody'], durationFilter: 'duration:[1.0 TO 2.5]' },
   { padIds: [6, 7, 8], category: 'short', queryTerms: ['fx', 'glitch', 'one shot'], durationFilter: 'duration:[0.5 TO 1.0]' },
   { padIds: [9, 10, 11], category: 'chord', queryTerms: ['major chord', 'minor chord', 'synth chord'], durationFilter: 'duration:[0.5 TO 3.0]' },
+  { padIds: [12, 13], category: 'snare', queryTerms: ['snare', 'snare drum'], durationFilter: 'duration:[0.5 TO 1.2]' },
+  { padIds: [14, 15], category: 'drum', queryTerms: ['drum', 'rimshot'], durationFilter: 'duration:[0.5 TO 1.2]' },
+  { padIds: [16, 17], category: 'kick', queryTerms: ['kick', 'sub kick'], durationFilter: 'duration:[0.5 TO 0.8]' },
+  { padIds: [18, 19], category: 'bass', queryTerms: ['bass hit', 'bass loop'], durationFilter: 'duration:[0.1 TO 2.5]' },
+  { padIds: [20, 21], category: 'hihat', queryTerms: ['hihat', 'closed hat'], durationFilter: 'duration:[0.5 TO 0.8]' },
+  { padIds: [22, 23], category: 'fill', queryTerms: ['drum fill', 'breakbeat'], durationFilter: 'duration:[1.0 TO 3.5]' },
+  { padIds: [24, 25], category: 'percussion', queryTerms: ['percussion ensemble', 'tribal loop'], durationFilter: 'duration:[1.0 TO 4.0]' },
+  { padIds: [26, 27], category: 'vocal', queryTerms: ['vocal chant', 'vocal phrase'], durationFilter: 'duration:[0.5 TO 3.0]' },
   // 4 instruments, max 2 of same family — rotated per-preset in resolveInstrumentTerms()
-  { padIds: [12, 13, 14, 15], category: 'instrument', queryTerms: ['piano', 'guitar', 'synth lead', 'violin'], durationFilter: 'duration:[0.5 TO 3.0]' },
-  { padIds: [16, 17], category: 'snare', queryTerms: ['snare', 'snare drum'], durationFilter: 'duration:[0.5 TO 1.2]' },
-  { padIds: [18, 19], category: 'drum', queryTerms: ['drum', 'rimshot'], durationFilter: 'duration:[0.5 TO 1.2]' },
-  { padIds: [20, 21], category: 'kick', queryTerms: ['kick', 'sub kick'], durationFilter: 'duration:[0.5 TO 0.8]' },
-  { padIds: [22, 23], category: 'bass', queryTerms: ['bass hit', 'bass loop'], durationFilter: 'duration:[0.1 TO 2.5]' },
-  { padIds: [24, 25], category: 'hihat', queryTerms: ['hihat', 'closed hat'], durationFilter: 'duration:[0.5 TO 0.8]' },
-  { padIds: [26, 27], category: 'fill', queryTerms: ['drum fill', 'breakbeat'], durationFilter: 'duration:[1.0 TO 3.5]' },
-  { padIds: [28, 29], category: 'percussion', queryTerms: ['percussion ensemble', 'tribal loop'], durationFilter: 'duration:[1.0 TO 4.0]' },
-  { padIds: [30, 31], category: 'vocal', queryTerms: ['vocal chant', 'vocal phrase'], durationFilter: 'duration:[0.5 TO 3.0]' },
+  { padIds: [28, 29, 30, 31], category: 'instrument', queryTerms: ['piano', 'guitar', 'synth lead', 'violin'], durationFilter: 'duration:[0.5 TO 3.0]' },
 ]
 
 // Broad instrument families to enforce "max 2 from same family" rule.
@@ -2723,11 +2726,14 @@ export default function AlphaDAW() {
   const [clips, setClips] = useState<Clip[]>([])
   const [totalBars, setTotalBars] = useState(8)
   const [trackCount, setTrackCount] = useState(4)
-  const [snapMode, setSnapMode] = useState<
-    'off' | 'beat' | 'half-beat' | 'sixteenth'
-  >('beat')
+  const [snapMode, setSnapMode] = useState<'off' | 'beat' | 'half-beat' | 'sixteenth'>('beat')
   const [isArrangementPlaying, setIsArrangementPlaying] = useState(false)
   const [zoom, setZoom] = useState(100)
+  const [draggingClipId, setDraggingClipId] = useState<string | null>(null)
+  const [dragOffsetBeats, setDragOffsetBeats] = useState(0)
+  const [clipMoved, setClipMoved] = useState(false)
+  const [timelineHeight, setTimelineHeight] = useState(220)
+  const timelineResizeRef = useRef<{ startY: number; startH: number } | null>(null)
   // Editor State
   const [editingPad, setEditingPad] = useState<string | null>(null)
   const [editingCell, setEditingCell] = useState<{
@@ -2904,6 +2910,7 @@ export default function AlphaDAW() {
   const padTimingModeRef = useRef(padTimingMode)
   const perPadEffectsRef = useRef(perPadEffects)
   const effectScopesRef = useRef(effectScopes)
+  const variationsRef = useRef(variations)
   // UI Playhead State
   const [uiStep, setUiStep] = useState(0)
   const [uiBeat, setUiBeat] = useState(0)
@@ -2946,6 +2953,14 @@ export default function AlphaDAW() {
   }, [padSettings])
   useEffect(() => {
     clipsRef.current = clips
+    // Auto-expand totalBars when a clip extends beyond the current length
+    if (clips.length > 0) {
+      const bpb = getBeatsPerBar(timeSig as TimeSignature)
+      const neededBars = Math.ceil(
+        clips.reduce((m, c) => Math.max(m, c.startBeat + c.lengthBeats), 0) / bpb
+      ) + 2  // +2 bars padding
+      if (neededBars > totalBars) setTotalBars(neededBars)
+    }
   }, [clips])
   useEffect(() => {
     isArrangementPlayingRef.current = isArrangementPlaying
@@ -2958,6 +2973,7 @@ export default function AlphaDAW() {
   }, [padTimingMode])
   useEffect(() => { perPadEffectsRef.current = perPadEffects }, [perPadEffects])
   useEffect(() => { effectScopesRef.current = effectScopes }, [effectScopes])
+  useEffect(() => { variationsRef.current = variations }, [variations])
   useEffect(() => {
     try { localStorage.setItem('daw-pad-timing-mode', JSON.stringify(padTimingMode)) } catch {}
   }, [padTimingMode])
@@ -3088,7 +3104,7 @@ export default function AlphaDAW() {
             currentBeat >= clip.startBeat &&
             currentBeat < clip.startBeat + clip.lengthBeats
           ) {
-            const variation = variations.find((v) => v.id === clip.variationId)
+            const variation = variationsRef.current.find((v) => v.id === clip.variationId)
             if (!variation) return
             const varBpb = getBeatsPerBar(variation.timeSig as TimeSignature)
             const varSub = variation.halfMode ? 4 : 2
@@ -3102,23 +3118,23 @@ export default function AlphaDAW() {
                 let jitter = isHum ? Math.random() * 0.03 - 0.015 : 0
                 const pSettings = padSettingsRef.current[sound.id]
                 let smod = cMods ? cMods[sound.id] : undefined
-                engine.playSynth(
-                  sound,
-                  time + jitter,
-                  (step.length * (60 / bpmRef.current)) / varSub,
-                  step.velocity,
-                  currentPreset,
-                  pSettings,
-                  isAmb,
-                  smod,
-                )
+                const stepDurVar = (step.length * (60 / bpmRef.current)) / varSub
+                // Use CDN buffer if available (same priority as main sequencer)
+                const presetBuf = engine.getFreesoundBuffer(currentPreset, index)
+                if (presetBuf) {
+                  const isSnip = (padTimingModeRef.current[sound.id] ?? 'timing') === 'snip'
+                  engine.playFreesoundSample(presetBuf, sound.id, time + jitter, step.velocity, stepDurVar, pSettings, sound.stretchable ?? false, isSnip)
+                } else {
+                  engine.playSynth(sound, time + jitter, stepDurVar, step.velocity, currentPreset, pSettings, isAmb, smod)
+                }
               }
             })
           }
         })
-        // Advance Timeline
+        // Advance Timeline — loop back at end of rightmost clip
         currentBeatRef.current += 1 / sub
-        if (currentBeatRef.current >= totalBarsRef.current * bpb) {
+        const maxBeat = clipsRef.current.reduce((m, c) => Math.max(m, c.startBeat + c.lengthBeats), totalBarsRef.current * bpb)
+        if (currentBeatRef.current >= maxBeat) {
           currentBeatRef.current = 0
         }
       } else {
@@ -3462,6 +3478,12 @@ export default function AlphaDAW() {
     })
   }
   // --- TIMELINE LOGIC ---
+  const snapBeat = (raw: number) => {
+    if (snapMode === 'beat') return Math.round(raw)
+    if (snapMode === 'half-beat') return Math.round(raw * 2) / 2
+    if (snapMode === 'sixteenth') return Math.round(raw * 4) / 4
+    return raw
+  }
   const handleDropOnTrack = (e: React.DragEvent, trackIdx: number) => {
     e.preventDefault()
     const varId = e.dataTransfer.getData('variationId')
@@ -3470,21 +3492,47 @@ export default function AlphaDAW() {
     if (!variation) return
     const rect = e.currentTarget.getBoundingClientRect()
     const x = e.clientX - rect.left
-    const beatPixelWidth = 80 * (zoom / 100)
-    let rawBeat = x / beatPixelWidth
-    if (snapMode === 'beat') rawBeat = Math.round(rawBeat)
-    else if (snapMode === 'half-beat') rawBeat = Math.round(rawBeat * 2) / 2
-    else if (snapMode === 'sixteenth') rawBeat = Math.round(rawBeat * 4) / 4
+    const beatPx = 80 * (zoom / 100)
+    const rawBeat = snapBeat(Math.max(0, x / beatPx))
     const varBpb = getBeatsPerBar(variation.timeSig as TimeSignature)
     const lengthBeats = varBpb * 4
-    const newClip: Clip = {
-      id: Date.now().toString(),
-      variationId: varId,
-      trackIdx,
-      startBeat: rawBeat,
-      lengthBeats,
+    setClips((prev) => [...prev, { id: Date.now().toString(), variationId: varId, trackIdx, startBeat: rawBeat, lengthBeats }])
+  }
+  // Clip move drag handlers
+  const handleClipMoveStart = (e: React.DragEvent, clipId: string) => {
+    const clip = clips.find(c => c.id === clipId)
+    if (!clip) return
+    const beatPx = 80 * (zoom / 100)
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
+    const clickOffsetPx = e.clientX - rect.left
+    setDragOffsetBeats(clickOffsetPx / beatPx)
+    setDraggingClipId(clipId)
+    setClipMoved(false)
+    e.dataTransfer.setData('moveClipId', clipId)
+  }
+  const handleClipMoveDrop = (e: React.DragEvent, trackIdx: number) => {
+    e.preventDefault()
+    const moveId = e.dataTransfer.getData('moveClipId')
+    if (!moveId) { handleDropOnTrack(e, trackIdx); return }
+    const rect = e.currentTarget.getBoundingClientRect()
+    const x = e.clientX - rect.left
+    const beatPx = 80 * (zoom / 100)
+    const rawBeat = snapBeat(Math.max(0, (x / beatPx) - dragOffsetBeats))
+    setClips(prev => prev.map(c => c.id === moveId ? { ...c, trackIdx, startBeat: rawBeat } : c))
+    setDraggingClipId(null)
+    setClipMoved(true)
+  }
+  // Timeline resize drag
+  const handleTimelineResizeMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault()
+    timelineResizeRef.current = { startY: e.clientY, startH: timelineHeight }
+    const onMove = (ev: MouseEvent) => {
+      const delta = ev.clientY - timelineResizeRef.current!.startY
+      setTimelineHeight(Math.max(120, timelineResizeRef.current!.startH + delta))
     }
-    setClips((prev) => [...prev, newClip])
+    const onUp = () => { window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp) }
+    window.addEventListener('mousemove', onMove)
+    window.addEventListener('mouseup', onUp)
   }
   // --- EXTRAS ---
   const generateChaosKit = () => {
@@ -4618,8 +4666,8 @@ export default function AlphaDAW() {
         {/* TIMELINE ARRANGEMENT */}
         <section className="bg-slate-900 rounded-xl border border-slate-800 flex flex-col overflow-hidden">
           {/* Toolbar */}
-          <div className="p-3 border-b border-slate-800 flex justify-between items-center bg-slate-950/50">
-            <div className="flex items-center gap-3">
+          <div className="p-3 border-b border-slate-800 flex justify-between items-center bg-slate-950/50 flex-wrap gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <button
                 onClick={() => {
                   engine.init()
@@ -4633,14 +4681,9 @@ export default function AlphaDAW() {
                 }}
                 className={`${isArrangementPlaying ? 'bg-amber-500 text-slate-900' : 'bg-emerald-600 text-white'} px-3 py-1.5 rounded text-xs font-bold transition-colors flex items-center gap-1`}
               >
-                {isArrangementPlaying ? (
-                  <Pause size={14} />
-                ) : (
-                  <Play size={14} />
-                )}
-                {isArrangementPlaying ? 'Stop' : 'Play Song'}
+                {isArrangementPlaying ? <Pause size={14} /> : <Play size={14} />}
+                {isArrangementPlaying ? 'Stop Song' : 'Play Song'}
               </button>
-
               <select
                 value={snapMode}
                 onChange={(e) => setSnapMode(e.target.value as any)}
@@ -4648,160 +4691,144 @@ export default function AlphaDAW() {
               >
                 <option value="off">Snap: Off</option>
                 <option value="beat">Snap: Beat</option>
-                <option value="half-beat">Snap: 1/2 Beat</option>
+                <option value="half-beat">Snap: 1/2</option>
                 <option value="sixteenth">Snap: 1/16</option>
               </select>
+              <button
+                onClick={() => setTrackCount(t => t + 1)}
+                className="px-2 py-1 text-xs rounded bg-slate-800 border border-slate-700 text-slate-300 hover:text-white"
+              >+ Track</button>
+              {trackCount > 1 && (
+                <button
+                  onClick={() => setTrackCount(t => Math.max(1, t - 1))}
+                  className="px-2 py-1 text-xs rounded bg-slate-800 border border-slate-700 text-slate-400 hover:text-white"
+                >− Track</button>
+              )}
             </div>
-
             <div className="flex items-center gap-2">
               <span className="text-xs text-slate-400">Zoom</span>
-              <input
-                type="range"
-                min="50"
-                max="300"
-                value={zoom}
+              <input type="range" min="30" max="400" value={zoom}
                 onChange={(e) => setZoom(Number(e.target.value))}
                 className="w-20 accent-slate-400"
               />
             </div>
           </div>
 
-          {/* Timeline Body */}
-          <div className="flex relative overflow-x-auto min-h-[200px]">
-            {/* Track Headers */}
-            <div className="w-24 flex-shrink-0 bg-slate-900 border-r border-slate-800 flex flex-col z-10 sticky left-0">
-              <div className="h-6 border-b border-slate-800"></div>{' '}
-              {/* Ruler spacer */}
-              {Array.from({
-                length: trackCount,
-              }).map((_, i) => (
-                <div
-                  key={i}
-                  className="h-16 border-b border-slate-800 flex items-center px-2 justify-between bg-slate-900"
-                >
-                  <span className="text-[10px] font-bold text-slate-500">
-                    Track {i + 1}
-                  </span>
+          {/* Timeline Body — resizable height */}
+          <div className="flex relative overflow-x-auto" style={{ height: `${timelineHeight}px` }}>
+            {/* Track Headers — sticky left */}
+            <div className="w-20 flex-shrink-0 bg-slate-900 border-r border-slate-800 flex flex-col z-10 sticky left-0">
+              <div className="h-6 border-b border-slate-800" />
+              {Array.from({ length: trackCount }).map((_, i) => (
+                <div key={i} className="h-16 border-b border-slate-800 flex items-center px-2 bg-slate-900">
+                  <span className="text-[10px] font-bold text-slate-500">T{i + 1}</span>
                 </div>
               ))}
             </div>
 
-            {/* Grid Area */}
-            <div
-              className="flex flex-col relative flex-1"
-              style={{
-                width: `${totalBars * beatsPerBar * ((80 * zoom) / 100)}px`,
-                minWidth: '100%',
-              }}
-            >
-              {/* Ruler */}
-              <div className="h-6 border-b border-slate-800 flex relative bg-slate-950/50">
-                {Array.from({
-                  length: totalBars,
-                }).map((_, bar) => (
-                  <div
-                    key={bar}
-                    className="absolute h-full border-l border-slate-700 pl-1 text-[10px] text-slate-500"
-                    style={{
-                      left: `${bar * beatsPerBar * ((80 * zoom) / 100)}px`,
-                    }}
-                  >
-                    {bar + 1}
-                  </div>
-                ))}
-              </div>
-
-              {/* Tracks */}
-              <div className="relative flex-1">
-                {/* Vertical Gridlines */}
-                {Array.from({
-                  length: totalBars * beatsPerBar,
-                }).map((_, beat) => (
-                  <div
-                    key={beat}
-                    className={`absolute top-0 bottom-0 border-l ${beat % beatsPerBar === 0 ? 'border-slate-700/50' : 'border-slate-800/30'}`}
-                    style={{
-                      left: `${beat * ((80 * zoom) / 100)}px`,
-                    }}
-                  />
-                ))}
+            {/* Scrollable Grid */}
+            <div className="flex flex-col relative overflow-x-auto flex-1">
+              {/* Fixed-width grid canvas that grows with content */}
+              <div
+                className="flex flex-col relative"
+                style={{ width: `${Math.max(totalBars * beatsPerBar, 8) * ((80 * zoom) / 100)}px`, minWidth: '100%' }}
+              >
+                {/* Ruler */}
+                <div className="h-6 border-b border-slate-800 relative bg-slate-950/50 flex-shrink-0">
+                  {Array.from({ length: totalBars }).map((_, bar) => (
+                    <div
+                      key={bar}
+                      className="absolute h-full border-l border-slate-700 pl-1 text-[10px] text-slate-500"
+                      style={{ left: `${bar * beatsPerBar * ((80 * zoom) / 100)}px` }}
+                    >
+                      {bar + 1}
+                    </div>
+                  ))}
+                </div>
 
                 {/* Track Lanes */}
-                {Array.from({
-                  length: trackCount,
-                }).map((_, trackIdx) => (
-                  <div
-                    key={trackIdx}
-                    className={`h-16 border-b border-slate-800 relative ${trackIdx % 2 === 0 ? 'bg-zinc-900/20' : 'bg-zinc-950/20'}`}
-                    onDragOver={(e) => e.preventDefault()}
-                    onDrop={(e) => handleDropOnTrack(e, trackIdx)}
-                  >
-                    {/* Clips */}
-                    {clips
-                      .filter((c) => c.trackIdx === trackIdx)
-                      .map((clip) => {
-                        const variation = variations.find(
-                          (v) => v.id === clip.variationId,
-                        )
+                <div className="relative">
+                  {/* Vertical gridlines */}
+                  {Array.from({ length: totalBars * beatsPerBar }).map((_, beat) => (
+                    <div
+                      key={beat}
+                      className={`absolute top-0 bottom-0 border-l ${beat % beatsPerBar === 0 ? 'border-slate-700/50' : 'border-slate-800/30'}`}
+                      style={{ left: `${beat * ((80 * zoom) / 100)}px` }}
+                    />
+                  ))}
+
+                  {Array.from({ length: trackCount }).map((_, trackIdx) => (
+                    <div
+                      key={trackIdx}
+                      className={`h-16 border-b border-slate-800 relative ${trackIdx % 2 === 0 ? 'bg-zinc-900/20' : 'bg-zinc-950/20'}`}
+                      onDragOver={(e) => e.preventDefault()}
+                      onDrop={(e) => handleClipMoveDrop(e, trackIdx)}
+                    >
+                      {clips.filter(c => c.trackIdx === trackIdx).map(clip => {
+                        const variation = variations.find(v => v.id === clip.variationId)
                         const beatPx = 80 * (zoom / 100)
+                        // Build real minimap from variation data
+                        const activeSteps = variation
+                          ? SOUND_BANK.reduce((acc, s) => {
+                              const seq = variation.data[s.id] || []
+                              seq.forEach((st, i) => { if (st?.velocity > 0) acc.add(i % 16) })
+                              return acc
+                            }, new Set<number>())
+                          : new Set<number>()
                         return (
                           <div
                             key={clip.id}
-                            className="absolute top-1 bottom-1 rounded bg-indigo-900/80 border border-indigo-500/50 overflow-hidden group"
-                            style={{
-                              left: `${clip.startBeat * beatPx}px`,
-                              width: `${clip.lengthBeats * beatPx}px`,
+                            draggable
+                            onDragStart={(e) => handleClipMoveStart(e, clip.id)}
+                            onClick={() => {
+                              // Only remove on click, not after a drag-move
+                              if (!clipMoved) setClips(prev => prev.filter(c => c.id !== clip.id))
+                              setClipMoved(false)
                             }}
+                            className="absolute top-1 bottom-1 rounded bg-indigo-900/80 border border-indigo-500/50 overflow-hidden cursor-pointer select-none hover:brightness-125 active:brightness-150"
+                            style={{ left: `${clip.startBeat * beatPx}px`, width: `${clip.lengthBeats * beatPx}px`, zIndex: draggingClipId === clip.id ? 30 : 10 }}
+                            title="Click to remove · Drag to move"
                           >
-                            <div className="px-1 text-[8px] font-bold text-indigo-200 truncate bg-black/20 flex justify-between">
-                              {variation?.name}
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  setClips(
-                                    clips.filter((c) => c.id !== clip.id),
-                                  )
-                                }}
-                                className="text-red-400 hover:text-red-300 opacity-0 group-hover:opacity-100"
-                              >
-                                <X size={10} />
-                              </button>
+                            <div className="px-1 text-[8px] font-bold text-indigo-200 truncate bg-black/20">
+                              {variation?.name ?? '?'}
                             </div>
-                            {/* Mock pattern preview */}
-                            <div className="absolute inset-0 top-4 opacity-30 flex items-center px-1 gap-[1px]">
-                              {Array.from({
-                                length: 16,
-                              }).map((_, i) => (
+                            {/* Real minimap — 16 columns matching step data */}
+                            <div className="absolute inset-0 top-4 opacity-40 flex items-end px-0.5 gap-px">
+                              {Array.from({ length: 16 }).map((_, i) => (
                                 <div
                                   key={i}
-                                  className={`h-1 w-full rounded-sm ${Math.random() > 0.5 ? 'bg-white' : ''}`}
+                                  className={`flex-1 rounded-sm transition-none ${activeSteps.has(i) ? 'bg-white h-2' : 'bg-white/20 h-1'}`}
                                 />
                               ))}
                             </div>
-
-                            {/* Trim handles */}
-                            <div className="absolute left-0 top-0 bottom-0 w-2 cursor-ew-resize hover:bg-white/20" />
-                            <div className="absolute right-0 top-0 bottom-0 w-2 cursor-ew-resize hover:bg-white/20" />
                           </div>
                         )
                       })}
-                  </div>
-                ))}
+                    </div>
+                  ))}
 
-                {/* Playhead */}
-                {isArrangementPlaying && (
-                  <div
-                    className="absolute top-0 bottom-0 w-px bg-white shadow-[0_0_10px_white] z-20 pointer-events-none"
-                    style={{
-                      left: `${uiBeat * ((80 * zoom) / 100)}px`,
-                    }}
-                  />
-                )}
+                  {/* Playhead */}
+                  {isArrangementPlaying && (
+                    <div
+                      className="absolute top-0 bottom-0 w-0.5 bg-white shadow-[0_0_8px_white] z-20 pointer-events-none"
+                      style={{ left: `${uiBeat * ((80 * zoom) / 100)}px` }}
+                    />
+                  )}
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Variation Palette */}
+          {/* Resize handle — drag down to expand track area */}
+          <div
+            className="h-2 bg-slate-800 cursor-ns-resize hover:bg-slate-600 flex items-center justify-center border-t border-slate-700"
+            onMouseDown={handleTimelineResizeMouseDown}
+            title="Drag to resize track area"
+          >
+            <div className="w-8 h-0.5 bg-slate-600 rounded" />
+          </div>
+
+          {/* Variation Palette — drag to timeline, click to load into sequencer */}
           <div className="p-3 bg-slate-950 border-t border-slate-800 flex gap-2 overflow-x-auto">
             <button
               onClick={saveVariation}
@@ -4813,22 +4840,19 @@ export default function AlphaDAW() {
               <div
                 key={v.id}
                 draggable
-                onDragStart={(e) => e.dataTransfer.setData('variationId', v.id)}
+                onDragStart={(e) => { setClipMoved(false); e.dataTransfer.setData('variationId', v.id) }}
                 onClick={() => { if (sceneMode) queueScene(v.id); else loadVariation(v) }}
                 className="flex-shrink-0 w-24 h-12 rounded bg-slate-800 border border-slate-700 p-1 cursor-grab active:cursor-grabbing hover:bg-slate-700 relative group"
+                title="Drag to timeline · Click to load into sequencer"
               >
-                <div className="text-[10px] font-bold text-slate-200 truncate">
-                  {v.name}
-                </div>
-                <div className="text-[8px] text-slate-500">{v.timeSig}</div>
+                <div className="text-[10px] font-bold text-slate-200 truncate">{v.name}</div>
+                <div className="text-[8px] text-slate-500">{v.timeSig} · {v.bpm}bpm</div>
                 {sceneMode && pendingSceneId === v.id && (
                   <div className="absolute inset-0 ring-2 ring-amber-400 rounded animate-pulse pointer-events-none" />
                 )}
                 <button
-                  onClick={() =>
-                    setVariations(variations.filter((x) => x.id !== v.id))
-                  }
-                  className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100"
+                  onClick={(e) => { e.stopPropagation(); setVariations(variations.filter((x) => x.id !== v.id)) }}
+                  className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 z-10"
                 >
                   <X size={10} />
                 </button>
