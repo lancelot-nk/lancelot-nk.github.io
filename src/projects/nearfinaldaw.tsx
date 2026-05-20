@@ -151,7 +151,7 @@ const FX_TYPES = ['Reverb', 'Delay', 'Distortion', 'Filter', 'Flanger', 'Phaser'
 // === FREESOUND API CONFIGURATION ===
 const FREESOUND_API_TOKEN = 'd37DSk0vV5S7Cc2DwOaeiuMizrwneXAYz4FBQjqX'
 const FREESOUND_API_BASE = 'https://freesound.org/apiv2/search/text/'
-const CACHE_NAME = 'sequencer-preset-cache-v3'
+const CACHE_NAME = 'sequencer-preset-cache-v4'
 const MANIFEST_PREFIX = 'preset-meta-v3-'
 
 // ============================================================
@@ -911,19 +911,12 @@ async function loadAndCacheAudio(
     }
     
     const arrayBuffer = await response.arrayBuffer()
-    if (arrayBuffer.byteLength < 1000) return null  // tiny/empty file
+    if (arrayBuffer.byteLength < 200) return null  // empty file only
     const audioBuffer = await ctx.decodeAudioData(arrayBuffer)
-    // Reject only the absolute minimum: < 30ms (impossible for any real sound)
-    if (audioBuffer.duration < 0.03) return null
-    // Sparse peak scan — reject if entirely silent
-    let peak = 0
-    for (let c = 0; c < audioBuffer.numberOfChannels && peak < 0.01; c++) {
-      const d = audioBuffer.getChannelData(c)
-      for (let i = 0; i < d.length; i += 64) {
-        const a = Math.abs(d[i]); if (a > peak) { peak = a; if (peak >= 0.01) break }
-      }
-    }
-    if (peak < 0.005) return null  // silent
+    // Accept any decoded buffer with non-zero duration. Do NOT peak-scan —
+    // legitimate low-bass / soft-hat samples can read below tiny thresholds
+    // and were being wrongly rejected, forcing the noisy synth fallback.
+    if (audioBuffer.duration <= 0) return null
     return audioBuffer
   } catch (err) {
     console.warn(`[v0] Audio load error for ${url}:`, err)
@@ -3292,16 +3285,32 @@ export default function AlphaDAW() {
     if (custom) {
       engine.playSample(custom.key, engine.ctx!.currentTime, 2, pSettings)
     } else {
-      engine.playSynth(
-        sound,
-        engine.ctx!.currentTime,
-        stepDur,
-        2,
-        preset,
-        pSettings,
-        isAmbient,
-        chaosMods?.[sound.id],
-      )
+      // Per-preset CDN sample (matches sequencer logic in scheduleNote)
+      const presetBuf = engine.getFreesoundBuffer(preset, index)
+      if (presetBuf) {
+        const isSnip = (padTimingMode[sound.id] ?? 'timing') === 'snip'
+        engine.playFreesoundSample(
+          presetBuf,
+          sound.id,
+          engine.ctx!.currentTime,
+          2,
+          stepDur,
+          pSettings,
+          sound.stretchable ?? false,
+          isSnip,
+        )
+      } else {
+        engine.playSynth(
+          sound,
+          engine.ctx!.currentTime,
+          stepDur,
+          2,
+          preset,
+          pSettings,
+          isAmbient,
+          chaosMods?.[sound.id],
+        )
+      }
     }
     // Live record: write to current playhead step on the tapped pad
     if (liveRecordRef.current && isPlayingRef.current) {
