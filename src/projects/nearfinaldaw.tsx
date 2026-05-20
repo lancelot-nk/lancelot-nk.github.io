@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState, useRef } from 'react'
 import { catalogSynth } from './dawSoundCatalog'
+import { getPadSampleUrl, synthesizeFill } from './dawSampleLibrary'
 import {
   Play,
   Pause,
@@ -3020,11 +3021,31 @@ export default function AlphaDAW() {
         for (const slot of BLUEPRINT_SLOT_MAP) {
           for (let i = 0; i < slot.padIds.length; i++) {
             const padIdx = slot.padIds[i]
-            try {
-              const buf = await catalogSynth(presetIndex, i, slot.category)
-              samples.set(padIdx, { id: -(presetIndex * 100 + padIdx + 1), name: `${slot.category} ${i + 1}`, previewUrl: '', audioBuffer: buf })
+            let buf: AudioBuffer | null = null
+            let usedUrl = ''
+            // 1) Try real CDN sample first
+            const url = getPadSampleUrl(presetIndex, i, slot.category)
+            if (url && engine.ctx) {
+              try {
+                buf = await loadAndCacheAudio(url, engine.ctx)
+                if (buf) usedUrl = url
+              } catch (e) { /* fall through */ }
+            }
+            // 2) Fills are composed offline from real drum hits
+            if (!buf && slot.category === 'fill' && engine.ctx) {
+              try {
+                buf = await synthesizeFill(presetIndex, i, engine.ctx, (u) => loadAndCacheAudio(u, engine.ctx!))
+              } catch (e) { /* fall through */ }
+            }
+            // 3) Synthesis fallback (last resort)
+            if (!buf) {
+              try { buf = await catalogSynth(presetIndex, i, slot.category) }
+              catch (e) { console.warn('[catalogSynth fallback] pad', padIdx, e) }
+            }
+            if (buf) {
+              samples.set(padIdx, { id: -(presetIndex * 100 + padIdx + 1), name: `${slot.category} ${i + 1}`, previewUrl: usedUrl, audioBuffer: buf })
               buffers.set(padIdx, buf)
-            } catch (e) { console.warn('[catalogSynth] pad', padIdx, e) }
+            }
             loaded++
             setFreesoundProgress({ loaded, total: 32 })
           }
