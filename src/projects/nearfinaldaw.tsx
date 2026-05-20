@@ -919,12 +919,20 @@ async function loadAndCacheAudio(
     
     const arrayBuffer = await response.arrayBuffer()
     if (arrayBuffer.byteLength < 200) return null  // empty file only
-    const audioBuffer = await ctx.decodeAudioData(arrayBuffer)
-    // Accept any decoded buffer with non-zero duration. Do NOT peak-scan —
-    // legitimate low-bass / soft-hat samples can read below tiny thresholds
-    // and were being wrongly rejected, forcing the noisy synth fallback.
-    if (audioBuffer.duration <= 0) return null
-    return audioBuffer
+    const decoded = await ctx.decodeAudioData(arrayBuffer)
+    if (decoded.duration <= 0) return null
+    // Hard cap at 6 seconds — prevents long pad/string samples from monopolising
+    // playback threads or producing extremely long preview sounds.
+    const MAX_SECS = 6
+    if (decoded.duration > MAX_SECS) {
+      const maxSamples = Math.floor(MAX_SECS * decoded.sampleRate)
+      const trimmed = ctx.createBuffer(decoded.numberOfChannels, maxSamples, decoded.sampleRate)
+      for (let ch = 0; ch < decoded.numberOfChannels; ch++) {
+        trimmed.getChannelData(ch).set(decoded.getChannelData(ch).subarray(0, maxSamples))
+      }
+      return trimmed
+    }
+    return decoded
   } catch (err) {
     console.warn(`[v0] Audio load error for ${url}:`, err)
     return null
@@ -944,7 +952,7 @@ async function refineAudioBuffer(
   void _category; void _isLightTouch
   const sr = input.sampleRate
   const channels = input.numberOfChannels
-  const MAX_DUR_SAMPLES = Math.floor(4.0 * sr)
+  const MAX_DUR_SAMPLES = Math.floor(6.0 * sr)
 
   // Peak check on input — if entirely silent reject (caller will use synth fallback)
   let inputPeak = 0
